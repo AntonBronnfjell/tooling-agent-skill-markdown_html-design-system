@@ -101,7 +101,7 @@ def copy_tree(dst, portable):
     shutil.copytree(SRC, dst, ignore=ignore)
     if portable:
         p = dst / "SKILL.md"
-        p.write_text(strip_frontmatter(p.read_text(encoding="utf-8")))
+        p.write_text(strip_frontmatter(p.read_text(encoding="utf-8")), encoding="utf-8")
     (dst / MARKER).write_text(json.dumps({"source": str(SRC), "portable": portable}) + "\n", encoding="utf-8")
 
 
