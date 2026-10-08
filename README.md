@@ -1,10 +1,30 @@
+<div align="center">
+
 # html-design-system
 
-An agent skill that turns an AI coding assistant into a design-system team. It first decides **which** design system your product needs, then builds a **complete** one: every token, every component, every state. It also writes the documentation, a Storybook, a `DESIGN.md` contract, an npm package and a CI pipeline. Scripts and hooks check the work, so nothing is quietly skipped.
+**An agent skill that turns your AI coding assistant into a design-system team.**
 
-The output is plain HTML, CSS and design tokens, so it works in any stack: React, Vue, Svelte or Angular, server templates in PHP, Python, Ruby, Java, .NET or Elixir, or static sites. Each stack gets its own way to view the components (see [Use it with your stack](#use-it-with-your-stack)).
+Decides *which* design system your product needs, then builds a *complete* one: tokens, 136 components, every state, docs, Storybook, `DESIGN.md`, npm package and CI.
 
-It works with Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf/Devin, Cline, Kiro, Roo Code, OpenCode, Amp, Goose, Junie and Continue (see [Install](#install-any-agent)).
+[![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
+[![Components](https://img.shields.io/badge/components-136-2563eb)](#component-coverage-136)
+[![WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG_2.2_AA-15803d)](references/component-contract.md)
+[![Design tokens](https://img.shields.io/badge/tokens-DTCG-0891b2)](references/tokens.md)
+[![Storybook 10](https://img.shields.io/badge/Storybook-10-ff4785?logo=storybook&logoColor=white)](references/storybook.md)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-3776ab?logo=python&logoColor=white)](scripts/ds.py)
+[![Last commit](https://img.shields.io/github/last-commit/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/commits/main)
+
+[Quick start](#quick-start) · [How it works](#what-it-does-step-by-step) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
+
+</div>
+
+<table>
+<tr><td><b>Agents</b></td><td>Claude Code · Codex · Cursor · GitHub Copilot · Gemini CLI · Windsurf/Devin · Cline · Kiro · Roo Code · OpenCode · Amp · Goose · Junie · Continue</td></tr>
+<tr><td><b>Stacks</b></td><td>Static HTML · React · Vue · Svelte · Angular · Web Components · Laravel · Symfony · Django · Flask/FastAPI · Rails · Spring · ASP.NET/Blazor · Phoenix · Go · Rust/WASM</td></tr>
+</table>
+
+> [!NOTE]
+> The output is plain HTML, CSS and design tokens, so it works in any stack. Only the way components reach your app, and how you view them in isolation, changes per stack. See [Use it with your stack](#use-it-with-your-stack).
 
 ## Why it exists
 
@@ -16,6 +36,9 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 | **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **136 components**, each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
 
 ## Quick start
+
+> [!TIP]
+> No clone needed. The installer detects which agents you have and puts the skill where each one looks for it.
 
 ```bash
 # 1. Install into every agent on this machine
@@ -30,6 +53,17 @@ python3 ~/.agents/skills/html-design-system/scripts/ds.py storybook ./design-sys
 ```
 
 ## What it does, step by step
+
+```mermaid
+flowchart LR
+    A["🔍 Discover<br/>audit · graphify · Figma"] --> B["🧭 Decide<br/>extend · adopt · new"]
+    B --> C["🎨 Tokens<br/>DTCG · themes · contrast"]
+    C --> D["🗺️ Plan<br/>build queue · approval"]
+    D --> E["🧱 Build<br/>136 components · subagents"]
+    E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
+    F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
+    F -. "gaps found" .-> E
+```
 
 1. **Discover.** It finds what already exists: CSS variables, Tailwind config, duplicate modals, Figma variables. `ds.py audit` counts distinct colors, spacings, fonts and radii, so "we have a system" and "we have 212 different grays" are easy to tell apart.
 2. **Decide.** It picks extend, adopt or new (hybrids allowed), the tier (core, standard or enterprise), the motion personality, the fonts, and which surfaces each look is allowed on. Every choice is written to `ds.config.json` as a short decision record.
@@ -70,7 +104,8 @@ design-system/
 | Feedback | 10 | inline/global alerts, callout, toast, progress, meter, spinner, skeleton, notification center |
 | Patterns | 12 | app shell, form layout, dashboard, empty state, error pages, auth, settings, list/detail, detail page, wizard, onboarding, feed |
 
-Tiers: **core** has 65 components (what every product needs), **standard** adds 44 for a typical product suite, and **enterprise** adds the last 27. Ask for "complete" and you get enterprise.
+> [!TIP]
+> **Tiers:** **core** has 65 components (what every product needs), **standard** adds 44 for a typical product suite, and **enterprise** adds the last 27. Ask for "complete" and you get enterprise.
 
 ### What "done" means for each component
 
@@ -110,7 +145,23 @@ The system itself is stack-neutral: `dist/ds.css`, tokens, and HTML markup conve
 | Phoenix, Go templates | Function components / templates | `--renderer server` |
 | Rust (Leptos, Yew, Dioxus) | WASM exposed as custom elements | Web Components Storybook |
 
-**How server mode works.** `ds.py storybook --renderer server` builds a Storybook in which every story asks a backend for its HTML (`GET <url>/<components|patterns>/<file>/<n>?variant=…&state=…`). Out of the box, `ds.py serve` answers those requests with the reference markup from the component pages, so you can use it immediately. Then you point `STORYBOOK_SERVER_URL` at your app's dev-only route, and your real templates render in the same Storybook. The theme, density, direction and motion toggles and the accessibility checks still work. The reference HTML is the contract your templates must match. Route sketches for each framework are in `references/storybook.md` §4.
+<details>
+<summary><b>How server mode works</b> (Storybook for backend templates)</summary>
+
+<br/>
+
+`ds.py storybook --renderer server` builds a Storybook in which every story asks a backend for its HTML (`GET <url>/<components|patterns>/<file>/<n>?variant=…&state=…`). Out of the box, `ds.py serve` answers those requests with the reference markup from the component pages, so you can use it immediately. Then you point `STORYBOOK_SERVER_URL` at your app's dev-only route, and your real templates render in the same Storybook. The theme, density, direction and motion toggles and the accessibility checks still work. The reference HTML is the contract your templates must match. Route sketches for each framework are in `references/storybook.md` §4.
+
+```mermaid
+sequenceDiagram
+    participant SB as Storybook
+    participant BE as Backend dev route
+    SB->>BE: GET /components/button/0?variant=primary&state=default
+    BE-->>SB: HTML fragment, no layout and no CSS
+    Note over SB: ds.css from preview-head, toolbar sets theme/density/dir/motion, axe audits the result
+```
+
+</details>
 
 ## Using it
 
@@ -154,7 +205,8 @@ curl -fsSL https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill
 irm https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/main/install.ps1 | iex
 ```
 
-### Where it goes
+<details>
+<summary><b>Where it goes</b> (per-agent install paths)</summary>
 
 | Agent | User-level location | Project-level | Notes |
 |---|---|---|---|
@@ -166,18 +218,33 @@ irm https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdo
 
 Agents that read `~/.agents/skills` don't get a second copy in their own folder by default, which would list the skill twice. You can force one with `--tools cursor,copilot,gemini,windsurf,devin,opencode,junie,codex`.
 
+</details>
+
 ### Hooks
+
+> [!IMPORTANT]
+> **Gating.** both hooks stay silent outside a design system (no `ds.config.json`). The Stop gate only acts during the `build` phase. Soften it with `"gate": "warn"` or `"off"` in `ds.config.json`.
 
 - **Claude Code:** the hooks are declared in SKILL.md and run only while the skill is active.
 - **Always-on hooks:** `--claude-hooks` adds them to `~/.claude/settings.json`, or to the project's settings with `--project`. Don't combine it with the skill-scoped hooks unless you're fine with each check running twice while the skill is active.
-- **Gating:** both hooks stay silent outside a design system (no `ds.config.json`). The Stop gate only acts during the `build` phase. Soften it with `"gate": "warn"` or `"off"` in `ds.config.json`.
 - **Other agents:** their hook formats differ and aren't installed. SKILL.md tells those agents to run `ds.py check` after each file and `ds.py coverage` before ending a turn. `hooks/settings.example.json` is a manual Claude snippet.
 
 ## Companion skills
 
-When installed, it uses `/graphify` (existing-code discovery, final component↔token map), `/ui-ux-pro-max` (style, palette, fonts, UX rules), `/plan` (approval before building), `/ponytail` (native-first, minimal implementation), `/ui-styling` (Tailwind / shadcn adapters). All optional with documented fallbacks — see `references/companion-skills.md`.
+When these skills are installed, it uses them. All are optional, with fallbacks documented in [`references/companion-skills.md`](references/companion-skills.md).
+
+| Skill | Used for |
+|---|---|
+| `/graphify` | Discovering existing code; the final component ↔ token map |
+| `/ui-ux-pro-max` | Style, palette, font pairing, UX rules |
+| `/plan` | Approval before building 100+ files |
+| `/ponytail` | Native-first, minimal implementation |
+| `/ui-styling` | Tailwind and shadcn adapters |
 
 ## CLI reference (`scripts/ds.py`, Python 3.8+, no dependencies)
+
+<details>
+<summary>Show all commands</summary>
 
 ```bash
 DS="python3 scripts/ds.py"
@@ -196,7 +263,12 @@ $DS ci ./design-system --provider github # pipeline + vendored tools
 $DS status                               # one-line state of the nearest design system
 ```
 
+</details>
+
 ## Repository layout
+
+<details>
+<summary>Show the repository tree</summary>
 
 ```
 ./  (repo root = skill root)
@@ -214,10 +286,15 @@ $DS status                               # one-line state of the nearest design 
 └── install.py / .sh / .ps1      cross-agent installer
 ```
 
+</details>
+
 ## Known limits
 
-- Framework Storybooks (React, Vue and others) are documented with conventions and examples, but not generated. Only the HTML system's Storybook is generated, in client or server mode.
-- The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
-- Playwright + axe tests are provided as a template (`references/testing.md`), not as a command.
-- The generated CI files are valid YAML templates but haven't been run on GitHub or GitLab.
-- Hooks are installed for Claude Code only. Other agents run `ds.py check` and `ds.py coverage` manually, as `SKILL.md` instructs.
+> [!WARNING]
+> - Framework Storybooks (React, Vue and others) are documented with conventions and examples, but not generated. Only the HTML system's Storybook is generated, in client or server mode.
+> - The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
+> - Playwright + axe tests are provided as a template (`references/testing.md`), not as a command.
+> - The generated CI files are valid YAML templates but haven't been run on GitHub or GitLab.
+> - Hooks are installed for Claude Code only. Other agents run `ds.py check` and `ds.py coverage` manually, as `SKILL.md` instructs.
+
+<div align="right"><a href="#html-design-system">↑ Back to top</a></div>
