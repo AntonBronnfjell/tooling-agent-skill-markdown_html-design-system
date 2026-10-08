@@ -1,6 +1,6 @@
 # Golden design system
 
-> Token-driven, accessible HTML/CSS design system. 0/67 components ready. Use semantic CSS custom properties and the documented markup; never invent styles.
+> Token-driven, accessible HTML/CSS design system. 0/68 components ready. Use semantic CSS custom properties and the documented markup; never invent styles.
 
 ## Contract
 
@@ -10,4 +10,4 @@
 
 ## Not built yet
 
-box, stack, grid, container, icon, headings, body-text, code, list, divider, visually-hidden, button-primary, button-secondary, button-tertiary, button-destructive, button-with-icon, icon-button, link, menu-button, close-button, theme-toggle, label, form-field, fieldset, text-field, textarea, password-input, search-input, checkbox, checkbox-group, radio, radio-group, switch, select, date-field, top-nav, side-nav, breadcrumbs, tabs, pagination, skip-link, page-header, table, card, accordion, disclosure, avatar, badge, tag, list-group, description-list, stat, modal, alert-dialog, popover, tooltip, alert, toast, progress-bar, spinner, inline-spinner, skeleton, result-panel, app-shell, form-layout, empty-state, error-page
+box, stack, grid, container, icon, headings, body-text, code, list, divider, visually-hidden, button-primary, button-secondary, button-tertiary, button-destructive, button-with-icon, icon-button, link, menu-button, close-button, theme-toggle, label, form-field, fieldset, text-field, textarea, password-input, search-input, checkbox, checkbox-group, radio, radio-group, switch, select, date-field, error-summary, top-nav, side-nav, breadcrumbs, tabs, pagination, skip-link, page-header, table, card, accordion, disclosure, avatar, badge, tag, list-group, description-list, stat, modal, alert-dialog, popover, tooltip, alert, toast, progress-bar, spinner, inline-spinner, skeleton, result-panel, app-shell, form-layout, empty-state, error-page

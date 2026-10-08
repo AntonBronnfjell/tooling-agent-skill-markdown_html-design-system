@@ -305,11 +305,11 @@ Reduced motion: `prefers-reduced-motion` or `[data-reduced-motion]` on `<html>` 
 
 ## Components
 
-0/67 ready (tier core, scopes: product). Each has a docs page with every variant and state, an accessibility section and its tokens.
+0/68 ready (tier core, scopes: product). Each has a docs page with every variant and state, an accessibility section and its tokens.
 
 - **Foundations & Primitives:** Box (missing), Stack (vertical & horizontal) (missing), Grid (container, row, column) (missing), Container / Page width (missing), Icon Wrapper (missing), Typography: Headings H1–H6 (missing), Typography: Body text (missing), Typography: Code (missing), Lists (ordered, unordered, unstyled) (missing), Divider / Separator (missing), Visually Hidden / SR only (missing)
 - **Actions & CTAs:** Primary Button (missing), Secondary Button (missing), Tertiary / Ghost Button (missing), Destructive Button (missing), Button with leading/trailing icon (missing), IconButton (missing), Link / Anchor (missing), Menu Button / Dropdown Menu (missing), Close Button (missing), Theme Toggle (missing)
-- **Form Controls & Inputs:** Label (missing), Form Field Wrapper (missing), Fieldset / Legend (missing), Text Field (missing), Textarea (missing), Password Input (missing), Search Input (missing), Checkbox (missing), Checkbox Group (missing), Radio (missing), Radio Group (missing), Switch / Toggle (missing), Select (missing), Date field (memorable date, segmented) (missing)
+- **Form Controls & Inputs:** Label (missing), Form Field Wrapper (missing), Fieldset / Legend (missing), Text Field (missing), Textarea (missing), Password Input (missing), Search Input (missing), Checkbox (missing), Checkbox Group (missing), Radio (missing), Radio Group (missing), Switch / Toggle (missing), Select (missing), Date field (memorable date, segmented) (missing), Error Summary (missing)
 - **Navigation & Orientation:** Global Navigation Bar (missing), Sidebar Navigation (missing), Breadcrumbs (missing), Tabs (missing), Pagination (missing), Skip Link (missing), Page Header (missing)
 - **Data Display & Content:** Table (basic) (missing), Card (missing), Accordion (missing), Disclosure / Collapsible (missing), Avatar (missing), Badge (missing), Tag / Chip (missing), List Group (missing), Description List (missing), Metric / Statistic (missing)
 - **Overlays & Transient:** Modal Dialog (missing), Alert / Confirm Dialog (missing), Popover (missing), Tooltip (missing)
