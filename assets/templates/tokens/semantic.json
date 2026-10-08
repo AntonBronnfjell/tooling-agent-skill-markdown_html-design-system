@@ -194,6 +194,34 @@
           "$value": "{color.red.600}"
         }
       }
+    },
+    "elevation": {
+      "$description": "Elevation = surface + shadow pair (Atlassian). Dark themes get lighter surfaces per level.",
+      "surface": {
+        "sunken": {
+          "$value": "{color.gray.50}"
+        },
+        "default": {
+          "$value": "{color.bg.surface}"
+        },
+        "raised": {
+          "$value": "{color.gray.0}"
+        },
+        "overlay": {
+          "$value": "{color.gray.0}"
+        }
+      }
+    },
+    "highlight": {
+      "bg": {
+        "$value": "{color.amber.100}"
+      },
+      "fg": {
+        "$value": "{color.gray.900}"
+      },
+      "current": {
+        "$value": "{color.amber.400}"
+      }
     }
   },
   "typography": {
@@ -405,6 +433,14 @@
       "cell-padding-y": {
         "$value": "{space.1-5}"
       }
+    },
+    "spacious": {
+      "control-padding-x": {
+        "$value": "{space.5}"
+      },
+      "cell-padding-y": {
+        "$value": "{space.4}"
+      }
     }
   },
   "icon": {
@@ -575,6 +611,42 @@
     },
     "max-inline": {
       "$value": "{size.container.xl}"
+    }
+  },
+  "elevation": {
+    "$type": "shadow",
+    "$description": "Shadow half of each elevation level.",
+    "raised": {
+      "$value": "{shadow.md}"
+    },
+    "overlay": {
+      "$value": "{shadow.xl}"
+    }
+  },
+  "opacity": {
+    "$type": "number",
+    "$description": "State layers (Material 3): translucent overlay of the content color.",
+    "state": {
+      "hover": {
+        "$value": 0.08
+      },
+      "focus": {
+        "$value": 0.1
+      },
+      "pressed": {
+        "$value": 0.1
+      },
+      "dragged": {
+        "$value": 0.16
+      }
+    },
+    "disabled": {
+      "container": {
+        "$value": 0.12
+      },
+      "content": {
+        "$value": 0.38
+      }
     }
   }
 }

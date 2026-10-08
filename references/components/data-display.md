@@ -60,3 +60,64 @@ Files: `table`, `data-table` (data-table, tree-table), `card`, `accordion` (acco
 
 ## stat (addition)
 - Optional count-up on first reveal: animate only under full motion, render the final value in the DOM from the start (screen readers and no-JS see the real number), never re-run on re-render.
+
+Files added: `card-collection`, `sortable-list`, `board`, `formatters`, `comment-thread`, `qr-code`, `chart-parts`.
+
+## card-collection (grid list)
+- Static: `<ul role="list">` of `<li>` → card. Nothing new beyond card + grid.
+- Selectable: each card has a real checkbox (multi) or radio (single) labelled by the card title; `:has(:checked)` styles selected. This keeps native semantics and needs no ARIA grid.
+- Only if arrow-key navigation between cards is required (large galleries, file managers): APG grid/listbox with roving tabindex, Space toggles, Ctrl/Cmd+A selects all, Shift+arrows extend; announce selection count. Don't combine with in-card buttons unless you implement grid cell navigation.
+- Pairs with `selection-action-bar`. Empty and loading (skeleton cards matching geometry) states.
+
+## sortable-list (enterprise)
+- Every drag interaction has a non-drag alternative (WCAG 2.5.7): per-item "Move up"/"Move down" buttons or a "Move…" menu (to top, to position N), **and/or** keyboard grab mode on the handle: Space/Enter picks up (`state:grabbed`, announced "Picked up Item 3, position 3 of 8"), ↑/↓ move, Space drops, Esc cancels (restores position).
+- Handle: `<button aria-label="Reorder Item 3" aria-describedby="<instructions id>">`; instructions visually hidden. All announcements via the shared polite live region ("Item 3 moved to position 2 of 8").
+- `aria-grabbed`/`aria-dropeffect` are deprecated — don't use. Pointer: Pointer Events (not HTML5 DnD — no touch, poor a11y), auto-scroll near edges, placeholder with the item's height, drop indicator line ≥ 3:1.
+- Focus stays on the moved item's handle after a move. Respect reduced motion (no settle animation).
+
+## board (kanban, enterprise)
+- Columns are `<section aria-labelledby>` with an `<h2>` ("In progress, 4 items") and a `<ul>` of cards. Cards are cards (one primary link), plus a "Move to…" menu (column + position) — the required non-drag path. Optional keyboard grab mode as in sortable-list, with ←/→ changing column.
+- WIP limit: count/limit in header text ("4 of 5"), over-limit state uses warning tone + text. Empty column shows an empty state and stays a drop target. Horizontal scroll region is focusable (`role="region" tabindex="0"`).
+- Announce moves ("Moved 'Fix login' to Done, position 1 of 3"). Persist optimistically and roll back with an error toast on failure.
+
+## formatters (relative-time, number-format)
+- Pure presentation helpers in `js/formatters.js` (no DOM state): `formatRelative(date, {now, locale})` via `Intl.RelativeTimeFormat` with `numeric:"auto"` ("yesterday"), `formatNumber`, `formatCurrency` (`style:"currency"`, ISO code required), `formatPercent`, `formatCompact` (`notation:"compact"`), `formatBytes` (`style:"unit"` with `byte`/`kilobyte`/…; decide 1000 vs 1024 and label kB vs KiB — ADR), `formatRange` (`formatRange`).
+- Markup: `<time datetime="2026-10-08T09:30Z" title="8 October 2026, 09:30 UTC">3 hours ago</time>`; numbers in `<data value="1234.5">1,234.50</data>`. The machine value is always in the DOM; server renders an absolute fallback so no-JS is correct.
+- Auto-update relative times on a single shared interval (≥ 60s, paused when the tab is hidden); **never** wrap them in a live region. Absolute time on hover **and** focus or via an always-available detail view (title alone isn't keyboard/touch accessible).
+- `tabular-nums` in tables; currency symbol position, decimal separators, and negative formats come from the locale, never hand-built strings. Compact numbers ("1.2K") need the full value accessible (title + `aria-label` or adjacent sr text).
+
+## comment-thread
+- `<ol>` of comments, each `<article aria-labelledby>` with author (avatar + name), `<time>` (relative-time), body (`.prose`), actions (Reply, Edit, Delete, Resolve, reactions as `aria-pressed` toggle buttons with counts in their names). Replies are a nested `<ol>`; cap visual nesting at 2 levels, flatten deeper with "Replying to @name".
+- Composer per composer spec; reply opens an inline composer and moves focus into it; Esc/cancel returns focus to the Reply button. Editing replaces the body with a textarea in place (inline-edit rules).
+- Resolved thread collapses to a summary disclosure ("Resolved by Ana · 3 replies"). Deleted comment leaves a tombstone ("Comment deleted") to keep reply context. Mentions are links; new comments from others don't steal focus — show a "2 new comments" button (feed rule).
+
+## qr-code
+- Generate SVG (one `<path>`, `shape-rendering="crispEdges"`) server-side or with a small library; `role="img"` + `aria-label="QR code for example.com/pair"` and **always** show the URL/code as text and a copy/link fallback beside it (`variant:with-fallback-link`).
+- Contrast: dark modules on light background in every theme (don't invert in dark mode — many scanners fail on inverted codes); quiet zone ≥ 4 modules; minimum rendered size ~2cm / 128px. Logo overlay only with error correction level H, ≤ ~20% area.
+- Pitfalls: QR as the only way to continue (desktop users on the same device can't scan it).
+
+## chart-parts (chart-legend, chart-tooltip, chart-axis, sparkline)
+Dataviz rules (apply to `chart` and every part):
+- **Categorical order is fixed:** series map to `dataviz.categorical.1…8` in data order, and the same entity keeps the same color across every chart on a page. Max 8; beyond that group as "Other" (neutral). Don't use feedback colors for ordinary series; reserve red/green for meaning.
+- **Graphical contrast ≥ 3:1** (WCAG 1.4.11) for marks, lines and the legend swatch against the chart background — add each `dataviz.*` vs `bg.surface` to `contrast_pairs` in every theme. Adjacent fills that touch need a 1–2px `bg.surface` separator stroke.
+- **Never color-only:** pair color with a second channel — direct labels, marker shapes, dash patterns, or pattern fills (`<pattern>` defs) for categorical fills; the legend shows the same shape/dash.
+- **Table fallback always:** each chart has the underlying data as a `<table>` (in a `<details>` "Show data table" or a toggle) — the accessible source of truth. The SVG gets `role="img"` + `aria-label` with the takeaway ("Revenue grew 12% from Q1 to Q4") and `aria-describedby` to a longer summary.
+- Sequential palettes for ordered magnitude, diverging only with a meaningful midpoint (zero, target). Forced-colors: lines use `CanvasText`, fills fall back to patterns.
+
+### chart-legend
+- `<ul>` with swatch (shape matching the mark) + label in data order; place above or beside the chart (not below long charts). Prefer **direct labels** at line ends when ≤ 5 series (`variant:direct-labels`) and drop the legend.
+- Interactive legend: each item a `<button aria-pressed="true">` "Show Revenue"; hidden series keep their color slot (no reassignment), state shown with a struck/hollow swatch + text, and at least one series must stay visible.
+
+### chart-tooltip
+- Appears on pointer hover **and** keyboard focus of a data point (points focusable via a roving-focus group or arrow keys across the x-axis), Esc dismisses (WCAG 1.4.13), hoverable, doesn't cover the pointed mark (anchor-positioned with flip). Content: x value, series swatch + name + formatted value (formatters), sorted to match visual stack order.
+- Not announced as a live region on pointer moves; keyboard focus on a point exposes the same text via the point's accessible name. Never the only path to values — the table fallback is.
+
+### chart-axis (axis & gridlines)
+- Axis labels and tick labels use `text.muted` (≥ 4.5:1), axis lines `border.strong`, gridlines `border.subtle` (decorative, may be < 3:1 — they're not required to identify data). Zero baseline emphasized (`border.strong`). Tick labels formatted with `formatters` (compact numbers, dates by locale), ≤ ~7 ticks, no rotated labels (wrap or abbreviate instead). Axis titles include units.
+- Bar charts start at zero; truncated axes must be marked. SVG text uses `font-variant-numeric: tabular-nums`. The axis group is `aria-hidden="true"` — values reach AT through the table fallback.
+
+### sparkline
+- Word-sized (`1em`–`2em` tall) inline SVG, no axes; optional end-point dot and min/max markers. Standalone: `role="img" aria-label="Trend: up 8% over 30 days"`; inside `stat` it stays `aria-hidden` (stat already has the text). In tables, one sparkline per row in its own column with the summary as sr text. Stroke ≥ 1.5px and ≥ 3:1.
+
+## status-indicator (extension — no new item)
+- Severity scale: add `variant:severity-critical|high|medium|low|info` demos to `status-indicator`: shape icon (octagon/triangle/circle/info) + text label + tone; order and naming fixed system-wide; tones map to `feedback.*`, critical vs high differ by icon and label, not just shade.

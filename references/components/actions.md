@@ -51,3 +51,18 @@ Files: `button`, `icon-button`, `link`, `button-group`, `toggle-button`, `segmen
 ## theme-toggle
 - Ships with `js/theme.js` (`initTheme`, `setTheme`, `getTheme`, `onThemeChange`, `init` for `[data-theme-cycle]`). Two forms: a cycling `<button>` labelled "Theme: dark" (name updates with the state), or a radio group (System / Light / Dark) in settings. "System" is the default and follows `prefers-color-scheme`.
 - The page `<head>` carries the no-flash inline snippet from `theme.js` so the first paint already uses the saved theme. Storage access is wrapped in try/catch (private mode), and tabs stay in sync via the `storage` event.
+
+Files added: `selection-action-bar`, `overflow-menu`.
+
+## selection-action-bar
+- Appears when ≥ 1 item is selected in a table/list/card collection; replaces or overlays the toolbar. Anatomy: count ("3 selected" in an `<output>`/`role="status"`), "Select all 248" (select-all-matching escape hatch for paged data), bulk actions (buttons; destructive last + confirm), overflow menu, "Clear selection" button.
+- `role="toolbar"` + `aria-label="Bulk actions"` with roving focus (see toolbar). Count changes announced politely and debounced (not per checkbox in a shift-range).
+- Placement: sticky top of the collection or floating bottom (`variant:sticky-bottom`, safe-area insets, page gets bottom padding — WCAG 2.4.11 focus not obscured).
+- Don't move focus when it appears. On "Clear selection", return focus to the collection.
+- Pitfalls: disabled actions should explain why (`aria-disabled` + toggletip); actions that only apply to some selected items say so ("Archive 2 of 3 — 1 is locked").
+
+## overflow-menu (kebab, Priority+)
+- Kebab: icon button `aria-label="More actions for <item>"` (always include the item context in lists), `aria-haspopup="menu" aria-expanded` → menu per the menu spec. Prefer three vertical dots for row actions, horizontal for toolbars; pick one and ADR it.
+- Priority+ (toolbars, tabs, nav): items render inline in priority order; a `ResizeObserver` on the container moves trailing items into a "More" menu when they don't fit. Overflowed items keep their accessible name and state (pressed/current). Never overflow the primary action.
+- CSS-first option: for nav, horizontal scroll with scroll-snap + fade masks needs no JS; use Priority+ only when hidden items must stay discoverable.
+- Pitfalls: oscillation at threshold widths (hysteresis: measure with the "More" button included); focus loss when the focused item moves into the menu (move focus to "More"); hidden items still in tab order (`hidden` them inline).

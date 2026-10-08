@@ -249,6 +249,20 @@
      "desc": "Styles arbitrary CMS/markdown HTML with readable measure."
     },
     {
+     "id": "highlight",
+     "name": "Highlight / Mark",
+     "tier": "standard",
+     "file": "typography",
+     "demos": [
+      "variant:mark",
+      "variant:search-hit",
+      "variant:css-highlight-api"
+     ],
+     "aria": null,
+     "native": "mark / ::highlight()",
+     "desc": "Marks relevant or matched text with a token-driven tint plus a non-color cue."
+    },
+    {
      "id": "divider",
      "name": "Divider / Separator",
      "tier": "core",
@@ -302,6 +316,23 @@
      "aria": null,
      "native": "overflow + tabindex",
      "desc": "Styled, keyboard-focusable overflow region."
+    },
+    {
+     "id": "splitter",
+     "name": "Splitter / Resizable panels",
+     "tier": "standard",
+     "file": "splitter",
+     "demos": [
+      "variant:horizontal",
+      "variant:vertical",
+      "state:focus-visible",
+      "state:min",
+      "state:max",
+      "state:collapsed"
+     ],
+     "aria": "window splitter",
+     "native": "div[role=separator][tabindex=0] + grid",
+     "desc": "Keyboard-resizable divider between two panes; value persisted."
     }
    ],
    "scope": "product"
@@ -567,6 +598,37 @@
      "aria": "toolbar",
      "native": "div[role=toolbar]",
      "desc": "Grouped controls with roving tabindex."
+    },
+    {
+     "id": "selection-action-bar",
+     "name": "Selection action bar",
+     "tier": "standard",
+     "file": "selection-action-bar",
+     "demos": [
+      "state:hidden",
+      "state:visible",
+      "variant:with-overflow",
+      "variant:sticky-bottom",
+      "variant:select-all-matching"
+     ],
+     "aria": "toolbar + status",
+     "native": "div[role=toolbar] + output",
+     "desc": "Contextual bar showing 'N selected' and bulk actions while a selection exists."
+    },
+    {
+     "id": "overflow-menu",
+     "name": "Overflow menu / Priority+",
+     "tier": "standard",
+     "file": "overflow-menu",
+     "demos": [
+      "variant:kebab",
+      "state:open",
+      "variant:priority-plus",
+      "variant:toolbar-collapse"
+     ],
+     "aria": "menu-button + menu",
+     "native": "button[aria-haspopup=menu] + [popover]",
+     "desc": "'More' menu for actions that don't fit; Priority+ moves items into it as space shrinks."
     }
    ],
    "scope": "product"
@@ -652,6 +714,23 @@
      "aria": null,
      "native": "div + input",
      "desc": "Input with attached text/buttons."
+    },
+    {
+     "id": "input-mask",
+     "name": "Input mask / Formatted input",
+     "tier": "standard",
+     "file": "input-mask",
+     "demos": [
+      "variant:phone",
+      "variant:card-number",
+      "variant:sort-code",
+      "variant:postcode",
+      "state:invalid",
+      "state:paste"
+     ],
+     "aria": null,
+     "native": "input[inputmode][autocomplete] + format on blur",
+     "desc": "Formats as-you-type or on blur without blocking paste, caret position or screen readers."
     },
     {
      "id": "textarea",
@@ -783,6 +862,26 @@
      "desc": "Mutually exclusive options."
     },
     {
+     "id": "choice-card",
+     "name": "Choice card (radio / checkbox tiles)",
+     "tier": "standard",
+     "file": "choice-card",
+     "demos": [
+      "variant:radio",
+      "variant:checkbox",
+      "state:checked",
+      "state:hover",
+      "state:focus-visible",
+      "state:disabled",
+      "state:invalid",
+      "variant:with-description",
+      "variant:with-media"
+     ],
+     "aria": "radio group / checkbox group",
+     "native": "fieldset + label > input[type=radio|checkbox]",
+     "desc": "Large selectable tiles with title, description and optional media; real inputs underneath."
+    },
+    {
      "id": "switch",
      "name": "Switch / Toggle",
      "tier": "core",
@@ -862,6 +961,24 @@
      "desc": "Move items between sets."
     },
     {
+     "id": "tree-select",
+     "name": "Tree select",
+     "tier": "enterprise",
+     "file": "tree-select",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "state:filtered",
+      "variant:single",
+      "variant:multi",
+      "state:indeterminate-parent",
+      "state:no-results"
+     ],
+     "aria": "combobox + tree",
+     "native": "button/input + [popover] + ul[role=tree]",
+     "desc": "Select one or many nodes from a hierarchy inside a dropdown, with search and tri-state parents."
+    },
+    {
      "id": "file-upload",
      "name": "File Uploader / Dropzone",
      "tier": "standard",
@@ -939,6 +1056,25 @@
      "desc": "Hour/minute selection."
     },
     {
+     "id": "date-field",
+     "name": "Date field (memorable date, segmented)",
+     "tier": "core",
+     "file": "date-field",
+     "demos": [
+      "state:default",
+      "state:focus-visible",
+      "state:invalid",
+      "state:partial-invalid",
+      "state:disabled",
+      "variant:day-month-year",
+      "variant:month-year",
+      "variant:locale-order"
+     ],
+     "aria": "group",
+     "native": "fieldset + legend + 3 input[inputmode=numeric]",
+     "desc": "Day / month / year text inputs for known dates (birth, issue dates) \u2014 no calendar."
+    },
+    {
      "id": "date-range-picker",
      "name": "Date-Time Range Picker",
      "tier": "enterprise",
@@ -997,6 +1133,23 @@
      "desc": "Converts entries into removable chips."
     },
     {
+     "id": "attribute-editor",
+     "name": "Attribute editor (repeatable rows)",
+     "tier": "enterprise",
+     "file": "attribute-editor",
+     "demos": [
+      "state:empty",
+      "state:with-rows",
+      "state:invalid-row",
+      "state:row-added",
+      "state:row-removed",
+      "variant:limit-reached"
+     ],
+     "aria": "group (per row)",
+     "native": "fieldset + ol of fieldsets",
+     "desc": "Add/remove rows of key\u2013value (or multi-field) inputs with per-row validation and focus management."
+    },
+    {
      "id": "rating",
      "name": "Rating",
      "tier": "enterprise",
@@ -1025,6 +1178,24 @@
      "aria": "toolbar + textbox",
      "native": "div[contenteditable]",
      "desc": "Formatting canvas; shell + toolbar spec."
+    },
+    {
+     "id": "code-editor",
+     "name": "Code editor shell",
+     "tier": "enterprise",
+     "file": "code-editor",
+     "demos": [
+      "state:default",
+      "state:focus-visible",
+      "state:read-only",
+      "state:invalid",
+      "state:disabled",
+      "variant:line-numbers",
+      "variant:with-toolbar"
+     ],
+     "aria": "textbox (multiline)",
+     "native": "textarea (baseline) / engine host",
+     "desc": "Monospace editing surface with line numbers, tab-trap escape, and an engine (CodeMirror/Monaco) behind it."
     },
     {
      "id": "inline-edit",
@@ -1123,6 +1294,22 @@
      "desc": "Slim top-level switcher."
     },
     {
+     "id": "app-switcher",
+     "name": "App switcher",
+     "tier": "enterprise",
+     "file": "app-switcher",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:grid",
+      "variant:with-recent",
+      "state:current"
+     ],
+     "aria": "disclosure navigation",
+     "native": "button[aria-expanded] + [popover] + nav",
+     "desc": "Grid of products/workspaces opened from a header button; links, not a menu."
+    },
+    {
      "id": "bottom-nav",
      "name": "Bottom Navigation (mobile)",
      "tier": "standard",
@@ -1215,6 +1402,23 @@
      "aria": "dialog + combobox",
      "native": "dialog + input",
      "desc": "Global keyword action search (Cmd/Ctrl+K)."
+    },
+    {
+     "id": "menubar",
+     "name": "Menubar",
+     "tier": "enterprise",
+     "file": "menubar",
+     "demos": [
+      "state:default",
+      "state:open",
+      "variant:submenu",
+      "variant:checkable",
+      "state:focus-visible",
+      "state:disabled-item"
+     ],
+     "aria": "menubar",
+     "native": "ul[role=menubar] + [popover] menus",
+     "desc": "Desktop-app style persistent menu row (File, Edit, View) for editor-class products only."
     },
     {
      "id": "skip-link",
@@ -1396,6 +1600,25 @@
      "desc": "Containment block."
     },
     {
+     "id": "card-collection",
+     "name": "Card collection / Grid list",
+     "tier": "standard",
+     "file": "card-collection",
+     "demos": [
+      "variant:grid",
+      "variant:list",
+      "state:selected",
+      "state:focus-visible",
+      "variant:multi-select",
+      "variant:single-select",
+      "state:empty",
+      "state:loading"
+     ],
+     "aria": "list (static) / grid (selectable)",
+     "native": "ul + li + article + input[type=checkbox]",
+     "desc": "Collection of cards with optional single/multi selection and keyboard navigation."
+    },
+    {
      "id": "post-card",
      "name": "Post / Content Card",
      "tier": "standard",
@@ -1410,6 +1633,25 @@
      "aria": "article",
      "native": "article",
      "desc": "Feed item: author, timestamp, body, media, reactions/actions."
+    },
+    {
+     "id": "comment-thread",
+     "name": "Comment thread",
+     "tier": "standard",
+     "file": "comment-thread",
+     "demos": [
+      "variant:flat",
+      "variant:nested",
+      "state:editing",
+      "state:resolved",
+      "state:deleted",
+      "variant:with-reactions",
+      "state:empty",
+      "state:loading"
+     ],
+     "aria": "list (ol) + article",
+     "native": "ol + article + composer",
+     "desc": "Threaded discussion with replies, edit/delete, resolve, mentions and a composer."
     },
     {
      "id": "accordion",
@@ -1534,6 +1776,41 @@
      "desc": "Multi-row list items."
     },
     {
+     "id": "sortable-list",
+     "name": "Sortable list (reorder)",
+     "tier": "enterprise",
+     "file": "sortable-list",
+     "demos": [
+      "state:default",
+      "state:grabbed",
+      "state:dragging",
+      "state:dropped",
+      "variant:handle",
+      "variant:move-buttons",
+      "variant:move-menu"
+     ],
+     "aria": "list + live region",
+     "native": "ul + button (drag handle / move up/down)",
+     "desc": "Reorderable list with pointer drag and a full keyboard/button alternative, announced politely."
+    },
+    {
+     "id": "kanban-board",
+     "name": "Board (drag-and-drop columns)",
+     "tier": "enterprise",
+     "file": "board",
+     "demos": [
+      "variant:columns",
+      "state:dragging",
+      "state:empty-column",
+      "variant:move-menu",
+      "variant:wip-limit",
+      "state:drop-target"
+     ],
+     "aria": "list of lists + live region",
+     "native": "section + h2 + ul (per column)",
+     "desc": "Columns of cards moved between states via drag or a 'Move to\u2026' menu."
+    },
+    {
      "id": "description-list",
      "name": "Description List",
      "tier": "core",
@@ -1592,6 +1869,23 @@
      "desc": "Hero media surface on an always-dark subtree (.theme-dark) with scrim, duration/live badge and caption."
     },
     {
+     "id": "qr-code",
+     "name": "QR code",
+     "tier": "standard",
+     "file": "qr-code",
+     "demos": [
+      "variant:default",
+      "variant:with-logo",
+      "variant:with-fallback-link",
+      "size:sm",
+      "size:md",
+      "size:lg"
+     ],
+     "aria": "img",
+     "native": "svg[role=img] / img[alt]",
+     "desc": "Scannable code rendered as SVG with quiet zone, label and the same URL/code as text."
+    },
+    {
      "id": "stat",
      "name": "Metric / Statistic",
      "tier": "core",
@@ -1624,6 +1918,68 @@
      "desc": "Chart frame, legend, palette tokens."
     },
     {
+     "id": "chart-legend",
+     "name": "Chart legend",
+     "tier": "enterprise",
+     "file": "chart-parts",
+     "demos": [
+      "variant:static",
+      "variant:interactive",
+      "variant:direct-labels",
+      "state:series-hidden"
+     ],
+     "aria": "list / toggle buttons",
+     "native": "ul / button[aria-pressed]",
+     "desc": "Series keys in data order with swatch + shape + label; optional series toggles."
+    },
+    {
+     "id": "chart-tooltip",
+     "name": "Chart tooltip",
+     "tier": "enterprise",
+     "file": "chart-parts",
+     "demos": [
+      "state:visible",
+      "variant:single-series",
+      "variant:multi-series",
+      "variant:crosshair"
+     ],
+     "aria": "none (data mirrored in table)",
+     "native": "[popover=manual] / div",
+     "desc": "Hover/focus readout of a data point; never the only access to values."
+    },
+    {
+     "id": "chart-axis",
+     "name": "Chart axis & gridlines",
+     "tier": "enterprise",
+     "file": "chart-parts",
+     "demos": [
+      "variant:x-axis",
+      "variant:y-axis",
+      "variant:gridlines",
+      "variant:zero-baseline",
+      "variant:table-fallback"
+     ],
+     "aria": "presentation (table fallback)",
+     "native": "svg g + text / table",
+     "desc": "Axis labels, ticks and gridlines spec, plus the accessible data-table fallback."
+    },
+    {
+     "id": "sparkline",
+     "name": "Sparkline",
+     "tier": "enterprise",
+     "file": "chart-parts",
+     "demos": [
+      "variant:line",
+      "variant:area",
+      "variant:bar",
+      "variant:in-table",
+      "variant:with-endpoint"
+     ],
+     "aria": "img",
+     "native": "svg[role=img]",
+     "desc": "Word-sized trend line for tables and lists, with a text summary."
+    },
+    {
      "id": "hover-card",
      "name": "Hover Card",
      "tier": "enterprise",
@@ -1647,6 +2003,39 @@
      "aria": "disclosure",
      "native": "button",
      "desc": "Clamp with show more."
+    },
+    {
+     "id": "relative-time",
+     "name": "Relative time",
+     "tier": "standard",
+     "file": "formatters",
+     "demos": [
+      "variant:relative",
+      "variant:absolute",
+      "variant:auto-update",
+      "variant:future"
+     ],
+     "aria": null,
+     "native": "time[datetime]",
+     "desc": "'3 minutes ago' via Intl.RelativeTimeFormat with the absolute timestamp always available."
+    },
+    {
+     "id": "number-format",
+     "name": "Number, currency & bytes display",
+     "tier": "standard",
+     "file": "formatters",
+     "demos": [
+      "variant:number",
+      "variant:compact",
+      "variant:currency",
+      "variant:percent",
+      "variant:bytes",
+      "variant:unit",
+      "variant:range"
+     ],
+     "aria": null,
+     "native": "data[value] / span",
+     "desc": "Locale-correct numbers, money, file sizes and units via Intl.NumberFormat; machine value kept."
     }
    ],
    "scope": "product"
@@ -1715,6 +2104,23 @@
      "desc": "Mobile slide-up panel."
     },
     {
+     "id": "side-panel",
+     "name": "Side panel (push / inline)",
+     "tier": "standard",
+     "file": "side-panel",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:push",
+      "variant:inline",
+      "variant:resizable",
+      "variant:mobile-overlay"
+     ],
+     "aria": "complementary / region",
+     "native": "aside + button[aria-expanded]",
+     "desc": "Non-modal panel that shares the layout (pushes content) instead of covering it."
+    },
+    {
      "id": "popover",
      "name": "Popover",
      "tier": "core",
@@ -1744,6 +2150,21 @@
      "desc": "Non-interactive hint on hover/focus."
     },
     {
+     "id": "toggletip",
+     "name": "Toggletip / Contextual help",
+     "tier": "standard",
+     "file": "toggletip",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:info-icon",
+      "variant:placements"
+     ],
+     "aria": "button + live region",
+     "native": "button + [popover]",
+     "desc": "Click-to-open help bubble that may contain rich text and links (unlike tooltips)."
+    },
+    {
      "id": "context-menu",
      "name": "Context Menu",
      "tier": "enterprise",
@@ -1767,6 +2188,22 @@
      "aria": "dialog (non-modal)",
      "native": "[popover]",
      "desc": "Multi-step onboarding hints."
+    },
+    {
+     "id": "floating-panel",
+     "name": "Floating panel",
+     "tier": "enterprise",
+     "file": "floating-panel",
+     "demos": [
+      "state:open",
+      "state:minimized",
+      "variant:draggable",
+      "variant:keyboard-move",
+      "variant:docked"
+     ],
+     "aria": "dialog (non-modal)",
+     "native": "dialog.show() / [popover=manual]",
+     "desc": "Movable, non-modal tool window (inspector, chat, picture-in-picture help)."
     },
     {
      "id": "lightbox",
@@ -1915,6 +2352,23 @@
      "aria": null,
      "native": "div[aria-hidden]",
      "desc": "Placeholder geometry; respects reduced motion."
+    },
+    {
+     "id": "result-panel",
+     "name": "Result panel",
+     "tier": "core",
+     "file": "result-panel",
+     "demos": [
+      "variant:success",
+      "variant:error",
+      "variant:warning",
+      "variant:info",
+      "variant:no-permission",
+      "variant:with-details"
+     ],
+     "aria": null,
+     "native": "section + h1/h2",
+     "desc": "Outcome of an action or process: icon, title, explanation, next actions."
     },
     {
      "id": "notification-center",
@@ -2107,6 +2561,257 @@
      "aria": null,
      "native": "section",
      "desc": "First-use guidance."
+    },
+    {
+     "id": "start-page",
+     "name": "Start page",
+     "tier": "standard",
+     "file": "start-page",
+     "demos": [
+      "variant:default",
+      "variant:with-sign-in",
+      "variant:with-before-you-start"
+     ],
+     "aria": "landmarks",
+     "native": "main + a.btn (Start)",
+     "desc": "Service entry: what you'll need, how long it takes, one Start button."
+    },
+    {
+     "id": "question-page",
+     "name": "Question page (one thing per page)",
+     "tier": "standard",
+     "file": "question-page",
+     "demos": [
+      "variant:radios",
+      "variant:text-input",
+      "variant:date",
+      "state:invalid"
+     ],
+     "aria": "landmarks",
+     "native": "form + fieldset/legend (h1)",
+     "desc": "One question per page with the question as the H1/legend, Continue, Back."
+    },
+    {
+     "id": "check-answers",
+     "name": "Check answers",
+     "tier": "standard",
+     "file": "check-answers",
+     "demos": [
+      "variant:single-section",
+      "variant:multi-section",
+      "state:incomplete"
+     ],
+     "aria": null,
+     "native": "dl (summary list) + a (Change)",
+     "desc": "Summary list of all answers with Change links before final submit."
+    },
+    {
+     "id": "confirmation-page",
+     "name": "Confirmation page",
+     "tier": "standard",
+     "file": "confirmation-page",
+     "demos": [
+      "variant:with-reference",
+      "variant:pending",
+      "variant:with-feedback"
+     ],
+     "aria": "landmarks",
+     "native": "main + panel + h1",
+     "desc": "Completion panel with reference number, what happens next, feedback link."
+    },
+    {
+     "id": "task-list-page",
+     "name": "Task list page",
+     "tier": "standard",
+     "file": "task-list-page",
+     "demos": [
+      "state:not-started",
+      "state:in-progress",
+      "state:completed",
+      "state:cannot-start",
+      "variant:sections"
+     ],
+     "aria": "list",
+     "native": "ol + a + status text",
+     "desc": "Multi-section application overview with per-task status and completion count."
+    },
+    {
+     "id": "step-by-step-navigation",
+     "name": "Step-by-step navigation",
+     "tier": "standard",
+     "file": "step-by-step-navigation",
+     "demos": [
+      "variant:sidebar",
+      "variant:full",
+      "state:current-step",
+      "state:expanded"
+     ],
+     "aria": "navigation + disclosure",
+     "native": "nav + ol + details",
+     "desc": "Numbered, collapsible end-to-end journey spanning several pages or services."
+    },
+    {
+     "id": "service-unavailable",
+     "name": "Service unavailable",
+     "tier": "standard",
+     "file": "service-unavailable",
+     "demos": [
+      "variant:planned",
+      "variant:unplanned",
+      "variant:closed-permanently"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Planned or unplanned shutdown page (503) with when it's back and alternatives."
+    },
+    {
+     "id": "session-timeout",
+     "name": "Session timeout warning",
+     "tier": "standard",
+     "file": "session-timeout",
+     "demos": [
+      "state:warning",
+      "state:signed-out",
+      "variant:countdown"
+     ],
+     "aria": "alertdialog",
+     "native": "dialog[role=alertdialog]",
+     "desc": "Warning dialog before inactivity sign-out with extend option, then a signed-out page."
+    },
+    {
+     "id": "exit-page-quickly",
+     "name": "Exit this page quickly",
+     "tier": "standard",
+     "file": "exit-page-quickly",
+     "demos": [
+      "state:default",
+      "state:activated",
+      "variant:with-interstitial"
+     ],
+     "aria": "button",
+     "native": "a[href] (button-styled) + keydown",
+     "desc": "Safety button (and Shift\u00d73) that leaves instantly to a neutral site."
+    },
+    {
+     "id": "address-entry",
+     "name": "Address entry",
+     "tier": "standard",
+     "file": "address-entry",
+     "demos": [
+      "variant:multi-field",
+      "variant:lookup",
+      "variant:manual-fallback",
+      "variant:international",
+      "state:invalid"
+     ],
+     "aria": "landmarks",
+     "native": "fieldset + input[autocomplete=address-line1\u2026]",
+     "desc": "Multi-field or lookup address with manual fallback and correct autocomplete."
+    },
+    {
+     "id": "name-entry",
+     "name": "Name entry",
+     "tier": "standard",
+     "file": "name-entry",
+     "demos": [
+      "variant:full-name",
+      "variant:given-family",
+      "state:invalid"
+     ],
+     "aria": "landmarks",
+     "native": "input[autocomplete=name]",
+     "desc": "Single full-name field (or given/family) with no assumptions about name structure."
+    },
+    {
+     "id": "phone-entry",
+     "name": "Phone number entry",
+     "tier": "standard",
+     "file": "phone-entry",
+     "demos": [
+      "variant:domestic",
+      "variant:international",
+      "state:invalid"
+     ],
+     "aria": "landmarks",
+     "native": "input[type=tel][autocomplete=tel]",
+     "desc": "Telephone field that accepts any reasonable format, with optional country code."
+    },
+    {
+     "id": "payment-card-entry",
+     "name": "Payment card entry",
+     "tier": "standard",
+     "file": "payment-card-entry",
+     "demos": [
+      "state:default",
+      "state:invalid",
+      "variant:card-brand-detected",
+      "variant:autofill"
+     ],
+     "aria": "landmarks",
+     "native": "fieldset + input[autocomplete=cc-*]",
+     "desc": "Card number, expiry, security code and name with autofill and formatting tolerance."
+    },
+    {
+     "id": "unsaved-changes",
+     "name": "Unsaved changes guard",
+     "tier": "standard",
+     "file": "unsaved-changes",
+     "demos": [
+      "state:clean",
+      "state:dirty",
+      "state:leave-dialog",
+      "variant:beforeunload"
+     ],
+     "aria": "alertdialog",
+     "native": "dialog + beforeunload",
+     "desc": "Detects dirty forms; warns on in-app navigation and beforeunload."
+    },
+    {
+     "id": "create-resource",
+     "name": "Create resource (single / multi-page)",
+     "tier": "enterprise",
+     "file": "create-resource",
+     "demos": [
+      "variant:single-page",
+      "variant:multi-page",
+      "state:review",
+      "state:created",
+      "state:invalid"
+     ],
+     "aria": "landmarks",
+     "native": "form (+ wizard)",
+     "desc": "Create flow as a single form page or multi-page with review; lands on the new resource."
+    },
+    {
+     "id": "delete-with-confirmation",
+     "name": "Delete with confirmation",
+     "tier": "enterprise",
+     "file": "delete-with-confirmation",
+     "demos": [
+      "variant:simple-confirm",
+      "variant:type-to-confirm",
+      "variant:undo-toast",
+      "variant:soft-delete"
+     ],
+     "aria": "alertdialog",
+     "native": "dialog[role=alertdialog] + input",
+     "desc": "Destructive flow: alert dialog, type-to-confirm for irreversible deletes, undo where possible."
+    },
+    {
+     "id": "saved-filters",
+     "name": "Saved filters / views",
+     "tier": "enterprise",
+     "file": "saved-filters",
+     "demos": [
+      "state:unsaved-changes",
+      "variant:save-dialog",
+      "variant:view-switcher",
+      "variant:shared",
+      "state:empty"
+     ],
+     "aria": "menu-button / listbox",
+     "native": "form + select/menu + dialog",
+     "desc": "Save, name, share and reapply filter + sort + column sets on collection pages."
     }
    ],
    "scope": "product",

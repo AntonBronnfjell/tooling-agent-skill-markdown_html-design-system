@@ -59,3 +59,15 @@ Common rule: the current location uses `aria-current="page"` (or `"step"`, `"loc
 
 ## bottom-nav (now standard tier)
 - Core for mobile-first products: show it below the `lg` breakpoint and swap to side-nav/top-nav above it inside the app shell (one nav visible at a time, same destinations, same `aria-current`).
+
+Files added: `app-switcher`, `menubar`.
+
+## app-switcher (enterprise)
+- Header button (grid icon + accessible name "Switch app" / "Products") with `aria-expanded aria-controls` opening a `[popover]` containing `<nav aria-label="Apps">` with a list of links (icon + name + short description). It's **disclosure navigation**, not `role="menu"` — Tab moves through links, Esc closes and returns focus.
+- Current app marked `aria-current="page"` + visual indicator; optional "Recent" group and "All apps" link. Grid layout 3 columns; list on narrow.
+- Pitfalls: icon-only tiles without names; mixing actions (sign out) into the switcher.
+
+## menubar (enterprise)
+- Only for desktop-like editor products (document/IDE tools). Website navigation is **never** a menubar (use nav + links/disclosure).
+- APG Menubar: `role="menubar"` (one Tab stop, roving focus), items `role="menuitem" aria-haspopup="menu" aria-expanded`; ←/→ move across the bar (and switch open menus), ↓/Enter/Space open and focus first item, ↑ opens to last, Esc closes to the bar item, Tab leaves the menubar and closes menus, typeahead. Menus follow the menu spec (checkable items, submenus, shortcut `kbd`).
+- Mirror shortcuts as real keyboard shortcuts; show them right-aligned. Collapse to a single "Menu" button on narrow screens.

@@ -43,3 +43,19 @@ Build these first: every later component composes them. Files: `box`, `stack`, `
 
 ## scroll-area (enterprise)
 - `overflow:auto` region with `tabindex="0"`, `role="region"` + `aria-label` so keyboard users can scroll; thin themed scrollbar via `scrollbar-color`/`scrollbar-width`; scroll shadows to hint overflow.
+
+Files added: `splitter`; `typography` gains `highlight`.
+
+## highlight (in `typography`)
+- `<mark>` for text that is relevant in context (search hits, diff of a quoted passage). Background `--color-highlight-bg` (new semantic token, contrast pair with `text.default` ≥ 4.5:1 in every theme) — not a feedback color, so it never reads as "warning".
+- Screen readers mostly don't announce `<mark>`; when the highlight carries meaning ("matched term"), add visually hidden text or a count summary ("3 matches for 'tax'"). Never color-only: add a subtle underline or `outline` so it survives `forced-colors` (map to `Mark`/`MarkText` system colors).
+- Search-hit variant: current match vs other matches distinguished by weight/outline, not hue alone.
+- CSS Custom Highlight API (`CSS.highlights` + `::highlight(name)`) for highlighting without mutating DOM (find-in-page, code editors). Limited styling (color, background, text-decoration only). Baseline newly available since 2026-03 (Firefox 149 last); keep `<mark>` as the fallback for older browsers.
+
+## splitter (resizable panels)
+- Anatomy: two panes in a grid (`grid-template-columns: var(--split, 50%) auto 1fr`) + the separator between them.
+- APG Window Splitter: separator is `role="separator" tabindex="0" aria-orientation aria-valuenow aria-valuemin aria-valuemax aria-controls="<primary pane id>"` and labelled by the primary pane's name ("Resize navigation"). Value = primary pane size in %.
+- Keyboard: ←/→ (vertical splitter) or ↑/↓ move by a step; Home/End to min/max; Enter toggles collapse/restore (remember last value). Pointer: Pointer Events + `setPointerCapture`, `touch-action: none` on the handle only.
+- Hit area ≥ 24px even if the visual line is 1px (pseudo-element); cursor `col-resize`/`row-resize`; focus ring on the handle.
+- States: min/max reached (handle stops, no error), collapsed (pane `hidden` or `inline-size:0` + `inert`), persisted per user (localStorage, try/catch).
+- Pitfalls: resizing must not trigger layout thrash — write one custom property per frame (rAF), never measure in the move loop. Below `md`, stack panes and remove the splitter (or switch to tabs). Pure CSS `resize: horizontal` is not keyboard operable — don't ship it as the only mechanism.

@@ -42,3 +42,68 @@ Patterns are **compositions of existing components only** — if a pattern needs
 
 ## Real-screen demos
 - Besides per-pattern demos, add at least one full screen per product surface (e.g. "Dashboard — populated", "Settings — dirty form") composed only from system components. They're the integration test that reveals missing tokens and spacing gaps; Storybook renders patterns full-screen.
+
+Files added in `patterns/`: `start-page`, `question-page`, `check-answers`, `confirmation-page`, `task-list-page`, `step-by-step-navigation`, `service-unavailable`, `session-timeout`, `exit-page-quickly`, `address-entry`, `name-entry`, `phone-entry`, `payment-card-entry`, `unsaved-changes`, `create-resource`, `delete-with-confirmation`, `saved-filters`.
+
+Transactional patterns below follow GOV.UK Design System research; they generalize well to any form-heavy product.
+
+## start-page
+- H1 = the task in verb form ("Apply for a parking permit"), short list of what you can do, what you'll need ("before you start" list), how long it takes, one primary "Start now" link styled as a start button (`<a class="btn btn--start" href>` — it navigates, so it stays a link). Sign-in variant offers "Continue a saved application". No form fields on this page.
+
+## question-page (one thing per page)
+- One question per page: for a single field the `<label>` **is** the `<h1>` (`<h1><label for>…</label></h1>`); for a group the `<legend>` wraps the `<h1>`. Hint text below. "Continue" submit, "Back" link above the content (not browser-only back).
+- Errors: error summary + inline error + `Error:` prefix in `<title>`. Preserve answers when going back. Branching questions are fine — the check-answers page shows the final path.
+
+## check-answers
+- Summary list (`<dl>` rows: question `dt`, answer `dd`, action `dd` with "Change<span class="sr-only"> name</span>" link) grouped by section with `h2`s. Change links return to the question then back to check-answers (not through the whole flow).
+- Declaration text (if legal) above the final "Accept and send" button. Incomplete state blocks submission and links to missing answers.
+
+## confirmation-page
+- `result-panel` (success) with H1 ("Application complete") and the reference number in large, copyable text; "What happens next" section; contact info; feedback link. Don't put the only copy of important info in a toast. Pending variant: "We've received your application" when processing is async.
+
+## task-list-page
+- H1, completion summary ("You have completed 3 of 7 sections"), `<ol>` of sections, each with task links and a status **as text** (`Completed`, `In progress`, `Not yet started`, `Cannot start yet`) styled as tags — status in the link's accessible name via `aria-describedby`. "Cannot start yet" tasks are not links. Submit available only when all complete (or route to check-answers).
+
+## step-by-step-navigation
+- For journeys spanning pages/services ("Learn to drive"): numbered `<ol>` of steps (with "and"/"or" connectors for parallel steps), each step a disclosure (`<details>` or button `aria-expanded`) listing links; "Show all steps" toggle. Current step/page highlighted with `aria-current` + text "You are here". Sidebar variant on content pages, full variant on the hub page. Distinct from `stepper` (single in-page process).
+
+## service-unavailable
+- Planned (with return date/time in `<time>`, saved data reassurance), unplanned (apologize, what to do instead, phone/alternative channel), closed permanently (where to go now). HTTP 503 with `Retry-After` for planned. Keep header/footer; no "try again" loop button pretending to work. Different from `error-page` 500 (unexpected failure for one request).
+
+## session-timeout
+- WCAG 2.2.1: warn at least 2 minutes before expiry with an `alertdialog` (`<dialog role="alertdialog">`, `showModal`): "You'll be signed out in 2 minutes", primary "Stay signed in" (extends session, returns focus to where the user was), secondary "Sign out". Countdown text updates visually every second but is announced **only** at coarse intervals (e.g. each minute) via the dialog's description, not a per-second live region.
+- On expiry: navigate to a "You have been signed out" page explaining unsaved data status and a sign-in link back to the same place. Preserve in-progress form data server-side where possible.
+
+## exit-page-quickly
+- For sensitive services (domestic abuse): sticky button-styled **link** "Exit this page" (`href` to a neutral site, e.g. weather/search) at the top of every page; on activation, JS also replaces history (`location.replace`) and blanks the page immediately (overlay) before navigating; keyboard shortcut Shift pressed 3 times, explained in visually hidden + visible text.
+- Interstitial pages explain the feature and that it doesn't clear browser history (link to guidance). Works without JS (plain link). Visual: high-emphasis but not an error color; doesn't cover content at 320px.
+
+## address-entry
+- Default multi-field: Address line 1, line 2 (optional), Town or city, County (optional), Postcode — with `autocomplete="address-line1|address-line2|address-level2|address-level1|postal-code"` and fixed widths (postcode `width-10ch`). Single `<fieldset>` + legend.
+- Lookup variant: postcode → "Find address" → `<select>` of results (with count) + "I can't find the address in the list" → manual fields (always available). International: country `<select>` first (`autocomplete="country"`), then free-text lines + optional region/postal code — never require a postcode or state globally.
+
+## name-entry
+- Prefer one "Full name" field (`autocomplete="name"`, `spellcheck="false"`, width `width-20ch`); if you must split, use "Given names"/"Family name" (not first/last) with `given-name`/`family-name`. Accept any characters (apostrophes, hyphens, spaces, diacritics, non-Latin scripts), lengths up to ≥ 100; don't require a title; mononyms allowed.
+
+## phone-entry
+- `type="tel" autocomplete="tel"`, width `width-20ch`, accept spaces, brackets, dashes and `+`; normalize server-side (E.164). International: explain "include the country code" in hint text, or a separate country-code `<select>` only if the backend requires it. Never mask to a fixed national format. Say why you need it and whether you'll call or text.
+
+## payment-card-entry
+- Fields in one `fieldset`: Card number (`inputmode="numeric" autocomplete="cc-number"`, allow spaces, format in groups on blur, detect brand and show it as text + logo), Expiry (`cc-exp` single MM/YY field or month/year via date-field month-year), Security code (`cc-csc`, width `width-4ch`, hint where to find it), Name on card (`cc-name`). Luhn check on submit, not keystroke.
+- Never disable paste or autofill; error messages specific ("Card number is too short"). In practice embed the PSP's hosted fields (Stripe, Adyen, GOV.UK Pay) for PCI scope — style them with the same tokens and ensure their iframes expose labels *(uncertain: hosted-field a11y varies by provider; test with a screen reader)*.
+
+## unsaved-changes
+- Track dirty state by comparing current `FormData` with the initial snapshot (not "any input event"). In-app navigation: intercept links/router (Navigation API `navigate` event — Baseline newly available 2026-01 — or the router guard) and show an `alertdialog`: "You have unsaved changes" — "Save and leave" / "Discard changes" / "Keep editing" (initial focus on Keep editing). Browser close/reload: `beforeunload` with `preventDefault()` only while dirty (custom text isn't shown by browsers). Remove the listener when clean — it disables bfcache.
+- Optional dirty indicator ("Unsaved changes" text near Save). Prefer autosave drafts where feasible.
+
+## create-resource (enterprise)
+- Single-page: page header "Create project", form-layout sections, primary "Create project" (verb + noun) + Cancel (returns to the list, guarded by unsaved-changes). Multi-page: `wizard` with review step (check-answers), each step URL-addressable. Success: redirect to the new resource's detail page with a success toast/alert ("Project created") — not back to an empty form. Server errors keep data and show the error summary.
+- Defaults pre-filled; optional fields collapsed under "Advanced settings" (disclosure).
+
+## delete-with-confirmation (enterprise)
+- Decide by reversibility: reversible → delete immediately + "Undo" toast (or soft-delete/trash); irreversible single item → `alertdialog` naming the item and consequence ("Delete 'Q3 report'? This can't be undone."), destructive button labelled with the action; irreversible **high-impact** (repos, workspaces, accounts) → type-to-confirm: a text field "Type <strong>acme-prod</strong> to confirm" enabling the destructive button only on exact match (case-sensitive, paste allowed), label associated, mismatch hint not an error until submit.
+- Bulk deletes state the count ("Delete 12 files?"). After delete: move focus to a sensible place (next row, list heading) and announce via toast/status.
+
+## saved-filters (enterprise)
+- Collection pages with complex filters: a view switcher (`select` or menu button "View: My open tickets") listing default, personal and shared views; "Save view" opens a dialog (name, visibility: only me / team) saving filters + sort + columns + density. Modified state: "Unsaved changes" tag with "Save" / "Save as new" / "Reset".
+- URL holds the active filter state (shareable, back button works); saved views are named pointers to that state. Manage views (rename, delete with confirm, set default). Empty state: no saved views explains how to create one.

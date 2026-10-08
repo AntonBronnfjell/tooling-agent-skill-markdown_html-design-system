@@ -130,6 +130,26 @@
       "color.feedback.danger.fg",
       "color.feedback.danger.bg",
       4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.sunken",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.raised",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.overlay",
+      4.5
+    ],
+    [
+      "color.highlight.fg",
+      "color.highlight.bg",
+      4.5
     ]
   ]
 }

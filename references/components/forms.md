@@ -86,3 +86,44 @@ Build `form-field` first — every control below is rendered inside it.
 
 ## composer (enterprise)
 - `<form>` with a labelled auto-growing `<textarea>` (`field-sizing: content`, max height then scroll), attachment button (real `input[type=file]`) with removable previews, character counter (polite), send button (`type=submit`, disabled only while sending — show `aria-busy` + inline spinner). Enter inserts newline; Ctrl/Cmd+Enter sends (document it). Failed send keeps the text and shows an inline error with retry.
+
+Files added: `date-field`, `choice-card`, `input-mask`, `tree-select`, `attribute-editor`, `code-editor`.
+
+## date-field (memorable date)
+- For dates people know (birth, passport issue): three text inputs Day / Month / Year inside `<fieldset>` + `<legend>` (the question), hint "For example, 27 3 2007". No calendar — pickers are slower for known dates.
+- Inputs: `type="text" inputmode="numeric"` (not `type=number`: no spinners, keeps leading zeros), fixed widths `width-2ch`/`width-4ch` classes (see conventions.md), `autocomplete="bday-day|bday-month|bday-year"` for birth dates. Each input labelled ("Day").
+- Order follows locale (`variant:locale-order`: DMY, MDY, YMD) from `Intl.DateTimeFormat().formatToParts`. Accept "3", "03", month names ("march").
+- Errors: one message for the field ("Date of birth must include a year"); `aria-invalid` only on the offending part(s) (`state:partial-invalid`), whole fieldset otherwise. Validate real dates (31 Feb) and ranges ("must be in the past").
+- Don't auto-advance between inputs (breaks correction and screen readers). Month-year variant for card expiry.
+
+## choice-card (radio / checkbox tiles)
+- Real `<input type="radio|checkbox">` inside a `<label class="choice-card">`; the whole tile is the hit area. Group = `fieldset` + `legend`. Title, description (`aria-describedby` to the description id), optional media (decorative).
+- Checked: border `selected.border` (2px) + `selected.bg` **and** a visible check/radio indicator — color alone fails. `:has(:checked)` on the label styles the tile; `:has(:focus-visible)` draws the focus ring on the tile.
+- Disabled tile stays readable (explain why in description). Invalid: group-level error in the legend area.
+- Pitfalls: don't nest links or buttons inside the label; don't make the tile a `<button>` (loses form semantics, arrow keys for radios). Equal heights via grid.
+
+## input-mask (formatted input)
+- Prefer **format on blur** over keystroke masks; if masking as-you-type, never block paste, never reject characters silently, keep caret position, and accept the unformatted value too (spaces, dashes, brackets).
+- Keep the right `type`/`inputmode`/`autocomplete` (`tel`, `cc-number`, `postal-code`) — a mask must not break autofill. Show the expected format in hint text, not only in a placeholder.
+- Store and submit the normalized value (digits only) in a hidden input or `data-value`; the visible value is presentation.
+- Screen readers: don't insert characters on each keystroke that get announced as edits; reformat on blur.
+- Pitfalls: fixed-length masks for phones/postcodes break international users; masking dates (use date-field).
+
+## tree-select (enterprise)
+- Trigger: combobox-like `<button aria-haspopup="tree" aria-expanded>` showing the selection (or chips for multi), or an `<input role="combobox">` when searchable. Popup: `[popover]` with an APG `role="tree"` (`aria-multiselectable` for multi).
+- Keyboard: tree keys inside (↑/↓, →/← expand/collapse, Space toggles, Enter selects + closes in single mode), Esc closes and returns focus, typeahead/search filters and auto-expands ancestors of matches.
+- Multi: parent checkbox reflects children (checked / `aria-checked="mixed"`); define and document the selection model (selecting parent = all descendants vs the node itself).
+- States: no results, loading children (async `aria-busy` on the group), disabled nodes. Chips overflow to "+3".
+- Pitfalls: selected item hidden in collapsed branch — show its path ("Europe › Spain › Madrid") in the trigger.
+
+## attribute-editor (enterprise)
+- Repeatable rows (key/value, tag rules, env vars): `<fieldset>` with legend; each row is a nested `<fieldset>` whose legend is visually hidden "Attribute 2" (or `role="group" aria-label`); inputs keep their labels per row (visually hidden after the first row, or column headers via `aria-labelledby`).
+- "Add attribute" button at the end → new row appended and **focus moves to its first input**; "Remove" per row labelled "Remove attribute 2 (env: prod)" → focus moves to the next row's first input or to the Add button; announce "Attribute removed" politely.
+- Validation per row (duplicate keys, empty values) with row-level messages; limit reached state disables Add with the reason shown.
+- Pitfalls: re-indexing names on remove breaking server binding (use stable ids); table layout that collapses badly at 320px (stack fields per row).
+
+## code-editor shell (enterprise)
+- Baseline: labelled `<textarea spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off">` with mono typography token, `tab-size`, line numbers gutter (`aria-hidden`). Enhanced: host element for an engine (CodeMirror 6 recommended for accessibility; Monaco heavier) — document it, don't hand-roll.
+- **Tab trapping:** if Tab inserts indentation, provide and document an escape (CodeMirror: Esc then Tab; or a toggle "Tab moves focus") — WCAG 2.1.2.
+- Labelled region, read-only state (focusable, copyable), invalid state with linked diagnostics list (not just squiggles: text + line numbers), toolbar (format, copy, language select).
+- Pitfalls: syntax colors need 4.5:1 against the editor bg in every theme (add pairs); don't lazy-load the engine on focus without a skeleton.
