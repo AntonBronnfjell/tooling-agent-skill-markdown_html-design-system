@@ -33,7 +33,7 @@ Every major version gets a "Migrating from vN" section (README or `MIGRATION.md`
 Keep the old class/token as an alias for one major version — for tokens, add `"$deprecated": {"old.path": "new.path"}` to any token file and `ds.py build` emits `--old-path: var(--new-path)` with a comment — show a docs banner, and list migrations in the changelog.
 
 ## Packaging, CI, workbench
-`ds.py package` (npm exports, see `packaging.md`), `ds.py ci --provider github|gitlab` (check → Storybook to Pages → idempotent publish + tag), `ds.py storybook` (see `storybook.md`).
+`ds.py package` (npm exports, see `packaging.md`), `ds.py ci` (GitHub workflow or a GitLab include file: check → Storybook to Pages → idempotent publish + tag), `ds.py storybook` (see `storybook.md`), `ds.py llms` / `ds.py mcp` (agent access), `ds.py design-md` (DESIGN.md + ACCESSIBILITY.md).
 
 ## Adapters (when `targets` asks)
 - **Tailwind v4**: `@theme` block mapping utilities to the semantic vars (via `/ui-styling`).

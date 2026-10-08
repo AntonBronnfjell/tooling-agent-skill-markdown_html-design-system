@@ -11,9 +11,14 @@ A design system nobody can install is a style guide. `ds.py package <dir>` turns
 | `./css/*` | `css/components/*.css` | Per-component CSS for apps that want only a few components (still needs tokens + base) |
 | `./js/*` | `js/*.js` | Progressive-enhancement modules (`theme.js`, menus, combobox…) — each exports `init(root)` |
 | `./tokens/*` | DTCG sources | Style Dictionary / Tokens Studio / Figma variables |
-| `./DESIGN.md` | contract | Shipped so consuming apps and their AI agents can read the rules |
+| `./DESIGN.md` | contract (Google DESIGN.md format) | Shipped so consuming apps and their AI agents can read the rules |
+| `./llms.txt` + `llms/` | agent docs | One Markdown page per component; generate with `ds.py llms` before publishing |
 
 `sideEffects: ["*.css"]` keeps bundlers from tree-shaking CSS imports; `files` whitelists what's published. `prepack` rebuilds `dist/` and `DESIGN.md` so a publish can't ship stale tokens.
+
+## Agents and email
+- Run `ds.py llms` before publishing so `llms.txt`/`llms/` match the release; `ds.py mcp` adds `mcp/server.py` for teams who want agents to query the system live (not part of the npm `files` by default — add `"mcp"` if consumers should run it from `node_modules`).
+- Email scope: `dist/email/*.html|txt` are build outputs for your email service provider, not for the npm package; publish them through your ESP or a template repo.
 
 ## Fonts
 Self-host instead of a third-party CDN (privacy, performance, offline): put WOFF2 files in `fonts/`, declare `@font-face` in `css/base.css` (or `css/fonts.css`) with relative URLs, `font-display: swap`, and a `unicode-range` subset per script (Latin first; add others only for supported locales). Variable fonts cut requests. Storybook serves `fonts/` at `/fonts` automatically. For open fonts, `@fontsource/*` packages are the easy source — copy the needed files at build time rather than depending on them at runtime.

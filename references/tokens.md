@@ -14,8 +14,8 @@
 
 | Tier | File | Example | Who references it |
 |---|---|---|---|
-| Primitive | `tokens/primitive.json` | `color.blue.600 = #2563eb`, `space.4 = 1rem` | Only semantic tokens |
-| Semantic | `tokens/semantic.json` (+ `tokens/themes/*.json` overrides) | `color.action.primary.bg = {color.blue.600}` | Component tokens and component CSS |
+| Primitive | `tokens/primitive.json` (+ `tokens/scopes/<scope>.json` for opt-in scopes) | `color.blue.600 = {srgb, [0.15, 0.39, 0.92], #2563eb}`, `space.4 = 1rem` | Only semantic tokens |
+| Semantic | `tokens/semantic.json` (+ `tokens/themes/<theme>.json` overrides and `<theme>.<scope>.json` add-ons) | `color.action.primary.bg = {color.blue.600}` | Component tokens and component CSS |
 | Component | `tokens/component.json` (shared examples) + `tokens/components/<file>.json` (one per component file) | `button.radius = {radius.md}` | That component's CSS |
 
 Why: rebranding = edit primitives; dark mode = override semantic; one-off component tweak = component token. Component CSS must never reach for a primitive (`--color-blue-600`) — lint can't catch every case, so review for it.
@@ -26,12 +26,24 @@ W3C Design Tokens Community Group format (DTCG 2025.10): every token is an objec
 
 ```json
 { "space": { "$type": "dimension", "4": { "$value": { "value": 1, "unit": "rem" } } },
-  "color": { "$type": "color", "text": { "default": { "$value": "{color.gray.900}" } } } }
+  "color": { "$type": "color",
+    "blue": { "600": { "$value": { "colorSpace": "srgb", "components": [0.149, 0.388, 0.922], "hex": "#2563eb" } } },
+    "brand": { "600": { "$value": { "colorSpace": "oklch", "components": [0.52, 0.2, 262] } } },
+    "text": { "default": { "$value": "{color.gray.900}" } } } }
 ```
 
-`ds.py build` merges primitive + semantic + component into `:root`, and each `tokens/themes/<name>.json` into `:root[data-theme="<name>"]` (plus `prefers-color-scheme: dark` for `dark`, `prefers-contrast: more` for `high-contrast`). Output: `dist/tokens.css`. Composite `typography` tokens become sub-properties: `--typography-h1-font-size`, `--typography-h1-line-height`, …
+**Colors** are DTCG 2025.10 color objects: `colorSpace` + `components` (+ optional `alpha`, `hex` fallback). sRGB renders as hex; `oklch`, `oklab`, `lab`, `lch`, `hwb`, `hsl`, `display-p3`, `rec2020` and other spaces render as native CSS color functions, so wide-gamut brand colors are fine. Contrast is computed from the components (OKLCH and Display P3 are converted to sRGB), so every color can be checked. Older systems with hex-string colors still build, but `ds.py check` warns, and `ds.py migrate-colors <dir>` converts them in place.
 
-Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier, shadow (single or list), border, transition, typography. Colors as hex strings (hex8 for alpha) so contrast can be verified.
+**Files and output.** `ds.py build` merges, in order, primitive, semantic, component, `components/*.json` and `scopes/*.json` into `:root`. Each theme is built from `tokens/themes/<name>.json` plus any `tokens/themes/<name>.<scope>.json` add-ons, and goes into `[data-theme="<name>"], .theme-<name>` (plus `prefers-color-scheme: dark` for `dark`, `prefers-contrast: more` for `high-contrast`). It writes:
+- `dist/tokens.css`;
+- `dist/tokens.json` and `dist/tokens.scss` with build-time values;
+- `tokens/resolver.json`, a [DTCG Resolver Module](https://www.w3.org/community/reports/design-tokens/CG-FINAL-resolver-20251028/) file (version `2025-11-01`) that describes the base set and the theme modifier, so Style Dictionary, Tokens Studio and similar tools combine the files the same way.
+
+Composite `typography` tokens become sub-properties: `--typography-h1-font-size`, `--typography-h1-line-height`, …
+
+Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier, shadow (single or list), border, transition, gradient (`[{color, position}]` → `linear-gradient(90deg, …)`), typography. Plain strings (e.g. `clamp(…)`) pass through unchanged.
+
+**Opt-in scopes** add token files during `ds.py init --scopes …`. Example: `ai` adds a violet accent ramp, AI surfaces and shimmer tokens, plus dark and high-contrast add-ons and contrast pairs. They're separate files, so your own token files are never edited.
 
 ## 3. Naming
 
@@ -72,7 +84,9 @@ Marketing scope: `section.padding-block.{sm,md,lg}`, `section.gap`, `section.max
 - Apply `data-theme` on `<html>` for the page. For a **subtree** (an always-dark media stage, an inverted promo band) use `class="theme-dark"` (or `data-theme` on the element): `ds.py build` emits every theme as `[data-theme=x], .theme-x` and redeclares the themed semantic tokens there, so they resolve against that subtree's theme. A `.theme-light` block is generated too, for light islands inside dark pages.
 - Each theme sets `color-scheme`, so native controls and scrollbars match. Mark a custom dark theme with `"$extensions": {"color-scheme": "dark"}`.
 - Runtime switching, persistence and no-flash first paint: `js/theme.js` (copied by `ds.py init`).
-- **Density:** `[data-density="compact"]` swaps `--size-control-*` / padding vars in component CSS (`.btn { padding-inline: var(--density-comfortable-control-padding-x) }` and a compact override).
+- **Elevation:** `color.elevation.surface.{sunken,default,raised,overlay}` pairs with `elevation.{raised,overlay}` shadows; dark themes lift the surface instead of relying on shadow (`references/conventions.md`).
+- **State layers:** `opacity.state.{hover,focus,pressed,dragged}` and `opacity.disabled.{container,content}` for translucent hover/press overlays on subtle controls.
+- **Density:** `[data-density="compact"|"spacious"]` swaps `--size-control-*` / padding vars in component CSS (`.btn { padding-inline: var(--density-comfortable-control-padding-x) }` and a compact override).
 - **RTL:** use logical properties everywhere (`margin-inline-start`, `inset-inline-end`, `padding-block`); mirror directional icons with `:dir(rtl) .icon--directional { transform: scaleX(-1) }`. Docs pages have an RTL toggle — check every component in it.
 
 ## 7. Contrast & validation

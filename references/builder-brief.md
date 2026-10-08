@@ -17,7 +17,8 @@ Your files (build every one; each file covers several manifest components):
 <PASTE the relevant lines from `ds.py plan <ABS_DIR>`>
 
 For each file:
-- Write css/<components|patterns>/<file>.css and <components|patterns>/<file>.html (from docs/_component-template.html).
+- Write css/<components|patterns>/<file>.css (rules inside `@layer components { … }` or `@layer patterns { … }`) and <components|patterns>/<file>.html (from docs/_component-template.html).
+- Open dialogs/popovers with invoker commands (`commandfor` + `command`), place floating surfaces with CSS anchor positioning (references/css-architecture.md).
 - Put component tokens in tokens/components/<file>.json (your own file — never edit shared token files).
 - JS only when native HTML can't do it: js/<file>.js, vanilla ES module exporting init(root), progressive enhancement; reuse js/lib/* behaviors (roving focus, dismiss, position, hotkey, live region) — never re-implement them.
 - Framework targets: per component write the test first, then the component, then the story (references/testing.md, references/storybook.md).

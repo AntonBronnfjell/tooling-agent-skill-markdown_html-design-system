@@ -4,6 +4,7 @@ This skill owns the **structure and completeness** of the system. Other installe
 
 | Phase | Companion | What to ask it for | Fallback |
 |---|---|---|---|
+| 0 Discover | `ds.py detect` (built in) | Stack, monorepo, existing styles/tokens/Storybook/CI, safe location and sync targets — always first in an existing project | — |
 | 0 Discover | **/graphify** | Knowledge graph of an existing codebase: god nodes (shared theme/Button/Modal files), duplicate components, which files consume which styles. Run `/graphify <repo-or-ui-dir>` then query: "which components define colors?", "what are the modal implementations?" | `ds.py audit <repo>` + grep for component files |
 | 0 Discover | Figma MCP (`get_variable_defs`, `get_design_context`, `search_design_system`) | Pull existing variables/components when the user shares a Figma URL | Ask for exported tokens/screenshots |
 | 1 Decide | **/ui-ux-pro-max** | Style, palette, font pairing, UX rules for the product type: `search.py "<product> <industry> <keywords>" --design-system -p "<Name>" -f markdown` (+ `--variance/--motion/--density`), then `--domain color|typography|ux` deep-dives | `decision-guide.md` tables + your own judgment; record rationale |
