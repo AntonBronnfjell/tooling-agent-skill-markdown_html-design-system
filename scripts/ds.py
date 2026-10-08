@@ -2,7 +2,7 @@
 """html-design-system CLI. Stdlib only.
 
   ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing] [--force]
-  ds.py audit <path>                 inventory an existing codebase's de-facto design system
+  ds.py audit [path] [--url URL] [--json]   inventory the de-facto design system of a codebase or a live site
   ds.py build <dir>                  tokens -> dist/tokens.css, bundle dist/ds.css, docs index.html
   ds.py check <dir> [--strict]       validate tokens + contrast, lint CSS/HTML, coverage summary
   ds.py coverage <dir> [--json] [--all]
@@ -22,6 +22,14 @@
                                      and check client safety (tables, no var()/flex/rem, alt, lang, size, plain text)
   ds.py llms <dir>                   llms.txt, llms-full.txt, llms/<file>.md per component, dist/ds-index.json (for agents)
   ds.py mcp <dir>                    MCP server (stdio, stdlib) so any agent can query components, tokens and DESIGN.md
+  ds.py palette <hex> [--name N] [--mode curve|contrast] [--dir D] [--primary] [--brand B]
+                                     OKLCH ramp (50–950) from one color + contrast-checked primary mapping per theme
+  ds.py scale type|space [--dir D] [--min-size/--max-size/--min-ratio/--max-ratio/--min-vw/--max-vw]
+                                     Utopia fluid type/space scales as clamp() tokens
+  ds.py export <dir> [--target tailwind,shadcn,figma,ios,android,compose,flutter|all]
+                                     framework/platform outputs in dist/exports (no dependencies)
+  ds.py icons <svg-dir> <dir>        optimized SVG sprite (currentColor) + icon gallery page
+  ds.py taste [path] [--strict]      lint for the generic "AI look" (purple gradients, glass, buzzwords, emoji UI, …)
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
   Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
@@ -403,6 +411,28 @@ GENERIC_FONTS = {"serif", "sans-serif", "monospace", "system-ui", "ui-sans-serif
                  "cursive", "fantasy", "-apple-system", "BlinkMacSystemFont", "emoji", "math"}
 
 
+def load_brands(root):
+    """tokens/brands/<brand>.json: brand overrides (usually primitives: ramps, fonts, radius)."""
+    d = Path(root) / "tokens" / "brands"
+    return {p_.stem: json.loads(p_.read_text(encoding="utf-8")) for p_ in sorted(d.glob("*.json"))} if d.exists() else {}
+
+
+def dependents(flat, changed):
+    """Keys whose value (transitively) references any changed key — they must be redeclared next to an override."""
+    out, frontier = set(), set(changed)
+    while frontier:
+        nxt = set()
+        for k, v in flat.items():
+            if k in out or k in changed:
+                continue
+            blob = json.dumps(v["value"])
+            if any("{" + c + "}" in blob for c in frontier):
+                nxt.add(k)
+        out |= nxt
+        frontier = nxt
+    return out
+
+
 def load_tokens(root):
     root = Path(root)
     t = root / "tokens"
@@ -410,6 +440,8 @@ def load_tokens(root):
     files = [t / n for n in ("primitive.json", "semantic.json", "component.json")]
     files += sorted((t / "components").glob("*.json"))  # one file per component: parallel-safe
     files += sorted((t / "scopes").glob("*.json"))      # tokens added by optional scopes (ai, commerce, ...)
+    files += sorted((t / "scales").glob("*.json"))      # ds.py scale (fluid type/space)
+    files += sorted((t / "palettes").glob("*.json"))    # ds.py palette (ramps; may remap primary/link/focus)
     for f in files:
         if f.exists():
             try:
@@ -458,6 +490,12 @@ def build_tokens(root):
         # Re-declare every themed token with its default value so a light subtree works inside a dark page.
         keys = sorted({k for tree in themes.values() for k in flatten(tree)} & set(flat))
         css.append('[data-theme="light"], .theme-light {\n  color-scheme: light;\n' + decls(flat, keys) + "\n}")
+    for bname, btree in load_brands(root).items():
+        bflat = flatten(btree)
+        merged = {**flat, **bflat}
+        keys = list(bflat) + sorted(dependents(merged, set(bflat)))
+        css.append(f'/* Brand "{bname}": set data-brand on <html> (same element as data-theme). */\n'
+                   f'[data-brand="{bname}"], .brand-{bname} {{\n' + decls(merged, keys) + "\n}")
     aliases = deprecated_aliases(base, flat)
     if aliases:
         css.append("/* Deprecated aliases — removed in the next major version. */\n:root {\n" + aliases + "\n}")
@@ -544,8 +582,11 @@ def check_tokens(root, cfg):
     for th in need_themes:
         if th != "light" and th not in themes:
             errs.append(f"missing theme tokens/themes/{th}.json")
-    for name in ["light", *themes]:
-        merged = flat if name == "light" else {**flat, **flatten(themes[name])}
+    brand_sets = [(None, flat)] + [(b, {**flat, **flatten(t)}) for b, t in load_brands(root).items()]
+    combos = [(b, name, (bf if name == "light" else {**bf, **flatten(themes[name])})) for b, bf in brand_sets for name in ["light", *themes]]
+    for brand, name, merged in combos:
+        if brand:
+            name = f"{brand}/{name}"
         for fg, bg, minimum in cfg.get("contrast_pairs", []):
             if fg not in merged or bg not in merged:
                 errs.append(f"contrast pair {fg} / {bg}: token missing")
@@ -714,52 +755,114 @@ def cmd_init(a):
     print("Next: fill ds.config.json brief/direction, edit tokens/*.json, then `ds.py build` and `ds.py plan`.")
 
 
-def cmd_audit(a):
-    root = Path(a.path)
-    exts = {".css", ".scss", ".sass", ".less", ".html", ".jsx", ".tsx", ".vue", ".svelte", ".js", ".ts", ".astro"}
-    pats = {
-        "colors": re.compile(r"(?<![\w&/=\"'])#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b|rgba?\([^)]*\)|hsla?\([^)]*\)|oklch\([^)]*\)"),
-        "custom_properties": re.compile(r"(?<![\w-])(--[\w-]+)\s*:(?![\w-])"),
-        "font_families": re.compile(r"font-family\s*:\s*([^;}{]+)"),
-        "font_sizes": re.compile(r"font-size\s*:\s*([^;}{]+)"),
-        "spacing": re.compile(r"(?:margin|padding|gap)[\w-]*\s*:\s*([^;}{]+)"),
-        "radii": re.compile(r"border-radius\s*:\s*([^;}{]+)"),
-        "shadows": re.compile(r"box-shadow\s*:\s*([^;}{]+)"),
-        "breakpoints": re.compile(r"@media[^{]*?\((?:min|max)-width\s*:\s*([^)]+)\)"),
-        "tailwind_classes": re.compile(r"\b(?:bg|text|p|px|py|m|mx|my|gap|rounded|shadow)-[\w\[\]#./-]+"),
-    }
-    counts = {k: {} for k in pats}
-    names = {}
-    keywords = {c["id"]: [c["id"].split("-")[0], c["file"]] for _, c in components(all_tiers=True)}
-    nfiles = 0
-    for dp, dns, fns in os.walk(root):
-        dns[:] = [d for d in dns if d not in SKIP_DIRS and not d.startswith(".")]
-        for fn in fns:
-            p = Path(dp) / fn
-            if p.suffix not in exts:
-                continue
-            nfiles += 1
-            text = p.read_text(encoding="utf-8", errors="ignore")
-            for k, rx in pats.items():
-                for m in rx.finditer(text):
-                    v = (m.group(1) if rx.groups else m.group(0)).strip()[:80]
-                    counts[k][v] = counts[k].get(v, 0) + 1
-            stem = p.stem.lower()
-            for cid, kws in keywords.items():
-                if any(kw == stem or stem.startswith(kw + ".") or stem.startswith(kw + "-") for kw in kws):
-                    names.setdefault(cid, []).append(str(p.relative_to(root)))
-    print(f"# Design inventory: {root}  ({nfiles} files scanned)\n")
+AUDIT_PATTERNS = {
+    "colors": re.compile(r"(?<![\w&/=\"'])#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b|rgba?\([^)]*\)|hsla?\([^)]*\)|oklch\([^)]*\)"),
+    "custom_properties": re.compile(r"(?<![\w-])(--[\w-]+)\s*:(?![\w-])"),
+    "font_families": re.compile(r"font-family\s*:\s*([^;}{]+)"),
+    "font_sizes": re.compile(r"font-size\s*:\s*([^;}{]+)"),
+    "spacing": re.compile(r"(?:margin|padding|gap)[\w-]*\s*:\s*([^;}{]+)"),
+    "radii": re.compile(r"border-radius\s*:\s*([^;}{]+)"),
+    "shadows": re.compile(r"box-shadow\s*:\s*([^;}{]+)"),
+    "breakpoints": re.compile(r"@media[^{]*?\((?:min|max)-width\s*:\s*([^)]+)\)"),
+    "tailwind_classes": re.compile(r"\b(?:bg|text|p|px|py|m|mx|my|gap|rounded|shadow)-[\w\[\]#./-]+"),
+}
+
+
+def inventory(texts):
+    """Count design values across text blobs (files or fetched pages)."""
+    counts = {k: {} for k in AUDIT_PATTERNS}
+    for text in texts:
+        for k, rx in AUDIT_PATTERNS.items():
+            for m in rx.finditer(text):
+                v = (m.group(1) if rx.groups else m.group(0)).strip()[:80]
+                counts[k][v] = counts[k].get(v, 0) + 1
+    return counts
+
+
+def fetch_site(url, max_files=20, max_bytes=2_000_000):
+    """Fetch a page and its stylesheets (read-only, no cookies). Returns [(source, text)]."""
+    import urllib.parse
+    import urllib.request
+
+    def get(u):
+        req = urllib.request.Request(u, headers={"User-Agent": "html-design-system-audit/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as r:  # noqa: S310 - user-supplied URL, read-only
+            return r.read(max_bytes).decode("utf-8", errors="ignore")
+    html = get(url)
+    out = [(url, html)]
+    hrefs = re.findall(r"<link[^>]+rel=[\"']?stylesheet[\"']?[^>]*>", html, re.I)
+    for tag in hrefs[:max_files]:
+        m = re.search(r"href=[\"']([^\"']+)", tag)
+        if m:
+            css_url = urllib.parse.urljoin(url, m.group(1))
+            try:
+                out.append((css_url, get(css_url)))
+            except Exception as e:  # noqa: BLE001 - keep auditing what we could fetch
+                print(f"skip {css_url}: {e}", file=sys.stderr)
+    return out
+
+
+def print_inventory(title, counts, nsources, names=None):
+    print(f"# Design inventory: {title}  ({nsources} sources scanned)\n")
     for k, d in counts.items():
         if not d:
             continue
         top = sorted(d.items(), key=lambda x: -x[1])[:25]
         print(f"## {k} — {len(d)} distinct")
         print("\n".join(f"- `{v}` ×{n}" for v, n in top) + "\n")
-    print("## Existing component candidates (by file name)")
-    for cid, files in sorted(names.items()):
-        print(f"- {cid}: {', '.join(sorted(set(files))[:5])}")
+    if names is not None:
+        print("## Existing component candidates (by file name)")
+        for cid, files in sorted(names.items()):
+            print(f"- {cid}: {', '.join(sorted(set(files))[:5])}")
     print("\nInterpretation: many distinct colors/spacings = no system yet (consolidate into tokens);"
           " heavy custom_properties/tailwind usage = extract existing tokens instead of inventing new ones.")
+
+
+def suggested_primitives(counts, limit=12):
+    """Most-used literal colors as DTCG color objects — a starting point for extend mode."""
+    tree, n = {"$type": "color"}, 0
+    for v, _ in sorted(counts["colors"].items(), key=lambda x: -x[1]):
+        if v.startswith("#") and hex_rgb(v):
+            n += 1
+            tree[f"extracted-{n}"] = {"$value": hex_to_color_obj(v), "$description": f"seen ×{counts['colors'][v]}"}
+        if n >= limit:
+            break
+    return {"color": {"extracted": tree}}
+
+
+def cmd_audit(a):
+    if a.url:
+        sources = fetch_site(a.url)
+        counts = inventory(t for _, t in sources)
+        if a.json:
+            print(json.dumps({"url": a.url, "sources": [u for u, _ in sources], "counts": counts,
+                              "suggested_tokens": suggested_primitives(counts)}, indent=1))
+            return
+        print_inventory(a.url, counts, len(sources))
+        print("\n## Suggested primitive colors (DTCG, extend mode)\n\n```json\n"
+              + json.dumps(suggested_primitives(counts), indent=1) + "\n```")
+        return
+    root = Path(a.path)
+    exts = {".css", ".scss", ".sass", ".less", ".html", ".jsx", ".tsx", ".vue", ".svelte", ".js", ".ts", ".astro"}
+    names, texts = {}, []
+    keywords = {c["id"]: [c["id"].split("-")[0], c["file"]] for _, c in components(all_tiers=True)}
+    for dp, dns, fns in os.walk(root):
+        dns[:] = [d for d in dns if d not in SKIP_DIRS and not d.startswith(".")]
+        for fn in fns:
+            p_ = Path(dp) / fn
+            if p_.suffix not in exts:
+                continue
+            texts.append(p_.read_text(encoding="utf-8", errors="ignore"))
+            stem = p_.stem.lower()
+            for cid, kws in keywords.items():
+                if any(kw == stem or stem.startswith(kw + ".") or stem.startswith(kw + "-") for kw in kws):
+                    names.setdefault(cid, []).append(str(p_.relative_to(root)))
+    counts = inventory(texts)
+    if a.json:
+        print(json.dumps({"path": str(root), "files": len(texts), "counts": counts, "components": names,
+                          "suggested_tokens": suggested_primitives(counts)}, indent=1))
+        return
+    print_inventory(str(root), counts, len(texts), names)
 
 
 def cmd_build(a):
@@ -1671,11 +1774,17 @@ def write_resolver(root, themes):
     sources += [{"$ref": f"components/{p.name}"} for p in sorted((t / "components").glob("*.json"))] if (t / "components").exists() else []
     contexts = {"light": []}
     contexts.update({n: [{"$ref": f"themes/{n}.json"}] for n in themes if n != "light"})
+    brands = sorted(p_.stem for p_ in (t / "brands").glob("*.json")) if (t / "brands").exists() else []
     doc = {"name": "Generated by ds.py build", "version": "2025-11-01",
            "description": "Base sets, then the theme modifier. CSS: [data-theme=<context>] / .theme-<context>.",
            "sets": {"base": {"sources": sources}},
            "modifiers": {"theme": {"description": "Color theme", "contexts": contexts, "default": "light"}},
            "resolutionOrder": [{"$ref": "#/sets/base"}, {"$ref": "#/modifiers/theme"}]}
+    if brands:
+        doc["modifiers"]["brand"] = {"description": "Brand (white-label) — CSS: [data-brand=<context>]",
+                                     "contexts": {"default": [], **{b: [{"$ref": f"brands/{b}.json"}] for b in brands}},
+                                     "default": "default"}
+        doc["resolutionOrder"] = [{"$ref": "#/sets/base"}, {"$ref": "#/modifiers/brand"}, {"$ref": "#/modifiers/theme"}]
     safe_write(t / "resolver.json", json.dumps(doc, indent=2) + "\n")
 
 
@@ -1944,6 +2053,511 @@ def cmd_mcp(a):
 Tools: list_components, get_component, search, get_tokens, get_design_md. Re-run `ds.py llms` after changes.""")
 
 
+# ---------- generators: palette, scale ----------
+PALETTE_STEPS = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"]
+PALETTE_L = [0.971, 0.936, 0.885, 0.808, 0.704, 0.637, 0.577, 0.505, 0.444, 0.396, 0.258]   # ≈ Tailwind v4 lightness curve
+PALETTE_C = [0.08, 0.18, 0.35, 0.6, 0.85, 1.0, 1.0, 0.9, 0.75, 0.6, 0.45]                   # × seed chroma
+PALETTE_CONTRAST = [1.05, 1.15, 1.3, 1.5, 2.0, 3.0, 4.5, 6.0, 8.0, 12.0, 15.0]             # vs white (Leonardo mode)
+
+
+def _srgb_to_oklch(rgb):
+    import math
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
+    l_ = (0.4122214708 * lin[0] + 0.5363325363 * lin[1] + 0.0514459929 * lin[2]) ** (1 / 3)
+    m_ = (0.2119034982 * lin[0] + 0.6806995451 * lin[1] + 0.1073969566 * lin[2]) ** (1 / 3)
+    s_ = (0.0883024619 * lin[0] + 0.2817188376 * lin[1] + 0.6299787005 * lin[2]) ** (1 / 3)
+    L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+    A = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+    B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+    return L, math.hypot(A, B), (math.degrees(math.atan2(B, A)) + 360) % 360
+
+
+def _oklch_linear(l_, c, h):
+    import math
+    a_, b_ = c * math.cos(math.radians(h)), c * math.sin(math.radians(h))
+    l1 = (l_ + 0.3963377774 * a_ + 0.2158037573 * b_) ** 3
+    m1 = (l_ - 0.1055613458 * a_ - 0.0638541728 * b_) ** 3
+    s1 = (l_ - 0.0894841775 * a_ - 1.2914855480 * b_) ** 3
+    return (4.0767416621 * l1 - 3.3077115913 * m1 + 0.2309699292 * s1,
+            -1.2684380046 * l1 + 2.6097574011 * m1 - 0.3413193965 * s1,
+            -0.0041960863 * l1 - 0.7034186147 * m1 + 1.7076147010 * s1)
+
+
+def _in_srgb(l_, c, h):
+    return all(-1e-4 <= x <= 1 + 1e-4 for x in _oklch_linear(l_, c, h))
+
+
+def _fit(l_, c, h):
+    while c > 0 and not _in_srgb(l_, c, h):   # reduce chroma until it fits sRGB — never clip hue/lightness
+        c -= 0.002
+    return max(c, 0)
+
+
+def _l_for_contrast(target, c, h, against=(1, 1, 1)):
+    lo, hi = 0.0, 1.0
+    for _ in range(24):
+        mid = (lo + hi) / 2
+        ratio = contrast(_oklch_to_srgb(mid, _fit(mid, c, h), h), against)
+        lo, hi = (lo, mid) if ratio < target else (mid, hi)
+    return (lo + hi) / 2
+
+
+def generate_ramp(seed_hex, mode="curve"):
+    rgb = hex_rgb(seed_hex)
+    if rgb is None:
+        sys.exit(f"not a hex color: {seed_hex}")
+    L0, C0, H = _srgb_to_oklch(rgb)
+    C0 = max(C0, 0.02)
+    ramp = {}
+    anchor = min(range(len(PALETTE_L)), key=lambda i: abs(PALETTE_L[i] - L0))
+    for i, step in enumerate(PALETTE_STEPS):
+        c = C0 * PALETTE_C[i]
+        if mode == "contrast":
+            l_ = _l_for_contrast(PALETTE_CONTRAST[i], c, H)
+        else:
+            l_ = PALETTE_L[i] + (L0 - PALETTE_L[anchor]) * max(0, 1 - abs(i - anchor) / 3)   # pull neighbours toward the seed
+        c = _fit(l_, c, H)
+        srgb = _oklch_to_srgb(l_, c, H)
+        ramp[step] = {"colorSpace": "oklch", "components": [round(l_, 4), round(c, 4), round(H, 2)], "hex": _hex_from_rgb(srgb)}
+    if mode == "curve":
+        ramp[PALETTE_STEPS[anchor]] = {**hex_to_color_obj(seed_hex), "colorSpace": "srgb"}   # the seed itself, exactly
+    return ramp, PALETTE_STEPS[anchor]
+
+
+def map_semantics(name, ramp, canvas_dark=(0.008, 0.024, 0.09)):
+    """Choose ramp steps for primary/link/focus/selected per theme — by measured contrast, not by assumption."""
+    white = (1, 1, 1)
+    rgb = {s: color_rgb(v) for s, v in ramp.items()}
+    ref = lambda s: f"{{color.{name}.{s}}}"
+    nxt = lambda s, k=1: PALETTE_STEPS[min(len(PALETTE_STEPS) - 1, PALETTE_STEPS.index(s) + k)]
+    prv = lambda s, k=1: PALETTE_STEPS[max(0, PALETTE_STEPS.index(s) - k)]
+    light_bg = next((s for s in PALETTE_STEPS if contrast(rgb[s], white) >= 4.5), "700")
+    focus = next((s for s in PALETTE_STEPS if contrast(rgb[s], white) >= 3), light_bg)
+    sel_fg = next((s for s in PALETTE_STEPS[5:] if contrast(rgb[s], rgb["50"]) >= 4.5), "900")
+    dark_bg = next((s for s in ("500", "400", "300") if contrast(rgb[s], canvas_dark) >= 4.5), "300")
+    dark_link = next((s for s in ("400", "300", "200") if contrast(rgb[s], canvas_dark) >= 4.5), "200")
+    hc_bg = next((s for s in PALETTE_STEPS if contrast(rgb[s], white) >= 7), "900")
+    light = {"color": {"action": {"primary": {"bg": {"$value": ref(light_bg)}, "bg-hover": {"$value": ref(nxt(light_bg))},
+                                              "bg-active": {"$value": ref(nxt(light_bg, 2))}, "fg": {"$value": "{color.gray.0}"}}},
+                       "text": {"link": {"$value": ref(light_bg)}}, "border": {"focus": {"$value": ref(focus)}},
+                       "selected": {"bg": {"$value": ref("50")}, "fg": {"$value": ref(sel_fg)}, "border": {"$value": ref(light_bg)}}}}
+    dark = {"color": {"action": {"primary": {"bg": {"$value": ref(dark_bg)}, "bg-hover": {"$value": ref(prv(dark_bg))},
+                                             "bg-active": {"$value": ref(prv(dark_bg, 2))}, "fg": {"$value": "{color.gray.950}"}}},
+                      "text": {"link": {"$value": ref(dark_link)}}, "border": {"focus": {"$value": ref(dark_link)}},
+                      "selected": {"bg": {"$value": ref("900")}, "fg": {"$value": ref("100")}, "border": {"$value": ref(dark_link)}}}}
+    hc = {"color": {"action": {"primary": {"bg": {"$value": ref(hc_bg)}, "fg": {"$value": "{color.gray.0}"}}},
+                    "text": {"link": {"$value": ref(hc_bg)}}}}
+    return light, dark, hc
+
+
+def cmd_palette(a):
+    ramp, anchor = generate_ramp(a.color, a.mode)
+    name = a.name
+    print(f"# {name} ramp from {a.color} (OKLCH, mode {a.mode}; seed sits at step {anchor})\n")
+    print("| step | hex | oklch | vs white | vs #020617 |\n|---|---|---|---|---|")
+    for s, v in ramp.items():
+        rgb = color_rgb(v)
+        print(f"| {s} | `{_hex_from_rgb(rgb)}` | `{color_obj_to_css({**v, 'colorSpace': 'oklch'}) if v['colorSpace'] == 'oklch' else 'seed'}` "
+              f"| {contrast(rgb, (1, 1, 1)):.2f} | {contrast(rgb, (0.008, 0.024, 0.09)):.2f} |")
+    light, dark, hc = map_semantics(name, ramp)
+    primitive = {"color": {"$type": "color", name: {s: {"$value": v} for s, v in ramp.items()}}}
+    if not a.dir:
+        print("\nPreview only. To write it: ds.py palette <hex> --name <name> --dir <ds> [--primary] [--brand <brand>]")
+        return
+    root = Path(a.dir)
+    load_cfg(root)
+    if a.brand:   # brand override: same primitive names, different values — see tokens.md "Multi-brand"
+        target = root / "tokens" / "brands" / f"{a.brand}.json"
+        cur = json.loads(_read(target) or "{}")
+        safe_write(target, json.dumps(deep_merge(cur, primitive), indent=2) + "\n", kind="generated")
+    else:
+        safe_write(root / "tokens" / "palettes" / f"{name}.json", json.dumps(
+            deep_merge(primitive, light if a.primary else {}), indent=2) + "\n", kind="generated")
+        if a.primary:
+            safe_write(root / "tokens" / "themes" / f"dark.palette-{name}.json", json.dumps(dark, indent=2) + "\n", kind="generated")
+            safe_write(root / "tokens" / "themes" / f"high-contrast.palette-{name}.json", json.dumps(hc, indent=2) + "\n", kind="generated")
+    errs, _ = check_tokens(root, load_cfg(root))
+    build_tokens(root)
+    print(f"\nWrote {name} → {_rel(target) if a.brand else 'tokens/palettes/' + name + '.json'}"
+          f"{' (+ primary mapping for light/dark/high-contrast)' if a.primary and not a.brand else ''}. "
+          f"Contrast check: {'all pairs pass' if not errs else str(len(errs)) + ' problem(s)'}")
+    for e in errs:
+        print(f"  - {e}")
+
+
+UTOPIA_SPACE = {"3xs": 0.25, "2xs": 0.5, "xs": 0.75, "s": 1, "m": 1.5, "l": 2, "xl": 3, "2xl": 4, "3xl": 6}
+
+
+def _clamp(min_px, max_px, min_vw, max_vw):
+    slope = (max_px - min_px) / (max_vw - min_vw)
+    intercept = min_px - slope * min_vw
+    return f"clamp({_num(min_px / 16)}rem, {_num(intercept / 16)}rem + {_num(slope * 100)}vw, {_num(max_px / 16)}rem)"
+
+
+def cmd_scale(a):
+    """Utopia-style fluid scales: type steps and space sizes as clamp() between two viewports."""
+    lo, hi = sorted((a.min_vw, a.max_vw))
+    if a.kind == "type":
+        tree = {"font": {"size": {"$type": "dimension", "$description": f"Fluid type scale {a.min_size}px@{lo} ×{a.min_ratio} → "
+                                                                            f"{a.max_size}px@{hi} ×{a.max_ratio} (Utopia)"}}}
+        for i in range(a.steps_down * -1, a.steps_up + 1):
+            mn, mx = a.min_size * a.min_ratio ** i, a.max_size * a.max_ratio ** i
+            tree["font"]["size"][f"step-{i}" if i >= 0 else f"step-n{-i}"] = {"$value": _clamp(mn, mx, lo, hi)}
+    else:
+        tree = {"space": {"$type": "dimension", "$description": f"Fluid space scale from {a.min_size}px@{lo} → {a.max_size}px@{hi} (Utopia)"}}
+        names = list(UTOPIA_SPACE)
+        for n_, mult in UTOPIA_SPACE.items():
+            tree["space"][f"fluid-{n_}"] = {"$value": _clamp(a.min_size * mult, a.max_size * mult, lo, hi)}
+        for x, y in zip(names, names[1:]):   # one-up pairs: s-m grows faster, for section gaps
+            tree["space"][f"fluid-{x}-{y}"] = {"$value": _clamp(a.min_size * UTOPIA_SPACE[x], a.max_size * UTOPIA_SPACE[y], lo, hi)}
+    text = json.dumps(tree, indent=2) + "\n"
+    if not a.dir:
+        print(text + "\nPreview only. Add --dir <ds> to write tokens/scales/" + a.kind + ".json")
+        return
+    root = Path(a.dir)
+    load_cfg(root)
+    safe_write(root / "tokens" / "scales" / f"{a.kind}.json", text, kind="generated")
+    build_tokens(root)
+    print(f"wrote tokens/scales/{a.kind}.json — map typography roles / spacing to these in semantic.json when ready. "
+          "Rem terms keep text zoomable (WCAG 1.4.4); keep max ≤ 2.5 × min.")
+
+
+# ---------- exports: tailwind, shadcn, figma, native ----------
+SHADCN_MAP = {"background": "color.bg.canvas", "foreground": "color.text.default", "card": "color.elevation.surface.raised",
+              "card-foreground": "color.text.default", "popover": "color.elevation.surface.overlay",
+              "popover-foreground": "color.text.default", "primary": "color.action.primary.bg",
+              "primary-foreground": "color.action.primary.fg", "secondary": "color.action.secondary.bg",
+              "secondary-foreground": "color.action.secondary.fg", "muted": "color.bg.muted", "muted-foreground": "color.text.muted",
+              "accent": "color.bg.subtle", "accent-foreground": "color.text.default", "destructive": "color.action.danger.bg",
+              "border": "color.border.default", "input": "color.border.strong", "ring": "color.border.focus",
+              "chart-1": "dataviz.categorical.1", "chart-2": "dataviz.categorical.2", "chart-3": "dataviz.categorical.3",
+              "chart-4": "dataviz.categorical.4", "chart-5": "dataviz.categorical.5", "sidebar": "color.bg.subtle",
+              "sidebar-foreground": "color.text.default", "sidebar-primary": "color.action.primary.bg",
+              "sidebar-primary-foreground": "color.action.primary.fg", "sidebar-accent": "color.bg.muted",
+              "sidebar-accent-foreground": "color.text.default", "sidebar-border": "color.border.default",
+              "sidebar-ring": "color.border.focus"}
+TAILWIND_ALIASES = {"canvas": "color.bg.canvas", "surface": "color.bg.surface", "subtle": "color.bg.subtle", "muted": "color.bg.muted",
+                    "fg": "color.text.default", "fg-muted": "color.text.muted", "fg-subtle": "color.text.subtle",
+                    "link": "color.text.link", "primary": "color.action.primary.bg", "primary-hover": "color.action.primary.bg-hover",
+                    "on-primary": "color.action.primary.fg", "danger": "color.action.danger.bg", "on-danger": "color.action.danger.fg",
+                    "line": "color.border.default", "line-strong": "color.border.strong", "ring": "color.border.focus",
+                    "selected": "color.selected.bg", "info": "color.feedback.info.icon", "success": "color.feedback.success.icon",
+                    "warning": "color.feedback.warning.icon", "error": "color.feedback.danger.icon"}
+
+
+def _camel(key):
+    parts = re.split(r"[.\-]", key)
+    out = parts[0] + "".join(p_[:1].upper() + p_[1:] for p_ in parts[1:])
+    return ("t" + out) if out[:1].isdigit() else out
+
+
+def _theme_values(root):
+    """{theme: {key: (type, literal)}} with colors resolved to sRGB (r,g,b,a) and dimensions to px floats."""
+    base, themes = load_tokens(root)
+    flat = flatten(base)
+    out = {}
+    for name, tf in {"light": flat, **{n: {**flat, **flatten(t)} for n, t in themes.items()}}.items():
+        vals = {}
+        for k, v in tf.items():
+            raw = resolve_raw(k, tf)
+            if v["type"] == "color":
+                rgb = color_rgb(raw)
+                if rgb:
+                    alpha = raw.get("alpha", 1) if isinstance(raw, dict) else (int(raw.strip().lstrip("#")[6:8], 16) / 255 if isinstance(raw, str) and len(raw.strip().lstrip("#")) == 8 else 1)
+                    vals[k] = ("color", (*rgb, alpha))
+            elif v["type"] == "dimension":
+                try:
+                    css = to_css(raw, "dimension", tf, as_var=False)
+                except (ValueError, TypeError):
+                    css = ""
+                m = re.fullmatch(r"(-?\d*\.?\d+)(rem|px)", str(css).strip())   # clamp()/% etc. have no single native value
+                if m:
+                    vals[k] = ("dimension", float(m.group(1)) * (16 if m.group(2) == "rem" else 1))
+            elif v["type"] in ("number", "fontWeight") and isinstance(raw, (int, float)):
+                vals[k] = ("number", float(raw))
+        out[name] = vals
+    return out, flat, themes
+
+
+def export_tailwind(root, flat):
+    lines = ["/* Generated by ds.py export --target tailwind. Use with Tailwind CSS v4:", "   @import \"tailwindcss\";",
+             "   @import \"<design-system>/dist/ds.css\";              (tokens + components; its layers come after Tailwind's)",
+             "   @import \"<design-system>/dist/exports/tailwind.css\";",
+             "   Same-named theme variables (--radius-*, --shadow-*, --breakpoint-*) are overridden by ds tokens automatically;",
+             "   the aliases below add theme-aware utilities such as bg-primary, text-fg-muted, border-line, ring-ring. */",
+             "@theme inline {"]
+    lines += [f"  --color-{alias}: var({var_name(k)});" for alias, k in TAILWIND_ALIASES.items() if k in flat]
+    lines += [f"  --color-ds-{k[6:].replace('.', '-')}: var({var_name(k)});" for k, v in flat.items()
+              if v["type"] == "color" and k.startswith("color.") and not re.match(r"color\.(gray|blue|red|green|amber|violet|alpha)\.", k)]
+    lines += ["  --font-sans: var(--font-family-sans);", "  --font-serif: var(--font-family-serif);", "  --font-mono: var(--font-family-mono);"]
+    lines += [f"  --text-{k.split('.')[-1]}: var({var_name(k)});" for k in flat if k.startswith("font.size.")]
+    lines += ["  --spacing: var(--space-1);", "}"]
+    return "\n".join(lines) + "\n"
+
+
+def export_shadcn(root, flat, themes):
+    def block(sel, tf, keys):
+        rows = [f"  --{n}: var({var_name(k)});" for n, k in SHADCN_MAP.items() if k in tf and k in keys]
+        return f"{sel} {{\n" + "\n".join(rows) + "\n}"
+    head = ("/* Generated by ds.py export --target shadcn — shadcn/ui variable names pointing at design-system tokens.\n"
+            "   Import after dist/ds.css. Theme switching stays on the design system: [data-theme=dark] or .dark both work. */\n")
+    root_block = block(":root", flat, set(SHADCN_MAP.values())) .replace("}", f"  --radius: var(--radius-md);\n}}")
+    dark = ""
+    if "dark" in themes:
+        tflat = {**flat, **flatten(themes["dark"])}
+        dark = "\n\n.dark {\n  color-scheme: dark;\n" + decls(tflat, list(flatten(themes["dark"]))) + "\n}"
+    return head + root_block + dark + "\n"
+
+
+def export_figma(root, values):
+    """Body for POST /v1/files/:file_key/variables (Figma Variables REST API) + DTCG per mode for Figma's native import."""
+    cols = {"primitives": "col_primitives", "semantic": "col_semantic"}
+    modes = list(values)
+    body = {"variableCollections": [{"action": "CREATE", "id": "col_primitives", "name": "Primitives", "initialModeId": "mode_prim"},
+                                    {"action": "CREATE", "id": "col_semantic", "name": "Semantic", "initialModeId": "mode_light"}],
+            "variableModes": [{"action": "UPDATE", "id": "mode_prim", "name": "Value", "variableCollectionId": "col_primitives"},
+                              {"action": "UPDATE", "id": "mode_light", "name": "light", "variableCollectionId": "col_semantic"}]
+            + [{"action": "CREATE", "id": f"mode_{m}", "name": m, "variableCollectionId": "col_semantic"} for m in modes if m != "light"],
+            "variables": [], "variableModeValues": []}
+    base, themes = load_tokens(root)
+    flat = flatten(base)
+    mode_flats = {"light": flat, **{n: {**flat, **flatten(t)} for n, t in themes.items()}}
+    prim_ids = {}
+    for k, (typ, val) in values["light"].items():
+        raw = flat[k]["value"]
+        is_alias = isinstance(raw, str) and raw.startswith("{")
+        col = "semantic" if is_alias or not re.match(r"(color\.(gray|blue|red|green|amber|violet|alpha)|space|radius|font|z|breakpoint|opacity|border)\b", k) else "primitives"
+        vid = "var_" + re.sub(r"\W", "_", k)
+        if col == "primitives":
+            prim_ids[k] = vid
+        body["variables"].append({"action": "CREATE", "id": vid, "name": k.replace(".", "/"), "variableCollectionId": cols[col],
+                                  "resolvedType": "COLOR" if typ == "color" else "FLOAT"})
+        for m in (["prim"] if col == "primitives" else modes):
+            mv = values["light" if m == "prim" else m].get(k)
+            if not mv:
+                continue
+            fv = {"r": round(mv[1][0], 4), "g": round(mv[1][1], 4), "b": round(mv[1][2], 4), "a": round(mv[1][3], 4)} if typ == "color" else round(mv[1], 3)
+            if m != "prim":   # semantic → alias the primitive variable when the token is a plain alias in this mode
+                ref_ = re.fullmatch(r"\{([^{}]+)\}", str(mode_flats[m].get(k, {}).get("value", "")).strip())
+                if ref_ and ref_.group(1) in prim_ids:
+                    fv = {"type": "VARIABLE_ALIAS", "id": prim_ids[ref_.group(1)]}
+            body["variableModeValues"].append({"variableId": vid, "modeId": f"mode_{m}", "value": fv})
+    per_mode = {}
+    for m, vals in values.items():
+        tree = {}
+        for k, (typ, val) in vals.items():
+            node = tree
+            for part in k.split(".")[:-1]:
+                node = node.setdefault(part, {})
+            node[k.split(".")[-1]] = ({"$type": "color", "$value": {"colorSpace": "srgb", "components": [round(c, 4) for c in val[:3]],
+                                                                    "alpha": round(val[3], 4), "hex": _hex_from_rgb(val[:3])}}
+                                      if typ == "color" else {"$type": "number" if typ == "number" else "dimension",
+                                                              "$value": val if typ == "number" else {"value": val, "unit": "px"}})
+        per_mode[m] = tree
+    return body, per_mode
+
+
+def export_native(values, target):
+    light, dark = values["light"], values.get("dark", values["light"])
+    colors = sorted(k for k, (t, _) in light.items() if t == "color" and not re.match(r"color\.(gray|blue|red|green|amber|violet|alpha)\.", k))
+    dims = sorted(k for k, (t, _) in light.items() if t == "dimension")
+    h8 = lambda c: f"{round(c[3] * 255):02X}" + _hex_from_rgb(c[:3])[1:].upper()
+    if target == "ios":
+        rows = [f"    static let {_camel(k)} = Color(UIColor {{ $0.userInterfaceStyle == .dark ? "
+                f"UIColor(red: {dark.get(k, light[k])[1][0]:.4f}, green: {dark.get(k, light[k])[1][1]:.4f}, blue: {dark.get(k, light[k])[1][2]:.4f}, alpha: {dark.get(k, light[k])[1][3]:.3f}) : "
+                f"UIColor(red: {light[k][1][0]:.4f}, green: {light[k][1][1]:.4f}, blue: {light[k][1][2]:.4f}, alpha: {light[k][1][3]:.3f}) }})" for k in colors]
+        dims_rows = [f"    static let {_camel(k)}: CGFloat = {light[k][1]:g}" for k in dims]
+        return {"DesignTokens.swift": "// Generated by ds.py export --target ios. Light/dark resolve at runtime.\nimport SwiftUI\nimport UIKit\n\n"
+                "public enum DSColor {\n" + "\n".join(rows) + "\n}\n\npublic enum DSDimension {\n" + "\n".join(dims_rows) + "\n}\n"}
+    if target == "android":
+        res = lambda vals: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generated by ds.py export --target android -->\n<resources>\n" + "\n".join(
+            f"    <color name=\"ds_{re.sub(r'[.-]', '_', k)}\">#{h8(vals.get(k, light[k])[1])}</color>" for k in colors) + "\n</resources>\n"
+        dimens = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n" + "\n".join(
+            f"    <dimen name=\"ds_{re.sub(r'[.-]', '_', k)}\">{light[k][1]:g}{'sp' if k.startswith('font.size') else 'dp'}</dimen>" for k in dims) + "\n</resources>\n"
+        return {"values/ds_colors.xml": res(light), "values-night/ds_colors.xml": res(dark), "values/ds_dimens.xml": dimens}
+    if target == "compose":
+        obj = lambda name, vals: f"object {name} {{\n" + "\n".join(f"    val {_camel(k)} = Color(0x{h8(vals.get(k, light[k])[1])})" for k in colors) + "\n}"
+        return {"DesignTokens.kt": "// Generated by ds.py export --target compose\npackage design.system\n\nimport androidx.compose.ui.graphics.Color\n"
+                "import androidx.compose.ui.unit.dp\n\n" + obj("DsColorsLight", light) + "\n\n" + obj("DsColorsDark", dark)
+                + "\n\nobject DsDimensions {\n" + "\n".join(f"    val {_camel(k)} = {light[k][1]:g}.dp" for k in dims) + "\n}\n"}
+    if target == "flutter":
+        cls = lambda name, vals: f"class {name} {{\n  {name}._();\n" + "\n".join(
+            f"  static const Color {_camel(k)} = Color(0x{h8(vals.get(k, light[k])[1])});" for k in colors) + "\n}"
+        return {"ds_tokens.dart": "// Generated by ds.py export --target flutter\nimport 'package:flutter/painting.dart';\n\n"
+                + cls("DsColorsLight", light) + "\n\n" + cls("DsColorsDark", dark) + "\n\nclass DsDimensions {\n  DsDimensions._();\n"
+                + "\n".join(f"  static const double {_camel(k)} = {light[k][1]:g};" for k in dims) + "\n}\n"}
+    raise ValueError(target)
+
+
+EXPORT_TARGETS = ["tailwind", "shadcn", "figma", "ios", "android", "compose", "flutter"]
+
+
+def cmd_export(a):
+    root = Path(a.dir)
+    load_cfg(root)
+    build_tokens(root)
+    targets = EXPORT_TARGETS if a.target == "all" else a.target.split(",")
+    values, flat, themes = _theme_values(root)
+    out = root / "dist" / "exports"
+    for t in targets:
+        if t == "tailwind":
+            safe_write(out / "tailwind.css", export_tailwind(root, flat))
+        elif t == "shadcn":
+            safe_write(out / "shadcn.css", export_shadcn(root, flat, themes))
+        elif t == "figma":
+            body, per_mode = export_figma(root, values)
+            safe_write(out / "figma" / "variables.json", json.dumps(body, indent=1) + "\n")
+            for m, tree in per_mode.items():
+                safe_write(out / "figma" / f"{m}.tokens.json", json.dumps(tree, indent=1) + "\n")
+        elif t in ("ios", "android", "compose", "flutter"):
+            for rel, text in export_native(values, t).items():
+                safe_write(out / t / rel, text)
+        else:
+            sys.exit(f"unknown target {t}; choose from {', '.join(EXPORT_TARGETS)} or all")
+        print(f"exported {t} → {_rel(out / (t if t not in ('tailwind', 'shadcn') else t + '.css'))}")
+    if "figma" in targets:
+        print("Figma: POST dist/exports/figma/variables.json to /v1/files/<file_key>/variables (needs a full seat on an "
+              "Enterprise plan), or import dist/exports/figma/<mode>.tokens.json with Figma's DTCG import / Tokens Studio.")
+
+
+# ---------- icons ----------
+def optimize_svg(text, name):
+    import xml.etree.ElementTree as ET
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    root = ET.fromstring(re.sub(r"<!--.*?-->", "", text, flags=re.S))
+    svg_ns = "{http://www.w3.org/2000/svg}"
+    drop = {"title", "desc", "metadata", "defs"} if not root.findall(f".//{svg_ns}defs/*") else {"title", "desc", "metadata"}
+    for parent in list(root.iter()):
+        for child in list(parent):
+            tag = child.tag.split("}")[-1]
+            if tag in drop or child.tag.startswith("{http://www.inkscape") or child.tag.startswith("{http://sodipodi"):
+                parent.remove(child)
+    for el in root.iter():
+        for attr in list(el.attrib):
+            if attr.startswith("{") and ("inkscape" in attr or "sodipodi" in attr) or attr in ("data-name", "class", "id"):
+                del el.attrib[attr]
+        for paint in ("fill", "stroke"):
+            v = el.get(paint)
+            if v and v not in ("none", "currentColor") and not v.startswith("url("):
+                el.set(paint, "currentColor")
+        if el.get("d"):
+            el.set("d", re.sub(r"(\d+\.\d{3})\d+", r"\1", el.get("d")))
+    view_box = root.get("viewBox") or f"0 0 {root.get('width', '24')} {root.get('height', '24')}"
+    inner = "".join(ET.tostring(ch, encoding="unicode") for ch in root)
+    inner = re.sub(r"\s+xmlns(:\w+)?=\"[^\"]+\"", "", inner)
+    paint = "".join(f' {k}="{root.get(k)}"' for k in ("fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin") if root.get(k))
+    paint = re.sub(r'(fill|stroke)="(?!none|currentColor)[^"]*"', r'\1="currentColor"', paint)
+    return f'<symbol id="icon-{name}" viewBox="{view_box}"{paint}>{inner}</symbol>'
+
+
+def cmd_icons(a):
+    src, root = Path(a.src), Path(a.dir)
+    load_cfg(root)
+    files = sorted(src.rglob("*.svg"))
+    if not files:
+        sys.exit(f"no .svg files under {src}")
+    symbols, names, before, failed = [], [], 0, []
+    for f in files:
+        name = re.sub(r"[^a-z0-9-]+", "-", f.stem.lower()).strip("-")
+        raw = f.read_text(encoding="utf-8", errors="ignore")
+        before += len(raw.encode())
+        try:
+            symbols.append(optimize_svg(raw, name))
+            names.append(name)
+        except Exception as e:  # noqa: BLE001 - report and continue
+            failed.append(f"{f.name}: {e}")
+    sprite = ('<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">\n'
+              + "\n".join(symbols) + "\n</svg>\n")
+    safe_write(root / "dist" / "icons.svg", sprite)
+    safe_write(root / "dist" / "icons.json", json.dumps({"icons": names, "license": a.license or "record the icon set license (ADR)"}, indent=1) + "\n")
+    tiles = "\n".join(f'      <li class="ds-icons__item"><svg class="icon" aria-hidden="true"><use href="../dist/icons.svg#icon-{n}"></use></svg>'
+                      f'<code>{n}</code></li>' for n in names)
+    page = f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icons — Design System</title>
+<link rel="stylesheet" href="../dist/ds.css"><link rel="stylesheet" href="../docs/docs.css"><script src="../docs/docs.js" defer></script>
+<style>.ds-icons{{list-style:none;padding:0;display:grid;gap:var(--space-3);grid-template-columns:repeat(auto-fill,minmax(8rem,1fr))}}
+.ds-icons__item{{display:grid;justify-items:center;gap:var(--space-2);padding:var(--space-3);border:var(--border-width-thin) solid var(--color-border-default);border-radius:var(--radius-md)}}
+.ds-icons .icon{{inline-size:var(--icon-size-lg);block-size:var(--icon-size-lg)}}</style></head>
+<body class="ds-docs"><main id="main" class="ds-docs__main"><h1>Icons ({len(names)})</h1>
+<p>Usage: <code>&lt;svg class="icon" aria-hidden="true"&gt;&lt;use href="dist/icons.svg#icon-NAME"&gt;&lt;/use&gt;&lt;/svg&gt;</code> — icons inherit <code>currentColor</code>; give meaningful icons <code>role="img"</code> and an <code>aria-label</code>.</p>
+<ul class="ds-icons" role="list">
+{tiles}
+</ul></main></body></html>
+"""
+    safe_write(root / "docs" / "icons.html", page)
+    after = len(sprite.encode())
+    print(f"{len(names)} icons → dist/icons.svg ({before // 1024}KB → {after // 1024}KB), gallery docs/icons.html"
+          + (f"; {len(failed)} failed: " + "; ".join(failed[:5]) if failed else "")
+          + ". Light optimization only (metadata, editor attributes, precision, currentColor) — not a full SVGO.")
+
+
+# ---------- taste: the "generic AI look" linter ----------
+TASTE_RULES = [
+    ("ai-gradient", re.compile(r"(linear|radial)-gradient\([^)]*(#(?:6366f1|8b5cf6|a855f7|7c3aed|ec4899|d946ef|3b82f6)|purple|violet|indigo|fuchsia)", re.I),
+     "Purple/indigo/pink gradient — the most recognizable generic-AI look. Use the brand ramp, or no gradient."),
+    ("tw-ai-gradient", re.compile(r"\b(from|via|to)-(purple|violet|indigo|fuchsia|pink)-\d{3}\b"),
+     "Tailwind purple→pink gradient utilities — same problem, utility-class edition."),
+    ("gradient-text", re.compile(r"background-clip\s*:\s*text|\bbg-clip-text\b"),
+     "Gradient text — reserve for one signature moment at most; it hurts contrast and readability."),
+    ("glass", re.compile(r"backdrop-filter\s*:\s*blur|\bbackdrop-blur(-\w+)?\b"),
+     "Glassmorphism blur — costly, low-contrast over busy backgrounds; use elevation tokens instead."),
+    ("huge-radius", re.compile(r"border-radius\s*:\s*(2[4-9]|[3-9]\d)px|\brounded-(2xl|3xl)\b"),
+     "Very large radii on everything reads as a template. Use radius tokens and a deliberate shape language."),
+    ("soft-shadow", re.compile(r"box-shadow\s*:[^;]*\b([4-9]\d|\d{3})px\b|\bshadow-2xl\b"),
+     "Huge soft shadows everywhere. Use the elevation scale (raised/overlay) only where something floats."),
+    ("emoji-ui", re.compile(r"<(h[1-6]|button|a)\b[^>]*>[^<]*[\U0001F300-\U0001FAFF✨⚡✅⭐]", re.U),
+     "Emoji in headings/buttons — screen readers announce them by name; use the icon system."),
+    ("placeholder-copy", re.compile(r"lorem ipsum|\bJohn Doe\b|\bAcme( Inc| Corp)?\b", re.I),
+     "Placeholder copy — real content length drives real layout."),
+    ("buzzwords", re.compile(r"\b(supercharge|unlock (the|your)|seamless(ly)?|revolutioni[sz]e|elevate your|empower(s|ing)? (you|your)|game[- ]changer|next[- ]level|cutting[- ]edge|effortless(ly)?)\b", re.I),
+     "Generic marketing buzzwords — say what the product does, for whom, with a number if possible (references/content.md)."),
+    ("generic-cta", re.compile(r">\s*(Get Started|Learn More|Click Here|Submit)\s*<", re.I),
+     "Vague CTA label — use a specific verb + object (\"Start free trial\", \"Download report\")."),
+    ("inter-only", re.compile(r"font-family\s*:\s*['\"]?Inter['\"]?\s*,\s*(system-ui|sans-serif)", re.I),
+     "Inter + system fallback as the only typeface — fine for UI, but pair a display face or make it a recorded decision."),
+    ("center-everything", re.compile(r"text-align\s*:\s*center|\btext-center\b"),
+     "Centered text — fine for heroes, tiring for anything longer than two lines; left-align body copy."),
+]
+
+
+def cmd_taste(a):
+    root = Path(a.path)
+    exts = {".css", ".scss", ".html", ".jsx", ".tsx", ".vue", ".svelte", ".astro", ".md", ".mdx"}
+    files = [root] if root.is_file() else [p_ for p_ in root.rglob("*") if p_.suffix in exts and not set(p_.parts) & SKIP_DIRS]
+    hits, per_rule = [], {}
+    for f in files:
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        for rule, rx, why in TASTE_RULES:
+            for m in rx.finditer(text):
+                line = text.count("\n", 0, m.start()) + 1
+                hits.append((rule, f, line, m.group(0)[:60].strip()))
+                per_rule[rule] = per_rule.get(rule, 0) + 1
+    # center-everything only matters in bulk
+    if per_rule.get("center-everything", 0) < 8:
+        hits = [h for h in hits if h[0] != "center-everything"]
+        per_rule.pop("center-everything", None)
+    # Each distinct tell costs 5 (they compound into "template look"), plus a severity weight per occurrence (max 5).
+    weight = {"ai-gradient": 8, "tw-ai-gradient": 6, "placeholder-copy": 5, "buzzwords": 4, "emoji-ui": 4, "gradient-text": 4,
+              "glass": 4, "generic-cta": 3, "huge-radius": 2, "soft-shadow": 2, "inter-only": 2, "center-everything": 1}
+    score = max(0, 100 - sum(5 + min(n, 5) * weight.get(r, 2) for r, n in per_rule.items()))
+    if a.json:
+        print(json.dumps({"score": score, "rules": per_rule,
+                          "hits": [{"rule": r, "file": str(f), "line": ln, "match": m} for r, f, ln, m in hits]}, indent=1))
+    else:
+        print(f"# Taste check: {root} — score {score}/100 ({len(files)} files)\n")
+        why = {r: w for r, _, w in TASTE_RULES}
+        for rule, n in sorted(per_rule.items(), key=lambda x: -x[1]):
+            print(f"## {rule} ×{n}\n{why[rule]}")
+            for r, f, ln, m in [h for h in hits if h[0] == rule][:6]:
+                print(f"- {f}:{ln} `{m}`")
+            print()
+        if not per_rule:
+            print("No generic-AI tells found.")
+    if a.strict and score < a.min_score:
+        sys.exit(1)
+
+
 # ---------- hooks ----------
 def read_hook_input():
     try:
@@ -2033,7 +2647,9 @@ def main():
     p.add_argument("--scopes", help="comma list, default product: product (app UI), marketing, ai, commerce, email")
     p.add_argument("--project", help="host project root: records stack + sync targets from `ds.py detect`")
     p.add_argument("--adopt", action="store_true", help="allow a non-empty folder; existing files are never overwritten")
-    p = sp.add_parser("audit"); p.add_argument("path")
+    p = sp.add_parser("audit"); p.add_argument("path", nargs="?", default=".")
+    p.add_argument("--url", help="audit a live site instead: fetches the page and its stylesheets (read-only)")
+    p.add_argument("--json", action="store_true")
     p = sp.add_parser("build"); p.add_argument("dir")
     p = sp.add_parser("check"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")
     p = sp.add_parser("coverage"); p.add_argument("dir"); p.add_argument("--json", action="store_true"); p.add_argument("--all", action="store_true")
@@ -2045,6 +2661,23 @@ def main():
     p = sp.add_parser("migrate-colors"); p.add_argument("dir")
     p = sp.add_parser("email"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")
     p = sp.add_parser("llms"); p.add_argument("dir")
+    p = sp.add_parser("palette"); p.add_argument("color", help="seed hex, e.g. '#0f766e'")
+    p.add_argument("--name", default="brand"); p.add_argument("--mode", choices=["curve", "contrast"], default="curve")
+    p.add_argument("--dir", help="design system to write into (omit to preview)")
+    p.add_argument("--primary", action="store_true", help="also map primary/link/focus/selected to this ramp in every theme")
+    p.add_argument("--brand", help="write as a brand override (tokens/brands/<brand>.json) instead")
+    p = sp.add_parser("scale"); p.add_argument("kind", choices=["type", "space"]); p.add_argument("--dir")
+    p.add_argument("--min-size", type=float, default=16); p.add_argument("--max-size", type=float, default=20)
+    p.add_argument("--min-ratio", type=float, default=1.2); p.add_argument("--max-ratio", type=float, default=1.25)
+    p.add_argument("--min-vw", type=float, default=320); p.add_argument("--max-vw", type=float, default=1240)
+    p.add_argument("--steps-up", type=int, default=5); p.add_argument("--steps-down", type=int, default=2)
+    p = sp.add_parser("export"); p.add_argument("dir")
+    p.add_argument("--target", default="all", help=f"comma list or all: {', '.join(EXPORT_TARGETS)}")
+    p = sp.add_parser("icons"); p.add_argument("src", help="folder of .svg files"); p.add_argument("dir")
+    p.add_argument("--license", help="icon set license to record, e.g. 'Lucide (ISC)'")
+    p = sp.add_parser("taste"); p.add_argument("path", nargs="?", default=".")
+    p.add_argument("--json", action="store_true"); p.add_argument("--strict", action="store_true")
+    p.add_argument("--min-score", type=int, default=80)
     p = sp.add_parser("mcp"); p.add_argument("dir")
     p = sp.add_parser("storybook"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p.add_argument("--renderer", choices=["html", "server"], default="html",
@@ -2066,7 +2699,8 @@ def main():
      "coverage": cmd_coverage, "plan": cmd_plan, "phase": cmd_phase, "status": cmd_status,
      "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
      "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email,
-     "llms": cmd_llms, "mcp": cmd_mcp}[a.cmd](a)
+     "llms": cmd_llms, "mcp": cmd_mcp,
+     "palette": cmd_palette, "scale": cmd_scale, "export": cmd_export, "icons": cmd_icons, "taste": cmd_taste}[a.cmd](a)
 
 
 if __name__ == "__main__":
