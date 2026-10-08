@@ -1,0 +1,92 @@
+/* form-field.css — Label, form field wrapper, fieldset. Every form control renders inside .field.
+   Blocks: .field, .label, .fieldset
+   .field parts:   .field__hint (helper, id → aria-describedby), .field__error (id → aria-describedby,
+                   icon + visually hidden "Error:"), .field__counter (polite live counter, js/form-field.js),
+                   .field__control (row for the control when it is not a single element)
+   .field modifier: .field--horizontal (label beside control from 48rem / --breakpoint-md)
+   .label parts:   .label__required ("*", explained in the form intro), .label__optional ("(optional)")
+   .fieldset parts: .fieldset__legend, .fieldset__body
+   Invalid styling comes from the control (aria-invalid="true" or :user-invalid), never from a class. */
+@layer components {
+  .field {
+    display: grid;
+    gap: var(--space-1-5);
+    min-inline-size: 0;
+    max-inline-size: var(--field-max, 32rem);
+  }
+
+  .label {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-snug);
+  }
+  .label__required { color: var(--color-feedback-danger-fg); font-weight: var(--font-weight-bold); }
+  .label__optional { color: var(--color-text-muted); font-weight: var(--font-weight-regular); }
+
+  .field__hint,
+  .field__counter {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-snug);
+  }
+  .field__counter { font-variant-numeric: tabular-nums; justify-self: end; }
+  .field__counter[data-over="true"] { color: var(--color-feedback-danger-fg); font-weight: var(--font-weight-semibold); }
+
+  .field__error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1-5);
+    color: var(--color-feedback-danger-fg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-snug);
+  }
+  .field__error-icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    margin-block-start: var(--space-px);
+    color: var(--color-feedback-danger-icon);
+    stroke-width: var(--icon-stroke);
+  }
+
+  .field__control { display: flex; align-items: center; gap: var(--space-2); }
+
+  /* Horizontal: label column + control column, only where there is room. */
+  @media (min-width: 48rem) {
+    .field--horizontal {
+      --field-max: 44rem;
+      grid-template-columns: 12rem minmax(0, 1fr);
+      column-gap: var(--space-4);
+      align-items: start;
+    }
+    .field--horizontal > .label { grid-column: 1; padding-block-start: var(--space-2); }
+    .field--horizontal > :not(.label) { grid-column: 2; }
+  }
+
+  .fieldset {
+    display: grid;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .fieldset__legend {
+    float: inline-start; /* lets the legend sit inside the grid flow with a normal gap */
+    inline-size: 100%;
+    margin-block-end: var(--space-1);
+    padding: 0;
+    color: var(--color-text-default);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-snug);
+  }
+  .fieldset__legend + * { clear: both; }
+  .fieldset__body { display: grid; gap: var(--space-4); }
+}

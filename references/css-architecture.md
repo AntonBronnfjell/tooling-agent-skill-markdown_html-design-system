@@ -163,3 +163,7 @@ Performance
 Notes on certainty
 - Baseline facts were read from web-features data, not from web.dev pages directly; web.dev/caniuse were not re-fetched in this pass. Two anomalies flagged inline: `position-anchor` listed as Chrome/Firefox 151 + Safari 27 (possibly a behavior change), and `popover="hint"` listed as Chrome 151 (I recalled an earlier Chrome ship around 133 — unverified, possibly reverted or re-specced).
 - Vendor-specific numbers (M3 opacities, GOV.UK width classes) are from memory of those systems; verify against the linked pages before publishing.
+
+## Bleeding-edge syntax and build tools
+Unrecognized **at-rules or functions** (for example `@container anchored(...)`, very new `@function`/`if()` forms) can make build-time CSS parsers such as lightningcss (used by Vite, so Storybook builds and many app bundlers) fail the **whole build**, not just skip the rule. Browsers ignore what they don't understand; minifiers don't. Before shipping a not-yet-Baseline feature, check that `npx storybook build` (or the consuming app's build) still passes. If it doesn't, leave the feature out or move it to a separate, unminified stylesheet. Unknown *properties and values* (`position-try-fallbacks`, `interpolate-size`) are generally passed through safely.
+

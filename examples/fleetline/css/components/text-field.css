@@ -1,0 +1,112 @@
+/* text-field.css — single-line text input. Block alias: .input
+   Plain:     <input class="input" type="text" …>
+   Affixed:   <div class="input input--affixed"> <span class="input__affix">$</span>
+                <input class="input__control" …> <span class="input__affix">km</span> </div>
+   Sizes:     .input--sm | (md default) | .input--lg → --size-control-* (align with .btn sizes)
+   States:    :hover, :focus-visible, :disabled, :read-only (real attributes), invalid via
+              aria-invalid="true" or :user-invalid (only after interaction).
+              Docs-only freeze classes: .is-hover, .is-focus-visible. */
+@layer components {
+  .input {
+    --_h: var(--size-control-md);
+    --_border: var(--input-border);
+    --_bg: var(--input-bg);
+
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--_h);
+    padding-block: 0;
+    padding-inline: var(--space-3);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--input-radius);
+    background: var(--_bg);
+    color: var(--color-text-default);
+    font-family: inherit;
+    font-size: var(--font-size-md); /* 16px: no iOS zoom on focus */
+    line-height: var(--font-line-height-normal);
+    transition: border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .input::placeholder { color: var(--color-text-subtle); opacity: 1; }
+
+  .input--sm { --_h: var(--size-control-sm); padding-inline: var(--space-2); font-size: var(--font-size-sm); }
+  .input--lg { --_h: var(--size-control-lg); padding-inline: var(--space-4); }
+
+  /* Affixed wrapper: the border lives on the wrapper, the inner input is borderless. */
+  .input--affixed {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: text;
+  }
+  .input__control {
+    flex: 1;
+    min-inline-size: 0;
+    block-size: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+  }
+  /* The ring is drawn on the wrapper (.input--affixed:has(:focus-visible)); a transparent outline
+     stays here so forced-colors mode still shows one. */
+  .input__control:focus-visible { outline-color: transparent; }
+  .input__control::placeholder { color: var(--color-text-subtle); opacity: 1; }
+  .input__affix {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+  }
+  .input__affix .icon { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); }
+
+  /* Hover */
+  input.input:hover:not(:disabled, :read-only),
+  .input--affixed:hover:not(:has(.input__control:disabled, .input__control:read-only)),
+  .input.is-hover { --_border: var(--color-text-muted); }
+
+  /* Focus — ring, not just a border color change. */
+  .input:focus-visible,
+  .input--affixed:has(.input__control:focus-visible),
+  .input.is-focus-visible {
+    --_border: var(--color-border-focus);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Invalid — a second inset line doubles the border weight without shifting layout. */
+  .input[aria-invalid="true"],
+  input.input:user-invalid,
+  .input--affixed:has(.input__control[aria-invalid="true"], .input__control:user-invalid) {
+    --_border: var(--color-border-invalid);
+    box-shadow: inset 0 0 0 var(--border-width-thin) var(--_border);
+  }
+
+  /* Read-only: focusable and copyable, no emphasis. */
+  input.input:read-only:not(:disabled),
+  .input--affixed:has(.input__control:read-only:not(:disabled)) {
+    --_bg: var(--color-bg-subtle);
+    --_border: var(--color-border-default);
+  }
+
+  /* Disabled: muted, not focusable. */
+  .input:disabled,
+  .input--affixed:has(.input__control:disabled) {
+    --_bg: var(--color-bg-muted);
+    --_border: var(--color-border-subtle);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+  .input:disabled::placeholder,
+  .input__control:disabled::placeholder { color: var(--color-text-disabled); }
+
+  @media (forced-colors: active) {
+    .input { border-color: CanvasText; }
+    .input:disabled, .input--affixed:has(:disabled) { border-color: GrayText; color: GrayText; }
+    .input--affixed:has(.input__control:focus-visible) { outline-color: Highlight; }
+  }
+}

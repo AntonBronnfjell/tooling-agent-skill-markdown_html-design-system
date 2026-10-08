@@ -1,0 +1,142 @@
+/* button.css — Button. Block alias: .btn
+   Variants: .btn--primary | --secondary (default look) | --ghost (tertiary) | --destructive
+   Sizes:    .btn--sm | (md default) | .btn--lg   → heights = --button-height-* = --size-control-*
+   Layout:   .btn--full-width
+   Parts:    .btn__label, .btn__icon (svg, aria-hidden), .btn__spinner (aria-hidden)
+   States:   real ones via attributes — :hover :focus-visible :active, disabled, aria-disabled="true",
+             aria-busy="true" (loading). Docs-only freeze classes share the same selectors:
+             .is-hover, .is-focus-visible, .is-active.
+   Pattern:  variants only set private custom properties (--_bg, --_fg, …); state rules swap them.
+             Other interactive components (icon-button, toggle, menu item) should copy this pattern. */
+@layer components {
+  .btn {
+    --_h: var(--button-height-md);
+    --_px: var(--density-comfortable-control-padding-x);
+    --_font-size: var(--font-size-sm);
+    --_icon: var(--icon-size-sm);
+    --_bg: var(--color-action-secondary-bg);
+    --_bg-hover: var(--color-action-secondary-bg-hover);
+    --_bg-active: var(--color-action-secondary-bg-active);
+    --_fg: var(--color-action-secondary-fg);
+    --_border: var(--color-action-secondary-border);
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-block-size: var(--_h);
+    min-inline-size: var(--_h);
+    padding-block: 0;
+    padding-inline: var(--_px);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--button-radius);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-family: inherit;
+    font-size: var(--_font-size);
+    font-weight: var(--button-font-weight);
+    line-height: var(--font-line-height-tight);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      border-color var(--motion-duration-fast) var(--motion-easing-standard),
+      color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+
+  /* Variants */
+  .btn--primary {
+    --_bg: var(--color-action-primary-bg);
+    --_bg-hover: var(--color-action-primary-bg-hover);
+    --_bg-active: var(--color-action-primary-bg-active);
+    --_fg: var(--color-action-primary-fg);
+    --_border: transparent;
+  }
+  .btn--secondary { /* explicit alias of the default look */
+    --_bg: var(--color-action-secondary-bg);
+    --_border: var(--color-action-secondary-border);
+  }
+  .btn--ghost {
+    --_bg: var(--color-action-ghost-bg);
+    --_bg-hover: var(--color-action-ghost-bg-hover);
+    --_bg-active: var(--color-action-ghost-bg-active);
+    --_fg: var(--color-action-ghost-fg);
+    --_border: transparent;
+  }
+  .btn--destructive {
+    --_bg: var(--color-action-danger-bg);
+    --_bg-hover: var(--color-action-danger-bg-hover);
+    --_bg-active: var(--color-action-danger-bg-active);
+    --_fg: var(--color-action-danger-fg);
+    --_border: transparent;
+  }
+
+  /* Sizes — sm/md/lg line up with .input--sm/md/lg in the same row. */
+  .btn--sm { --_h: var(--button-height-sm); --_px: var(--space-3); --_font-size: var(--font-size-sm); }
+  .btn--lg { --_h: var(--button-height-lg); --_px: var(--space-5); --_font-size: var(--font-size-md); --_icon: var(--icon-size-md); }
+  [data-density="compact"] .btn:not(.btn--lg) { --_px: var(--density-compact-control-padding-x); }
+
+  .btn--full-width { display: flex; inline-size: 100%; }
+
+  /* Parts */
+  .btn__icon {
+    flex-shrink: 0;
+    inline-size: var(--_icon);
+    block-size: var(--_icon);
+    stroke-width: var(--icon-stroke);
+  }
+  .btn__label { overflow: hidden; text-overflow: ellipsis; }
+
+  /* States — the .is-* classes exist only so docs can freeze a state. */
+  .btn:hover:not(:disabled, [aria-disabled="true"], [aria-busy="true"]),
+  .btn.is-hover { background: var(--_bg-hover); }
+
+  .btn:active:not(:disabled, [aria-disabled="true"], [aria-busy="true"]),
+  .btn.is-active { background: var(--_bg-active); }
+
+  .btn:focus-visible,
+  .btn.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* disabled = not focusable; aria-disabled="true" = stays focusable so a tooltip can explain why. */
+  .btn:disabled,
+  .btn[aria-disabled="true"]:not([aria-busy="true"]) {
+    --_bg: var(--color-bg-muted);
+    --_fg: var(--color-text-disabled);
+    --_border: transparent;
+    cursor: not-allowed;
+  }
+  .btn--ghost:disabled,
+  .btn--ghost[aria-disabled="true"]:not([aria-busy="true"]) { --_bg: transparent; }
+
+  /* Loading: width stays stable, label stays in the accessibility tree (opacity, not visibility). */
+  .btn[aria-busy="true"] { cursor: progress; pointer-events: none; }
+  .btn[aria-busy="true"] > :not(.btn__spinner) { opacity: 0; }
+  .btn__spinner { display: none; }
+  .btn[aria-busy="true"] > .btn__spinner {
+    display: block;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    inline-size: var(--_icon);
+    block-size: var(--_icon);
+    border: var(--border-width-thick) solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: var(--radius-full);
+    animation: btn-spin calc(var(--motion-duration-slower) * 1.6) linear infinite;
+  }
+
+  @media (forced-colors: active) {
+    .btn { border-color: ButtonText; }
+    .btn:disabled, .btn[aria-disabled="true"] { color: GrayText; border-color: GrayText; }
+  }
+}
+
+@keyframes btn-spin { to { transform: rotate(1turn); } }

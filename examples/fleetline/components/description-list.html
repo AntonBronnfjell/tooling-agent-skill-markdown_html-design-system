@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Description list — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline description list: key/value details for a vehicle in stacked and horizontal layouts.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/description-list.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Description list</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a description list for the fields of one object: a vehicle's registration, odometer, next service. Use a <strong>table</strong> to compare several objects, and a form when the values are editable.</p>
+      <ul>
+        <li><strong>Stacked</strong> — label above value; side panels, tablet and narrow cards.</li>
+        <li><strong>Horizontal</strong> — two aligned columns; detail pages on desktop. It switches to stacked automatically in narrow containers.</li>
+      </ul>
+      <p>Content: terms are nouns in sentence case ("Next service"), values include units ("84,212 km"). Show an em dash for empty values with "Not set" for screen readers — never leave a value blank.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>List — <code>&lt;dl class="dl"&gt;</code></li>
+        <li>Row — <code>div.dl__row</code> wrapping one <code>dt</code>/<code>dd</code> pair (valid HTML)</li>
+        <li>Term — <code>&lt;dt&gt;</code></li>
+        <li>Value — <code>&lt;dd&gt;</code>; numbers get <code>.dl__num</code></li>
+        <li>Empty value — <code>.dl__empty</code> em dash + <code>.sr-only</code> "Not set"</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="description-list" aria-labelledby="description-list-h">
+        <h3 id="description-list-h">Description list</h3>
+        <p>Vehicle details. Horizontal lists fall back to stacked when narrower than 28rem.</p>
+        <div class="ds-demos" style="grid-template-columns: 1fr;">
+          <div class="ds-demo" data-demo="variant:stacked">
+            <dl class="dl">
+              <div class="dl__row"><dt>Registration</dt><dd>KX-219</dd></div>
+              <div class="dl__row"><dt>Make and model</dt><dd>Ford Transit 350 L3</dd></div>
+              <div class="dl__row"><dt>Odometer</dt><dd class="dl__num">84,212 km</dd></div>
+              <div class="dl__row"><dt>Next service</dt><dd>21 Oct 2026 or 86,000 km</dd></div>
+              <div class="dl__row"><dt>Assigned driver</dt><dd><span class="dl__empty" aria-hidden="true">—</span><span class="sr-only">Not set</span></dd></div>
+            </dl>
+          </div>
+          <div class="ds-demo" data-demo="variant:horizontal">
+            <dl class="dl dl--horizontal">
+              <div class="dl__row"><dt>Registration</dt><dd>KX-219</dd></div>
+              <div class="dl__row"><dt>Make and model</dt><dd>Ford Transit 350 L3</dd></div>
+              <div class="dl__row"><dt>Odometer</dt><dd class="dl__num">84,212 km</dd></div>
+              <div class="dl__row"><dt>Next service</dt><dd>21 Oct 2026 or 86,000 km</dd></div>
+              <div class="dl__row"><dt>Assigned driver</dt><dd><span class="dl__empty" aria-hidden="true">—</span><span class="sr-only">Not set</span></dd></div>
+            </dl>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;dl class="dl dl--horizontal"&gt;
+  &lt;div class="dl__row"&gt;&lt;dt&gt;Registration&lt;/dt&gt;&lt;dd&gt;KX-219&lt;/dd&gt;&lt;/div&gt;
+  &lt;div class="dl__row"&gt;&lt;dt&gt;Make and model&lt;/dt&gt;&lt;dd&gt;Ford Transit 350 L3&lt;/dd&gt;&lt;/div&gt;
+  &lt;div class="dl__row"&gt;&lt;dt&gt;Odometer&lt;/dt&gt;&lt;dd class="dl__num"&gt;84,212 km&lt;/dd&gt;&lt;/div&gt;
+  &lt;div class="dl__row"&gt;&lt;dt&gt;Next service&lt;/dt&gt;&lt;dd&gt;21 Oct 2026 or 86,000 km&lt;/dd&gt;&lt;/div&gt;
+  &lt;div class="dl__row"&gt;&lt;dt&gt;Assigned driver&lt;/dt&gt;&lt;dd&gt;&lt;span class="dl__empty" aria-hidden="true"&gt;—&lt;/span&gt;&lt;span class="sr-only"&gt;Not set&lt;/span&gt;&lt;/dd&gt;&lt;/div&gt;
+&lt;/dl&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.dl</code></td><td>block class</td><td>Stacked list with row dividers</td></tr>
+          <tr><td><code>.dl--horizontal</code></td><td>modifier class</td><td>Two columns aligned with subgrid; stacked under 28rem container width</td></tr>
+          <tr><td><code>.dl__row</code></td><td>part class</td><td>Row wrapper</td></tr>
+          <tr><td><code>.dl__num</code></td><td>part class</td><td>Tabular numerals</td></tr>
+          <tr><td><code>.dl__empty</code></td><td>part class</td><td>Muted dash for missing values</td></tr>
+          <tr><td><code>[data-density="compact"]</code></td><td>ancestor attribute</td><td>Tighter rows</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Odometer: 84,212 km</p>
+          <figcaption><strong>Do</strong> include the unit with the value.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Assigned driver: (blank)</p>
+          <figcaption><strong>Don&rsquo;t</strong> leave an empty value; show — with "Not set".</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small"><code>&lt;div&gt;&lt;dt&gt;&lt;dd&gt;&lt;/div&gt;</code></p>
+          <figcaption><strong>Do</strong> wrap pairs in div to style rows.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">A two-column table for one vehicle's fields</p>
+          <figcaption><strong>Don&rsquo;t</strong> use a table for key/value pairs of one item.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <p>Description lists are static content; no keyboard behavior.</p>
+      <ul>
+        <li>Screen readers announce the list and its term/definition pairs ("description list, 5 items").</li>
+        <li><code>div</code> wrappers around <code>dt</code>/<code>dd</code> are valid HTML and don't change semantics.</li>
+        <li>Empty values: the dash is <code>aria-hidden</code>; "Not set" is read instead.</li>
+        <li>Reflow: the horizontal layout becomes stacked in narrow containers, so 320px and 400% zoom work without horizontal scrolling.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-text-muted</code></td><td>Terms, empty dash</td></tr>
+          <tr><td><code>--color-text-default</code></td><td>Values</td></tr>
+          <tr><td><code>--color-border-default</code></td><td>Row dividers</td></tr>
+          <tr><td><code>--space-3 | -2 | -6</code></td><td>Row padding (comfortable / compact), column gap</td></tr>
+          <tr><td><code>--font-size-sm</code>, <code>--font-weight-medium</code></td><td>Term text</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

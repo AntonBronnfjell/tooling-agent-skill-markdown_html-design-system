@@ -1,0 +1,90 @@
+/* result-panel.css — Outcome of an action or process. Block alias: .result
+   Markup:   <section class="result result--success" aria-labelledby="r-title">
+               <span class="result__icon" aria-hidden="true"><svg>…</svg></span>
+               <h2 id="r-title" class="result__title" tabindex="-1">Work order WO-1042 closed</h2>
+               <p class="result__description">…<code class="result__reference">WO-1042</code></p>
+               <div class="result__actions">…</div>
+               <details class="result__details">…</details></section>
+   Tones:    .result--success | --error | --warning | --info | --no-permission (neutral, lock icon)
+   Layout:   centered column, max one measure wide; .result--page adds page-level spacing (title is the <h1>).
+   Pattern:  tones only set --_icon-bg / --_icon-fg. Tone is carried by icon + title words, not color. */
+@layer components {
+  .result {
+    --_icon-bg: var(--color-feedback-info-bg);
+    --_icon-fg: var(--color-feedback-info-icon);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    max-inline-size: var(--size-measure);
+    margin-inline: auto;
+    padding-block: var(--space-8);
+    padding-inline: var(--space-4);
+    text-align: center;
+    color: var(--color-text-default);
+  }
+  .result--page { padding-block: var(--space-16); }
+  .result--success { --_icon-bg: var(--color-feedback-success-bg); --_icon-fg: var(--color-feedback-success-icon); }
+  .result--error { --_icon-bg: var(--color-feedback-danger-bg); --_icon-fg: var(--color-feedback-danger-icon); }
+  .result--warning { --_icon-bg: var(--color-feedback-warning-bg); --_icon-fg: var(--color-feedback-warning-icon); }
+  .result--no-permission { --_icon-bg: var(--color-bg-muted); --_icon-fg: var(--color-text-muted); }
+
+  .result__icon {
+    display: grid;
+    place-items: center;
+    inline-size: var(--space-16);
+    block-size: var(--space-16);
+    margin-block-end: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--_icon-bg);
+    color: var(--_icon-fg);
+  }
+  .result__icon > svg { inline-size: var(--space-8); block-size: var(--space-8); stroke-width: var(--icon-stroke); }
+  .result__title {
+    font-family: var(--typography-h3-font-family);
+    font-size: var(--typography-h3-font-size);
+    font-weight: var(--typography-h3-font-weight);
+    line-height: var(--typography-h3-line-height);
+  }
+  .result__title:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+  .result__description { margin: 0; color: var(--color-text-muted); text-wrap: pretty; }
+  .result__reference {
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted);
+    color: var(--color-text-default);
+    font-family: var(--typography-code-font-family);
+    font-size: var(--typography-code-font-size);
+    user-select: all;
+  }
+  .result__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-3);
+  }
+  .result__details {
+    align-self: stretch;
+    margin-block-start: var(--space-3);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    text-align: start;
+    font-size: var(--font-size-sm);
+  }
+  .result__details > summary { cursor: pointer; font-weight: var(--font-weight-medium); }
+  .result__details > summary:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+  .result__details[open] > summary { margin-block-end: var(--space-2); }
+  .result__details dl { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-1) var(--space-4); margin: 0; }
+  .result__details dt { color: var(--color-text-muted); }
+  .result__details dd { margin: 0; font-family: var(--typography-code-font-family); overflow-wrap: anywhere; }
+
+  @media (forced-colors: active) {
+    .result__icon { border: var(--border-width-thin) solid CanvasText; }
+  }
+}

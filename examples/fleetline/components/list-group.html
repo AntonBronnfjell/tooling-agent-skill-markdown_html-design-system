@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>List group — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline list group: rows of vehicles, mechanics and work orders with meta, links and actions.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/avatar.css">
+  <link rel="stylesheet" href="../css/components/badge.css">
+  <link rel="stylesheet" href="../css/components/list-group.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="icon-octagon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16h.01"/><path d="M12 8v4"/><path d="M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z"/></symbol>
+    <symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>List group</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a list group for a single column of similar items, each with a title and one or two details: upcoming services, mechanics on shift, a vehicle's open work orders. Use a <strong>table</strong> when people compare several fields across rows, and <strong>cards</strong> when items need media or more text.</p>
+      <ul>
+        <li><strong>Simple</strong> — titles only.</li>
+        <li><strong>With meta</strong> — trailing number, date or status badge.</li>
+        <li><strong>Interactive</strong> — each row opens a detail; the title is the link and the whole row is its hit area.</li>
+        <li><strong>With actions</strong> — one or two row buttons; no stretched link in the same row.</li>
+      </ul>
+      <p>Content: primary text is the object's name; secondary text is one line of context. Trailing meta is short ("12 Nov", "5.5 h", "6 days overdue").</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>List — <code>&lt;ul class="list-group" role="list"&gt;</code></li>
+        <li>Row — <code>li.list-group__item</code></li>
+        <li>Leading (optional) — <code>.list-group__leading</code>: avatar or icon</li>
+        <li>Content — <code>.list-group__primary</code> and <code>.list-group__secondary</code></li>
+        <li>Trailing meta (optional) — <code>.list-group__meta</code></li>
+        <li>Actions (optional) — <code>.list-group__actions</code></li>
+        <li>Link (interactive) — <code>a.list-group__link</code>, stretched over the row</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="list-group" aria-labelledby="list-group-h">
+        <h3 id="list-group-h">List group</h3>
+        <p>Rows with a leading avatar or icon, primary and secondary text, and trailing meta or actions.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:simple">
+            <ul class="list-group" role="list">
+              <li class="list-group__item"><div class="list-group__content"><span class="list-group__primary">Depot north</span></div></li>
+              <li class="list-group__item"><div class="list-group__content"><span class="list-group__primary">Depot south</span></div></li>
+              <li class="list-group__item"><div class="list-group__content"><span class="list-group__primary">Mobile workshop van MW-02</span></div></li>
+            </ul>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-meta">
+            <ul class="list-group" role="list">
+              <li class="list-group__item">
+                <span class="list-group__leading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg></span>
+                <div class="list-group__content"><span class="list-group__primary">Pickup PU-012</span><span class="list-group__secondary">Oil change · last done 14 Mar</span></div>
+                <span class="list-group__meta"><span class="badge badge--danger"><svg class="badge__icon" aria-hidden="true" focusable="false"><use href="#icon-octagon-alert"></use></svg>6 days overdue</span></span>
+              </li>
+              <li class="list-group__item">
+                <span class="list-group__leading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg></span>
+                <div class="list-group__content"><span class="list-group__primary">Van KX-219</span><span class="list-group__secondary">Brake pads · 1,800 km left</span></div>
+                <span class="list-group__meta"><span class="badge badge--warning"><svg class="badge__icon" aria-hidden="true" focusable="false"><use href="#icon-triangle-alert"></use></svg>Due soon</span></span>
+              </li>
+              <li class="list-group__item">
+                <span class="list-group__leading"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg></span>
+                <div class="list-group__content"><span class="list-group__primary">Truck TR-077</span><span class="list-group__secondary">Tachograph calibration</span></div>
+                <span class="list-group__meta">12 Nov</span>
+              </li>
+            </ul>
+          </div>
+          <div class="ds-demo" data-demo="variant:interactive">
+            <nav aria-label="Mechanics on shift">
+              <ul class="list-group list-group--interactive" role="list">
+                <li class="list-group__item">
+                  <span class="list-group__leading"><span class="avatar avatar--sm avatar--tone-teal" aria-hidden="true"><span class="avatar__initials" aria-hidden="true">MQ</span></span></span>
+                  <div class="list-group__content"><a class="list-group__link list-group__primary" href="#list-group" aria-current="page">Marta Quintero</a><span class="list-group__secondary">2 open work orders</span></div>
+                  <span class="list-group__meta">5.5 h</span>
+                </li>
+                <li class="list-group__item is-hover">
+                  <span class="list-group__leading"><span class="avatar avatar--sm avatar--tone-blue" aria-hidden="true"><span class="avatar__initials" aria-hidden="true">IO</span></span></span>
+                  <div class="list-group__content"><a class="list-group__link list-group__primary" href="#list-group">Idris Okafor</a><span class="list-group__secondary">1 open work order</span></div>
+                  <span class="list-group__meta">11.0 h</span>
+                </li>
+                <li class="list-group__item is-focus-visible">
+                  <span class="list-group__leading"><span class="avatar avatar--sm avatar--tone-neutral" aria-hidden="true"><span class="avatar__initials" aria-hidden="true">LB</span></span></span>
+                  <div class="list-group__content"><a class="list-group__link list-group__primary" href="#list-group">Lena Brandt</a><span class="list-group__secondary">No open work orders</span></div>
+                  <span class="list-group__meta">0.0 h</span>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-actions">
+            <ul class="list-group" role="list">
+              <li class="list-group__item">
+                <div class="list-group__content"><span class="list-group__primary" id="lg-wo1">WO-4182 · Brake pads, front</span><span class="list-group__secondary">Van KX-219 · Marta Quintero</span></div>
+                <div class="list-group__actions">
+                  <button type="button" class="btn btn--ghost btn--sm" aria-describedby="lg-wo1"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="btn__label">Edit</span></button>
+                  <button type="button" class="btn btn--secondary btn--sm" aria-describedby="lg-wo1">Close</button>
+                </div>
+              </li>
+              <li class="list-group__item">
+                <div class="list-group__content"><span class="list-group__primary" id="lg-wo2">WO-4193 · Wiper blades</span><span class="list-group__secondary">Pickup PU-012 · Marta Quintero</span></div>
+                <div class="list-group__actions">
+                  <button type="button" class="btn btn--ghost btn--sm" aria-describedby="lg-wo2"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="btn__label">Edit</span></button>
+                  <button type="button" class="btn btn--secondary btn--sm" aria-describedby="lg-wo2">Close</button>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;ul class="list-group" role="list"&gt;
+  &lt;li class="list-group__item"&gt;
+    &lt;span class="list-group__leading"&gt;&lt;svg class="icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-truck"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;div class="list-group__content"&gt;&lt;span class="list-group__primary"&gt;Pickup PU-012&lt;/span&gt;&lt;span class="list-group__secondary"&gt;Oil change · last done 14 Mar&lt;/span&gt;&lt;/div&gt;
+    &lt;span class="list-group__meta"&gt;&lt;span class="badge badge--danger"&gt;&lt;svg class="badge__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-octagon-alert"&gt;&lt;/use&gt;&lt;/svg&gt;6 days overdue&lt;/span&gt;&lt;/span&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.list-group</code></td><td>block class</td><td>Bordered list</td></tr>
+          <tr><td><code>.list-group--interactive</code></td><td>modifier class</td><td>Hover fill on rows with a <code>.list-group__link</code></td></tr>
+          <tr><td><code>.list-group__item | __leading | __content | __primary | __secondary | __meta | __actions</code></td><td>part classes</td><td>Row slots</td></tr>
+          <tr><td><code>.list-group__link</code></td><td>part class</td><td>Row link; focus ring is drawn on the row</td></tr>
+          <tr><td><code>aria-current="page"</code></td><td>attribute on the link</td><td>Current row: teal fill and start bar</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class (on the row)</td><td>Freeze states</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Row link "Marta Quintero" + trailing "5.5 h"</p>
+          <figcaption><strong>Do</strong> make the title the link and keep meta as text.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Stretched row link plus Edit and Close buttons in the same row</p>
+          <figcaption><strong>Don&rsquo;t</strong> mix a whole-row link with several row buttons; pick one.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small">"6 days overdue" badge</p>
+          <figcaption><strong>Do</strong> say status in words in the meta slot.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>&lt;div&gt;</code> rows without a list</p>
+          <figcaption><strong>Don&rsquo;t</strong> drop list semantics; screen readers announce item counts from <code>ul</code>.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+              <caption class="sr-only">Keyboard interaction</caption>
+              <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>Tab</kbd></td><td>Moves to each row link, or to each row's action buttons</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>Follows the row link / activates the focused button</td></tr>
+              </tbody>
+            </table>
+      <ul>
+        <li>Role: list with <code>role="list"</code> kept explicitly (Safari drops list semantics when <code>list-style: none</code>).</li>
+        <li>Interactive rows: the link name is the title only; the whole row is clickable through the stretched <code>::after</code>. Focus ring is drawn inset around the row.</li>
+        <li>Row buttons repeat a short label ("Edit") and are described by the row title via <code>aria-describedby</code>, so they read "Edit, WO-4182 · Brake pads, front".</li>
+        <li>Current row: <code>aria-current="page"</code> on the link, shown with a fill and a start-edge bar (not color alone).</li>
+        <li>Rows are at least 44px high.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-raised</code></td><td>List surface</td></tr>
+          <tr><td><code>--color-border-default</code></td><td>Border and row dividers</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Row hover</td></tr>
+          <tr><td><code>--color-selected-bg | -fg | -border</code></td><td>Current row</td></tr>
+          <tr><td><code>--color-text-muted</code></td><td>Secondary text, meta, leading icon</td></tr>
+          <tr><td><code>--size-touch-target</code></td><td>Minimum row height</td></tr>
+          <tr><td><code>--density-compact-cell-padding-y</code></td><td>Compact row padding</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Row focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

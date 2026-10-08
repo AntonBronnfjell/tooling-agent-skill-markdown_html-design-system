@@ -71,7 +71,7 @@ Borrow **structure and behavior** (inventory, states, ARIA, token tiers, naming)
 Batch these into one AskUserQuestion round, max 4:
 - Product type & primary users (enterprise data tool? consumer? public service?)
 - Existing assets: repo / Figma / brand guide / none
-- Scope tier (app UI): core (67) · standard (138) · enterprise (all 180) — default **enterprise** when the user asks for "complete"
+- Scope tier (app UI): core (68) · standard (138) · enterprise (all 180) — default **enterprise** when the user asks for "complete"
 - Optional scopes (any subset; each brings specs, tokens or tooling):
   - Public website → `marketing` (+46: hero, pricing, testimonials, FAQ, footer, landing/pricing/blog/legal pages)
   - Assistant, chat or agent features → `ai` (+29: conversation, streaming, tool calls, approvals, citations, AI label)

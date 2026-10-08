@@ -150,6 +150,11 @@
       "color.highlight.fg",
       "color.highlight.bg",
       4.5
+    ],
+    [
+      "color.text.muted",
+      "color.elevation.surface.raised",
+      4.5
     ]
   ]
 }

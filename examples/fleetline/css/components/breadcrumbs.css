@@ -1,0 +1,93 @@
+/* breadcrumbs.css — Hierarchy trail. Block: .breadcrumbs (<nav aria-label="Breadcrumb">, container: breadcrumbs)
+   Parts:   .breadcrumbs__list (<ol>), .breadcrumbs__item (<li>; separator "/" drawn by CSS with empty alt text,
+            so it is never read), .breadcrumbs__link (a), .breadcrumbs__current (<span aria-current="page">, not a link),
+            .breadcrumbs__more (button "…" for collapsed middle levels; commandfor + command="toggle-popover"),
+            .breadcrumbs__overflow (<ul popover> of the hidden levels — disclosure navigation, plain links)
+   Narrow (container < 30rem): only the parent level shows, as "← Parent".
+   States:  link :hover :focus-visible; docs-only .is-hover, .is-focus-visible. */
+@layer components {
+  .breadcrumbs { container: breadcrumbs / inline-size; font-size: var(--font-size-sm); }
+
+  .breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .breadcrumbs__item { display: inline-flex; align-items: center; gap: var(--space-1); min-inline-size: 0; }
+  .breadcrumbs__item + .breadcrumbs__item::before {
+    content: "/" / "";
+    color: var(--color-text-subtle);
+  }
+
+  .breadcrumbs__link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--space-6);
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-link);
+    text-decoration: underline;
+    text-decoration-thickness: var(--border-width-thin);
+    text-underline-offset: 0.2em;
+  }
+  .breadcrumbs__link:hover,
+  .breadcrumbs__link.is-hover { text-decoration-thickness: var(--border-width-thick); }
+  .breadcrumbs__link:focus-visible,
+  .breadcrumbs__link.is-focus-visible,
+  .breadcrumbs__more:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .breadcrumbs__current {
+    padding-inline: var(--space-1);
+    color: var(--color-text-default);
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  .breadcrumbs__more {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: var(--space-6);
+    min-block-size: var(--space-6);
+    padding-inline: var(--space-1);
+    border: var(--border-width-thin) solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    font: inherit;
+    cursor: pointer;
+  }
+  .breadcrumbs__more:hover,
+  .breadcrumbs__more[aria-expanded="true"] { background: var(--color-action-ghost-bg-hover); color: var(--color-text-default); }
+
+  .breadcrumbs__overflow {
+    inset: auto;
+    margin: var(--space-1);
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: --flip-block, --flip-inline;
+    min-inline-size: 12rem;
+    padding: var(--space-1);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--overlay-radius);
+    background: var(--color-elevation-surface-overlay);
+    box-shadow: var(--overlay-shadow);
+    list-style: none;
+  }
+  .breadcrumbs__overflow .breadcrumbs__link { display: flex; min-block-size: var(--size-control-md); padding-inline: var(--space-2); }
+
+  @container breadcrumbs (max-width: 30rem) {
+    .breadcrumbs__item:not(:nth-last-child(2)) { display: none; }
+    .breadcrumbs__item:nth-last-child(2)::before { content: "←" / ""; color: var(--color-text-muted); }
+    .breadcrumbs__item:nth-last-child(2):dir(rtl)::before { content: "→" / ""; }
+  }
+
+  @media (forced-colors: active) {
+    .breadcrumbs__more { border-color: ButtonText; }
+    .breadcrumbs__overflow { border-color: CanvasText; }
+  }
+}

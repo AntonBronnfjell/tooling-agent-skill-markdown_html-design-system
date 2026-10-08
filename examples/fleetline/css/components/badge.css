@@ -1,0 +1,90 @@
+/* badge.css — Badge (status or count pill). Block alias: .badge. Not interactive.
+   Tones:    .badge--neutral (default) | --info | --success | --warning | --danger
+             → color.feedback.{tone}.fg on color.feedback.{tone}.bg (contrast-checked pairs, 4.5:1 in every theme)
+   Variants: .badge--count (solid inverse pill, tabular numerals, cap at "99+")
+             .badge--dot (8px dot, decorative; the parent must carry the text, e.g. "Work orders, new updates")
+   Parts:    .badge__icon (shape per tone, aria-hidden) — tone is never shown by color alone; the label says it.
+             .badge__dot (status dot inside a labelled badge: "● In service")
+   Pattern:  tones set private props --_bg, --_fg, --_border, --_dot. */
+@layer components {
+  .badge {
+    --_bg: var(--color-bg-subtle);
+    --_fg: var(--color-text-default);
+    --_border: var(--color-border-default);
+    --_dot: var(--color-text-muted);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: var(--space-6);
+    max-inline-size: 100%;
+    padding-block: 0;
+    padding-inline: var(--space-2);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-full);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-tight);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .badge--neutral { --_bg: var(--color-bg-subtle); --_fg: var(--color-text-default); --_border: var(--color-border-default); }
+  .badge--info    { --_bg: var(--color-feedback-info-bg);    --_fg: var(--color-feedback-info-fg);    --_border: var(--color-feedback-info-border);    --_dot: var(--color-feedback-info-icon); }
+  .badge--success { --_bg: var(--color-feedback-success-bg); --_fg: var(--color-feedback-success-fg); --_border: var(--color-feedback-success-border); --_dot: var(--color-feedback-success-icon); }
+  .badge--warning { --_bg: var(--color-feedback-warning-bg); --_fg: var(--color-feedback-warning-fg); --_border: var(--color-feedback-warning-border); --_dot: var(--color-feedback-warning-icon); }
+  .badge--danger  { --_bg: var(--color-feedback-danger-bg);  --_fg: var(--color-feedback-danger-fg);  --_border: var(--color-feedback-danger-border);  --_dot: var(--color-feedback-danger-icon); }
+
+  .badge__icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+    margin-inline-start: calc(var(--space-0-5) * -1);
+  }
+  .badge__dot {
+    flex-shrink: 0;
+    inline-size: var(--space-2);
+    block-size: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--_dot);
+  }
+
+  /* Count: solid, compact, numbers line up. */
+  .badge--count {
+    --_bg: var(--color-bg-inverse);
+    --_fg: var(--color-text-inverse);
+    --_border: transparent;
+    justify-content: center;
+    min-inline-size: var(--space-6);
+    padding-inline: var(--space-1-5);
+  }
+
+  /* Dot: no text inside; attach to something that has the text. */
+  .badge--dot {
+    --_bg: var(--color-feedback-danger-icon);
+    --_border: var(--color-bg-surface);
+    inline-size: var(--space-2);
+    block-size: var(--space-2);
+    min-block-size: 0;
+    padding: 0;
+  }
+
+  /* Anchor a count or dot to the corner of an icon/button: wrap both in .badge-anchor. */
+  .badge-anchor { position: relative; display: inline-flex; }
+  .badge-anchor > .badge {
+    position: absolute;
+    inset-block-start: calc(var(--space-1) * -1);
+    inset-inline-end: calc(var(--space-1) * -1);
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-bg-surface);
+    pointer-events: none;
+  }
+
+  @media (forced-colors: active) {
+    .badge { border-color: CanvasText; }
+    .badge__dot, .badge--dot { background: CanvasText; forced-color-adjust: none; }
+  }
+}

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pagination — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline pagination: numbered pages with first, middle and last states, a compact variant and a data-table footer with page size.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/pagination.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Pagination</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use pagination for long, stable lists people navigate by position: the work-order table, the vehicle register, audit logs. For feeds and activity streams use a "Show 20 more" button; for short lists show everything.</p>
+      <ul><li>Always show first and last page, the current page and its neighbours; collapse the rest into "…".</li><li>Labels: "Previous" / "Next", "Page 3 of 12", "Rows per page", "Showing 21–40 of 312 work orders" — name the thing being counted.</li><li>Keep the page in the URL (<code>?page=8</code>) so links and the back button work.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Landmark — <code>nav.pagination[aria-label]</code> naming the list</li><li>Previous / Next — <code>.pagination__link--step</code> (plain text when unavailable)</li><li>Page links — <code>a.pagination__link</code> with hidden "Page "</li><li>Ellipsis — <code>.pagination__ellipsis</code></li><li>Current page — <code>aria-current="page"</code>: fill, border, bold</li><li>Table footer (optional) — <code>.pagination__bar</code> with page size and range</li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="pagination" aria-labelledby="pagination-h">
+        <h3 id="pagination-h">Pagination</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:first" style="grid-column: 1 / -1;">
+            <nav class="pagination" aria-label="Pagination, work orders (first page example)"><ul class="pagination__list"><li><span class="pagination__link pagination__link--step" aria-disabled="true"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-left"></use></svg>Previous</span></li><li><a class="pagination__link" href="#page-1" aria-current="page"><span class="sr-only">Page </span>1</a></li><li><a class="pagination__link" href="#page-2"><span class="sr-only">Page </span>2</a></li><li><a class="pagination__link" href="#page-3"><span class="sr-only">Page </span>3</a></li><li><span class="pagination__ellipsis">…</span></li><li><a class="pagination__link" href="#page-16"><span class="sr-only">Page </span>16</a></li><li><a class="pagination__link pagination__link--step" href="#page-2" rel="next">Next<svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg></a></li></ul></nav>
+            <p>First page: "Previous" is plain text, not a link.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:middle" style="grid-column: 1 / -1;">
+            <nav class="pagination" aria-label="Pagination, work orders (middle page example)"><ul class="pagination__list"><li><a class="pagination__link pagination__link--step" href="#page-7" rel="prev"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-left"></use></svg>Previous</a></li><li><a class="pagination__link" href="#page-1"><span class="sr-only">Page </span>1</a></li><li><span class="pagination__ellipsis">…</span></li><li><a class="pagination__link" href="#page-7"><span class="sr-only">Page </span>7</a></li><li><a class="pagination__link" href="#page-8" aria-current="page"><span class="sr-only">Page </span>8</a></li><li><a class="pagination__link" href="#page-9"><span class="sr-only">Page </span>9</a></li><li><span class="pagination__ellipsis">…</span></li><li><a class="pagination__link" href="#page-16"><span class="sr-only">Page </span>16</a></li><li><a class="pagination__link pagination__link--step" href="#page-9" rel="next">Next<svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg></a></li></ul></nav>
+          </div>
+          <div class="ds-demo" data-demo="state:last" style="grid-column: 1 / -1;">
+            <nav class="pagination" aria-label="Pagination, work orders (last page example)"><ul class="pagination__list"><li><a class="pagination__link pagination__link--step" href="#page-15" rel="prev"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-left"></use></svg>Previous</a></li><li><a class="pagination__link" href="#page-1"><span class="sr-only">Page </span>1</a></li><li><span class="pagination__ellipsis">…</span></li><li><a class="pagination__link" href="#page-14"><span class="sr-only">Page </span>14</a></li><li><a class="pagination__link" href="#page-15"><span class="sr-only">Page </span>15</a></li><li><a class="pagination__link" href="#page-16" aria-current="page"><span class="sr-only">Page </span>16</a></li><li><span class="pagination__link pagination__link--step" aria-disabled="true">Next<svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg></span></li></ul></nav>
+          </div>
+          <div class="ds-demo" data-demo="variant:compact">
+            <nav class="pagination pagination--compact" aria-label="Pagination, inspections"><ul class="pagination__list"><li><a class="pagination__link" href="#page-2" rel="prev" aria-label="Previous page"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-left"></use></svg></a></li><li><span class="pagination__status">Page 3 of 12</span></li><li><a class="pagination__link" href="#page-4" rel="next" aria-label="Next page"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg></a></li></ul></nav>
+            <p>Phones and narrow panels.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:page-size" style="grid-column: 1 / -1;">
+            <div class="pagination__bar"><div class="pagination__size"><label for="pg-size">Rows per page</label><select class="pagination__select" id="pg-size" name="per_page"><option>10</option><option selected>20</option><option>50</option><option>100</option></select></div><p class="pagination__range" role="status">Showing 21–40 of 312 work orders</p><nav class="pagination" aria-label="Pagination, work orders table"><ul class="pagination__list"><li><a class="pagination__link pagination__link--step" href="#page-1" rel="prev"><svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-left"></use></svg>Previous</a></li><li><a class="pagination__link" href="#page-1"><span class="sr-only">Page </span>1</a></li><li><a class="pagination__link" href="#page-2" aria-current="page"><span class="sr-only">Page </span>2</a></li><li><a class="pagination__link" href="#page-3"><span class="sr-only">Page </span>3</a></li><li><span class="pagination__ellipsis">…</span></li><li><a class="pagination__link" href="#page-16"><span class="sr-only">Page </span>16</a></li><li><a class="pagination__link pagination__link--step" href="#page-3" rel="next">Next<svg class="pagination__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg></a></li></ul></nav></div>
+            <p>Data tables: page size, range and pages in one footer row. The range is a polite live region.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:hover state:focus-visible">
+            <nav class="pagination" aria-label="Pagination states example"><ul class="pagination__list"><li><a class="pagination__link is-hover" href="#page-4"><span class="sr-only">Page </span>4</a></li><li><a class="pagination__link is-focus-visible" href="#page-5"><span class="sr-only">Page </span>5</a></li></ul></nav>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;nav class=&quot;pagination&quot; aria-label=&quot;Pagination, work orders&quot;&gt;
+  &lt;ul class=&quot;pagination__list&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;pagination__link pagination__link--step&quot; href=&quot;?page=7&quot; rel=&quot;prev&quot;&gt;…Previous&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;pagination__link&quot; href=&quot;?page=1&quot;&gt;&lt;span class=&quot;sr-only&quot;&gt;Page &lt;/span&gt;1&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span class=&quot;pagination__ellipsis&quot;&gt;…&lt;/span&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;pagination__link&quot; href=&quot;?page=8&quot; aria-current=&quot;page&quot;&gt;&lt;span class=&quot;sr-only&quot;&gt;Page &lt;/span&gt;8&lt;/a&gt;&lt;/li&gt;
+    …
+    &lt;li&gt;&lt;a class=&quot;pagination__link pagination__link--step&quot; href=&quot;?page=9&quot; rel=&quot;next&quot;&gt;Next…&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+
+&lt;!-- First page: Previous is not a link --&gt;
+&lt;li&gt;&lt;span class=&quot;pagination__link pagination__link--step&quot; aria-disabled=&quot;true&quot;&gt;…Previous&lt;/span&gt;&lt;/li&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.pagination</code></td><td>block class</td><td><code>&lt;nav&gt;</code></td></tr>
+          <tr><td><code>.pagination--compact</code></td><td>modifier</td><td>Prev / "Page 3 of 12" / Next</td></tr>
+          <tr><td><code>.pagination__list | __link | __link--step | __ellipsis | __icon | __status</code></td><td>parts</td><td>Pager</td></tr>
+          <tr><td><code>.pagination__bar | __size | __select | __range</code></td><td>parts</td><td>Data-table footer</td></tr>
+          <tr><td><code>aria-current="page"</code></td><td>attribute</td><td>Current page</td></tr>
+          <tr><td><code>aria-disabled="true"</code> on a <code>span</code></td><td>attribute</td><td>Unavailable Previous / Next</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>"Showing 21–40 of 312 work orders"</p>
+          <figcaption><strong>Do</strong> say what is counted and where the reader is.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>&lt;a href="#" class="pagination__link" aria-disabled="true"&gt;Previous&lt;/a&gt;</p>
+          <figcaption><strong>Don't</strong> leave a dead link on the first page — render text instead.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves through the page links (unavailable Previous/Next are skipped)</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Opens that page</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Each <code>&lt;nav&gt;</code> has a unique name ("Pagination, work orders") when several lists share a page.</li><li>Page links read "Page 8, current page" thanks to the hidden prefix and <code>aria-current</code>.</li><li>After a page change, move focus to the table caption or heading and update the range text (<code>role="status"</code>).</li><li>Targets are 40px; icon-only compact links have <code>aria-label</code>. Arrow icons mirror in RTL.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-control-md</code></td><td>Link size</td></tr>
+          <tr><td><code>--color-selected-bg | -fg | -border</code></td><td>Current page</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Hover</td></tr>
+          <tr><td><code>--color-text-disabled</code></td><td>Unavailable step</td></tr>
+          <tr><td><code>--input-bg | -border | -radius</code></td><td>Page-size select</td></tr>
+          <tr><td><code>--color-text-muted</code></td><td>Ellipsis, range</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

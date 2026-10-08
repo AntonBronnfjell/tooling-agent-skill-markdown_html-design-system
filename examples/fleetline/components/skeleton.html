@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skeleton — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline skeleton: placeholder geometry for text, avatars, cards and tables while content loads; shimmer stops under reduced motion.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/skeleton.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Skeleton</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use skeletons while the first load of a content area is in flight: the vehicle list, a work order card, the service history table. Matching the final layout keeps the page from jumping when data arrives.</p>
+      <ul>
+        <li>Match the real geometry: same number of rows a page usually shows, line widths that vary like real text, avatar circles where avatars go.</li>
+        <li>For actions that the user started (saving, assigning), use a <strong>spinner</strong> or the button's loading state. For long measurable tasks, a <strong>progress bar</strong>.</li>
+        <li>If loading takes longer than ~10 seconds, replace the skeleton with a message ("Still loading vehicles — the telematics service is slow").</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Group — <code>.skeleton-group[aria-busy="true"]</code> around the loading area</li>
+        <li>Status — one visually hidden <code>role="status"</code> ("Loading vehicles…")</li>
+        <li>Blocks — <code>.skeleton</code> shapes inside an <code>aria-hidden="true"</code> wrapper</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="skeleton" aria-labelledby="skeleton-h">
+        <h3 id="skeleton-h">Skeleton</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:text">
+            <div class="skeleton-group" aria-busy="true">
+              <span class="sr-only" role="status">Loading work order notes…</span>
+              <div class="skeleton-lines" aria-hidden="true">
+                <span class="skeleton skeleton--heading"></span>
+                <span class="skeleton skeleton--text"></span>
+                <span class="skeleton skeleton--text skeleton--w-80"></span>
+                <span class="skeleton skeleton--text skeleton--w-60"></span>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:avatar">
+            <div class="skeleton-group" aria-busy="true">
+              <span class="sr-only" role="status">Loading mechanics…</span>
+              <div class="skeleton-lines" aria-hidden="true">
+                <div class="skeleton-row"><span class="skeleton skeleton--avatar"></span><div class="skeleton-lines"><span class="skeleton skeleton--text skeleton--w-60"></span><span class="skeleton skeleton--text skeleton--w-40"></span></div></div>
+                <div class="skeleton-row"><span class="skeleton skeleton--avatar"></span><div class="skeleton-lines"><span class="skeleton skeleton--text skeleton--w-80"></span><span class="skeleton skeleton--text skeleton--w-40"></span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:card">
+            <div class="skeleton-group" aria-busy="true">
+              <span class="sr-only" role="status">Loading vehicle KX-24…</span>
+              <div class="skeleton-card" aria-hidden="true">
+                <span class="skeleton skeleton--media"></span>
+                <span class="skeleton skeleton--heading"></span>
+                <span class="skeleton skeleton--text"></span>
+                <span class="skeleton skeleton--text skeleton--w-60"></span>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:table">
+            <div class="skeleton-group" aria-busy="true">
+              <span class="sr-only" role="status">Loading service history…</span>
+              <div class="skeleton-table" aria-hidden="true">
+                <div class="skeleton-table__row skeleton-table__row--head"><span class="skeleton skeleton--cell skeleton--w-60"></span><span class="skeleton skeleton--cell skeleton--w-80"></span><span class="skeleton skeleton--cell skeleton--w-60"></span><span class="skeleton skeleton--cell skeleton--w-40"></span></div>
+                <div class="skeleton-table__row"><span class="skeleton skeleton--cell skeleton--w-80"></span><span class="skeleton skeleton--cell"></span><span class="skeleton skeleton--cell skeleton--w-80"></span><span class="skeleton skeleton--cell skeleton--w-60"></span></div>
+                <div class="skeleton-table__row"><span class="skeleton skeleton--cell"></span><span class="skeleton skeleton--cell skeleton--w-60"></span><span class="skeleton skeleton--cell"></span><span class="skeleton skeleton--cell skeleton--w-40"></span></div>
+                <div class="skeleton-table__row"><span class="skeleton skeleton--cell skeleton--w-60"></span><span class="skeleton skeleton--cell skeleton--w-80"></span><span class="skeleton skeleton--cell skeleton--w-60"></span><span class="skeleton skeleton--cell skeleton--w-60"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="skeleton-group" aria-busy="true"&gt;
+  &lt;span class="sr-only" role="status"&gt;Loading vehicle KX-24…&lt;/span&gt;
+  &lt;div class="skeleton-card" aria-hidden="true"&gt;
+    &lt;span class="skeleton skeleton--media"&gt;&lt;/span&gt;
+    &lt;span class="skeleton skeleton--heading"&gt;&lt;/span&gt;
+    &lt;span class="skeleton skeleton--text"&gt;&lt;/span&gt;
+    &lt;span class="skeleton skeleton--text skeleton--w-60"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- When data arrives: replace the group's content, remove aria-busy --&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.skeleton-group[aria-busy="true"]</code></td><td>block + attribute</td><td>Loading region</td></tr>
+          <tr><td><code>.skeleton</code></td><td>block</td><td>One placeholder shape</td></tr>
+          <tr><td><code>.skeleton--text | --heading | --avatar | --media | --cell</code></td><td>modifier</td><td>Shape</td></tr>
+          <tr><td><code>.skeleton--w-40 | -60 | -80</code></td><td>modifier</td><td>Line width (default 100%)</td></tr>
+          <tr><td><code>.skeleton-row</code>, <code>.skeleton-lines</code>, <code>.skeleton-card</code>, <code>.skeleton-table</code> (+ <code>__row</code>, <code>__row--head</code>)</td><td>layout helpers</td><td>Common compositions</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="skeleton-lines" aria-hidden="true"><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text skeleton--w-60"></span></div>
+          <figcaption><strong>Do</strong> vary line widths so the placeholder reads as text.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>Each skeleton block announced as "Loading" to screen readers.</p>
+          <figcaption><strong>Don't</strong> expose the blocks; hide them and use one status message per region.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>The loading region gets <code>aria-busy="true"</code>; remove it when content arrives.</li>
+        <li>Blocks are inside an <code>aria-hidden="true"</code> wrapper; a single visually hidden <code>role="status"</code> says what's loading.</li>
+        <li>Not focusable; there is nothing to operate.</li>
+        <li>Reduced motion stops the shimmer (WCAG 2.2.2: nothing moves longer than 5 seconds without a way to stop it).</li>
+        <li>Forced colors: blocks are drawn with a <code>GrayText</code> outline so the layout stays visible.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-bg-muted</code></td><td>Block fill</td></tr>
+          <tr><td><code>--color-bg-subtle</code></td><td>Shimmer highlight</td></tr>
+          <tr><td><code>--radius-sm | -md | -lg | -full</code></td><td>Lines, media, card, avatar</td></tr>
+          <tr><td><code>--size-control-md</code></td><td>Avatar size</td></tr>
+          <tr><td><code>--density-{comfortable|compact}-cell-padding-y</code></td><td>Table row height per density</td></tr>
+          <tr><td><code>--motion-duration-slower</code>, <code>--motion-easing-standard</code></td><td>Shimmer timing (× 3)</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

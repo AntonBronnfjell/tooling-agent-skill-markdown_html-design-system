@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Divider — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline Divider: horizontal, vertical and labelled separators.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/divider.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Divider</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a divider to separate groups that spacing alone can't separate: the totals row of a parts list, two groups of toolbar actions, alternative sign-in methods. Prefer whitespace first — every line adds visual noise to dense dispatcher screens.</p>
+      <ul>
+        <li><strong>Horizontal</strong> — <code>&lt;hr&gt;</code> for a thematic break in content (it is announced as a separator).</li>
+        <li><strong>Vertical</strong> — between inline groups (toolbar sections, metadata items).</li>
+        <li><strong>With label</strong> — a short word that explains the break ("or", "Earlier"). One or two words, sentence case.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Line — 1px <code>--color-border-default</code> (<code>.divider--strong</code> for 3:1)</li>
+        <li>Label (optional) — centered text between two lines, <code>.divider-label</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="divider" aria-labelledby="divider-h">
+        <h3 id="divider-h">Divider</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:horizontal">
+            <div class="stack stack--gap-3">
+              <p class="text-body">Front brake pads (set) · 2 × €48.00</p>
+              <hr class="divider">
+              <p class="text-body"><strong>Parts total · €96.00</strong></p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:vertical">
+            <div class="stack stack--horizontal stack--gap-3">
+              <span class="text-small">Van KX-219</span>
+              <span class="divider divider--vertical" role="separator" aria-orientation="vertical"></span>
+              <span class="text-small">84,210 km</span>
+              <span class="divider divider--vertical" role="separator" aria-orientation="vertical"></span>
+              <span class="text-small">Bay 4</span>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-label">
+            <div class="stack stack--gap-3">
+              <button type="button" class="btn btn--primary btn--full-width">Scan vehicle QR code</button>
+              <div class="divider-label"><span>or</span></div>
+              <button type="button" class="btn btn--secondary btn--full-width">Enter plate number</button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;hr class="divider"&gt;
+
+&lt;span class="divider divider--vertical" role="separator" aria-orientation="vertical"&gt;&lt;/span&gt;
+
+&lt;!-- Labelled: the text is read as normal text, the lines are decoration --&gt;
+&lt;div class="divider-label"&gt;&lt;span&gt;or&lt;/span&gt;&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>hr.divider</code></td><td>block class</td><td>Horizontal semantic separator</td></tr>
+          <tr><td><code>.divider--vertical</code> + <code>role="separator" aria-orientation="vertical"</code></td><td>modifier + ARIA</td><td>Vertical separator in a row</td></tr>
+          <tr><td><code>.divider--strong</code></td><td>modifier class</td><td>3:1 line when the line itself must be perceived</td></tr>
+          <tr><td><code>.divider-label</code></td><td>block class</td><td>Labelled break</td></tr>
+          <tr><td><code>aria-hidden="true"</code></td><td>attribute</td><td>Purely decorative divider that shouldn't be announced</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="stack stack--gap-3"><p class="text-small">Labour · 1.5 h</p><hr class="divider"><p class="text-small"><strong>Total · €171.00</strong></p></div>
+          <figcaption><strong>Do</strong> use a divider to set off a summary row.</figcaption></figure>
+        <figure class="ds-dont"><div class="stack stack--gap-2"><p class="text-small">Plate</p><hr class="divider"><p class="text-small">Make</p><hr class="divider"><p class="text-small">Model</p></div>
+          <figcaption><strong>Don't</strong> put a line between every item; use spacing or a list.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li><code>&lt;hr&gt;</code> has the implicit <code>separator</code> role; screen readers announce it. Add <code>aria-hidden="true"</code> when the break is purely visual.</li>
+        <li>Vertical separators need <code>role="separator"</code> and <code>aria-orientation="vertical"</code>. Inside a toolbar they group controls for assistive tech.</li>
+        <li>The labelled divider isn't a separator role (separator children are hidden from the accessibility tree); its word is read as normal text.</li>
+        <li>Decorative lines are 1px <code>border.default</code>; lines in forced colors use <code>CanvasText</code>.</li>
+        <li>Not focusable, no keyboard interaction. (Resizable separators are the splitter component.)</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--border-width-thin</code></td><td>Line weight</td></tr>
+          <tr><td><code>--color-border-default | -strong</code></td><td>Line color</td></tr>
+          <tr><td><code>--color-text-muted</code>, <code>--typography-small-*</code></td><td>Label text</td></tr>
+          <tr><td><code>--space-3 | -6</code></td><td>Label gap; minimum vertical length</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

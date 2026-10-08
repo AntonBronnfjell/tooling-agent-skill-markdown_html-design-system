@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Button — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline buttons: primary, secondary, ghost and destructive variants with every state and size.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Button</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a button to start an action on the current screen: save a work order, assign a mechanic, export a report. Use a <strong>link</strong> instead when the result is navigation to another page; a link styled as a button (<code>&lt;a class="btn"&gt;</code>) is allowed only for that case.</p>
+      <ul>
+        <li><strong>Primary</strong> — the one main action of a region (a form, a dialog, a panel). Teal is reserved for this; never two primaries side by side.</li>
+        <li><strong>Secondary</strong> — alternatives next to the primary ("Save draft" next to "Close work order").</li>
+        <li><strong>Ghost (tertiary)</strong> — low-emphasis actions in dense areas: table rows, toolbars, "Cancel".</li>
+        <li><strong>Destructive</strong> — deletes or retires something. Always confirm in an alert dialog or offer undo.</li>
+      </ul>
+      <p>Labels: verb + object, sentence case, three words or fewer ("Assign mechanic", "Export service log"). Avoid "OK", "Submit", "Click here". Keep paired labels parallel ("Save draft" / "Close work order"). Allow +40% length for translations — buttons wrap their row, never truncate the label.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>&lt;button type="button|submit" class="btn"&gt;</code>, 8px radius, height from <code>--button-height-*</code></li>
+        <li>Label — <code>.btn__label</code> (required when an icon or spinner is present)</li>
+        <li>Leading or trailing icon (optional) — <code>svg.btn__icon</code>, <code>aria-hidden="true"</code></li>
+        <li>Spinner (loading only) — <code>.btn__spinner</code>, overlays the label so the width doesn't change</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="button-primary" aria-labelledby="button-primary-h">
+        <h3 id="button-primary-h">Primary</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:primary state:default">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary is-hover">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary is-focus-visible">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:active">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary is-active">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--primary" disabled>Assign mechanic</button>
+              <button type="button" class="btn btn--primary" aria-disabled="true" aria-describedby="assign-why">Close work order</button>
+            </div>
+            <p id="assign-why">Log at least one task before closing this work order.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:loading">
+            <div class="ds-demo__row">
+              <button type="submit" class="btn btn--primary" aria-busy="true" aria-disabled="true">
+                <span class="btn__label">Save work order</span>
+                <span class="btn__spinner" aria-hidden="true"></span>
+              </button>
+              <span role="status" class="sr-only">Saving work order WO-4182…</span>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="size:sm">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary btn--sm">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="size:md">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary">Assign mechanic</button></div>
+          </div>
+          <div class="ds-demo" data-demo="size:lg">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary btn--lg">Assign mechanic</button></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--primary"&gt;Assign mechanic&lt;/button&gt;
+&lt;button type="button" class="btn btn--primary btn--sm"&gt;Assign mechanic&lt;/button&gt;
+&lt;button type="button" class="btn btn--primary btn--lg"&gt;Assign mechanic&lt;/button&gt;
+
+&lt;!-- Unavailable: disabled (skipped by Tab) or aria-disabled (focusable, explains why) --&gt;
+&lt;button type="button" class="btn btn--primary" disabled&gt;Assign mechanic&lt;/button&gt;
+&lt;button type="button" class="btn btn--primary" aria-disabled="true" aria-describedby="close-why"&gt;Close work order&lt;/button&gt;
+
+&lt;!-- Loading: keep the label (it stays the accessible name), announce progress separately --&gt;
+&lt;button type="submit" class="btn btn--primary" aria-busy="true" aria-disabled="true"&gt;
+  &lt;span class="btn__label"&gt;Save work order&lt;/span&gt;
+  &lt;span class="btn__spinner" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;/button&gt;
+&lt;span role="status" class="sr-only"&gt;Saving work order WO-4182…&lt;/span&gt;</code></pre>
+      </section>
+
+      <section id="button-secondary" aria-labelledby="button-secondary-h">
+        <h3 id="button-secondary-h">Secondary</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:secondary">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary">Save draft</button>
+              <button type="button" class="btn btn--secondary is-hover">Save draft</button>
+              <button type="button" class="btn btn--secondary is-focus-visible">Save draft</button>
+              <button type="button" class="btn btn--secondary is-active">Save draft</button>
+              <button type="button" class="btn btn--secondary" disabled>Save draft</button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:secondary size:sm size:lg">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary btn--sm">Save draft</button>
+              <button type="button" class="btn btn--secondary">Save draft</button>
+              <button type="button" class="btn btn--secondary btn--lg">Save draft</button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--secondary"&gt;Save draft&lt;/button&gt;</code></pre>
+      </section>
+
+      <section id="button-tertiary" aria-labelledby="button-tertiary-h">
+        <h3 id="button-tertiary-h">Tertiary (ghost)</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:ghost">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--ghost">View history</button>
+              <button type="button" class="btn btn--ghost is-hover">View history</button>
+              <button type="button" class="btn btn--ghost is-focus-visible">View history</button>
+              <button type="button" class="btn btn--ghost is-active">View history</button>
+              <button type="button" class="btn btn--ghost" disabled>View history</button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--ghost"&gt;View history&lt;/button&gt;</code></pre>
+      </section>
+
+      <section id="button-destructive" aria-labelledby="button-destructive-h">
+        <h3 id="button-destructive-h">Destructive</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:destructive">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--destructive">Retire vehicle</button>
+              <button type="button" class="btn btn--destructive is-hover">Retire vehicle</button>
+              <button type="button" class="btn btn--destructive is-focus-visible">Retire vehicle</button>
+              <button type="button" class="btn btn--destructive is-active">Retire vehicle</button>
+              <button type="button" class="btn btn--destructive" disabled>Retire vehicle</button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:destructive state:with-confirm">
+            <p>Retire van KX-219? It will be removed from dispatch and its open work orders will be cancelled.</p>
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--destructive">Retire van</button>
+              <button type="button" class="btn btn--ghost">Keep in service</button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--destructive"&gt;Retire vehicle&lt;/button&gt;</code></pre>
+      </section>
+
+      <section id="button-with-icon" aria-labelledby="button-with-icon-h">
+        <h3 id="button-with-icon-h">With icon</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:icon-trailing">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--primary">
+                <span class="btn__label">Continue to parts</span>
+                <svg class="btn__icon icon--mirror-rtl" aria-hidden="true" focusable="false"><use href="#icon-arrow-right"></use></svg>
+              </button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:icon-leading">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--primary">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-plus"></use></svg>
+                <span class="btn__label">New work order</span>
+              </button>
+              <button type="button" class="btn btn--secondary">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-download"></use></svg>
+                <span class="btn__label">Export service log</span>
+              </button>
+              <button type="button" class="btn btn--ghost btn--sm">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg>
+                <span class="btn__label">Remove part</span>
+              </button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:full-width">
+            <div style="max-inline-size: 22rem;">
+              <button type="button" class="btn btn--primary btn--lg btn--full-width">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg>
+                <span class="btn__label">Start inspection</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--primary"&gt;
+  &lt;svg class="btn__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-plus"&gt;&lt;/use&gt;&lt;/svg&gt;
+  &lt;span class="btn__label"&gt;New work order&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Directional icons mirror in RTL --&gt;
+&lt;button type="button" class="btn btn--primary"&gt;
+  &lt;span class="btn__label"&gt;Continue to parts&lt;/span&gt;
+  &lt;svg class="btn__icon icon--mirror-rtl" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-arrow-right"&gt;&lt;/use&gt;&lt;/svg&gt;
+&lt;/button&gt;
+
+&lt;button type="button" class="btn btn--primary btn--lg btn--full-width"&gt;…&lt;/button&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.btn</code></td><td>block class</td><td>Base button; without a variant it renders as secondary</td></tr>
+          <tr><td><code>.btn--primary | --secondary | --ghost | --destructive</code></td><td>modifier class</td><td>Emphasis</td></tr>
+          <tr><td><code>.btn--sm | --lg</code></td><td>modifier class</td><td>Size (md is default): 32 / 40 / 48px, same heights as <code>.input--sm|lg</code></td></tr>
+          <tr><td><code>.btn--full-width</code></td><td>modifier class</td><td>Fills its container (mobile forms, tablet task screens)</td></tr>
+          <tr><td><code>.btn__label</code>, <code>.btn__icon</code>, <code>.btn__spinner</code></td><td>part classes</td><td>Label, decorative icon, loading spinner</td></tr>
+          <tr><td><code>disabled</code></td><td>attribute</td><td>Unavailable and removed from the tab order</td></tr>
+          <tr><td><code>aria-disabled="true"</code></td><td>attribute</td><td>Unavailable but focusable; pair with <code>aria-describedby</code> explaining why. Your click handler must ignore it.</td></tr>
+          <tr><td><code>aria-busy="true"</code></td><td>attribute</td><td>Loading: spinner replaces the label visually; also set <code>aria-disabled="true"</code> and ignore repeat activations</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible | .is-active</code></td><td>docs-only class</td><td>Freezes a state for documentation and visual tests</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="btn btn--primary">Close work order</button><button type="button" class="btn btn--secondary">Save draft</button></div>
+          <figcaption><strong>Do</strong> use one primary per region, with parallel verb + object labels.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="ds-demo__row"><button type="button" class="btn btn--primary">OK</button><button type="button" class="btn btn--primary">Save</button></div>
+          <figcaption><strong>Don't</strong> place two primaries side by side or use labels that don't say what happens.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="btn btn--destructive">Retire van</button><button type="button" class="btn btn--ghost">Keep in service</button></div>
+          <figcaption><strong>Do</strong> name the object in destructive actions and confirm before acting.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="ds-demo__row"><button type="button" class="btn btn--primary">Delete</button></div>
+          <figcaption><strong>Don't</strong> style destructive actions as primary, or let one click delete without confirmation or undo.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves focus to the button (skipped when <code>disabled</code>; kept when <code>aria-disabled</code>)</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Activates the button</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>&lt;button&gt;</code> (WAI-ARIA APG Button pattern). Always set <code>type</code>; without it a button inside a form submits that form by accident.</li>
+        <li>Name: the visible label. Icons inside a labelled button are <code>aria-hidden="true" focusable="false"</code>. Icon-only buttons belong to the icon-button component and need <code>aria-label</code>.</li>
+        <li>Loading: the label stays in the accessibility tree (hidden with <code>opacity</code>, not <code>visibility</code>), so the name doesn't change. Announce progress and the result in a <code>role="status"</code> region.</li>
+        <li>Focus: 2px teal ring with 2px offset from <code>--focus-ring-*</code> (≥ 3:1 in every theme). It is never removed.</li>
+        <li>Target size: smallest button is 32px high and at least 32px wide (WCAG 2.5.8 needs 24px). Use <code>.btn--lg</code> (48px) on tablet screens mechanics use with gloves.</li>
+        <li>Contrast: label/background pairs <code>color.action.*.fg</code> on <code>color.action.*.bg</code> are checked at 4.5:1 by <code>ds.py check</code>. Disabled buttons are exempt but still readable.</li>
+        <li>Forced colors: every variant keeps a 1px border so buttons stay visible when backgrounds are removed.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--button-radius</code></td><td>Corner radius (→ <code>--radius-md</code>, 8px)</td></tr>
+          <tr><td><code>--button-height-sm | -md | -lg</code></td><td>Heights (→ <code>--size-control-*</code>)</td></tr>
+          <tr><td><code>--button-font-weight</code></td><td>Label weight (semibold)</td></tr>
+          <tr><td><code>--color-action-{primary|secondary|ghost|danger}-{bg|bg-hover|bg-active|fg}</code></td><td>Variant colors per state</td></tr>
+          <tr><td><code>--color-action-secondary-border</code></td><td>Secondary outline</td></tr>
+          <tr><td><code>--color-bg-muted</code>, <code>--color-text-disabled</code></td><td>Disabled fill and label</td></tr>
+          <tr><td><code>--focus-ring-width | -offset | -color</code></td><td>Focus ring</td></tr>
+          <tr><td><code>--density-{comfortable|compact}-control-padding-x</code></td><td>Inline padding per density</td></tr>
+          <tr><td><code>--icon-size-sm | -md</code>, <code>--icon-stroke</code></td><td>Icon and spinner size</td></tr>
+          <tr><td><code>--motion-duration-fast</code>, <code>--motion-easing-standard</code></td><td>Color transitions</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

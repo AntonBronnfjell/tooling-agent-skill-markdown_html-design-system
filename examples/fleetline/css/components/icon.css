@@ -1,0 +1,36 @@
+/* icon.css — Icon wrapper.
+   Block: .icon  ·  Modifiers: .icon--sm | --md (default) | --lg, .icon--mirror-rtl
+   Markup: <svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg>
+   Symbols are Lucide-style 24×24 outline paths (ISC). They set fill="none" stroke="currentColor";
+   stroke width comes from --icon-stroke so the whole set stays one weight. Color is inherited (currentColor). */
+@layer components {
+  .icon {
+    --_size: var(--icon-size-md);
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    vertical-align: middle;
+    color: inherit;
+    stroke-width: var(--icon-stroke);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .icon--sm { --_size: var(--icon-size-sm); }
+  .icon--md { --_size: var(--icon-size-md); }
+  .icon--lg { --_size: var(--icon-size-lg); }
+
+  /* Directional glyphs (arrows, chevrons pointing "forward") flip in RTL. */
+  .icon--mirror-rtl:dir(rtl) { transform: scaleX(-1); }
+
+  /* Text-paired icon: aligns to the first line of adjacent text. */
+  .icon-text {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+  }
+
+  @media (forced-colors: active) {
+    .icon { color: CanvasText; }
+  }
+}

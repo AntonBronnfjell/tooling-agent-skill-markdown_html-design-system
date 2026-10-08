@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Empty state — Fleetline</title>
+  <meta name="ds-status" content="beta">
+  <meta name="description" content="Fleetline empty states: first use, no results and all caught up, built from the result panel and placed where the list or table would be.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/card.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/select.css">
+  <link rel="stylesheet" href="../css/components/search-input.css">
+  <link rel="stylesheet" href="../css/components/result-panel.css">
+  <link rel="stylesheet" href="../css/patterns/empty-state.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/search-input.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-clipboard-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="icon-search-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Empty state</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Show an empty state where a list, table or dashboard tile has nothing to show, in the same place and at about the same height as the content it stands in for. Say what the situation is, what to do next, and offer one way to do it.</p>
+      <ul>
+        <li><strong>First use</strong> — nothing has been created yet. Explain what will appear here and offer the create action: "No work orders yet" + "Create work order".</li>
+        <li><strong>No results</strong> — a search or filter matched nothing. Repeat the query, suggest a fix and offer "Clear filters". Keep the search box and filters on screen so the query can be edited.</li>
+        <li><strong>Cleared</strong> — the user finished the queue. Confirm it plainly ("All caught up") and say when there will be more. No action is required; a link to the next useful place is enough.</li>
+        <li>Title states the situation in plain words; description is one sentence; one primary action at most. No jokes in error-adjacent states, no illustrations that push the action below the fold on a tablet.</li>
+        <li>Not for failures: if the list could not load, use the error tone of the result panel with "Try again".</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Region — <code>.empty-state</code> (reserves the height of the missing content)</li>
+        <li>Icon — <code>.result__icon</code>, decorative (<code>aria-hidden</code>)</li>
+        <li>Title — <code>.result__title</code>, a heading one level below the surrounding section</li>
+        <li>Guidance — <code>.result__description</code>, one sentence</li>
+        <li>Actions — <code>.result__actions</code>: one primary button, optional secondary link</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="empty-state" aria-labelledby="empty-state-h">
+        <h3 id="empty-state-h">Empty state</h3>
+        <div class="ds-demos">
+
+          <div class="ds-demo" data-demo="variant:first-use">
+            <p class="ds-demo__label">variant:first-use — inside a card</p>
+            <section class="card" aria-labelledby="es1-card">
+              <header class="card__header"><h4 class="card__title" id="es1-card">Work orders</h4><p class="card__meta">Van KX-219 · Ford Transit</p></header>
+              <div class="empty-state" style="--empty-state-min-block-size: 16rem;">
+                <section class="result" aria-labelledby="es1-t">
+                  <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-clipboard-list"></use></svg></span>
+                  <h5 class="result__title" id="es1-t">No work orders yet</h5>
+                  <p class="result__description">Repairs and services for this van appear here with their status and mechanic.</p>
+                  <div class="result__actions">
+                    <button type="button" class="btn btn--primary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-plus"></use></svg><span class="btn__label">Create work order</span></button>
+                    <a class="btn btn--ghost" href="#import">Import from spreadsheet</a>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:no-results">
+            <p class="ds-demo__label">variant:no-results — filters stay editable</p>
+            <div class="empty-state__toolbar">
+              <search class="search">
+                <form class="search__form" action="#empty-state" method="get">
+                  <label class="label" for="es2-q">Search vehicles</label>
+                  <div class="input input--affixed search__box">
+                    <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                    <input class="input__control search__control" id="es2-q" name="q" type="search" value="KX-99" autocomplete="off" spellcheck="false">
+                    <span class="search__spinner" aria-hidden="true"></span>
+                    <button type="button" class="search__clear" aria-label="Clear search" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                  </div>
+                  <p class="search__status sr-only" role="status">No vehicles found</p>
+                </form>
+              </search>
+              <div class="field">
+                <label class="label" for="es2-depot">Depot</label>
+                <div class="select"><select class="select__control" id="es2-depot" name="depot"><option>All depots</option><option selected>North Yard</option><option>Harbour Road</option></select></div>
+              </div>
+            </div>
+            <div class="empty-state" style="--empty-state-min-block-size: 16rem;">
+              <section class="result" aria-labelledby="es2-t">
+                <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-search-x"></use></svg></span>
+                <h4 class="result__title" id="es2-t">No results for ‘KX-99’</h4>
+                <p class="result__description">No vehicle at North Yard matches that plate. Check the number, or search all 6 depots.</p>
+                <div class="result__actions">
+                  <button type="button" class="btn btn--primary">Clear filters</button>
+                  <a class="btn btn--ghost" href="#vehicles">Browse all vehicles</a>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:cleared">
+            <p class="ds-demo__label">variant:cleared — queue finished</p>
+            <section class="card" aria-labelledby="es3-card">
+              <header class="card__header"><h4 class="card__title" id="es3-card">Inspections due</h4><p class="card__meta">North Yard · next 7 days</p></header>
+              <div class="empty-state" style="--empty-state-min-block-size: 16rem;">
+                <section class="result result--success" aria-labelledby="es3-t">
+                  <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-check-circle"></use></svg></span>
+                  <h5 class="result__title" id="es3-t">All caught up</h5>
+                  <p class="result__description">Every vehicle at North Yard has a valid inspection. The next one is due on <time datetime="2026-10-14">14 October</time>.</p>
+                  <div class="result__actions">
+                    <a class="btn btn--secondary" href="#calendar">Open service calendar</a>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="empty-state"&gt;
+  &lt;section class="result" aria-labelledby="wo-empty-t"&gt;
+    &lt;span class="result__icon" aria-hidden="true"&gt;&lt;svg&gt;&lt;use href="#icon-clipboard-list"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;h2 class="result__title" id="wo-empty-t"&gt;No work orders yet&lt;/h2&gt;
+    &lt;p class="result__description"&gt;Repairs and services for this van appear here with their status and mechanic.&lt;/p&gt;
+    &lt;div class="result__actions"&gt;
+      &lt;button type="button" class="btn btn--primary"&gt;Create work order&lt;/button&gt;
+      &lt;a class="btn btn--ghost" href="/work-orders/import"&gt;Import from spreadsheet&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+
+&lt;!-- No results: keep the search/filters above; announce the count in the search's role="status" node. --&gt;
+&lt;!-- Cleared: .result--success, a link instead of a primary button. --&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.empty-state</code></td><td>block</td><td>Region that replaces the list/table; centres the result panel vertically</td></tr>
+          <tr><td><code>--empty-state-min-block-size</code></td><td>length (default 20rem)</td><td>Match the height of the content it replaces</td></tr>
+          <tr><td><code>.empty-state__toolbar</code></td><td>part</td><td>Search + filters row kept above a no-results state</td></tr>
+          <tr><td><code>.result</code> / <code>.result--success</code></td><td>component</td><td>Icon, title, guidance and actions (see Result panel)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><figcaption><strong>Do</strong> repeat the query and give the way out: "No results for ‘KX-99’" + "Clear filters".</figcaption></figure>
+        <figure class="ds-dont"><figcaption><strong>Don't</strong> show a bare "No data" or hide the filters that caused the empty result.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Announcements and focus</caption>
+        <thead><tr><th scope="col">Situation</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>Page loads empty</td><td>No live region; the heading is found by heading navigation</td></tr>
+          <tr><td>Filter or search returns nothing</td><td>The result count is announced politely ("No vehicles found") through the search's <code>role="status"</code>; focus stays in the search box</td></tr>
+          <tr><td>Last item in a queue is completed</td><td>Announce "All caught up" through a status message; move focus to the empty-state heading (<code>tabindex="-1"</code>) only if the focused row was removed</td></tr>
+        </tbody>
+      </table>
+      <p>The icon is decorative; the title carries the meaning. The title is a real heading at the right level for its container (card title + 1).</p>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--empty-state-min-block-size</code></td><td>Reserved height (pattern property)</td></tr>
+          <tr><td><code>--space-3</code>, <code>--space-4</code></td><td>Toolbar gaps</td></tr>
+          <tr><td><code>--color-feedback-info-*</code>, <code>--color-feedback-success-*</code></td><td>Icon disc via the result panel tones</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

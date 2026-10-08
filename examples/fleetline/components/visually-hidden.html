@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visually hidden — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline visually hidden utilities: sr-only text and focusable skip links.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/visually-hidden.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Visually hidden</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Visually hidden content is read by screen readers but takes no space on screen. Use it to add context sighted users get from layout: "Error:" before a field message, the vehicle name after a repeated "Edit" link, the column a table cell belongs to.</p>
+      <ul>
+        <li><code>.sr-only</code> — always hidden visually.</li>
+        <li><code>.sr-only--focusable</code> — hidden until it receives keyboard focus; for skip links. Add <code>.skip-link</code> for the revealed style.</li>
+        <li>Don't use it to hide content from sighted users that everyone needs, and never put focusable controls inside plain <code>.sr-only</code>.</li>
+        <li>For content that should be hidden from everyone use <code>hidden</code>; to hide decoration from assistive tech use <code>aria-hidden="true"</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Hidden text — <code>.sr-only</code> (defined in <code>css/base.css</code>, utilities layer)</li>
+        <li>Revealed skip link — <code>.sr-only--focusable</code> + <code>.skip-link</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="visually-hidden" aria-labelledby="visually-hidden-h">
+        <h3 id="visually-hidden-h">Visually hidden</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:sr-only">
+            <p class="text-body">Van KX-219 · <a href="#visually-hidden">Edit<span class="sr-only"> van KX-219</span></a></p>
+            <p class="text-small text-muted">Screen readers hear "Edit van KX-219"; sighted users see "Edit" next to the vehicle.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:focusable">
+            <a class="skip-link sr-only sr-only--focusable" href="#examples-h">Skip to examples</a>
+            <a class="skip-link is-focus-visible" href="#examples-h">Skip to examples</a>
+            <p class="text-small text-muted">The first link is hidden until you Tab to it; the second shows its focused look (frozen with <code>.is-focus-visible</code>).</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;a href="/vehicles/kx-219/edit"&gt;Edit&lt;span class="sr-only"&gt; van KX-219&lt;/span&gt;&lt;/a&gt;
+
+&lt;!-- First element in &lt;body&gt; --&gt;
+&lt;a class="skip-link sr-only sr-only--focusable" href="#main"&gt;Skip to main content&lt;/a&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.sr-only</code></td><td>utility class (base.css)</td><td>Hide visually, keep for assistive tech</td></tr>
+          <tr><td><code>.sr-only--focusable</code></td><td>utility class (base.css)</td><td>Reveal on <code>:focus-visible</code> / <code>:active</code></td></tr>
+          <tr><td><code>.skip-link</code></td><td>class (visually-hidden.css)</td><td>Inverse surface and focus ring when revealed</td></tr>
+          <tr><td><code>.is-focus-visible</code></td><td>docs-only class</td><td>Freezes the revealed state</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><p class="text-small"><a href="#visually-hidden">View history<span class="sr-only"> for truck HT-507</span></a></p>
+          <figcaption><strong>Do</strong> complete repeated link text so it makes sense out of context.</figcaption></figure>
+        <figure class="ds-dont"><p class="text-small">Status: <span class="sr-only">Overdue</span></p>
+          <figcaption><strong>Don't</strong> hide information sighted users need too; status must be visible text.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>The technique (1px box, <code>clip-path: inset(50%)</code>, no wrapping) keeps text in the accessibility tree; <code>display: none</code> and <code>visibility: hidden</code> would remove it.</li>
+        <li>Rules use <code>!important</code> in the utilities layer on purpose: hiding must never be undone by component or app CSS.</li>
+        <li>Skip links must be the first focusable element and target an element with an <code>id</code> (<code>&lt;main id="main"&gt;</code>).</li>
+        <li>Visually hidden text is translated like any other text; don't hard-code English into CSS <code>content</code>.</li>
+      </ul>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd> (first press)</td><td>Reveals and focuses the skip link</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Moves to the main content</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-bg-inverse</code>, <code>--color-text-inverse</code></td><td>Revealed skip link surface and text</td></tr>
+          <tr><td><code>--space-2 | -4</code>, <code>--radius-md</code></td><td>Skip link padding and shape</td></tr>
+          <tr><td><code>--focus-ring-width | -offset | -color</code></td><td>Focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* progress.css — Progress bar on a native <progress>. Block alias: .progress
+   Markup:   <div class="progress">
+               <div class="progress__header"><label class="progress__label" for="p1">Uploading inspection photos</label>
+                 <span class="progress__value">60%</span></div>
+               <progress id="p1" class="progress__bar" max="100" value="60">60%</progress>
+               <p class="progress__hint">12 of 20 photos</p></div>
+   States:   determinate (value set) · indeterminate (no value → :indeterminate, moving segment)
+             · [data-state="complete"] · [data-state="error"] (tone + text change, never color alone)
+   Sizes:    .progress--thin (page-top / inline loading, 4px track)
+   Motion:   indeterminate segment slides (slower, linear); stopped by base.css under reduced motion. */
+@layer components {
+  .progress {
+    --_track: var(--color-bg-muted);
+    --_fill: var(--color-action-primary-bg);
+    --_h: var(--space-2);
+
+    display: grid;
+    gap: var(--space-1-5);
+    font-size: var(--font-size-sm);
+  }
+  .progress[data-state="complete"] { --_fill: var(--color-feedback-success-icon); }
+  .progress[data-state="error"] { --_fill: var(--color-feedback-danger-icon); }
+  .progress--thin { --_h: var(--space-1); }
+
+  .progress__header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+  .progress__label { font-weight: var(--font-weight-medium); color: var(--color-text-default); }
+  .progress__value { font-variant-numeric: tabular-nums; color: var(--color-text-muted); }
+  .progress__hint { display: flex; align-items: center; gap: var(--space-1-5); margin: 0; color: var(--color-text-muted); }
+  .progress[data-state="complete"] .progress__hint { color: var(--color-feedback-success-fg); }
+  .progress[data-state="error"] .progress__hint { color: var(--color-feedback-danger-fg); }
+  .progress__hint > svg { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); flex-shrink: 0; stroke-width: var(--icon-stroke); }
+
+  .progress__bar {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--_h);
+    border: 0;
+    border-radius: var(--radius-full);
+    background: var(--_track);
+    color: var(--_fill);
+    overflow: hidden;
+  }
+  .progress__bar::-webkit-progress-bar { background: var(--_track); border-radius: var(--radius-full); }
+  .progress__bar::-webkit-progress-value {
+    background: var(--_fill);
+    border-radius: var(--radius-full);
+    transition: inline-size var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  .progress__bar::-moz-progress-bar { background: var(--_fill); border-radius: var(--radius-full); }
+
+  /* Indeterminate: a 35% segment sweeping the track. */
+  .progress__bar:indeterminate {
+    background:
+      linear-gradient(to right, transparent 0 35%, var(--_fill) 35% 70%, transparent 70%) 0 0 / 300% 100% no-repeat,
+      var(--_track);
+    animation: progress-sweep calc(var(--motion-duration-slower) * 3) linear infinite;
+  }
+  .progress__bar:indeterminate::-webkit-progress-bar { background: transparent; }
+  .progress__bar:indeterminate::-moz-progress-bar { background: transparent; }
+  .progress__bar:indeterminate:dir(rtl) { animation-direction: reverse; }
+
+  @media (forced-colors: active) {
+    .progress__bar { border: var(--border-width-thin) solid CanvasText; }
+    .progress__bar::-webkit-progress-value { background: Highlight; }
+    .progress__bar::-moz-progress-bar { background: Highlight; }
+  }
+}
+
+@keyframes progress-sweep {
+  from { background-position: 100% 0, 0 0; }
+  to { background-position: 0% 0, 0 0; }
+}

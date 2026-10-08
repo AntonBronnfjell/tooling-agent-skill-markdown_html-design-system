@@ -1,0 +1,93 @@
+/* list-group.css — List group (multi-row list). Block alias: .list-group
+   Markup:   <ul class="list-group" role="list"> <li class="list-group__item">…
+   Variants: .list-group--interactive (each row has one .list-group__link; its ::after covers the row)
+             rows with trailing actions: put buttons in .list-group__actions (they sit above the stretched link)
+   Parts:    .list-group__leading (avatar/icon), .list-group__content > .list-group__primary + .list-group__secondary,
+             .list-group__meta (trailing text/badge, tabular numerals), .list-group__actions
+   States:   :hover / :focus-within on interactive rows (docs freeze: .is-hover, .is-focus-visible),
+             aria-current="page" on the link = current row (teal bar + fill; the link's name already says which row).
+   Density:  [data-density="compact"] tightens row padding. */
+@layer components {
+  .list-group {
+    --_py: var(--space-3);
+
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-elevation-surface-raised);
+  }
+  [data-density="compact"] .list-group { --_py: var(--density-compact-cell-padding-y); }
+
+  .list-group__item {
+    --_bg: transparent;
+    --_bar: transparent;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--size-touch-target);
+    padding-block: var(--_py);
+    padding-inline: var(--space-4);
+    background: var(--_bg);
+    box-shadow: inset var(--border-width-thick) 0 0 var(--_bar);
+    transition: background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .list-group__item:dir(rtl) { box-shadow: inset calc(var(--border-width-thick) * -1) 0 0 var(--_bar); }
+  .list-group__item + .list-group__item { border-block-start: var(--border-width-thin) solid var(--color-border-default); }
+  .list-group__item:first-child { border-start-start-radius: inherit; border-start-end-radius: inherit; }
+  .list-group__item:last-child { border-end-start-radius: inherit; border-end-end-radius: inherit; }
+
+  .list-group__leading { flex-shrink: 0; display: inline-flex; color: var(--color-text-muted); }
+  .list-group__leading > .icon { inline-size: var(--icon-size-lg); block-size: var(--icon-size-lg); }
+  .list-group__content { flex: 1; display: grid; gap: var(--space-0-5); min-inline-size: 0; }
+  .list-group__primary {
+    font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+  .list-group__secondary { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+  .list-group__meta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+  .list-group__actions {
+    position: relative;
+    z-index: var(--z-raised);
+    flex-shrink: 0;
+    display: inline-flex;
+    gap: var(--space-1);
+  }
+
+  /* Interactive rows */
+  .list-group__link { color: inherit; text-decoration: none; }
+  .list-group__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  .list-group__link:focus-visible { outline: var(--focus-ring-width) solid transparent; } /* ring drawn on the row */
+  .list-group--interactive .list-group__item:hover,
+  .list-group--interactive .list-group__item.is-hover { --_bg: var(--color-action-ghost-bg-hover); }
+  .list-group--interactive .list-group__item:hover .list-group__link { text-decoration: underline; }
+  .list-group__item:has(.list-group__link:focus-visible),
+  .list-group__item.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+  .list-group__item:has(.list-group__link[aria-current="page"]) {
+    --_bg: var(--color-selected-bg);
+    --_bar: var(--color-selected-border);
+  }
+  /* A selected row recolors ALL its text: secondary/meta on the selected fill must pass too (high contrast fills black). */
+  .list-group__item:has(.list-group__link[aria-current="page"]) :is(.list-group__primary, .list-group__secondary, .list-group__meta) { color: var(--color-selected-fg); }
+
+  @media (forced-colors: active) {
+    .list-group { border-color: CanvasText; }
+    .list-group__item:has(.list-group__link:focus-visible) { outline-color: Highlight; }
+    .list-group__item:has(.list-group__link[aria-current="page"]) { border-inline-start: var(--border-width-thick) solid Highlight; }
+  }
+}

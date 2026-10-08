@@ -1,0 +1,56 @@
+/* tooltip.css — Tooltip: one short, non-interactive line shown on hover AND focus. Block alias: .tooltip
+   Markup:   <button type="button" class="btn" aria-describedby="tt-1" data-tooltip-trigger="tt-1">…</button>
+             <div id="tt-1" class="tooltip" popover="hint" role="tooltip">Last synced 4 minutes ago</div>
+             popover="hint" falls back to "manual" where unsupported; js/tooltip.js shows it after 400ms,
+             keeps it while the pointer is over it, hides it on Esc without moving focus (WCAG 1.4.13).
+   Placement (logical): (block-start default) | .tooltip--block-end | .tooltip--inline-start | .tooltip--inline-end
+             Flips with the built-in flip-block and the shared --flip-inline try from base.css.
+   States:   real one via :popover-open. Docs-only freeze class: .is-open (renders in page flow).
+   Motion:   opacity only, fast. */
+@layer components {
+  .tooltip {
+    max-inline-size: min(18rem, 100vw - 2 * var(--space-4));
+    padding-block: var(--space-1-5);
+    padding-inline: var(--space-2);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-snug);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transition:
+      opacity var(--motion-duration-fast) var(--motion-easing-exit),
+      overlay var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete,
+      display var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete;
+  }
+  .tooltip:popover-open,
+  .tooltip.is-open {
+    opacity: 1;
+    transition-timing-function: var(--motion-easing-enter);
+  }
+  @starting-style {
+    .tooltip:popover-open { opacity: 0; }
+  }
+
+  @supports (anchor-name: --a) {
+    .tooltip[popover] {
+      inset: auto;
+      margin: var(--space-1-5);
+      position-area: block-start;
+      position-try-fallbacks: flip-block, --flip-inline;
+    }
+    .tooltip--block-end[popover] { position-area: block-end; position-try-fallbacks: --flip-block, --flip-inline; }
+    .tooltip--inline-start[popover] { position-area: inline-start; position-try-fallbacks: flip-inline, --flip-block; }
+    .tooltip--inline-end[popover] { position-area: inline-end; position-try-fallbacks: --flip-inline, --flip-block; }
+  }
+
+  /* Docs-only: a visible tooltip rendered in the demo flow. */
+  .tooltip.is-open { position: relative; display: block; inline-size: max-content; }
+
+  @media (forced-colors: active) {
+    .tooltip { border: var(--border-width-thin) solid CanvasText; background: Canvas; color: CanvasText; }
+  }
+}

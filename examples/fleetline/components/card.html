@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Card — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline card: vehicle and work-order cards with media, actions, a stretched primary link and a selectable state.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/card.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Card</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a card to summarize one object — a vehicle, a work order, a depot — in a grid or board, with a way to open it. Use a <strong>table</strong> when people compare many records field by field, and a <strong>list group</strong> for long single-column lists.</p>
+      <ul>
+        <li><strong>Basic</strong> — title, meta and a short body; no interaction.</li>
+        <li><strong>Media</strong> — a photo or illustration of the vehicle on the sunken surface above the content.</li>
+        <li><strong>Interactive</strong> — the title is the one link; the whole card is its hit area. Never wrap the card in <code>&lt;a&gt;</code>.</li>
+        <li><strong>With actions</strong> — up to two buttons, one primary. More actions go in a menu.</li>
+        <li><strong>Selectable</strong> — a real checkbox for bulk actions ("Assign 3 vans").</li>
+      </ul>
+      <p>Content: title is the object's name ("Van KX-219"), meta is one line of facts, body is two lines at most. Write status in words ("Oil change overdue by 6 days"), not only with color.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>&lt;article class="card"&gt;</code> (or <code>&lt;li&gt;</code> in a list of cards) labelled by its title</li>
+        <li>Media (optional) — <code>.card__media</code>, bleeds to the edges, 16:9</li>
+        <li>Header — <code>.card__header</code> with <code>.card__title</code> (a heading) and <code>.card__meta</code></li>
+        <li>Body — <code>.card__body</code></li>
+        <li>Actions or footer (optional) — <code>.card__actions</code> / <code>.card__footer</code>, pinned to the bottom</li>
+        <li>Primary link (interactive) — <code>.card__link</code> on the title; its <code>::after</code> covers the card</li>
+        <li>Select (selectable) — <code>.card__select</code>, label + native checkbox</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="card" aria-labelledby="card-h">
+        <h3 id="card-h">Card</h3>
+        <p>Cards in a grid stretch to equal height; actions pin to the bottom edge.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:basic">
+            <article class="card" aria-labelledby="c1-t">
+              <header class="card__header">
+                <h4 id="c1-t" class="card__title">Van KX-219</h4>
+                <p class="card__meta">Ford Transit · 84,212 km</p>
+              </header>
+              <p class="card__body">Brake pads at 3 mm on the front axle. Next service due in 1,800 km.</p>
+            </article>
+          </div>
+          <div class="ds-demo" data-demo="variant:media">
+            <article class="card" aria-labelledby="c2-t">
+              <div class="card__media"><svg viewBox="0 0 24 24" class="icon icon--lg" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg></div>
+              <header class="card__header">
+                <h4 id="c2-t" class="card__title">Truck TR-077</h4>
+                <p class="card__meta">Volvo FH · depot north</p>
+              </header>
+              <p class="card__body">In the workshop since 07:40 for a gearbox oil leak.</p>
+            </article>
+          </div>
+          <div class="ds-demo" data-demo="variant:interactive">
+            <article class="card card--interactive" aria-labelledby="c3-t">
+              <header class="card__header">
+                <h4 id="c3-t" class="card__title"><a class="card__link" href="#card">WO-4185 · Gearbox oil leak</a></h4>
+                <p class="card__meta">Truck TR-077 · Idris Okafor</p>
+              </header>
+              <p class="card__body">11 h labour logged, parts ordered.</p>
+            </article>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <article class="card card--interactive is-hover" aria-labelledby="c4-t">
+              <header class="card__header">
+                <h4 id="c4-t" class="card__title"><a class="card__link" href="#card">WO-4191 · Tyre rotation</a></h4>
+                <p class="card__meta">Van KX-224 · Lena Brandt</p>
+              </header>
+              <p class="card__body">Scheduled for Thursday 10 Oct, 09:00.</p>
+            </article>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-actions">
+            <article class="card" aria-labelledby="c5-t">
+              <header class="card__header">
+                <h4 id="c5-t" class="card__title">Pickup PU-012</h4>
+                <p class="card__meta">Oil change overdue by 6 days</p>
+              </header>
+              <p class="card__body">Last service 14 Mar at 132,100 km.</p>
+              <div class="card__actions">
+                <button type="button" class="btn btn--primary btn--sm">Book service</button>
+                <button type="button" class="btn btn--ghost btn--sm">Snooze 7 days</button>
+              </div>
+            </article>
+          </div>
+          <div class="ds-demo" data-demo="state:selected">
+            <article class="card card--selectable" aria-labelledby="c6-t">
+              <label class="card__select"><input type="checkbox" checked aria-labelledby="c6-t"> Selected</label>
+              <header class="card__header">
+                <h4 id="c6-t" class="card__title">Van KX-230</h4>
+                <p class="card__meta">Renault Master · 22,480 km</p>
+              </header>
+              <p class="card__body">Ready for dispatch.</p>
+            </article>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;article class="card card--interactive" aria-labelledby="c3-t"&gt;
+  &lt;header class="card__header"&gt;
+    &lt;h4 id="c3-t" class="card__title"&gt;&lt;a class="card__link" href="#card"&gt;WO-4185 · Gearbox oil leak&lt;/a&gt;&lt;/h4&gt;
+    &lt;p class="card__meta"&gt;Truck TR-077 · Idris Okafor&lt;/p&gt;
+  &lt;/header&gt;
+  &lt;p class="card__body"&gt;11 h labour logged, parts ordered.&lt;/p&gt;
+&lt;/article&gt;
+
+
+&lt;article class="card" aria-labelledby="c5-t"&gt;
+  &lt;header class="card__header"&gt;
+    &lt;h4 id="c5-t" class="card__title"&gt;Pickup PU-012&lt;/h4&gt;
+    &lt;p class="card__meta"&gt;Oil change overdue by 6 days&lt;/p&gt;
+  &lt;/header&gt;
+  &lt;p class="card__body"&gt;Last service 14 Mar at 132,100 km.&lt;/p&gt;
+  &lt;div class="card__actions"&gt;
+    &lt;button type="button" class="btn btn--primary btn--sm"&gt;Book service&lt;/button&gt;
+    &lt;button type="button" class="btn btn--ghost btn--sm"&gt;Snooze 7 days&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+
+&lt;article class="card card--selectable" aria-labelledby="c6-t"&gt;
+  &lt;label class="card__select"&gt;&lt;input type="checkbox" checked aria-labelledby="c6-t"&gt; Selected&lt;/label&gt;
+  &lt;header class="card__header"&gt;
+    &lt;h4 id="c6-t" class="card__title"&gt;Van KX-230&lt;/h4&gt;
+    &lt;p class="card__meta"&gt;Renault Master · 22,480 km&lt;/p&gt;
+  &lt;/header&gt;
+  &lt;p class="card__body"&gt;Ready for dispatch.&lt;/p&gt;
+&lt;/article&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.card</code></td><td>block class</td><td>Raised surface, border, 12px radius, padding from <code>--card-padding</code></td></tr>
+          <tr><td><code>.card--interactive</code></td><td>modifier class</td><td>Hover elevation; focus ring drawn around the card when the link has focus</td></tr>
+          <tr><td><code>.card--selectable</code></td><td>modifier class</td><td>Selected styling when the inner checkbox is <code>:checked</code></td></tr>
+          <tr><td><code>.card__media | __header | __title | __meta | __body | __actions | __footer</code></td><td>part classes</td><td>Content slots</td></tr>
+          <tr><td><code>.card__link</code></td><td>part class</td><td>The single primary link; stretched over the card</td></tr>
+          <tr><td><code>.card__select</code></td><td>part class</td><td>Checkbox row; sits above the stretched link</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freeze hover (on the card) or focus (on the link)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Title link "WO-4185 · Gearbox oil leak" + separate "Book service" button.</p>
+          <figcaption><strong>Do</strong> use one primary link and keep secondary buttons as separate controls.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>&lt;a href&gt;&lt;article&gt;…&lt;button&gt;</code></p>
+          <figcaption><strong>Don&rsquo;t</strong> wrap the whole card in a link; buttons inside become unreachable and the link name becomes the entire card.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small">"Oil change overdue by 6 days"</p>
+          <figcaption><strong>Do</strong> state status in words, with numbers.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">A red top border and no text.</p>
+          <figcaption><strong>Don&rsquo;t</strong> rely on a colored edge to mean overdue.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+              <caption class="sr-only">Keyboard interaction</caption>
+              <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>Tab</kbd></td><td>Moves to the card link, then to each action button or the checkbox</td></tr>
+                <tr><td><kbd>Enter</kbd></td><td>Follows the card link</td></tr>
+                <tr><td><kbd>Space</kbd></td><td>Toggles the select checkbox</td></tr>
+              </tbody>
+            </table>
+      <ul>
+        <li>Role: <code>&lt;article&gt;</code> named by its title via <code>aria-labelledby</code>. In a grid of cards use <code>&lt;ul role="list"&gt;&lt;li&gt;</code>.</li>
+        <li>Interactive cards have exactly one link; its name is the title only, so link lists stay short. The stretched <code>::after</code> enlarges the hit area without changing the name.</li>
+        <li>Focus: the link's own ring is transparent and the 2px teal ring is drawn around the whole card (<code>:has(:focus-visible)</code>).</li>
+        <li>Selected: native checkbox labelled by the card title; selection shows as a checked box plus a teal border.</li>
+        <li>Forced colors: card border becomes <code>CanvasText</code>; selected border becomes a 2px <code>Highlight</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--card-radius | --card-padding | --card-shadow</code></td><td>Shape, inner spacing, resting shadow</td></tr>
+          <tr><td><code>--elevation-raised</code></td><td>Hover shadow of interactive cards</td></tr>
+          <tr><td><code>--color-elevation-surface-raised | -sunken</code></td><td>Card surface, media well</td></tr>
+          <tr><td><code>--color-border-default | -strong</code></td><td>Resting and hover border</td></tr>
+          <tr><td><code>--color-selected-border</code></td><td>Selected border</td></tr>
+          <tr><td><code>--typography-h5-*</code></td><td>Title</td></tr>
+          <tr><td><code>--z-raised</code></td><td>Actions above the stretched link</td></tr>
+          <tr><td><code>--motion-duration-fast</code></td><td>Shadow and border transition</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

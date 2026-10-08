@@ -1231,14 +1231,14 @@
     {
      "id": "error-summary",
      "name": "Error Summary",
-     "tier": "standard",
+     "tier": "core",
      "file": "error-summary",
      "demos": [
       "state:with-errors"
      ],
      "aria": "alert",
      "native": "div[role=alert] + links",
-     "desc": "Form-level list of errors linking to fields."
+     "desc": "Form-level list of errors linking to fields. Core: the form-layout pattern's invalid state depends on it."
     }
    ],
    "scope": "product"

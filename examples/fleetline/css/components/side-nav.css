@@ -1,0 +1,128 @@
+/* side-nav.css — Sidebar navigation. Block: .side-nav (<nav aria-label="…">)
+   Parts:   .side-nav__header (collapse button row), .side-nav__collapse (.icon-btn, aria-expanded, js/side-nav.js),
+            .side-nav__section, .side-nav__heading (section heading, next heading level), .side-nav__list,
+            .side-nav__link (a; aria-current="page" = current: selected bg + inline-start bar + weight),
+            .side-nav__icon (svg), .side-nav__label, .side-nav__count (tabular count; put meaning in text, e.g. "12 open"),
+            .side-nav__group (<details>; nested group, max 2 levels), .side-nav__summary (its <summary>, also .side-nav__link),
+            .side-nav__chevron (rotates when open), .side-nav__list--nested
+   State:   [data-collapsed] on .side-nav → icons only; labels stay in the accessibility tree (clipped, not removed),
+            nested lists hide. Collapse state is the button's aria-expanded and is persisted by js/side-nav.js.
+   Docs-only freeze: .is-hover, .is-focus-visible on a link. */
+@layer components {
+  .side-nav {
+    --_w: 16rem;
+    --_rail: calc(var(--size-control-md) + var(--space-4));
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    inline-size: var(--_w);
+    max-inline-size: 100%;
+    padding: var(--space-2);
+    background: var(--color-bg-surface);
+    border-inline-end: var(--border-width-thin) solid var(--color-border-default);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+    transition: inline-size var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  .side-nav[data-collapsed] { inline-size: var(--_rail); }
+
+  .side-nav__header { display: flex; justify-content: flex-end; }
+  .side-nav__collapse-icon { transition: transform var(--motion-duration-fast) var(--motion-easing-standard); }
+  .side-nav__collapse-icon:dir(rtl),
+  .side-nav[data-collapsed] .side-nav__collapse-icon { transform: scaleX(-1); }
+  .side-nav[data-collapsed] .side-nav__collapse-icon:dir(rtl) { transform: none; }
+
+  .side-nav__section { display: grid; gap: var(--space-1); }
+  .side-nav__heading {
+    padding-inline: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--font-tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .side-nav__list {
+    display: grid;
+    gap: var(--space-0-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .side-nav__list--nested { padding-block-start: var(--space-0-5); padding-inline-start: var(--space-6); }
+
+  .side-nav__link {
+    --_bar: transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--size-control-md);
+    padding-inline: var(--space-2) var(--space-3);
+    border-inline-start: var(--border-width-thick) solid var(--_bar);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .side-nav__link:hover,
+  .side-nav__link.is-hover { background: var(--color-action-ghost-bg-hover); color: var(--color-text-default); }
+  .side-nav__link:focus-visible,
+  .side-nav__link.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+  .side-nav__link[aria-current="page"] {
+    --_bar: var(--color-selected-border);
+    background: var(--color-selected-bg);
+    color: var(--color-selected-fg);
+    font-weight: var(--font-weight-semibold);
+  }
+  [data-density="compact"] .side-nav__link { min-block-size: var(--size-control-sm); }
+
+  .side-nav__icon,
+  .side-nav__chevron {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    stroke-width: var(--icon-stroke);
+  }
+  .side-nav__label { flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-nav__count {
+    min-inline-size: var(--space-6);
+    padding-inline: var(--space-1-5);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    color: var(--color-text-default);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  /* Nested group (<details>) */
+  .side-nav__summary { list-style: none; }
+  .side-nav__summary::-webkit-details-marker { display: none; }
+  .side-nav__chevron { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); transition: transform var(--motion-duration-fast) var(--motion-easing-standard); }
+  .side-nav__group[open] > .side-nav__summary .side-nav__chevron { transform: rotate(180deg); }
+  .side-nav__group:has([aria-current="page"]) > .side-nav__summary { color: var(--color-text-default); font-weight: var(--font-weight-semibold); }
+
+  /* Collapsed: icons only; labels clipped (still the accessible name), tooltips via title on the link. */
+  .side-nav[data-collapsed] :is(.side-nav__label, .side-nav__heading, .side-nav__count) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .side-nav[data-collapsed] :is(.side-nav__chevron, .side-nav__list--nested) { display: none; }
+  .side-nav[data-collapsed] .side-nav__header { justify-content: center; }
+  .side-nav[data-collapsed] .side-nav__link { justify-content: center; padding-inline: 0; }
+
+  @media (forced-colors: active) {
+    .side-nav__link[aria-current="page"] { border-inline-start-color: Highlight; forced-color-adjust: none; background: Canvas; color: CanvasText; }
+  }
+}

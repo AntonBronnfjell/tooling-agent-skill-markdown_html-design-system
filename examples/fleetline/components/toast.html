@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toast — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline toast: transient notices in a polite live region, paused on hover and focus, with optional undo action.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/toast.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/toast.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="icon-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="icon-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Toast</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a toast to confirm something that happened in the background or off-screen ("Work order WO-1042 closed", "Odometer readings synced") without interrupting work. Toasts disappear on their own, so they must never be the only place important information lives.</p>
+      <ul>
+        <li>Errors that block the user or need a decision belong in an <strong>alert</strong> or an <strong>alert dialog</strong>, not a toast.</li>
+        <li>Two lines at most: a title (what happened) and an optional message. One action at most ("Undo"); the same action must also be reachable elsewhere.</li>
+        <li>No more than 3 on screen; the oldest leaves when a fourth arrives.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Region — <code>.toast-region</code>, top layer, bottom inline-end, labelled "Notifications", with one polite <code>role="status"</code></li>
+        <li>Toast — <code>.toast.toast--{tone}</code>, overlay surface with a tone bar</li>
+        <li>Icon — <code>.toast__icon</code>, per tone, <code>aria-hidden</code></li>
+        <li>Title and message — <code>.toast__title</code>, <code>.toast__message</code></li>
+        <li>Action (optional) — <code>.toast__action</code></li>
+        <li>Close — <code>.toast__close</code>, "Dismiss notification"</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Toasts are shown statically in each card; the button in each card sends a real one through <code>toast()</code>.</p>
+
+      <section id="toast" aria-labelledby="toast-h">
+        <h3 id="toast-h">Toast</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:info">
+            <div class="toast toast--info">
+              <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-info"></use></svg>
+              <div class="toast__content"><p class="toast__title">Odometer readings synced</p><p class="toast__message">42 vehicles updated from telematics.</p></div>
+              <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary btn--sm" data-toast data-toast-tone="info" data-toast-title="Odometer readings synced" data-toast-message="42 vehicles updated from telematics.">Show info toast</button></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:success">
+            <div class="toast toast--success">
+              <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-check"></use></svg>
+              <div class="toast__content"><p class="toast__title">Work order WO-1042 closed</p><p class="toast__message">Invoice sent to Northside Depot.</p></div>
+              <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary btn--sm" data-toast data-toast-tone="success" data-toast-title="Work order WO-1042 closed" data-toast-message="Invoice sent to Northside Depot.">Show success toast</button></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:warning">
+            <div class="toast toast--warning">
+              <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-triangle-alert"></use></svg>
+              <div class="toast__content"><p class="toast__title">KX-24 assigned while overdue</p><p class="toast__message">Brake inspection is 1,200 km overdue.</p></div>
+              <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary btn--sm" data-toast data-toast-tone="warning" data-toast-title="KX-24 assigned while overdue" data-toast-message="Brake inspection is 1,200 km overdue.">Show warning toast</button></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:danger">
+            <div class="toast toast--danger">
+              <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-x"></use></svg>
+              <div class="toast__content"><p class="toast__title">Telematics sync failed</p><p class="toast__message">We'll retry in 5 minutes.</p></div>
+              <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary btn--sm" data-toast data-toast-tone="danger" data-toast-title="Telematics sync failed" data-toast-message="We'll retry in 5 minutes.">Show danger toast</button></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-action">
+            <div class="toast toast--info">
+              <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-info"></use></svg>
+              <div class="toast__content"><p class="toast__title">Work order WO-1042 deleted</p></div>
+              <button type="button" class="btn btn--secondary btn--sm toast__action">Undo</button>
+              <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary btn--sm" data-toast data-toast-tone="info" data-toast-title="Work order WO-1042 deleted" data-toast-action="Undo" data-toast-action-done="Work order WO-1042 restored">Show toast with undo</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:stacked">
+            <ol class="toast-stack" aria-label="Stacked toasts preview">
+              <li class="toast toast--success">
+                <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-check"></use></svg>
+                <div class="toast__content"><p class="toast__title">Mechanic Lee Park assigned</p></div>
+                <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+              </li>
+              <li class="toast toast--info">
+                <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-info"></use></svg>
+                <div class="toast__content"><p class="toast__title">Odometer readings synced</p></div>
+                <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+              </li>
+              <li class="toast toast--success">
+                <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-check"></use></svg>
+                <div class="toast__content"><p class="toast__title">Work order WO-1042 closed</p></div>
+                <button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+              </li>
+            </ol>
+            <p>Newest at the bottom, nearest the screen edge; at most 3. Click the info, success and warning buttons quickly to see the real stack.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;script type="module"&gt;
+  import { toast } from "../js/toast.js";
+  toast({ tone: "success", title: "Work order WO-1042 closed", message: "Invoice sent to Northside Depot." });
+  toast({ tone: "info", title: "Work order WO-1042 deleted",
+          action: { label: "Undo", onAction: () =&gt; restoreWorkOrder("WO-1042") } });
+&lt;/script&gt;
+
+&lt;!-- Rendered markup (the region is created once, on first use) --&gt;
+&lt;section class="toast-region" popover="manual" aria-label="Notifications"&gt;
+  &lt;ol class="toast-region__list"&gt;
+    &lt;li class="toast toast--success"&gt;
+      &lt;svg class="toast__icon" aria-hidden="true"&gt;…&lt;/svg&gt;
+      &lt;div class="toast__content"&gt;&lt;p class="toast__title"&gt;…&lt;/p&gt;&lt;p class="toast__message"&gt;…&lt;/p&gt;&lt;/div&gt;
+      &lt;button type="button" class="btn btn--ghost btn--sm toast__close" aria-label="Dismiss notification"&gt;…&lt;/button&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+  &lt;div class="sr-only" role="status" aria-live="polite"&gt;&lt;/div&gt;
+&lt;/section&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>toast({ tone, title, message, action, duration })</code></td><td>JS</td><td>Shows a toast; returns <code>{ dismiss }</code>. Tone: info (default), success, warning, danger. <code>action = { label, onAction }</code></td></tr>
+          <tr><td><code>init(root)</code></td><td>JS</td><td>Wires <code>[data-toast]</code> buttons (<code>data-toast-tone | -title | -message | -action</code>); safe to call twice</td></tr>
+          <tr><td><code>.toast--info | --success | --warning | --danger</code></td><td>modifier</td><td>Tone of the bar and icon</td></tr>
+          <tr><td><code>.toast__icon | __content | __title | __message | __action | __close</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>[data-state="closing"]</code></td><td>attribute (set by JS)</td><td>Exit transition</td></tr>
+          <tr><td>Timing</td><td>6s · 10s with action</td><td>Paused while the pointer or focus is in the region</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="toast toast--success">
+            <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-check"></use></svg>
+            <div class="toast__content"><p class="toast__title">Work order WO-1042 closed</p></div>
+          </div>
+          <figcaption><strong>Do</strong> confirm a completed action with the object's name.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="toast toast--danger">
+            <svg class="toast__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-x"></use></svg>
+            <div class="toast__content"><p class="toast__title">Payment card declined</p><p class="toast__message">Update billing details to keep dispatching.</p></div>
+          </div>
+          <figcaption><strong>Don't</strong> use a disappearing toast for a blocking problem. Use an alert that stays.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Toasts are at the end of the document; their action and close buttons are reachable. While focus is inside, timers pause</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Activates Undo or Dismiss; focus returns to where it was before entering the region</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Announcements go through one polite <code>role="status"</code> node (title + message), so screen readers aren't interrupted and don't read button names.</li>
+        <li>WCAG 2.2.1 timing: at least 6s (10s with an action), paused on hover and focus, and every toast has a close button.</li>
+        <li>The region is a labelled landmark ("Notifications") so it can be found with landmark navigation.</li>
+        <li>Tone is shown by icon shape and words, not color alone. Reduced motion removes the slide; toasts appear and disappear instantly.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-overlay</code>, <code>--elevation-overlay</code></td><td>Surface and shadow</td></tr>
+          <tr><td><code>--color-feedback-{tone}-icon</code></td><td>Tone bar and icon</td></tr>
+          <tr><td><code>--z-toast</code></td><td>Stacking when the top layer isn't available</td></tr>
+          <tr><td><code>--motion-duration-base | -fast</code>, <code>--motion-easing-enter | -exit</code></td><td>Slide in and out</td></tr>
+          <tr><td><code>--space-2 | -4</code></td><td>Gap between toasts, distance from the screen edge</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

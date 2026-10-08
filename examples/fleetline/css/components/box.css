@@ -1,0 +1,37 @@
+/* box.css — token-driven container. The escape hatch that keeps ad-hoc CSS out of apps.
+   Block: .box
+   Modifiers (token steps only):
+     padding  .box--pad-2 | --pad-3 | --pad-4 | --pad-6 | --pad-8
+     surface  .box--surface | --surface-subtle | --surface-sunken | --surface-raised
+     border   .box--bordered
+     radius   .box--radius-md | --radius-lg   (md = 8px, the Fleetline shape) */
+@layer components {
+  .box {
+    display: block;
+    min-inline-size: 0;
+    padding: var(--box-padding, 0);
+    border-radius: var(--box-radius, 0);
+  }
+  .box--pad-2 { --box-padding: var(--space-2); }
+  .box--pad-3 { --box-padding: var(--space-3); }
+  .box--pad-4 { --box-padding: var(--space-4); }
+  .box--pad-6 { --box-padding: var(--space-6); }
+  .box--pad-8 { --box-padding: var(--space-8); }
+
+  .box--surface { background: var(--color-bg-surface); }
+  .box--surface-subtle { background: var(--color-bg-subtle); }
+  .box--surface-sunken { background: var(--color-elevation-surface-sunken); }
+  .box--surface-raised { background: var(--color-elevation-surface-raised); box-shadow: var(--elevation-raised); }
+
+  .box--bordered { border: var(--border-width-thin) solid var(--color-border-default); }
+
+  .box--radius-md { --box-radius: var(--radius-md); }
+  .box--radius-lg { --box-radius: var(--radius-lg); }
+
+  /* Surfaces distinguished by fill alone need a boundary in forced colors. */
+  @media (forced-colors: active) {
+    :is(.box--surface-subtle, .box--surface-sunken, .box--surface-raised) {
+      border: var(--border-width-thin) solid CanvasText;
+    }
+  }
+}

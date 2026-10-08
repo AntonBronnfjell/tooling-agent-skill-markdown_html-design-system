@@ -1,0 +1,188 @@
+/* top-nav.css — Global navigation bar (app header). Block: .top-nav  (container: top-nav)
+   Markup order (= tab order): .top-nav__toggle → .top-nav__brand → .top-nav__panel (nav + search) → .top-nav__actions
+   Parts:   .top-nav__bar (grid row), .top-nav__brand (home link: logo + product name), .top-nav__logo (svg),
+            .top-nav__toggle (.btn "Menu", aria-expanded + aria-controls → panel; only shown when narrow),
+            .top-nav__panel (id; wraps nav + search), .top-nav__nav (<nav aria-label="Main">), .top-nav__list,
+            .top-nav__link (aria-current="page" = current: weight + bottom bar, not color alone),
+            .top-nav__search (<form role="search">), .top-nav__search-input, .top-nav__search-icon,
+            .top-nav__actions (icon buttons, profile menu button), .top-nav__avatar (initials)
+   Modifier: .top-nav--sticky (sticky at the top; pair with html { scroll-padding-top } so focus isn't hidden — WCAG 2.4.11)
+   Narrow (container < 48rem): links + search move into the panel below the bar, toggled by the Menu button.
+   Without JS the toggle has no aria-expanded, so it stays hidden and the panel stays open (progressive enhancement).
+   States: link :hover :focus-visible, aria-current="page". Docs-only freeze: .is-hover, .is-focus-visible.
+   Behavior: js/top-nav.js (toggle), js/menu.js (profile menu). */
+@layer components {
+  .top-nav {
+    container: top-nav / inline-size;
+    background: var(--color-bg-surface);
+    border-block-end: var(--border-width-thin) solid var(--color-border-default);
+    color: var(--color-text-default);
+  }
+  .top-nav--sticky { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); }
+
+  .top-nav__bar {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: "toggle brand panel actions";
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    min-block-size: calc(var(--size-control-lg) + var(--space-2));
+    padding-block: var(--space-1);
+    padding-inline: var(--space-4);
+  }
+
+  .top-nav__toggle { grid-area: toggle; }
+  .top-nav__toggle:not([aria-expanded]) { display: none; }
+
+  .top-nav__brand {
+    grid-area: brand;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--size-control-md);
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-default);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .top-nav__logo {
+    inline-size: var(--icon-size-lg);
+    block-size: var(--icon-size-lg);
+    color: var(--color-action-primary-bg);
+    stroke-width: var(--icon-stroke);
+  }
+
+  .top-nav__panel {
+    grid-area: panel;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+  .top-nav__nav { min-inline-size: 0; }
+  .top-nav__list {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .top-nav__link {
+    --_bar: transparent;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--size-control-md);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 calc(var(--border-width-thick) * -1) 0 var(--_bar);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .top-nav__link:hover,
+  .top-nav__link.is-hover { background: var(--color-action-ghost-bg-hover); color: var(--color-text-default); }
+  .top-nav__link:focus-visible,
+  .top-nav__link.is-focus-visible,
+  .top-nav__brand:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .top-nav__link[aria-current="page"] {
+    --_bar: var(--color-selected-border);
+    color: var(--color-text-default);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .top-nav__search {
+    position: relative;
+    flex: 1 1 12rem;
+    max-inline-size: 22rem;
+    margin-inline-start: auto;
+  }
+  .top-nav__search-icon {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: var(--space-3);
+    margin-block: auto;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    color: var(--color-text-muted);
+    stroke-width: var(--icon-stroke);
+    pointer-events: none;
+  }
+  .top-nav__search-input {
+    inline-size: 100%;
+    min-block-size: var(--size-control-md);
+    padding-inline: calc(var(--space-3) + var(--icon-size-sm) + var(--space-2)) var(--space-3);
+    border: var(--border-width-thin) solid var(--input-border);
+    border-radius: var(--input-radius);
+    background: var(--input-bg);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+  }
+  .top-nav__search-input::placeholder { color: var(--color-text-muted); }
+  .top-nav__search-input:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 0;
+    border-color: var(--color-border-focus);
+  }
+
+  .top-nav__actions {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .top-nav__avatar {
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--size-control-sm);
+    block-size: var(--size-control-sm);
+    border-radius: var(--radius-full);
+    background: var(--color-selected-bg);
+    color: var(--color-selected-fg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+  }
+
+  /* Narrow: the panel drops below the bar and is toggled by the Menu button. */
+  @container top-nav (max-width: 48rem) {
+    .top-nav__bar {
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "toggle brand actions" "panel panel panel";
+      padding-inline: var(--space-2);
+    }
+    .top-nav__toggle[aria-expanded="false"] ~ .top-nav__panel { display: none; }
+    .top-nav__panel {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-3);
+      padding-block: var(--space-2) var(--space-3);
+      border-block-start: var(--border-width-thin) solid var(--color-border-subtle);
+    }
+    .top-nav__search { order: -1; flex: none; max-inline-size: none; margin-inline-start: 0; }
+    .top-nav__list { flex-direction: column; gap: var(--space-0-5); }
+    .top-nav__link {
+      inline-size: 100%;
+      min-block-size: var(--size-touch-target);
+      box-shadow: inset var(--border-width-thick) 0 0 var(--_bar);
+    }
+    .top-nav__link:dir(rtl) { box-shadow: inset calc(var(--border-width-thick) * -1) 0 0 var(--_bar); }
+    .top-nav__link[aria-current="page"] { background: var(--color-selected-bg); color: var(--color-selected-fg); }
+  }
+  @container top-nav (min-width: 48.01rem) {
+    .top-nav__toggle { display: none; }
+  }
+
+  @media (forced-colors: active) {
+    .top-nav__link[aria-current="page"] { text-decoration: underline; text-decoration-thickness: var(--border-width-thick); }
+    .top-nav__search-input { border-color: CanvasText; }
+  }
+}

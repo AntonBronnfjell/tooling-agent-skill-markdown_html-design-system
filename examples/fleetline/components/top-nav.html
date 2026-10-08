@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Global navigation bar — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline app header: logo, main navigation with current page, search, notifications and profile menu; collapses behind a Menu button when narrow.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/icon-button.css">
+  <link rel="stylesheet" href="../css/components/menu.css">
+  <link rel="stylesheet" href="../css/components/top-nav.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init as nav } from "../js/top-nav.js"; import { init as menus } from "../js/menu.js"; nav(); menus();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Global navigation bar</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>The top nav is the app header on every Fleetline screen: product logo (home), the 4–6 main areas, search, notifications and the profile menu. Use the side nav for the second level inside an area (e.g. the workshop sections).</p>
+      <ul><li>Link labels are short nouns for places: "Dispatch", "Work orders". Don't put actions ("New work order") in the nav — they go in the page header.</li><li>The current area is marked with <code>aria-current="page"</code> plus weight and a bar.</li><li>Notification counts go in the name ("Notifications, 3 unread").</li><li>Sticky variant: set <code>html { scroll-padding-top }</code> to the bar height so focused elements aren't hidden under it.</li><li>The layout reacts to its own width (container query at 48rem), so it also collapses in narrow split views on desktop.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Menu toggle — <code>.top-nav__toggle</code> (narrow only)</li><li>Brand — <code>a.top-nav__brand</code> to the home dashboard</li><li>Main nav — <code>nav.top-nav__nav[aria-label=Main]</code> with <code>.top-nav__link</code> items</li><li>Search — <code>form.top-nav__search[role=search]</code></li><li>Actions — notifications <code>.icon-btn</code> and the profile menu button</li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Resize the window, or compare the narrow demos, to see the collapsed layout. States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="top-nav" aria-labelledby="top-nav-h">
+        <h3 id="top-nav-h">Global navigation bar</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default state:current" style="grid-column: 1 / -1;">
+            <header class="top-nav">
+              <div class="top-nav__bar">
+                <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="tn1-panel"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                <a class="top-nav__brand" href="#home"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                <div class="top-nav__panel" id="tn1-panel">
+                  <nav class="top-nav__nav" aria-label="Main (desktop example)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders" aria-current="page">Work orders</a></li><li><a class="top-nav__link" href="#depots">Depots</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                  <form class="top-nav__search" role="search" action="#search"><label class="sr-only" for="tn1-q">Search vehicles and work orders</label><svg class="top-nav__search-icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg><input class="top-nav__search-input" id="tn1-q" type="search" name="q" placeholder="Plate, VIN or WO number" autocomplete="off"></form>
+                </div>
+                <div class="top-nav__actions">
+                  <button type="button" class="icon-btn" aria-label="Notifications, 3 unread"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-bell"></use></svg><span class="icon-btn__badge" aria-hidden="true">3</span></button>
+                  <button type="button" class="icon-btn icon-btn--circle" id="tn1-profile-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="tn1-profile" commandfor="tn1-profile" command="toggle-popover" style="anchor-name:--tn1-profile" aria-label="Rosa Méndez, account menu"><span class="top-nav__avatar" aria-hidden="true">RM</span></button><div class="menu" id="tn1-profile" popover role="menu" aria-labelledby="tn1-profile-btn" style="position-anchor:--tn1-profile"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-user"></use></svg><span class="menu__label">Profile</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-settings"></use></svg><span class="menu__label">Notification settings</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-log-out"></use></svg><span class="menu__label">Sign out</span></button></div>
+                </div>
+              </div>
+            </header>
+            <p>Current page: "Work orders" — semibold text and a bottom bar, not color alone.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:mobile-collapsed">
+            <div style="max-inline-size: 24rem; border: var(--border-width-thin) dashed var(--color-border-default);"><header class="top-nav">
+              <div class="top-nav__bar">
+                <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="tn2-panel" aria-expanded="false"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                <a class="top-nav__brand" href="#home"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                <div class="top-nav__panel" id="tn2-panel">
+                  <nav class="top-nav__nav" aria-label="Main (mobile example, collapsed)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders" aria-current="page">Work orders</a></li><li><a class="top-nav__link" href="#depots">Depots</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                  <form class="top-nav__search" role="search" aria-label="Search, demo 2" action="#search"><label class="sr-only" for="tn2-q">Search vehicles and work orders</label><svg class="top-nav__search-icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg><input class="top-nav__search-input" id="tn2-q" type="search" name="q" placeholder="Plate, VIN or WO number" autocomplete="off"></form>
+                </div>
+                <div class="top-nav__actions">
+                  <button type="button" class="icon-btn" aria-label="Notifications, 3 unread"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-bell"></use></svg><span class="icon-btn__badge" aria-hidden="true">3</span></button>
+                  
+                </div>
+              </div>
+            </header></div>
+            <p>Narrow container: links and search move behind the Menu button.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:mobile-open">
+            <div style="max-inline-size: 24rem; border: var(--border-width-thin) dashed var(--color-border-default);"><header class="top-nav">
+              <div class="top-nav__bar">
+                <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="tn3-panel" aria-expanded="true"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                <a class="top-nav__brand" href="#home"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                <div class="top-nav__panel" id="tn3-panel">
+                  <nav class="top-nav__nav" aria-label="Main (mobile example, open)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders" aria-current="page">Work orders</a></li><li><a class="top-nav__link" href="#depots">Depots</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                  <form class="top-nav__search" role="search" aria-label="Search, demo 3" action="#search"><label class="sr-only" for="tn3-q">Search vehicles and work orders</label><svg class="top-nav__search-icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg><input class="top-nav__search-input" id="tn3-q" type="search" name="q" placeholder="Plate, VIN or WO number" autocomplete="off"></form>
+                </div>
+                <div class="top-nav__actions">
+                  <button type="button" class="icon-btn" aria-label="Notifications, 3 unread"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-bell"></use></svg><span class="icon-btn__badge" aria-hidden="true">3</span></button>
+                  
+                </div>
+              </div>
+            </header></div>
+            <p>Open: search first, then links with a 44px touch target. Esc closes and returns focus to Menu.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;header class=&quot;top-nav top-nav--sticky&quot;&gt;
+  &lt;div class=&quot;top-nav__bar&quot;&gt;
+    &lt;button type=&quot;button&quot; class=&quot;btn btn--ghost top-nav__toggle&quot; aria-controls=&quot;main-nav-panel&quot;&gt;
+      &lt;svg class=&quot;btn__icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-menu&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+      &lt;span class=&quot;btn__label&quot;&gt;Menu&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;a class=&quot;top-nav__brand&quot; href=&quot;/&quot;&gt;…Fleetline&lt;/a&gt;
+    &lt;div class=&quot;top-nav__panel&quot; id=&quot;main-nav-panel&quot;&gt;
+      &lt;nav class=&quot;top-nav__nav&quot; aria-label=&quot;Main&quot;&gt;
+        &lt;ul class=&quot;top-nav__list&quot;&gt;
+          &lt;li&gt;&lt;a class=&quot;top-nav__link&quot; href=&quot;/dispatch&quot;&gt;Dispatch&lt;/a&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;a class=&quot;top-nav__link&quot; href=&quot;/work-orders&quot; aria-current=&quot;page&quot;&gt;Work orders&lt;/a&gt;&lt;/li&gt;
+          …
+        &lt;/ul&gt;
+      &lt;/nav&gt;
+      &lt;form class=&quot;top-nav__search&quot; role=&quot;search&quot; action=&quot;/search&quot;&gt;
+        &lt;label class=&quot;sr-only&quot; for=&quot;q&quot;&gt;Search vehicles and work orders&lt;/label&gt;
+        &lt;svg class=&quot;top-nav__search-icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-search&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+        &lt;input class=&quot;top-nav__search-input&quot; id=&quot;q&quot; type=&quot;search&quot; name=&quot;q&quot; placeholder=&quot;Plate, VIN or WO number&quot;&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;top-nav__actions&quot;&gt;
+      &lt;button type=&quot;button&quot; class=&quot;icon-btn&quot; aria-label=&quot;Notifications, 3 unread&quot;&gt;…&lt;/button&gt;
+      &lt;!-- profile: menu button, see menu.html --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import { init as nav } from &quot;./js/top-nav.js&quot;; import { init as menus } from &quot;./js/menu.js&quot;;
+  nav(); menus();
+&lt;/script&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.top-nav</code></td><td>block class</td><td>App header; inline-size container named <code>top-nav</code></td></tr>
+          <tr><td><code>.top-nav--sticky</code></td><td>modifier</td><td>Sticks to the top (<code>--z-sticky</code>)</td></tr>
+          <tr><td><code>.top-nav__bar | __brand | __logo | __panel | __nav | __list | __link | __search | __search-input | __search-icon | __actions | __avatar</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>.top-nav__toggle[aria-controls]</code></td><td>part</td><td>Menu button; <code>js/top-nav.js</code> adds and toggles <code>aria-expanded</code></td></tr>
+          <tr><td><code>aria-current="page"</code></td><td>attribute</td><td>Current area</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>"Dispatch · Vehicles · Work orders · Depots · Reports"</p>
+          <figcaption><strong>Do</strong> keep 4–6 top-level places with short noun labels.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>"Home · Fleet · New WO · Settings · Help · Billing · Reports · More"</p>
+          <figcaption><strong>Don't</strong> mix actions and utilities into the main links or exceed what fits at tablet width.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves through Menu (narrow), brand, links, search, notifications, profile</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> (Menu)</td><td>Opens / closes the panel</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes the open panel and returns focus to Menu</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Landmarks: <code>&lt;header&gt;</code> is the banner at page level; the links are in <code>&lt;nav aria-label="Main"&gt;</code>; search is <code>role="search"</code> with a real (visually hidden) label.</li><li>Without JavaScript the Menu button stays hidden and the panel is open, so navigation always works.</li><li>Mobile links are 44px tall (<code>--size-touch-target</code>).</li><li>Forced colors: the current link adds an underline because box-shadow bars disappear.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-bg-surface</code>, <code>--color-border-default</code></td><td>Bar</td></tr>
+          <tr><td><code>--color-text-muted | -default</code></td><td>Link rest / hover and current</td></tr>
+          <tr><td><code>--color-selected-border | -bg | -fg</code></td><td>Current bar (and mobile current fill)</td></tr>
+          <tr><td><code>--input-bg | -border | -radius</code></td><td>Search field</td></tr>
+          <tr><td><code>--size-control-md | -lg</code>, <code>--size-touch-target</code></td><td>Heights</td></tr>
+          <tr><td><code>--z-sticky</code></td><td>Sticky variant</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

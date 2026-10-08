@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tooltip — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline tooltip: a short hint on hover and focus, popover=hint with a small JS delay, dismissable with Esc.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/tooltip.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/tooltip.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Tooltip</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a tooltip to name an icon-only button ("Schedule service") or add one short supplemental fact ("Synced from telematics 4 minutes ago"). It appears on hover and on keyboard focus.</p>
+      <ul>
+        <li>One short sentence, no links, no buttons. Interactive or longer content belongs in a <strong>toggletip</strong> or <strong>popover</strong>.</li>
+        <li>Never hide essential information in a tooltip: touch users and mechanics wearing gloves may never see it.</li>
+        <li>Don't put tooltips on disabled buttons (they can't be focused); use <code>aria-disabled="true"</code> and an inline reason instead.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Trigger — a focusable element with <code>aria-describedby</code> (or <code>aria-labelledby</code> for icon buttons) and <code>data-tooltip-trigger</code></li>
+        <li>Bubble — <code>&lt;div class="tooltip" popover="hint" role="tooltip"&gt;</code>, inverse surface, one line of text</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="tooltip" aria-labelledby="tooltip-h">
+        <h3 id="tooltip-h">Tooltip</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:hidden">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--ghost" aria-labelledby="tt-schedule" data-tooltip-trigger="tt-schedule">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-calendar"></use></svg>
+              </button>
+              <div id="tt-schedule" class="tooltip" popover="hint" role="tooltip">Schedule service</div>
+            </div>
+            <p>Hover or Tab to the button: the tooltip appears after 400ms. Press Esc to hide it without moving focus.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:visible">
+            <div style="display: grid; justify-items: start; gap: var(--space-1-5);">
+              <div class="tooltip is-open" role="tooltip" id="pv-tt-odo">Synced from telematics 4 minutes ago</div>
+              <button type="button" class="btn btn--secondary btn--sm" aria-describedby="pv-tt-odo">Odometer 85,200 km</button>
+            </div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:placements">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary btn--sm" aria-describedby="tt-top" data-tooltip-trigger="tt-top">Above</button>
+              <div id="tt-top" class="tooltip" popover="hint" role="tooltip">Shows above, flips below at the top edge</div>
+              <button type="button" class="btn btn--secondary btn--sm" aria-describedby="tt-bottom" data-tooltip-trigger="tt-bottom">Below</button>
+              <div id="tt-bottom" class="tooltip tooltip--block-end" popover="hint" role="tooltip">Shows below</div>
+              <button type="button" class="btn btn--secondary btn--sm" aria-describedby="tt-start" data-tooltip-trigger="tt-start">Inline start</button>
+              <div id="tt-start" class="tooltip tooltip--inline-start" popover="hint" role="tooltip">Shows at the inline start</div>
+              <button type="button" class="btn btn--ghost btn--sm" aria-labelledby="tt-end" data-tooltip-trigger="tt-end">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg>
+              </button>
+              <div id="tt-end" class="tooltip tooltip--inline-end" popover="hint" role="tooltip">Remove part</div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;!-- Icon button: the tooltip IS the accessible name --&gt;
+&lt;button type="button" class="btn btn--ghost" aria-labelledby="tt-schedule" data-tooltip-trigger="tt-schedule"&gt;
+  &lt;svg class="btn__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-calendar"&gt;&lt;/use&gt;&lt;/svg&gt;
+&lt;/button&gt;
+&lt;div id="tt-schedule" class="tooltip" popover="hint" role="tooltip"&gt;Schedule service&lt;/div&gt;
+
+&lt;!-- Supplemental hint --&gt;
+&lt;button type="button" class="btn btn--secondary btn--sm" aria-describedby="tt-odo" data-tooltip-trigger="tt-odo"&gt;Odometer 85,200 km&lt;/button&gt;
+&lt;div id="tt-odo" class="tooltip tooltip--block-end" popover="hint" role="tooltip"&gt;Synced from telematics 4 minutes ago&lt;/div&gt;
+
+&lt;script type="module"&gt;import { init } from "../js/tooltip.js"; init();&lt;/script&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.tooltip[popover="hint"][role="tooltip"]</code></td><td>block</td><td>Bubble; <code>hint</code> falls back to <code>manual</code> where unsupported</td></tr>
+          <tr><td><code>.tooltip--block-end | --inline-start | --inline-end</code></td><td>modifier</td><td>Preferred placement (default above)</td></tr>
+          <tr><td><code>data-tooltip-trigger="id"</code></td><td>attribute</td><td>Wires hover/focus/Esc behavior in <code>js/tooltip.js</code></td></tr>
+          <tr><td><code>aria-describedby | aria-labelledby</code></td><td>attribute</td><td>Supplemental description, or the name of an icon-only button</td></tr>
+          <tr><td><code>init(root)</code></td><td>JS</td><td>Enhances every trigger in <code>root</code>; safe to call twice</td></tr>
+          <tr><td><code>.is-open</code></td><td>docs-only class</td><td>Visible tooltip in page flow (same rule as <code>:popover-open</code>)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="tooltip is-open">Schedule service</div>
+          <figcaption><strong>Do</strong> keep it to a few words that name or clarify.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="tooltip is-open">Vehicle KX-24 is overdue. Click here to open the service planner and book a slot.</div>
+          <figcaption><strong>Don't</strong> put instructions, links or essential warnings in a tooltip. Use an alert.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Focusing the trigger shows the tooltip after 400ms; leaving hides it</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Hides the tooltip; focus stays on the trigger (inside a dialog, only the tooltip closes)</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role <code>tooltip</code>; the text reaches screen readers through <code>aria-describedby</code>/<code>aria-labelledby</code> whether or not it's visible (APG Tooltip).</li>
+        <li>WCAG 1.4.13: dismissable (Esc), hoverable (the pointer can move onto the bubble), persistent (stays until hover/focus leaves).</li>
+        <li>Contrast: <code>--color-text-inverse</code> on <code>--color-bg-inverse</code> is a checked 4.5:1 pair.</li>
+        <li>Forced colors: the bubble switches to <code>Canvas</code>/<code>CanvasText</code> with a border.</li>
+        <li>Where <code>interestfor</code> ships (Chrome 142+) it can replace the JS later; the JS stays the fallback.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-bg-inverse</code>, <code>--color-text-inverse</code></td><td>Bubble colors</td></tr>
+          <tr><td><code>--radius-sm</code>, <code>--shadow-md</code></td><td>Shape and lift</td></tr>
+          <tr><td><code>--font-size-xs</code>, <code>--font-weight-medium</code></td><td>Text</td></tr>
+          <tr><td><code>--space-1-5 | -2</code></td><td>Padding and gap to trigger</td></tr>
+          <tr><td><code>--motion-duration-fast</code></td><td>Fade</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

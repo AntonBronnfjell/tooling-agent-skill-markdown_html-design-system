@@ -1,0 +1,56 @@
+/* date-field.css — memorable date (GOV.UK pattern): day / month / year text inputs in a fieldset.
+   Block alias: .date-field
+     <fieldset class="fieldset date-field" aria-describedby="…-hint [ …-error]">
+       <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+       <p class="field__hint" id="…-hint">For example, 14 3 2026</p>
+       [<p class="field__error" id="…-error">…</p>]
+       <div class="date-field__inputs">
+         <div class="date-field__item" data-part="day">
+           <label class="label" for="…-day">Day</label>
+           <input class="input date-field__input date-field__input--2ch" id="…-day" type="text" inputmode="numeric">
+         </div> … month (--2ch) … year (--4ch)
+       </div>
+     </fieldset>
+   Inputs reuse .input (text-field.css) for border, focus ring, invalid and disabled styling.
+   Modifiers: .date-field__input--2ch | --4ch (character widths that still shrink at 320px)
+   States:    aria-invalid="true" on the offending input(s) only (partial-invalid) or on all three;
+              <fieldset disabled> disables every part natively.
+   Order:     DOM order is the reading order. js/date-field.js reorders items by locale
+              ([data-locale-order], Intl.DateTimeFormat#formatToParts) and accepts month names. */
+@layer components {
+  .date-field__inputs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+  .date-field__item {
+    display: grid;
+    gap: var(--space-1-5);
+    min-inline-size: 0;
+  }
+  .date-field__input {
+    --_chars: 2;
+    inline-size: 100%;
+    max-inline-size: calc(var(--_chars) * 1ch + 2 * var(--space-3) + 2 * var(--border-width-thin) + var(--space-3));
+    font-variant-numeric: tabular-nums;
+  }
+  .date-field__input--2ch { --_chars: 2; }
+  .date-field__input--4ch { --_chars: 4; }
+  .date-field__item:has(.date-field__input--2ch) { inline-size: calc(2ch + 3 * var(--space-3) + 2 * var(--border-width-thin)); }
+  .date-field__item:has(.date-field__input--4ch) { inline-size: calc(4ch + 3 * var(--space-3) + 2 * var(--border-width-thin)); }
+
+  /* Error: left rule ties legend, message and inputs together (same as choice groups). */
+  .date-field:has(> .field__error) {
+    padding-inline-start: var(--space-4);
+    border-inline-start: var(--border-width-thick) solid var(--color-border-invalid);
+  }
+
+  .date-field:disabled .label,
+  .date-field:disabled .fieldset__legend { color: var(--color-text-disabled); }
+
+  @media (forced-colors: active) {
+    .date-field:has(> .field__error) { border-inline-start-color: CanvasText; }
+    .date-field:disabled .label { color: GrayText; }
+  }
+}

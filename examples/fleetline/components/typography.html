@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typography — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline type roles (display, headings, lead, body, small, caption, overline), code and lists.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Typography</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Fleetline uses one family (Inter) for all UI text, chosen for legibility on tablets outdoors; data columns switch on tabular numerals with <code>.text-tabular</code> so mileage and costs line up. Type is applied through <strong>role classes</strong>, never raw sizes.</p>
+      <ul>
+        <li>Pick the heading <em>element</em> for document structure (one <code>h1</code> per page, no skipped levels) and the <em>class</em> for visual size. A card title can be an <code>h3</code> styled <code>.text-h5</code>.</li>
+        <li>Use <code>.text-lead</code> once, under a page title. Use <code>.text-small</code> for secondary metadata, <code>.text-caption</code> for figure and table captions, <code>.text-overline</code> for a short eyebrow above a title (two or three words).</li>
+        <li>Body text stays within 65 characters per line (<code>--size-measure</code>). Headings balance their lines; paragraphs avoid orphans.</li>
+        <li>Don't use bold or color as the only way to mark something important — say it in the text.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Font family — <code>--typography-{role}-font-family</code></li>
+        <li>Size — <code>--typography-{role}-font-size</code> (from the <code>--font-size-*</code> scale)</li>
+        <li>Weight — <code>--typography-{role}-font-weight</code></li>
+        <li>Line height — <code>--typography-{role}-line-height</code></li>
+        <li>Measure — <code>--size-measure</code> for running text</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="headings" aria-labelledby="headings-h">
+        <h3 id="headings-h">Headings</h3>
+        <p>Demo headings below use <code>&lt;p&gt;</code> elements so they don't disturb this page's outline; in product screens use real <code>h1</code>–<code>h6</code>.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:display">
+            <p class="text-display">1,284 vehicles</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h1">
+            <p class="text-h1">Fleet overview</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h2">
+            <p class="text-h2">Open work orders</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h3">
+            <p class="text-h3">Van KX-219 — brake inspection</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h4">
+            <p class="text-h4">Parts and labour</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h5">
+            <p class="text-h5">Assigned mechanic</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:h6">
+            <p class="text-h6">Service history</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:semantic-vs-visual">
+            <p class="text-overline">h2 element, h5 size</p>
+            <p class="text-h5">Depot: North Yard</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;h1 class="text-h1"&gt;Fleet overview&lt;/h1&gt;
+&lt;h2 class="text-h2"&gt;Open work orders&lt;/h2&gt;
+
+&lt;!-- Semantic level and visual size are independent --&gt;
+&lt;h2 class="text-h5"&gt;Depot: North Yard&lt;/h2&gt;
+
+&lt;!-- Display: big numbers on dashboards, once per screen --&gt;
+&lt;p class="text-display text-tabular"&gt;1,284 vehicles&lt;/p&gt;</code></pre>
+      </section>
+
+      <section id="body-text" aria-labelledby="body-text-h">
+        <h3 id="body-text-h">Body text</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:lead">
+            <p class="text-lead">Track every vehicle's service schedule, assign repairs to mechanics and keep your fleet on the road.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:body">
+            <p class="text-body">The front brake pads on van KX-219 are at 3&nbsp;mm. Replace them before the next scheduled route on Thursday, and check the discs for scoring while the wheels are off.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:small">
+            <p class="text-small text-muted">Last updated by Priya Nair at 14:32 · Odometer <span class="text-tabular">84,210&nbsp;km</span></p>
+          </div>
+          <div class="ds-demo" data-demo="variant:caption">
+            <p class="text-caption">Figure 2. Average repair time per vehicle class, last 90 days.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:overline">
+            <p class="text-overline">Work order</p>
+            <p class="text-h4">WO-4182 · Replace front brake pads</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;p class="text-lead"&gt;Track every vehicle's service schedule…&lt;/p&gt;
+&lt;p class="text-body"&gt;The front brake pads on van KX-219 are at 3 mm…&lt;/p&gt;
+&lt;p class="text-small text-muted"&gt;Last updated by Priya Nair at 14:32&lt;/p&gt;
+&lt;figcaption class="text-caption"&gt;Figure 2. Average repair time…&lt;/figcaption&gt;
+&lt;p class="text-overline"&gt;Work order&lt;/p&gt;</code></pre>
+      </section>
+
+      <section id="code" aria-labelledby="code-h">
+        <h3 id="code-h">Code</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:inline-code">
+            <p class="text-body">Set the vehicle status to <code class="code">in_service</code> after the inspection passes, or call <code class="code">PATCH /vehicles/KX-219</code>.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:code-block">
+            <pre class="code-block" tabindex="0" aria-label="Example API response for a work order"><code>{
+  "id": "WO-4182",
+  "vehicle": "KX-219",
+  "status": "in_progress",
+  "assignee": "Priya Nair",
+  "tasks": ["Replace front brake pads", "Inspect discs for scoring"]
+}</code></pre>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;code class="code"&gt;in_service&lt;/code&gt;
+
+&lt;!-- Scrollable block: tabindex="0" + a name so keyboard users can scroll it --&gt;
+&lt;pre class="code-block" tabindex="0" aria-label="Example API response for a work order"&gt;&lt;code&gt;…&lt;/code&gt;&lt;/pre&gt;</code></pre>
+      </section>
+
+      <section id="list" aria-labelledby="list-h">
+        <h3 id="list-h">Lists</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:ul">
+            <ul class="list">
+              <li>Check tyre pressure and tread depth</li>
+              <li>Top up coolant and washer fluid</li>
+              <li>Test brake lights and indicators</li>
+            </ul>
+          </div>
+          <div class="ds-demo" data-demo="variant:ol">
+            <ol class="list">
+              <li>Lift the vehicle and remove the front wheels</li>
+              <li>Remove the caliper and the worn pads</li>
+              <li>Fit new pads and torque the caliper bolts to spec</li>
+            </ol>
+          </div>
+          <div class="ds-demo" data-demo="variant:unstyled">
+            <ul class="list list--unstyled" role="list">
+              <li>Van KX-219 · North Yard</li>
+              <li>Truck HT-507 · Riverside depot</li>
+              <li>Van KX-344 · North Yard</li>
+            </ul>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;ul class="list"&gt;…&lt;/ul&gt;
+&lt;ol class="list"&gt;…&lt;/ol&gt;
+
+&lt;!-- role="list" keeps list semantics in Safari when markers are removed --&gt;
+&lt;ul class="list list--unstyled" role="list"&gt;…&lt;/ul&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.text-display | .text-h1 … .text-h6</code></td><td>class</td><td>Heading roles (balanced wrapping, tight tracking)</td></tr>
+          <tr><td><code>.text-lead | .text-body | .text-small</code></td><td>class</td><td>Running text, capped at <code>--size-measure</code></td></tr>
+          <tr><td><code>.text-caption | .text-overline</code></td><td>class</td><td>Captions and eyebrows (muted)</td></tr>
+          <tr><td><code>.text-muted</code>, <code>.text-tabular</code></td><td>modifier class</td><td>Secondary color; tabular numerals for data</td></tr>
+          <tr><td><code>.code</code>, <code>.code-block</code></td><td>class</td><td>Inline code; scrollable block (<code>pre</code> with <code>tabindex="0"</code>)</td></tr>
+          <tr><td><code>.list</code>, <code>.list--unstyled</code></td><td>class</td><td>Prose lists; marker-less list (keep <code>role="list"</code>)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><p class="text-h5">Assigned mechanic</p>
+          <figcaption><strong>Do</strong> keep the outline correct and pick the visual size with a class.</figcaption></figure>
+        <figure class="ds-dont"><p class="text-overline">This vehicle is overdue for its annual safety inspection and must not be dispatched</p>
+          <figcaption><strong>Don't</strong> put sentences in an overline or use uppercase for long text.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Headings: screen-reader users navigate by heading level. Never skip levels to get a smaller size — use the class.</li>
+        <li>Contrast: default text is ≥ 4.5:1 on canvas and surfaces in all themes; muted and subtle text are checked at 4.5:1 too, so they are safe for body copy.</li>
+        <li>Zoom: all sizes are rem, so text scales with the user's browser setting and reflows at 320px.</li>
+        <li>Code blocks scroll horizontally instead of wrapping; <code>tabindex="0"</code> plus an <code>aria-label</code> lets keyboard users reach and scroll them.</li>
+        <li>Lists with <code>list-style: none</code> lose their semantics in Safari/VoiceOver; <code>role="list"</code> restores them.</li>
+      </ul>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody><tr><td><kbd>Tab</kbd>, then <kbd>←</kbd> / <kbd>→</kbd></td><td>Focuses a code block and scrolls it horizontally</td></tr></tbody>
+      </table>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--typography-{display|h1…h6|lead|body|small|caption|code}-{font-family|font-size|font-weight|line-height}</code></td><td>Composite type roles</td></tr>
+          <tr><td><code>--font-tracking-tight | -wide</code></td><td>Heading and overline letter spacing</td></tr>
+          <tr><td><code>--font-weight-semibold</code></td><td>Overline weight</td></tr>
+          <tr><td><code>--size-measure</code></td><td>Max line length (65ch)</td></tr>
+          <tr><td><code>--color-text-default | -muted</code></td><td>Text colors</td></tr>
+          <tr><td><code>--color-bg-muted | -subtle</code>, <code>--color-border-default</code>, <code>--radius-sm | -md</code></td><td>Inline code and code block surfaces</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

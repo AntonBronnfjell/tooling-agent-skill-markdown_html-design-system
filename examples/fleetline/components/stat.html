@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stat — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline stat: KPI tiles for uptime, overdue services and repair time with trend deltas, sparkline and loading state.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/stat.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+    <symbol id="icon-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Stat</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a stat to show one key number on a dashboard: fleet uptime, overdue services, mean time to repair. Group three to five in a <code>.stat-group</code>. Use a chart when the shape over time matters more than the current value, and a table for many numbers.</p>
+      <ul>
+        <li><strong>Basic</strong> — label, value, unit.</li>
+        <li><strong>With trend</strong> — a delta pill with an arrow and words. Tone follows meaning: more uptime is good, more overdue services is bad.</li>
+        <li><strong>With sparkline</strong> — a small trend line; decorative, the delta text says the trend.</li>
+        <li><strong>Loading</strong> — keep the label; skeletons replace value and delta.</li>
+      </ul>
+      <p>Content: label says what and over which period ("Fleet uptime, last 7 days"). Deltas are full phrases with the comparison: "Up 1.2 points vs last week". Round to what people act on (97.4%, not 97.4183%).</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>.stat</code></li>
+        <li>Label — <code>dt.stat__label</code></li>
+        <li>Value — <code>dd.stat__value</code> with tabular numerals, plus <code>.stat__unit</code></li>
+        <li>Delta (optional) — <code>.stat__delta--good|bad|flat</code>: arrow icon + text</li>
+        <li>Note (optional) — <code>.stat__note</code></li>
+        <li>Sparkline (optional) — <code>svg.stat__sparkline</code>, <code>aria-hidden</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="stat" aria-labelledby="stat-h">
+        <h3 id="stat-h">Stat</h3>
+        <p>Delta tone follows meaning, not direction: fewer overdue services is good (green, arrow down).</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:basic">
+            <div class="stat">
+              <dl class="stat__body">
+                <dt class="stat__label">Vehicles in service</dt>
+                <dd class="stat__value">118<span class="stat__unit">of 126</span></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-trend-up">
+            <div class="stat">
+              <dl class="stat__body">
+                <dt class="stat__label">Fleet uptime, last 7 days</dt>
+                <dd class="stat__value">97.4<span class="stat__unit">%</span></dd>
+              </dl>
+              <p class="stat__delta stat__delta--good"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-arrow-up"></use></svg>Up 1.2 points vs last week</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-trend-down">
+            <div class="stat">
+              <dl class="stat__body">
+                <dt class="stat__label">Overdue services</dt>
+                <dd class="stat__value">7</dd>
+              </dl>
+              <p class="stat__delta stat__delta--good"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-arrow-down"></use></svg>Down 3 vs last week</p>
+              <p class="stat__note">Oldest: Pickup PU-012, 6 days</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-sparkline">
+            <div class="stat">
+              <dl class="stat__body">
+                <dt class="stat__label">Mean time to repair</dt>
+                <dd class="stat__value">4.6<span class="stat__unit">h</span></dd>
+              </dl>
+              <p class="stat__delta stat__delta--bad"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-arrow-up"></use></svg>Up 0.8 h over 30 days</p>
+              <svg class="stat__sparkline" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path d="M0 22 L15 20 L30 24 L45 18 L60 19 L75 14 L90 12 L105 9 L120 6" vector-effect="non-scaling-stroke"/>
+              </svg>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:loading">
+            <div class="stat" aria-busy="true">
+              <p class="stat__label">Parts spend, this month</p>
+              <span class="stat__skeleton stat__skeleton--value" aria-hidden="true"></span>
+              <span class="stat__skeleton stat__skeleton--delta" aria-hidden="true"></span>
+              <span class="sr-only">Loading parts spend</span>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="stat"&gt;
+  &lt;dl class="stat__body"&gt;
+    &lt;dt class="stat__label"&gt;Fleet uptime, last 7 days&lt;/dt&gt;
+    &lt;dd class="stat__value"&gt;97.4&lt;span class="stat__unit"&gt;%&lt;/span&gt;&lt;/dd&gt;
+  &lt;/dl&gt;
+  &lt;p class="stat__delta stat__delta--good"&gt;&lt;svg class="" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-arrow-up"&gt;&lt;/use&gt;&lt;/svg&gt;Up 1.2 points vs last week&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="stat" aria-busy="true"&gt;
+  &lt;p class="stat__label"&gt;Parts spend, this month&lt;/p&gt;
+  &lt;span class="stat__skeleton stat__skeleton--value" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;span class="stat__skeleton stat__skeleton--delta" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;span class="sr-only"&gt;Loading parts spend&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.stat</code></td><td>block class</td><td>Tile</td></tr>
+          <tr><td><code>.stat__body | __label | __value | __unit | __note</code></td><td>part classes</td><td>Content (use <code>dl/dt/dd</code> for label and value)</td></tr>
+          <tr><td><code>.stat__delta--good | --bad | --flat</code></td><td>part modifier</td><td>Delta tone by meaning → feedback success/danger/neutral</td></tr>
+          <tr><td><code>.stat__sparkline</code></td><td>part class</td><td>Decorative trend line (<code>--dataviz-categorical-1</code>)</td></tr>
+          <tr><td><code>aria-busy="true"</code></td><td>attribute</td><td>Loading; use <code>.stat__skeleton</code> (<code>--value | --delta</code>) and an <code>.sr-only</code> message</td></tr>
+          <tr><td><code>.stat-group</code></td><td>companion block</td><td>Auto-fit grid of stats</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">"Down 3 vs last week" in green for overdue services</p>
+          <figcaption><strong>Do</strong> color by meaning and say the direction in words.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Red for every downward arrow</p>
+          <figcaption><strong>Don&rsquo;t</strong> tie color to arrow direction.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small">"Fleet uptime, last 7 days"</p>
+          <figcaption><strong>Do</strong> state the period in the label.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">A sparkline with no text trend</p>
+          <figcaption><strong>Don&rsquo;t</strong> make the sparkline the only place the trend appears.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <p>Stats are static; no keyboard behavior.</p>
+      <ul>
+        <li>Label and value are a <code>dt</code>/<code>dd</code> pair, read as "Fleet uptime, last 7 days: 97.4 %".</li>
+        <li>The delta's direction is in words ("Up", "Down"); the arrow is <code>aria-hidden</code> and the tone color is never the only signal.</li>
+        <li>Sparklines are <code>aria-hidden</code>; the delta text carries the trend. Link to the full chart or table for details.</li>
+        <li>Loading: <code>aria-busy="true"</code> plus an <code>.sr-only</code> "Loading parts spend". When the value arrives, don't announce it unless the user asked for the refresh.</li>
+        <li>Contrast: delta pills use contrast-checked <code>feedback.*.fg</code>/<code>feedback.*.bg</code> pairs.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-raised</code>, <code>--card-radius</code></td><td>Tile surface and shape</td></tr>
+          <tr><td><code>--font-size-3xl</code>, <code>--font-tracking-tight</code></td><td>Value</td></tr>
+          <tr><td><code>--color-feedback-success-* | -danger-*</code></td><td>Good / bad delta</td></tr>
+          <tr><td><code>--dataviz-categorical-1</code></td><td>Sparkline stroke</td></tr>
+          <tr><td><code>--color-bg-muted</code>, <code>--motion-duration-slower</code></td><td>Skeleton fill and pulse</td></tr>
+          <tr><td><code>--icon-size-sm</code></td><td>Delta arrow</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

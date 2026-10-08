@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text field — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline text field: single-line input with every state, three sizes, prefix and suffix.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/grid.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Text field</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a text field for short, single-line answers: plate numbers, names, odometer readings, part numbers. Use a textarea for notes longer than a sentence, a select or radios when the answer comes from a short known list, and a combobox when the list is long.</p>
+      <ul>
+        <li>Always inside a <a href="form-field.html">form field</a> with a visible label.</li>
+        <li>Set the right <code>type</code>, <code>inputmode</code> and <code>autocomplete</code> — on a mechanic's tablet that decides which keyboard appears.</li>
+        <li>Size the field to the expected answer (a postcode field is narrow) with <code>--field-max</code>.</li>
+        <li>Placeholders are optional examples ("e.g. KX-219"), never instructions or labels.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>input.input</code>, or <code>div.input.input--affixed</code> when it has affixes; 1px <code>--input-border</code>, 8px radius</li>
+        <li>Value / placeholder text</li>
+        <li>Prefix (optional) — <code>.input__affix</code> before <code>.input__control</code>: currency, icon</li>
+        <li>Suffix (optional) — <code>.input__affix</code> after the control: unit</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="text-field" aria-labelledby="text-field-h">
+        <h3 id="text-field-h">Text field</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <div class="field">
+              <label class="label" for="tf-default">Plate number</label>
+              <input class="input" id="tf-default" name="plate" type="text" placeholder="e.g. KX-219" autocapitalize="characters" spellcheck="false">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="field">
+              <label class="label" for="tf-hover">Plate number</label>
+              <input class="input is-hover" id="tf-hover" name="plate" type="text" placeholder="e.g. KX-219">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="field">
+              <label class="label" for="tf-focus">Plate number</label>
+              <input class="input is-focus-visible" id="tf-focus" name="plate" type="text" value="KX-2">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:filled">
+            <div class="field">
+              <label class="label" for="tf-filled">Assigned mechanic</label>
+              <input class="input" id="tf-filled" name="mechanic" type="text" value="Priya Nair" autocomplete="off">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="field">
+              <label class="label" for="tf-disabled">Depot</label>
+              <input class="input" id="tf-disabled" name="depot" type="text" value="North Yard" disabled aria-describedby="tf-disabled-hint">
+              <p class="field__hint" id="tf-disabled-hint">Vehicles can't change depot while a work order is open.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:read-only">
+            <div class="field">
+              <label class="label" for="tf-readonly">Vehicle identification number (VIN)</label>
+              <input class="input" id="tf-readonly" name="vin" type="text" value="WF0XXXTTGXKJ12345" readonly>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <div class="field">
+              <label class="label" for="tf-invalid">Email for service reports</label>
+              <input class="input" id="tf-invalid" name="email" type="email" value="dispatch@northyard" autocomplete="email" aria-invalid="true" aria-describedby="tf-invalid-msg">
+              <p class="field__error" id="tf-invalid-msg">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Enter an email address like name@depot.com.</span>
+              </p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="size:sm size:md size:lg">
+            <div class="stack stack--gap-3">
+              <div class="stack stack--horizontal stack--gap-2">
+                <input class="input input--sm" type="search" aria-label="Search vehicles, small" placeholder="Search vehicles">
+                <button type="button" class="btn btn--secondary btn--sm">Search</button>
+              </div>
+              <div class="stack stack--horizontal stack--gap-2">
+                <input class="input" type="search" aria-label="Search vehicles, medium" placeholder="Search vehicles">
+                <button type="button" class="btn btn--secondary">Search</button>
+              </div>
+              <div class="stack stack--horizontal stack--gap-2">
+                <input class="input input--lg" type="search" aria-label="Search vehicles, large" placeholder="Search vehicles">
+                <button type="button" class="btn btn--secondary btn--lg">Search</button>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-prefix">
+            <div class="stack stack--gap-4">
+              <div class="field">
+                <label class="label" for="tf-cost">Labour cost</label>
+                <div class="input input--affixed">
+                  <span class="input__affix" id="tf-cost-prefix">€</span>
+                  <input class="input__control" id="tf-cost" name="labour_cost" type="text" inputmode="decimal" value="123.50" aria-describedby="tf-cost-prefix">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label" for="tf-find">Find a part</label>
+                <div class="input input--affixed">
+                  <span class="input__affix"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg></span>
+                  <input class="input__control" id="tf-find" name="part" type="search" placeholder="Part number or name">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-suffix">
+            <div class="field">
+              <label class="label" for="tf-odo">Odometer reading</label>
+              <div class="input input--affixed">
+                <input class="input__control" id="tf-odo" name="odometer" type="text" inputmode="numeric" value="84,210" aria-describedby="tf-odo-suffix">
+                <span class="input__affix" id="tf-odo-suffix">km</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;input class="input" id="plate" name="plate" type="text" placeholder="e.g. KX-219"&gt;
+&lt;input class="input input--sm" …&gt;   &lt;input class="input input--lg" …&gt;   &lt;!-- heights match .btn--sm / .btn--lg --&gt;
+
+&lt;!-- States are attributes --&gt;
+&lt;input class="input" … disabled&gt;
+&lt;input class="input" … readonly&gt;
+&lt;input class="input" … aria-invalid="true" aria-describedby="email-error"&gt;
+
+&lt;!-- Prefix / suffix: the border moves to the wrapper; reference the affix so it is announced --&gt;
+&lt;div class="input input--affixed"&gt;
+  &lt;span class="input__affix" id="cost-prefix"&gt;€&lt;/span&gt;
+  &lt;input class="input__control" id="cost" inputmode="decimal" aria-describedby="cost-prefix"&gt;
+&lt;/div&gt;
+&lt;div class="input input--affixed"&gt;
+  &lt;input class="input__control" id="odometer" inputmode="numeric" aria-describedby="odometer-unit"&gt;
+  &lt;span class="input__affix" id="odometer-unit"&gt;km&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.input</code></td><td>block class</td><td>Bordered text input (on <code>input</code>, or on the wrapper when affixed)</td></tr>
+          <tr><td><code>.input--sm | --lg</code></td><td>modifier class</td><td>32 / 40 (default) / 48px — same as buttons</td></tr>
+          <tr><td><code>.input--affixed</code>, <code>.input__control</code>, <code>.input__affix</code></td><td>modifier / parts</td><td>Prefix and suffix inside the border</td></tr>
+          <tr><td><code>disabled</code> / <code>readonly</code></td><td>attribute</td><td>Not editable (disabled also not focusable or submitted)</td></tr>
+          <tr><td><code>aria-invalid="true"</code>, <code>:user-invalid</code></td><td>attribute / pseudo-class</td><td>Invalid styling; pair with a <code>.field__error</code></td></tr>
+          <tr><td><code>type</code>, <code>inputmode</code>, <code>autocomplete</code></td><td>attribute</td><td>Keyboard and autofill (email, tel, postal-code…)</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="field"><label class="label" for="dd-tel">Driver phone number</label><input class="input" id="dd-tel" type="tel" autocomplete="tel" inputmode="tel"></div>
+          <figcaption><strong>Do</strong> use the matching type and autocomplete so the right keyboard and autofill appear.</figcaption></figure>
+        <figure class="ds-dont"><div class="field"><label class="label" for="dd-dis">Plate number</label><input class="input" id="dd-dis" type="text" value="KX-219" disabled></div>
+          <figcaption><strong>Don't</strong> disable a field just to display a value people need to read or copy — use <code>readonly</code>.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Focuses the field (read-only fields are focusable, disabled ones are skipped)</td></tr>
+          <tr><td>Typing, <kbd>←</kbd> <kbd>→</kbd>, <kbd>Home</kbd> <kbd>End</kbd></td><td>Native text editing</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>textbox</code> (or <code>searchbox</code> for <code>type="search"</code>). Name from <code>&lt;label for&gt;</code>; hint, affix and error via <code>aria-describedby</code>.</li>
+        <li>Focus: the 2px teal focus ring plus a focus-colored border, so focus doesn't rely on a subtle border change. With affixes the ring wraps the whole field.</li>
+        <li>Invalid: border doubles in weight and turns red, an icon and message appear — never color alone. <code>:user-invalid</code> only applies after interaction, so empty required fields aren't red on load.</li>
+        <li>Boundary contrast: <code>--input-border</code> is <code>color.border.strong</code>, checked at 3:1 against the canvas.</li>
+        <li>Font size is 16px at md and lg, so iOS doesn't zoom on focus; heights of 32–48px meet the 24px target minimum.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--input-border</code>, <code>--input-bg</code>, <code>--input-radius</code></td><td>Component tokens</td></tr>
+          <tr><td><code>--size-control-sm | -md | -lg</code></td><td>Heights</td></tr>
+          <tr><td><code>--color-text-muted</code></td><td>Hover border, affix text</td></tr>
+          <tr><td><code>--color-border-focus</code>, <code>--focus-ring-*</code></td><td>Focus</td></tr>
+          <tr><td><code>--color-border-invalid</code></td><td>Invalid border</td></tr>
+          <tr><td><code>--color-bg-subtle</code>, <code>--color-border-default</code></td><td>Read-only</td></tr>
+          <tr><td><code>--color-bg-muted</code>, <code>--color-border-subtle</code>, <code>--color-text-disabled</code></td><td>Disabled</td></tr>
+          <tr><td><code>--color-text-subtle</code></td><td>Placeholder</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

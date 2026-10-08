@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progress bar — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline progress bar on native progress: determinate, indeterminate, complete and error, always with a visible label and text.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/progress.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Progress bar</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a progress bar for tasks that take more than a couple of seconds and whose progress you can measure: uploading inspection photos, importing a vehicle CSV, generating a monthly cost report. Use the indeterminate state when the total is unknown.</p>
+      <ul>
+        <li>For measurements that aren't progress (tank level, disk usage) use a <strong>meter</strong>. For short waits under ~2s, a <strong>spinner</strong>; for loading page content, a <strong>skeleton</strong>.</li>
+        <li>Always pair the bar with a visible label naming the task and text stating progress ("12 of 20 photos"). On completion or failure, change the text too, not just the color.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Label — <code>&lt;label class="progress__label" for&gt;</code> naming the task</li>
+        <li>Value — <code>.progress__value</code>, percentage in tabular numerals</li>
+        <li>Track and fill — native <code>&lt;progress class="progress__bar"&gt;</code></li>
+        <li>Hint — <code>.progress__hint</code>, counts or the outcome, with an icon on complete/error</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="progress-bar" aria-labelledby="progress-bar-h">
+        <h3 id="progress-bar-h">Progress bar</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:determinate">
+            <div class="progress">
+              <div class="progress__header"><label class="progress__label" for="pb-photos">Uploading inspection photos</label><span class="progress__value" aria-hidden="true">60%</span></div>
+              <progress id="pb-photos" class="progress__bar" max="100" value="60" aria-describedby="pb-photos-hint">60%</progress>
+              <p class="progress__hint" id="pb-photos-hint">12 of 20 photos</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:indeterminate">
+            <div class="progress">
+              <div class="progress__header"><label class="progress__label" for="pb-import">Importing vehicles from CSV</label></div>
+              <progress id="pb-import" class="progress__bar" max="100" aria-describedby="pb-import-hint">Importing…</progress>
+              <p class="progress__hint" id="pb-import-hint">Checking VINs. This can take a minute.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:complete">
+            <div class="progress" data-state="complete">
+              <div class="progress__header"><label class="progress__label" for="pb-report">Monthly cost report</label><span class="progress__value" aria-hidden="true">100%</span></div>
+              <progress id="pb-report" class="progress__bar" max="100" value="100" aria-describedby="pb-report-hint">100%</progress>
+              <p class="progress__hint" id="pb-report-hint" role="status"><svg aria-hidden="true" focusable="false"><use href="#icon-circle-check"></use></svg>Report ready — September 2026, 42 vehicles</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:error">
+            <div class="progress" data-state="error">
+              <div class="progress__header"><label class="progress__label" for="pb-fail">Uploading inspection photos</label><span class="progress__value" aria-hidden="true">35%</span></div>
+              <progress id="pb-fail" class="progress__bar" max="100" value="35" aria-describedby="pb-fail-hint">35%</progress>
+              <p class="progress__hint" id="pb-fail-hint" role="alert"><svg aria-hidden="true" focusable="false"><use href="#icon-circle-x"></use></svg>Upload stopped at 7 of 20 photos. Check your connection and try again.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:thin">
+            <div class="progress progress--thin">
+              <progress class="progress__bar" max="100" value="40" aria-label="Loading work orders">40%</progress>
+            </div>
+            <p>Thin bar for page-top loading; needs an <code>aria-label</code> because it has no visible label.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="progress"&gt;
+  &lt;div class="progress__header"&gt;
+    &lt;label class="progress__label" for="pb-photos"&gt;Uploading inspection photos&lt;/label&gt;
+    &lt;span class="progress__value" aria-hidden="true"&gt;60%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;progress id="pb-photos" class="progress__bar" max="100" value="60" aria-describedby="pb-photos-hint"&gt;60%&lt;/progress&gt;
+  &lt;p class="progress__hint" id="pb-photos-hint"&gt;12 of 20 photos&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Indeterminate: omit value --&gt;
+&lt;progress class="progress__bar" max="100"&gt;Importing…&lt;/progress&gt;
+
+&lt;!-- Outcome: tone + text; announce once --&gt;
+&lt;div class="progress" data-state="complete | error"&gt;… &lt;p class="progress__hint" role="status | alert"&gt;…&lt;/p&gt;&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.progress</code></td><td>block</td><td>Wrapper for label, bar and hint</td></tr>
+          <tr><td><code>progress.progress__bar</code> <code>value</code> / <code>max</code></td><td>native attributes</td><td>Determinate; omit <code>value</code> for indeterminate</td></tr>
+          <tr><td><code>data-state="complete | error"</code></td><td>attribute</td><td>Outcome tone (success / danger)</td></tr>
+          <tr><td><code>.progress--thin</code></td><td>modifier</td><td>4px track for page-top loading</td></tr>
+          <tr><td><code>.progress__header | __label | __value | __hint</code></td><td>parts</td><td>See anatomy</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>"Uploading inspection photos — 12 of 20 photos"</p>
+          <figcaption><strong>Do</strong> name the task and give a count people can trust.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>A bar that jumps to 99% and waits there.</p>
+          <figcaption><strong>Don't</strong> fake progress. If you can't measure it, use the indeterminate state.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Role: native <code>&lt;progress&gt;</code> exposes <code>progressbar</code> with its value; indeterminate exposes no value. Name it with a <code>&lt;label for&gt;</code> (or <code>aria-label</code> for the thin bar).</li>
+        <li>The visible percentage is <code>aria-hidden</code> because the bar already announces it; the hint is linked with <code>aria-describedby</code>.</li>
+        <li>Don't announce every percent. Announce the outcome once: <code>role="status"</code> on completion, <code>role="alert"</code> on failure.</li>
+        <li>The bar is not focusable and has no keyboard interaction.</li>
+        <li>Contrast: fill (<code>--color-action-primary-bg</code>, success and danger icon colors) is ≥ 3:1 against the surface. Reduced motion stops the indeterminate sweep; the hint text still says what's happening.</li>
+        <li>Forced colors: the track gets a border and the fill uses <code>Highlight</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-bg-muted</code></td><td>Track</td></tr>
+          <tr><td><code>--color-action-primary-bg</code></td><td>Fill (in progress)</td></tr>
+          <tr><td><code>--color-feedback-success-icon | -fg</code></td><td>Complete fill and hint</td></tr>
+          <tr><td><code>--color-feedback-danger-icon | -fg</code></td><td>Error fill and hint</td></tr>
+          <tr><td><code>--space-2 | -1</code>, <code>--radius-full</code></td><td>Track height (default / thin) and shape</td></tr>
+          <tr><td><code>--motion-duration-base | -slower</code></td><td>Value change, indeterminate sweep</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

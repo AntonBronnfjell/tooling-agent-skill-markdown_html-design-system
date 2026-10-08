@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error summary — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline inline alert: info, success, warning and danger tones, dismissible and with actions; icon and words carry the tone.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/alert.css">
+  <link rel="stylesheet" href="../css/components/error-summary.css">
+  <link rel="stylesheet" href="../css/components/link.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/alert.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="icon-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="icon-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Error summary</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Show an error summary at the top of a form when the user submits and anything is invalid. It lists every problem as a link to the field, receives focus so screen-reader and keyboard users land on it, and the page title gets an "Error: " prefix. Use it together with inline field errors, never instead of them.</p>
+      <p>Don't use it for a single-field form where the inline error is right next to the button, or for system errors (use an alert).</p>
+      <p>Copy: the title says how many problems there are ("There are 2 problems with this service log"); each item uses the same words as the inline error.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Container (danger alert surface, focusable with <code>tabindex="-1"</code>)</li><li>Icon</li><li>Title with the number of problems</li><li>List of links, one per invalid field, in field order</li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <section id="error-summary" aria-labelledby="es-h">
+        <h3 id="es-h">With errors</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:with-errors">
+            <div class="alert alert--danger error-summary" id="es1" tabindex="-1" aria-labelledby="es1-t">
+              <svg class="alert__icon" aria-hidden="true" focusable="false"><use href="#icon-circle-x"></use></svg>
+              <div class="alert__content">
+                <h4 class="alert__title" id="es1-t">There are 2 problems with this service log</h4>
+                <ul class="list error-summary__list">
+                  <li><a class="link" href="#es-vehicle">Choose the vehicle you serviced</a></li>
+                  <li><a class="link" href="#es-odo">Enter a reading higher than the last one (79,950 km)</a></li>
+                </ul>
+              </div>
+            </div>
+            <p class="text-small">Fields: <span id="es-vehicle">Vehicle</span> · <span id="es-odo">Odometer reading</span></p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="alert alert--danger error-summary" tabindex="-1" aria-labelledby="sum-t"&gt;
+  &lt;div class="alert__content"&gt;
+    &lt;h2 class="alert__title" id="sum-t"&gt;There are 2 problems with this service log&lt;/h2&gt;
+    &lt;ul class="list error-summary__list"&gt;
+      &lt;li&gt;&lt;a class="link" href="#vehicle"&gt;Choose the vehicle you serviced&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.error-summary</code></td><td>on <code>.alert.alert--danger</code></td><td>Focus ring and list spacing</td></tr>
+          <tr><td><code>tabindex="-1"</code></td><td>attribute</td><td>Lets <code>js/error-summary.js</code> move focus to it</td></tr>
+          <tr><td><code>init(root)</code></td><td>js/error-summary.js</td><td>Focuses the first summary on load and prefixes the title with "Error: "; links move focus to their field</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><p>Link each problem to its field, using the same words as the inline error.</p><figcaption><strong>Do</strong> keep the summary and inline errors in sync.</figcaption></figure>
+        <figure class="ds-dont"><p>"Please correct the errors below."</p><figcaption><strong>Don't</strong> show a generic message without the list of problems.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul class="list">
+        <li>Focus moves to the summary after a failed submit, so its title and list are read first; it isn't a live region (focus already announces it).</li>
+        <li>The page <code>&lt;title&gt;</code> gets an "Error: " prefix (WCAG 3.3.1).</li>
+        <li>Each link targets the field's id; following it moves focus to the field, whose <code>aria-describedby</code> includes the inline error.</li>
+        <li>Color is not the only signal: icon, title text and the list itself.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <p>Uses the alert's danger tokens (<code>--color-feedback-danger-*</code>) and <code>--focus-ring-*</code>.</p>
+    </section>
+  </main>
+  <script type="module">import { init } from "../js/error-summary.js"; init(document);</script>
+</body>
+</html>

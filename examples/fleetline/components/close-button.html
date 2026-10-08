@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Close button — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline close button: the standard dismiss control for dialogs, drawers, toasts and popovers, with every state.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/close-button.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Close button</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use the close button to dismiss an overlay or a dismissible message: dialogs, drawers, toasts, alerts, popovers. It always sits in the top inline-end corner so mechanics and dispatchers find it in the same place everywhere.</p>
+      <ul>
+        <li>Name it "Close" in dialogs and drawers; be specific where several sit on one screen ("Dismiss notification", "Close vehicle details").</li>
+        <li>Closing must not lose work silently: if a form is dirty, confirm or keep a draft.</li>
+        <li>Don't use it to delete or cancel something — that is a destructive button with a label.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Container — <code>&lt;button type="button" class="close-btn" aria-label="Close"&gt;</code>, ghost, square</li><li>Icon — <code>svg.close-btn__icon</code> ("x"), <code>aria-hidden="true"</code></li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="close-button" aria-labelledby="close-button-h">
+        <h3 id="close-button-h">Close button</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <div class="ds-demo__row"><button type="button" class="close-btn" aria-label="Close"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button><button type="button" class="close-btn close-btn--sm" aria-label="Dismiss notification"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button><button type="button" class="close-btn close-btn--lg" aria-label="Close"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="ds-demo__row"><button type="button" class="close-btn is-hover" aria-label="Close"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="ds-demo__row"><button type="button" class="close-btn is-focus-visible" aria-label="Close"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:active">
+            <div class="ds-demo__row"><button type="button" class="close-btn is-active" aria-label="Close"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="ds-demo__row"><button type="button" class="close-btn" aria-label="Close" disabled><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+            <p>Only while a dialog is saving; say so in the dialog ("Saving work order…").</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:placement" style="grid-column: 1 / -1;">
+            <div style="display:grid; grid-template-columns:1fr auto; gap:var(--space-3); align-items:start; padding:var(--space-4); border:var(--border-width-thin) solid var(--color-border-default); border-radius:var(--radius-lg); max-inline-size:24rem;">
+              <div><strong>Van KX-219</strong><p>Next service due in 3 days at North Yard depot.</p></div>
+              <button type="button" class="close-btn" aria-label="Close vehicle details"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+            </div>
+            <p>Top inline-end corner, the same place in dialogs, drawers, toasts, alerts and popovers.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type=&quot;button&quot; class=&quot;close-btn&quot; aria-label=&quot;Close&quot;&gt;
+  &lt;svg class=&quot;close-btn__icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-x&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+&lt;/button&gt;
+
+&lt;!-- In a dialog: the invoker closes it without JS --&gt;
+&lt;button type=&quot;button&quot; class=&quot;close-btn&quot; aria-label=&quot;Close&quot; commandfor=&quot;assign-dialog&quot; command=&quot;close&quot;&gt;…&lt;/button&gt;
+
+&lt;!-- Toasts and alerts: small + specific name --&gt;
+&lt;button type=&quot;button&quot; class=&quot;close-btn close-btn--sm&quot; aria-label=&quot;Dismiss notification&quot;&gt;…&lt;/button&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.close-btn</code></td><td>block class</td><td>40px ghost close button</td></tr>
+          <tr><td><code>.close-btn--sm | --lg</code></td><td>modifier</td><td>32px (toasts, alerts) / 48px (tablet)</td></tr>
+          <tr><td><code>.close-btn__icon</code></td><td>part</td><td>The x icon</td></tr>
+          <tr><td><code>aria-label</code></td><td>attribute (required)</td><td>"Close" or a specific name</td></tr>
+          <tr><td><code>commandfor</code> + <code>command="close"</code></td><td>attribute</td><td>Closes a <code>&lt;dialog&gt;</code> declaratively</td></tr>
+          <tr><td><code>disabled</code></td><td>attribute</td><td>Only while saving</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible | .is-active</code></td><td>docs-only class</td><td>Freeze a state</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="close-btn close-btn--sm" aria-label="Dismiss notification"><svg class="close-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+          <figcaption><strong>Do</strong> give it a specific name when several dismiss buttons share a screen.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="ds-demo__row"><button type="button" class="btn btn--ghost">X</button></div>
+          <figcaption><strong>Don't</strong> use a letter "X" as text — screen readers read "X".</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Closes the surface</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Handled by the surface (dialog/popover), not the button — keep both</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Focus returns to the element that opened the surface (native for <code>&lt;dialog&gt;</code> and invoker popovers).</li><li>The icon is muted by default but meets 3:1 against surfaces (<code>--color-text-muted</code>); hover raises it to the default text color.</li><li>Forced colors: shows a border on hover so the target is visible.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--button-height-*</code>, <code>--button-radius</code></td><td>Size and shape</td></tr>
+          <tr><td><code>--color-text-muted | -default</code></td><td>Icon color, rest / hover</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover | -bg-active</code></td><td>State fills</td></tr>
+          <tr><td><code>--icon-size-*</code>, <code>--icon-stroke</code></td><td>Icon</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

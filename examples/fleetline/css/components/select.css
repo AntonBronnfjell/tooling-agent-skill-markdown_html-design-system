@@ -1,0 +1,136 @@
+/* select.css — native select, restyled. Block alias: .select
+   Markup:    <div class="select [select--sm|--lg]">
+                <select class="select__control" id="…" name="…">…</select>
+              </div>
+              The wrapper only draws the chevron (a masked ::after in currentColor, so it follows themes
+              and forced colors); the <select> keeps all semantics, keyboard and the OS picker.
+   Sizes:     .select--sm | (md) | .select--lg → --size-control-* (line up with .input and .btn)
+   States:    :hover, :focus-visible, :disabled, aria-invalid="true" | :user-invalid,
+              read-only = aria-readonly="true" with only the current option rendered (select has no
+              readonly attribute). Docs-only freeze classes on the control: .is-hover, .is-focus-visible.
+   Progressive: appearance: base-select (customizable select, Chrome 135+/Safari 27) styles the picker
+              with the same tokens; other browsers keep the native picker. */
+@layer components {
+  .select {
+    --_h: var(--size-control-md);
+    --_px: var(--space-3);
+    --_chevron: var(--icon-size-sm);
+
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    color: var(--color-text-muted);
+  }
+  .select--sm { --_h: var(--size-control-sm); --_px: var(--space-2); }
+  .select--lg { --_h: var(--size-control-lg); --_px: var(--space-4); --_chevron: var(--icon-size-md); }
+
+  .select::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--_px);
+    inline-size: var(--_chevron);
+    background: currentColor;
+    -webkit-mask: var(--_glyph) center / contain no-repeat;
+    mask: var(--_glyph) center / contain no-repeat;
+    pointer-events: none;
+    --_glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
+  .select__control {
+    --_border: var(--input-border);
+    --_bg: var(--input-bg);
+
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    block-size: var(--_h);
+    margin: 0;
+    padding-block: 0;
+    padding-inline-start: var(--_px);
+    padding-inline-end: calc(var(--_px) + var(--_chevron) + var(--space-2));
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--input-radius);
+    background: var(--_bg);
+    color: var(--color-text-default);
+    font-family: inherit;
+    font-size: var(--font-size-md);
+    line-height: var(--font-line-height-normal);
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .select--sm .select__control { font-size: var(--font-size-sm); }
+  /* Placeholder option ("Choose a depot") reads as a prompt, not a value */
+  .select__control:has(option[value=""]:checked) { color: var(--color-text-muted); }
+  .select__control option { color: var(--color-text-default); }
+
+  /* Hover */
+  .select__control:hover:not(:disabled, [aria-readonly="true"]),
+  .select__control.is-hover { --_border: var(--color-text-muted); }
+  .select:has(.select__control:hover:not(:disabled)) { color: var(--color-text-default); }
+
+  /* Focus */
+  .select__control:focus-visible,
+  .select__control.is-focus-visible {
+    --_border: var(--color-border-focus);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Invalid */
+  .select__control[aria-invalid="true"],
+  .select__control:user-invalid {
+    --_border: var(--color-border-invalid);
+    box-shadow: inset 0 0 0 var(--border-width-thin) var(--_border);
+  }
+
+  /* Read-only: focusable, value readable and submitted, no chevron */
+  .select__control[aria-readonly="true"] {
+    --_bg: var(--color-bg-subtle);
+    --_border: var(--color-border-default);
+    padding-inline-end: var(--_px);
+    cursor: default;
+  }
+  .select:has(> .select__control[aria-readonly="true"])::after { display: none; }
+
+  /* Disabled */
+  .select__control:disabled {
+    --_bg: var(--color-bg-muted);
+    --_border: var(--color-border-subtle);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+  .select:has(> .select__control:disabled) { color: var(--color-text-disabled); }
+
+  /* Customizable select — refinement only; unsupported browsers drop these rules. */
+  @supports (appearance: base-select) {
+    .select__control,
+    .select__control::picker(select) { appearance: base-select; }
+    .select__control::picker-icon { display: none; }
+    .select__control::picker(select) {
+      margin-block: var(--space-1);
+      padding: var(--space-1);
+      border: var(--border-width-thin) solid var(--color-border-default);
+      border-radius: var(--overlay-radius);
+      background: var(--color-bg-overlay);
+      box-shadow: var(--overlay-shadow);
+    }
+    .select__control option {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-3);
+      border-radius: var(--radius-sm);
+    }
+    .select__control option:is(:hover, :focus-visible) { background: var(--color-bg-subtle); }
+    .select__control option:checked { background: var(--color-selected-bg); color: var(--color-selected-fg); }
+    .select__control optgroup { color: var(--color-text-muted); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+  }
+
+  @media (forced-colors: active) {
+    .select__control { border-color: CanvasText; }
+    .select::after { forced-color-adjust: none; background: CanvasText; }
+    .select:has(:disabled)::after { background: GrayText; }
+    .select__control:disabled { border-color: GrayText; color: GrayText; }
+  }
+}

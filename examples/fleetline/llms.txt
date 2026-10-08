@@ -1,0 +1,86 @@
+# Fleetline design system
+
+> Calm, functional, high-legibility. Teal brand for actions only; neutral slate surfaces; one shape language (8px radius).. 68/68 components ready. Use semantic CSS custom properties and the documented markup; never invent styles.
+
+## Contract
+
+- [DESIGN.md](DESIGN.md): tokens (front matter), rules, do's and don'ts
+- [Tokens (resolved, per theme)](dist/ds-index.json): machine index of components and token values
+- [Tokens CSS](dist/tokens.css) · [Bundle](dist/ds.css) · [DTCG sources](tokens/resolver.json)
+
+## Foundations & Primitives
+
+- [Box](llms/box.md): Generic block container mapped to spacing/surface tokens.
+- [Stack (vertical & horizontal)](llms/stack.md): One-dimensional layout with token-enforced gap.
+- [Grid (container, row, column), Container / Page width](llms/grid.md): Two-dimensional responsive layout.
+- [Icon Wrapper](llms/icon.md): Scales/colors inline SVG via currentColor; decorative vs labelled.
+- [Typography: Headings H1–H6, Typography: Body text, Typography: Code, Lists (ordered, unordered, unstyled)](llms/typography.md): Type scale bound to tokens; visual level decoupled from semantic level.
+- [Divider / Separator](llms/divider.md): Semantic or decorative boundary.
+- [Visually Hidden / SR only](llms/visually-hidden.md): Hidden visually, available to assistive tech.
+
+## Actions & CTAs
+
+- [Primary Button, Secondary Button, Tertiary / Ghost Button, Destructive Button, Button with leading/trailing icon](llms/button.md): Main call-to-action; one per view region.
+- [IconButton](llms/icon-button.md): Icon-only button; requires accessible name + tooltip.
+- [Link / Anchor](llms/link.md): Navigation; never a button substitute.
+- [Menu Button / Dropdown Menu](llms/menu.md): Action list anchored to trigger.
+- [Close Button](llms/close-button.md): Standard dismiss control for overlays.
+- [Theme Toggle](llms/theme-toggle.md): Switches data-theme via js/theme.js; persists and follows the OS by default.
+
+## Form Controls & Inputs
+
+- [Label, Form Field Wrapper, Fieldset / Legend](llms/form-field.md): Visible label tied to control.
+- [Text Field](llms/text-field.md): Single-line input.
+- [Textarea](llms/textarea.md): Multi-line input.
+- [Password Input](llms/password-input.md): Obscured input with reveal toggle.
+- [Search Input](llms/search-input.md): Query field with clear action.
+- [Checkbox, Checkbox Group](llms/checkbox.md): Binary / multi-select.
+- [Radio, Radio Group](llms/radio.md): Single choice.
+- [Switch / Toggle](llms/switch.md): Immediate binary setting.
+- [Select](llms/select.md): Native picker; prefer before custom.
+- [Date field (memorable date, segmented)](llms/date-field.md): Day / month / year text inputs for known dates (birth, issue dates) — no calendar.
+- [Error Summary](llms/error-summary.md): Form-level list of errors linking to fields. Core: the form-layout pattern's invalid state depends on it.
+
+## Navigation & Orientation
+
+- [Global Navigation Bar](llms/top-nav.md): App header: logo, nav, search, profile.
+- [Sidebar Navigation](llms/side-nav.md): Dense multi-module vertical nav.
+- [Breadcrumbs](llms/breadcrumbs.md): Hierarchy trail.
+- [Tabs](llms/tabs.md): Switch views within a shell.
+- [Pagination](llms/pagination.md): Page index navigation.
+- [Skip Link](llms/skip-link.md): Jump to main content.
+- [Page Header](llms/page-header.md): Title, meta, actions for a page.
+
+## Data Display & Content
+
+- [Table (basic)](llms/table.md): Semantic tabular data.
+- [Card](llms/card.md): Containment block.
+- [Accordion, Disclosure / Collapsible](llms/accordion.md): Collapsible sections.
+- [Avatar](llms/avatar.md): Person representation.
+- [Badge](llms/badge.md): Status or count pill.
+- [Tag / Chip](llms/tag.md): Categorical metadata.
+- [List Group](llms/list-group.md): Multi-row list items.
+- [Description List](llms/description-list.md): Key/value pairs.
+- [Metric / Statistic](llms/stat.md): KPI number display.
+
+## Overlays & Transient
+
+- [Modal Dialog, Alert / Confirm Dialog](llms/modal.md): Focus-trapped, high priority.
+- [Popover](llms/popover.md): Floating, not trapped.
+- [Tooltip](llms/tooltip.md): Non-interactive hint on hover/focus.
+
+## Feedback & Status
+
+- [Alert Banner (inline)](llms/alert.md): Contextual message block.
+- [Toast](llms/toast.md): Transient global notice; pause on hover/focus.
+- [Progress Bar](llms/progress.md): Percentage completion.
+- [Spinner / Loader, Inline Spinner](llms/spinner.md): Indeterminate processing.
+- [Skeleton](llms/skeleton.md): Placeholder geometry; respects reduced motion.
+- [Result panel](llms/result-panel.md): Outcome of an action or process: icon, title, explanation, next actions.
+
+## Layout Patterns (macro)
+
+- [Application Shell](llms/app-shell.md): Header + sidebar + canvas.
+- [Form Layout](llms/form-layout.md): Columns, groups, action placement.
+- [Empty State](llms/empty-state.md): Illustration + message + one action.
+- [Error Pages (404/500)](llms/error-page.md): System failures with recovery paths.

@@ -1,0 +1,80 @@
+{
+  "$description": "High-contrast theme (also applied under prefers-contrast: more).",
+  "color": {
+    "$type": "color",
+    "bg": {
+      "canvas": {
+        "$value": "{color.gray.0}"
+      },
+      "surface": {
+        "$value": "{color.gray.0}"
+      },
+      "subtle": {
+        "$value": "{color.gray.0}"
+      },
+      "muted": {
+        "$value": "{color.gray.100}"
+      }
+    },
+    "text": {
+      "default": {
+        "$value": "{color.gray.1000}"
+      },
+      "muted": {
+        "$value": "{color.gray.900}"
+      },
+      "subtle": {
+        "$value": "{color.gray.800}"
+      },
+      "link": {
+        "$value": "{color.blue.900}"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "{color.gray.700}"
+      },
+      "default": {
+        "$value": "{color.gray.900}"
+      },
+      "strong": {
+        "$value": "{color.gray.1000}"
+      },
+      "focus": {
+        "$value": "{color.gray.1000}"
+      }
+    },
+    "action": {
+      "primary": {
+        "bg": {
+          "$value": "{color.blue.900}"
+        },
+        "bg-hover": {
+          "$value": "{color.gray.1000}"
+        },
+        "fg": {
+          "$value": "{color.gray.0}"
+        }
+      },
+      "danger": {
+        "bg": {
+          "$value": "{color.red.900}"
+        },
+        "bg-hover": {
+          "$value": "{color.gray.1000}"
+        },
+        "fg": {
+          "$value": "{color.gray.0}"
+        }
+      }
+    },
+    "selected": {
+      "bg": {
+        "$value": "{color.gray.1000}"
+      },
+      "fg": {
+        "$value": "{color.gray.0}"
+      }
+    }
+  }
+}

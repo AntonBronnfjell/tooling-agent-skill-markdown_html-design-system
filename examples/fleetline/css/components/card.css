@@ -1,0 +1,125 @@
+/* card.css — Card. Block alias: .card
+   Variants: .card--interactive (one stretched primary link: .card__link) | .card--selectable (checkbox in .card__select)
+             media cards are any card with a .card__media first child
+   Parts:    .card__media, .card__header, .card__title, .card__meta, .card__body, .card__footer, .card__actions,
+             .card__link (primary link; its ::after covers the card), .card__select (label + checkbox)
+   States:   :hover on .card--interactive (docs freeze: .is-hover), focus on .card__link (docs freeze: .is-focus-visible),
+             selected = :has(.card__select :checked) (no class needed)
+   Layout:   container-type inline-size → footer stacks under 20rem. Equal heights in grids: block-size 100%.
+   Pattern:  private props --_pad, --_border, --_shadow; states swap them. */
+@layer components {
+  .card {
+    --_pad: var(--card-padding);
+    --_border: var(--color-border-default);
+    --_shadow: var(--card-shadow);
+
+    position: relative;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    block-size: 100%;
+    padding: var(--_pad);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--card-radius);
+    background: var(--color-elevation-surface-raised);
+    box-shadow: var(--_shadow);
+    color: var(--color-text-default);
+    transition:
+      box-shadow var(--motion-duration-fast) var(--motion-easing-standard),
+      border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  [data-density="compact"] .card { --_pad: var(--space-4); }
+
+  /* Parts */
+  .card__media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-inline: calc(var(--_pad) * -1);
+    margin-block-start: calc(var(--_pad) * -1);
+    border-start-start-radius: inherit;
+    border-start-end-radius: inherit;
+    background: var(--color-elevation-surface-sunken);
+    color: var(--color-text-muted);
+    overflow: hidden;
+  }
+  .card__media > img, .card__media > svg:only-child:not(.icon) { inline-size: 100%; block-size: 100%; object-fit: cover; }
+
+  .card__header { display: grid; gap: var(--space-1); }
+  .card__title {
+    font-family: var(--typography-h5-font-family);
+    font-size: var(--typography-h5-font-size);
+    font-weight: var(--typography-h5-font-weight);
+    line-height: var(--typography-h5-line-height);
+  }
+  .card__meta {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .card__body { color: var(--color-text-default); font-size: var(--font-size-sm); }
+  .card__footer,
+  .card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: auto; /* pins actions to the bottom so cards in a row line up */
+  }
+  .card__footer { justify-content: space-between; }
+
+  /* Interactive: one real link, stretched over the card. Secondary controls sit above it. */
+  .card__link { color: inherit; text-decoration: none; }
+  .card__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  .card__link:hover { text-decoration: underline; }
+  .card__actions,
+  .card--interactive .card__footer :is(a, button, input) { position: relative; z-index: var(--z-raised); }
+
+  .card--interactive:hover,
+  .card--interactive.is-hover {
+    --_border: var(--color-border-strong);
+    --_shadow: var(--elevation-raised);
+  }
+  .card__link:focus-visible,
+  .card__link.is-focus-visible { outline: var(--focus-ring-width) solid transparent; } /* ring moves to the card below */
+  .card--interactive:has(.card__link:focus-visible),
+  .card--interactive:has(.card__link.is-focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Selectable: a real checkbox labelled by the card title. */
+  .card__select {
+    position: relative;
+    z-index: var(--z-raised);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--size-control-sm);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+  }
+  .card__select input {
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    accent-color: var(--color-action-primary-bg);
+    cursor: pointer;
+  }
+  .card--selectable { cursor: default; }
+  .card--selectable:has(.card__select :checked) {
+    --_border: var(--color-selected-border);
+    box-shadow: inset 0 0 0 var(--border-width-thin) var(--color-selected-border), var(--_shadow);
+  }
+
+  @container (inline-size < 20rem) {
+    .card__footer { flex-direction: column; align-items: stretch; }
+  }
+
+  @media (forced-colors: active) {
+    .card { border-color: CanvasText; }
+    .card--selectable:has(.card__select :checked) { border-color: Highlight; border-width: var(--border-width-thick); }
+    .card--interactive:has(.card__link:focus-visible) { outline-color: Highlight; }
+  }
+}

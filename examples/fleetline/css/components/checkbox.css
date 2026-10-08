@@ -1,0 +1,148 @@
+/* checkbox.css — Checkbox and checkbox group. Block alias: .checkbox
+   Item:      <div class="checkbox">
+                <input class="checkbox__input" type="checkbox" id="…" [aria-describedby="…-hint"]>
+                <label class="checkbox__label" for="…">…</label>
+                <p class="checkbox__hint" id="…-hint">…</p>        (optional)
+              </div>
+   Group:     <fieldset class="fieldset checkbox-group" aria-describedby="…hint …error">
+                <legend class="fieldset__legend">…</legend> [.field__hint] [.field__error]
+                <div class="checkbox-group__items"> .checkbox × n </div>
+              </fieldset>
+   Modifiers: .checkbox-group--horizontal (items in a wrapping row), .checkbox--sm (20px box, dense tables)
+   States:    :checked, :indeterminate (set .indeterminate in JS — js/checkbox.js), :disabled,
+              aria-invalid="true" | :user-invalid (single checkbox), group error = a .field__error inside
+              the group (left rule + red boxes). Docs-only freeze classes: .is-hover, .is-focus-visible.
+   Pattern:   the native input is restyled with appearance:none; the mark is a masked ::before so it
+              follows --_mark (a token), and the label's for= makes the whole text a hit target. */
+@layer components {
+  .checkbox {
+    --_size: var(--icon-size-lg);
+    --_bg: var(--input-bg);
+    --_border: var(--input-border);
+    --_mark: transparent;
+
+    display: grid;
+    grid-template-columns: var(--_size) minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    align-items: start;
+    min-inline-size: 0;
+  }
+  .checkbox--sm { --_size: var(--icon-size-md); column-gap: var(--space-2); }
+
+  .checkbox__input {
+    appearance: none;
+    display: grid;
+    place-content: center;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    margin: 0;
+    border: var(--border-width-thick) solid var(--_border);
+    border-radius: var(--radius-sm);
+    background: var(--_bg);
+    color: var(--_mark);
+    cursor: pointer;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .checkbox__input::before {
+    content: "";
+    inline-size: calc(var(--_size) - var(--space-1));
+    block-size: calc(var(--_size) - var(--space-1));
+    background: currentColor;
+    -webkit-mask: var(--_glyph) center / contain no-repeat;
+    mask: var(--_glyph) center / contain no-repeat;
+    --_glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .checkbox__input:indeterminate::before {
+    --_glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8h8' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+
+  .checkbox__label {
+    /* Line box centred on the box: (box - line height) / 2 */
+    padding-block-start: calc((var(--_size) - 1lh) / 2);
+    color: var(--color-text-default);
+    font-size: var(--font-size-md);
+    line-height: var(--font-line-height-snug);
+    cursor: pointer;
+  }
+  .checkbox--sm .checkbox__label { font-size: var(--font-size-sm); }
+  .checkbox__hint {
+    grid-column: 2;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-snug);
+  }
+
+  /* Hover (unchecked: stronger border; checked: darker fill) */
+  .checkbox__input:hover:not(:disabled),
+  .checkbox:has(> .checkbox__label:hover) > .checkbox__input:not(:disabled, :checked, :indeterminate),
+  .checkbox__input.is-hover { --_border: var(--color-text-default); }
+  .checkbox__input:is(:checked, :indeterminate):hover:not(:disabled),
+  .checkbox__input:is(:checked, :indeterminate).is-hover {
+    --_bg: var(--color-action-primary-bg-hover);
+    --_border: var(--color-action-primary-bg-hover);
+  }
+
+  /* Checked / indeterminate */
+  .checkbox__input:is(:checked, :indeterminate) {
+    --_bg: var(--color-action-primary-bg);
+    --_border: var(--color-action-primary-bg);
+    --_mark: var(--color-action-primary-fg);
+  }
+
+  /* Focus */
+  .checkbox__input:focus-visible,
+  .checkbox__input.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Invalid — single checkbox (aria-invalid / :user-invalid) or any box inside a group with an error. */
+  .checkbox__input[aria-invalid="true"]:not(:checked),
+  .checkbox__input:user-invalid,
+  .checkbox-group:has(> .field__error) .checkbox__input:not(:checked, :disabled) {
+    --_border: var(--color-border-invalid);
+  }
+
+  /* Disabled — both values stay readable */
+  .checkbox__input:disabled {
+    --_bg: var(--color-bg-muted);
+    --_border: var(--color-border-default);
+    --_mark: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+  .checkbox:has(.checkbox__input:disabled) .checkbox__label {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Group */
+  .checkbox-group__items {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .checkbox-group--horizontal .checkbox-group__items {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-6);
+    row-gap: var(--space-3);
+  }
+  /* Group error: a left rule ties legend, message and boxes together (GOV.UK pattern). */
+  .checkbox-group:has(> .field__error) {
+    padding-inline-start: var(--space-4);
+    border-inline-start: var(--border-width-thick) solid var(--color-border-invalid);
+  }
+
+  @media (forced-colors: active) {
+    .checkbox__input { border-color: CanvasText; background: Canvas; }
+    .checkbox__input:is(:checked, :indeterminate) { border-color: Highlight; background: Highlight; }
+    .checkbox__input::before { forced-color-adjust: none; background: Canvas; }
+    .checkbox__input:not(:checked, :indeterminate)::before { background: transparent; }
+    .checkbox__input:disabled { border-color: GrayText; }
+    .checkbox__input:disabled:is(:checked, :indeterminate) { background: GrayText; }
+    .checkbox:has(:disabled) .checkbox__label { color: GrayText; }
+  }
+}

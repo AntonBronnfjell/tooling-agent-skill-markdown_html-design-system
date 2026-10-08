@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Date field — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline memorable date field: day, month and year inputs for dates people know.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/date-field.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/date-field.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Date field</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a date field for dates people know or can copy from a document: last service date, registration date, MOT expiry on a certificate, a driver's date of birth. Use a date picker when people need to find a date relative to today (booking a bay next Tuesday).</p>
+        <ul>
+          <li>Ask the question in the legend ("When was the vehicle last serviced?") and give an example in the hint ("For example, 14 3 2026").</li>
+          <li>Plain text inputs with <code>inputmode="numeric"</code> — not <code>type=number</code> (spinners, lost leading zeros).</li>
+          <li>Accept "3", "03" and month names ("March"); check real dates (no 31 February) and ranges ("must be in the past").</li>
+          <li>Never auto-advance between inputs.</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Fieldset + legend — the question (<code>fieldset.fieldset.date-field</code>)</li>
+        <li>Hint — example date, linked to the fieldset</li>
+        <li>Error (optional) — one message for the whole date</li>
+        <li>Day, Month, Year — <code>.date-field__item</code> each with a label and a <code>.input.date-field__input</code> sized in characters</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="date-field" aria-labelledby="date-field-h">
+        <h3 id="date-field-h">Date field</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default variant:day-month-year">
+            <fieldset class="fieldset date-field" aria-describedby="df-default-hint">
+              <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+              <p class="field__hint" id="df-default-hint">For example, 14 3 2026</p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-default-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-default-day" name="df-default-day" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-default-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-default-month" name="df-default-month" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-default-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-default-year" name="df-default-year" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <fieldset class="fieldset date-field" aria-describedby="df-focus-hint">
+              <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+              <p class="field__hint" id="df-focus-hint">For example, 14 3 2026</p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-focus-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-focus-day" name="df-focus-day" type="text" inputmode="numeric" spellcheck="false" value="14">
+                </div>
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-focus-month">Month</label>
+                  <input class="input is-focus-visible date-field__input date-field__input--2ch" id="df-focus-month" name="df-focus-month" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-focus-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-focus-year" name="df-focus-year" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <fieldset class="fieldset date-field" aria-describedby="df-invalid-hint df-invalid-err">
+              <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+              <p class="field__hint" id="df-invalid-hint">For example, 14 3 2026</p>
+              <p class="field__error" id="df-invalid-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Date the vehicle was last serviced must be a real date.</span>
+              </p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-invalid-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-invalid-day" name="df-invalid-day" type="text" inputmode="numeric" spellcheck="false" value="31" aria-invalid="true">
+                </div>
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-invalid-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-invalid-month" name="df-invalid-month" type="text" inputmode="numeric" spellcheck="false" value="2" aria-invalid="true">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-invalid-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-invalid-year" name="df-invalid-year" type="text" inputmode="numeric" spellcheck="false" value="2026" aria-invalid="true">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="state:partial-invalid">
+            <fieldset class="fieldset date-field" aria-describedby="df-partial-hint df-partial-err">
+              <legend class="fieldset__legend">When was the vehicle registered?</legend>
+              <p class="field__hint" id="df-partial-hint">For example, 27 3 2019</p>
+              <p class="field__error" id="df-partial-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Date the vehicle was registered must include a year.</span>
+              </p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-partial-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-partial-day" name="df-partial-day" type="text" inputmode="numeric" spellcheck="false" value="27">
+                </div>
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-partial-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-partial-month" name="df-partial-month" type="text" inputmode="numeric" spellcheck="false" value="3">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-partial-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-partial-year" name="df-partial-year" type="text" inputmode="numeric" spellcheck="false" aria-invalid="true">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <fieldset class="fieldset date-field" aria-describedby="df-disabled-hint" disabled>
+              <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+              <p class="field__hint" id="df-disabled-hint">Set automatically when the work order is closed.</p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-disabled-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-disabled-day" name="df-disabled-day" type="text" inputmode="numeric" spellcheck="false" value="14">
+                </div>
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-disabled-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-disabled-month" name="df-disabled-month" type="text" inputmode="numeric" spellcheck="false" value="3">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-disabled-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-disabled-year" name="df-disabled-year" type="text" inputmode="numeric" spellcheck="false" value="2026">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:month-year">
+            <fieldset class="fieldset date-field" aria-describedby="df-my-hint">
+              <legend class="fieldset__legend">When does the operator licence expire?</legend>
+              <p class="field__hint" id="df-my-hint">For example, 9 2027</p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-my-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-my-month" name="df-my-month" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-my-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-my-year" name="df-my-year" type="text" inputmode="numeric" spellcheck="false">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:locale-order">
+            <fieldset class="fieldset date-field" aria-describedby="df-us-hint" data-locale-order="en-US" lang="en-US">
+              <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+              <p class="field__hint" id="df-us-hint">For example, 3 14 2026 (month, day, year)</p>
+              <div class="date-field__inputs">
+                <div class="date-field__item" data-part="month">
+                  <label class="label" for="df-us-month">Month</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-us-month" name="df-us-month" type="text" inputmode="numeric" spellcheck="false" value="3">
+                </div>
+                <div class="date-field__item" data-part="day">
+                  <label class="label" for="df-us-day">Day</label>
+                  <input class="input date-field__input date-field__input--2ch" id="df-us-day" name="df-us-day" type="text" inputmode="numeric" spellcheck="false" value="14">
+                </div>
+                <div class="date-field__item" data-part="year">
+                  <label class="label" for="df-us-year">Year</label>
+                  <input class="input date-field__input date-field__input--4ch" id="df-us-year" name="df-us-year" type="text" inputmode="numeric" spellcheck="false" value="2026">
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;fieldset class="fieldset date-field" aria-describedby="service-hint service-error" [data-locale-order="en-US"]&gt;
+        &lt;legend class="fieldset__legend"&gt;When was the vehicle last serviced?&lt;/legend&gt;
+        &lt;p class="field__hint" id="service-hint"&gt;For example, 14 3 2026&lt;/p&gt;
+        &lt;p class="field__error" id="service-error"&gt;…&lt;span class="sr-only"&gt;Error: &lt;/span&gt;Date the vehicle was last serviced must include a year.&lt;/p&gt;
+        &lt;div class="date-field__inputs"&gt;
+          &lt;div class="date-field__item" data-part="day"&gt;
+            &lt;label class="label" for="service-day"&gt;Day&lt;/label&gt;
+            &lt;input class="input date-field__input date-field__input--2ch" id="service-day" name="service-day" type="text" inputmode="numeric"&gt;
+          &lt;/div&gt;
+          &lt;div class="date-field__item" data-part="month"&gt;…Month (--2ch)…&lt;/div&gt;
+          &lt;div class="date-field__item" data-part="year"&gt;…Year (--4ch), aria-invalid="true" only on the part that is wrong…&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/fieldset&gt;
+      &lt;!-- Birth dates: autocomplete="bday-day | bday-month | bday-year" --&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.date-field</code> (+ <code>.fieldset</code>)</td><td>block class on <code>fieldset</code></td><td>Groups the three parts under the question</td></tr>
+      <tr><td><code>.date-field__inputs</code>, <code>.date-field__item[data-part]</code></td><td>parts</td><td>Row of labelled inputs; <code>data-part</code> = day | month | year</td></tr>
+      <tr><td><code>.date-field__input--2ch | --4ch</code></td><td>modifier class</td><td>Character-based widths (day/month, year)</td></tr>
+      <tr><td><code>aria-invalid="true"</code></td><td>attribute on inputs</td><td>Only on the wrong part(s); all three when the whole date is wrong</td></tr>
+      <tr><td><code>disabled</code> on the fieldset</td><td>attribute</td><td>Disables every part</td></tr>
+      <tr><td><code>data-locale-order</code></td><td>attribute (js/date-field.js)</td><td>Reorders parts for a locale (empty = page locale)</td></tr>
+      <tr><td><code>autocomplete="bday-*"</code></td><td>attribute</td><td>Birth dates only</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><fieldset class="fieldset date-field" aria-describedby="dd-df1-hint">
+  <legend class="fieldset__legend">When was the vehicle last serviced?</legend>
+  <p class="field__hint" id="dd-df1-hint">For example, 14 3 2026</p>
+  <div class="date-field__inputs">
+    <div class="date-field__item" data-part="day">
+      <label class="label" for="dd-df1-day">Day</label>
+      <input class="input date-field__input date-field__input--2ch" id="dd-df1-day" name="dd-df1-day" type="text" inputmode="numeric" spellcheck="false">
+    </div>
+    <div class="date-field__item" data-part="month">
+      <label class="label" for="dd-df1-month">Month</label>
+      <input class="input date-field__input date-field__input--2ch" id="dd-df1-month" name="dd-df1-month" type="text" inputmode="numeric" spellcheck="false">
+    </div>
+    <div class="date-field__item" data-part="year">
+      <label class="label" for="dd-df1-year">Year</label>
+      <input class="input date-field__input date-field__input--4ch" id="dd-df1-year" name="dd-df1-year" type="text" inputmode="numeric" spellcheck="false">
+    </div>
+  </div>
+</fieldset>
+          <figcaption><strong>Do</strong> ask a clear question, label each part and show an example.</figcaption></figure>
+        <figure class="ds-dont"><div class="field"><label class="label" for="dd-df2">Last service</label><input class="input" id="dd-df2" type="text" placeholder="DD/MM/YYYY"></div>
+          <figcaption><strong>Don't</strong> use one masked field or a placeholder as the only format hint.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Day → Month → Year (in locale order); focus never jumps on its own</td></tr>
+      <tr><td>Typing</td><td>Numbers, or a month name in Month (normalised on blur)</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Group: <code>fieldset</code> + <code>legend</code>, so each input is announced as "When was the vehicle last serviced?, group, Day, edit text".</li>
+        <li>Hint and error are linked to the fieldset with <code>aria-describedby</code>; <code>aria-invalid</code> marks only the part(s) to fix.</li>
+        <li>No auto-advance: it breaks correcting a typo and confuses screen-reader users.</li>
+        <li>Locale order changes the DOM, so reading and tab order match what is seen.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-*</code>, <code>--focus-ring-*</code>, <code>--color-border-invalid</code></td><td>Inputs (from text field)</td></tr>
+      <tr><td><code>--space-3</code>, <code>--space-4</code>, <code>--border-width-thin</code></td><td>Character widths and gaps</td></tr>
+      <tr><td><code>--color-border-invalid</code>, <code>--border-width-thick</code></td><td>Error rule</td></tr>
+      <tr><td><code>--color-text-disabled</code></td><td>Disabled labels</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

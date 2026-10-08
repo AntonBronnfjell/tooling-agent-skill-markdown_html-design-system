@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Avatar — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline avatar: mechanic and driver photos with initials and icon fallbacks, three sizes and a status dot with text.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/avatar.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Avatar</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use an avatar to help people recognize a mechanic, driver or dispatcher at a glance — in assignment lists, work-order headers and comments. Don't use avatars for vehicles or depots; use an icon. An avatar never replaces the name: show the name next to it, or in its accessible name when space is tight.</p>
+      <ul>
+        <li><strong>Image</strong> — profile photo, cropped to a circle.</li>
+        <li><strong>Initials</strong> — when there's no photo. Two letters, tone chosen by hashing the person's id so it is stable everywhere.</li>
+        <li><strong>Fallback icon</strong> — unknown or unassigned person ("Unassigned mechanic").</li>
+        <li><strong>Sizes</strong> — sm 32px (dense tables), md 40px (lists), lg 48px (headers, tablet).</li>
+      </ul>
+      <p>Status text: "Available", "Busy · on WO-4191", "Off shift until 06:00" — always written, the dot only repeats it.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>.avatar</code>, circle sized by <code>--size-control-*</code></li>
+        <li>Content — <code>img.avatar__img</code>, or <code>.avatar__initials</code>, or <code>svg.avatar__icon</code></li>
+        <li>Status dot (optional) — <code>.avatar__status[data-status]</code>, with its own shape per status</li>
+        <li>Label (optional) — <code>.avatar-label</code> with name and detail text</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="avatar" aria-labelledby="avatar-h">
+        <h3 id="avatar-h">Avatar</h3>
+        <p>Fallback order: photo → initials → generic icon.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:image">
+            <span class="avatar"><img class="avatar__img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23cbd5e1'/%3E%3Ccircle cx='32' cy='25' r='12' fill='%23475569'/%3E%3Cpath d='M10 64c2-14 11-21 22-21s20 7 22 21z' fill='%23475569'/%3E%3C/svg%3E" alt="Marta Quintero"></span>
+          </div>
+          <div class="ds-demo" data-demo="variant:initials">
+            <div class="ds-demo__row">
+              <span class="avatar avatar--tone-teal" role="img" aria-label="Idris Okafor"><span class="avatar__initials" aria-hidden="true">IO</span></span>
+              <span class="avatar avatar--tone-blue" role="img" aria-label="Lena Brandt"><span class="avatar__initials" aria-hidden="true">LB</span></span>
+              <span class="avatar avatar--tone-neutral" role="img" aria-label="Sami Haddad"><span class="avatar__initials" aria-hidden="true">SH</span></span>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:fallback-icon">
+            <span class="avatar" role="img" aria-label="Unassigned mechanic"><svg class="avatar__icon" aria-hidden="true" focusable="false"><use href="#icon-user"></use></svg></span>
+          </div>
+          <div class="ds-demo" data-demo="size:sm size:md size:lg">
+            <div class="ds-demo__row">
+              <span class="avatar avatar--sm avatar--tone-teal" role="img" aria-label="Idris Okafor"><span class="avatar__initials" aria-hidden="true">IO</span></span>
+              <span class="avatar avatar--tone-teal" role="img" aria-label="Idris Okafor"><span class="avatar__initials" aria-hidden="true">IO</span></span>
+              <span class="avatar avatar--lg avatar--tone-teal" role="img" aria-label="Idris Okafor"><span class="avatar__initials" aria-hidden="true">IO</span></span>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-status">
+            <div class="stack stack--gap-3">
+              <span class="avatar-label">
+                <span class="avatar"><img class="avatar__img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23cbd5e1'/%3E%3Ccircle cx='32' cy='25' r='12' fill='%23475569'/%3E%3Cpath d='M10 64c2-14 11-21 22-21s20 7 22 21z' fill='%23475569'/%3E%3C/svg%3E" alt=""><span class="avatar__status" data-status="available"></span></span>
+                <span class="avatar-label__text"><span class="avatar-label__name">Marta Quintero</span><span class="avatar-label__detail">Available · bay 2</span></span>
+              </span>
+              <span class="avatar-label">
+                <span class="avatar avatar--tone-blue"><span class="avatar__initials" aria-hidden="true">LB</span><span class="avatar__status" data-status="busy"></span></span>
+                <span class="avatar-label__text"><span class="avatar-label__name">Lena Brandt</span><span class="avatar-label__detail">Busy · on WO-4191</span></span>
+              </span>
+              <span class="avatar-label">
+                <span class="avatar avatar--tone-neutral"><span class="avatar__initials" aria-hidden="true">SH</span><span class="avatar__status" data-status="off"></span></span>
+                <span class="avatar-label__text"><span class="avatar-label__name">Sami Haddad</span><span class="avatar-label__detail">Off shift until 06:00</span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;!-- Photo; alt is the person's name --&gt;
+&lt;span class="avatar"&gt;&lt;img class="avatar__img" src="marta.jpg" alt="Marta Quintero"&gt;&lt;/span&gt;
+
+&lt;!-- Initials; tone picked from a hash of the person's id --&gt;
+&lt;span class="avatar avatar--tone-teal" role="img" aria-label="Idris Okafor"&gt;
+  &lt;span class="avatar__initials" aria-hidden="true"&gt;IO&lt;/span&gt;
+&lt;/span&gt;
+
+&lt;!-- Name printed beside it: alt="", status in words --&gt;
+&lt;span class="avatar-label"&gt;
+  &lt;span class="avatar"&gt;&lt;img class="avatar__img" src="marta.jpg" alt=""&gt;&lt;span class="avatar__status" data-status="available"&gt;&lt;/span&gt;&lt;/span&gt;
+  &lt;span class="avatar-label__text"&gt;&lt;span class="avatar-label__name"&gt;Marta Quintero&lt;/span&gt;&lt;span class="avatar-label__detail"&gt;Available · bay 2&lt;/span&gt;&lt;/span&gt;
+&lt;/span&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.avatar</code></td><td>block class</td><td>Circle container</td></tr>
+          <tr><td><code>.avatar--sm | --lg</code></td><td>modifier class</td><td>32 / 40 (default) / 48px</td></tr>
+          <tr><td><code>.avatar--tone-neutral | --tone-teal | --tone-blue</code></td><td>modifier class</td><td>Initials colors; pick with <code>id % 3</code></td></tr>
+          <tr><td><code>.avatar__img | __initials | __icon</code></td><td>part classes</td><td>Content in fallback order</td></tr>
+          <tr><td><code>.avatar__status</code> + <code>data-status="available|busy|away|off"</code></td><td>part + attribute</td><td>Status dot: filled / bar / ring / hollow</td></tr>
+          <tr><td><code>.avatar-label</code>, <code>__text | __name | __detail</code></td><td>companion block</td><td>Avatar with name and status text</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Avatar + "Marta Quintero · Available"</p>
+          <figcaption><strong>Do</strong> pair the avatar with the name and status in text.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Green dot only.</p>
+          <figcaption><strong>Don&rsquo;t</strong> show availability with a colored dot alone.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small"><code>alt=""</code> when the name is printed right next to it</p>
+          <figcaption><strong>Do</strong> avoid announcing the name twice.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>alt="avatar"</code> or <code>alt="profile picture"</code></p>
+          <figcaption><strong>Don&rsquo;t</strong> describe the image type; name the person instead.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <p>Avatars are not interactive. If an avatar opens a profile, wrap it in a link whose name is the person's name.</p>
+      <ul>
+        <li>Photo: <code>alt</code> is the person's name, or <code>alt=""</code> when the name is visible beside it.</li>
+        <li>Initials/icon alone: the container gets <code>role="img"</code> and <code>aria-label</code> with the full name; the letters are <code>aria-hidden</code> (otherwise "I O" is read).</li>
+        <li>Status: the dot is decorative; status is in visible text (or <code>.sr-only</code> text in the name). Each status also has a distinct shape for color-blind users.</li>
+        <li>Contrast: initials use contrast-checked pairs (<code>text.default</code>/<code>bg.subtle</code>, <code>selected.fg</code>/<code>selected.bg</code>, <code>feedback.info.fg</code>/<code>feedback.info.bg</code>).</li>
+        <li>Forced colors: border and status dot render in <code>CanvasText</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-control-sm | -md | -lg</code></td><td>Avatar sizes</td></tr>
+          <tr><td><code>--color-bg-subtle</code> / <code>--color-text-default</code></td><td>Neutral initials</td></tr>
+          <tr><td><code>--color-selected-bg | -fg</code></td><td>Teal initials</td></tr>
+          <tr><td><code>--color-feedback-info-bg | -fg | -border</code></td><td>Blue initials</td></tr>
+          <tr><td><code>--color-feedback-success-icon | -danger-icon | -warning-icon</code></td><td>Status dot fills</td></tr>
+          <tr><td><code>--color-bg-surface</code></td><td>Ring that separates the dot from the photo</td></tr>
+          <tr><td><code>--radius-full</code></td><td>Circle shape</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

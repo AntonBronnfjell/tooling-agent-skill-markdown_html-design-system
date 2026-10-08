@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Table — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline table: semantic work-order tables with caption, row headers, striped, compact and bordered variants.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/table.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Table</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a table to compare records across the same columns: work orders, service intervals, parts costs. Use a <strong>list group</strong> when each row is one item with a title and a few details, and a <strong>description list</strong> for the fields of a single vehicle.</p>
+      <ul>
+        <li><strong>Default</strong> — row dividers only; fits most screens.</li>
+        <li><strong>Striped</strong> — wide tables with 6+ columns where the eye loses the row.</li>
+        <li><strong>Compact</strong> — dispatcher desktop views with many rows; never on tablet screens mechanics use with gloves.</li>
+        <li><strong>Bordered</strong> — dense numeric grids (cost breakdowns) where cells must read as separate.</li>
+      </ul>
+      <p>Content: column headers are nouns in sentence case with the unit in brackets ("Labour (h)", "Parts (€)"). Format numbers with the locale (<code>Intl.NumberFormat</code>); show "0.00", not an empty cell, when the value is zero, and "—" with <code>.sr-only</code> "Not recorded" when it is unknown. Sorting, selection and pagination belong to the data table.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Scroll wrapper — <code>.table-wrap</code>, <code>role="region"</code>, <code>tabindex="0"</code>, labelled by the caption</li>
+        <li>Caption — <code>&lt;caption&gt;</code>, visible (<code>.table__caption</code>) or <code>.sr-only</code></li>
+        <li>Column headers — <code>&lt;th scope="col"&gt;</code> in <code>&lt;thead&gt;</code></li>
+        <li>Row header — <code>&lt;th scope="row"&gt;</code>, the identifying cell (work order number)</li>
+        <li>Data cells — <code>&lt;td&gt;</code>; numeric ones get <code>.table__num</code></li>
+        <li>Secondary line (optional) — <code>.table__secondary</code> inside a cell</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="table" aria-labelledby="table-h">
+        <h3 id="table-h">Table</h3>
+        <p>Rows are work orders; the first cell is a row header. Numeric columns are end-aligned with tabular numerals so decimals line up.</p>
+        <div class="ds-demos" style="grid-template-columns: 1fr;">
+          <div class="ds-demo" data-demo="variant:default">
+            <div class="table-wrap" role="region" aria-labelledby="t-default" tabindex="0">
+              <table class="table">
+                <caption id="t-default" class="sr-only">Open work orders</caption>
+                <thead>
+                  <tr><th scope="col">Work order</th><th scope="col">Vehicle</th><th scope="col">Mechanic</th><th scope="col" class="table__num">Labour (h)</th><th scope="col" class="table__num">Parts (€)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">WO-4182</th><td>Van KX-219<span class="table__secondary">Ford Transit, 84,212 km</span></td><td>Marta Quintero</td><td class="table__num">3.5</td><td class="table__num">412.80</td></tr>
+                  <tr><th scope="row">WO-4185</th><td>Truck TR-077<span class="table__secondary">Volvo FH, 312,940 km</span></td><td>Idris Okafor</td><td class="table__num">11.0</td><td class="table__num">2,940.00</td></tr>
+                  <tr><th scope="row">WO-4191</th><td>Van KX-224<span class="table__secondary">Mercedes Sprinter, 51,006 km</span></td><td>Lena Brandt</td><td class="table__num">1.25</td><td class="table__num">68.40</td></tr>
+                  <tr><th scope="row">WO-4193</th><td>Pickup PU-012<span class="table__secondary">Toyota Hilux, 140,377 km</span></td><td>Marta Quintero</td><td class="table__num">0.75</td><td class="table__num">0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:striped">
+            <div class="table-wrap" role="region" aria-labelledby="t-striped" tabindex="0">
+              <table class="table table--striped">
+                <caption id="t-striped" class="sr-only">Open work orders, depot north</caption>
+                <thead>
+                  <tr><th scope="col">Work order</th><th scope="col">Vehicle</th><th scope="col">Mechanic</th><th scope="col" class="table__num">Labour (h)</th><th scope="col" class="table__num">Parts (€)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">WO-4182</th><td>Van KX-219<span class="table__secondary">Ford Transit, 84,212 km</span></td><td>Marta Quintero</td><td class="table__num">3.5</td><td class="table__num">412.80</td></tr>
+                  <tr><th scope="row">WO-4185</th><td>Truck TR-077<span class="table__secondary">Volvo FH, 312,940 km</span></td><td>Idris Okafor</td><td class="table__num">11.0</td><td class="table__num">2,940.00</td></tr>
+                  <tr><th scope="row">WO-4191</th><td>Van KX-224<span class="table__secondary">Mercedes Sprinter, 51,006 km</span></td><td>Lena Brandt</td><td class="table__num">1.25</td><td class="table__num">68.40</td></tr>
+                  <tr><th scope="row">WO-4193</th><td>Pickup PU-012<span class="table__secondary">Toyota Hilux, 140,377 km</span></td><td>Marta Quintero</td><td class="table__num">0.75</td><td class="table__num">0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:compact">
+            <div class="table-wrap" role="region" aria-labelledby="t-compact" tabindex="0">
+              <table class="table table--compact">
+                <caption id="t-compact" class="sr-only">Open work orders (compact)</caption>
+                <thead>
+                  <tr><th scope="col">Work order</th><th scope="col">Vehicle</th><th scope="col">Mechanic</th><th scope="col" class="table__num">Labour (h)</th><th scope="col" class="table__num">Parts (€)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">WO-4182</th><td>Van KX-219<span class="table__secondary">Ford Transit, 84,212 km</span></td><td>Marta Quintero</td><td class="table__num">3.5</td><td class="table__num">412.80</td></tr>
+                  <tr><th scope="row">WO-4185</th><td>Truck TR-077<span class="table__secondary">Volvo FH, 312,940 km</span></td><td>Idris Okafor</td><td class="table__num">11.0</td><td class="table__num">2,940.00</td></tr>
+                  <tr><th scope="row">WO-4191</th><td>Van KX-224<span class="table__secondary">Mercedes Sprinter, 51,006 km</span></td><td>Lena Brandt</td><td class="table__num">1.25</td><td class="table__num">68.40</td></tr>
+                  <tr><th scope="row">WO-4193</th><td>Pickup PU-012<span class="table__secondary">Toyota Hilux, 140,377 km</span></td><td>Marta Quintero</td><td class="table__num">0.75</td><td class="table__num">0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-caption">
+            <div class="table-wrap" role="region" aria-labelledby="t-caption" tabindex="0">
+              <table class="table table--bordered">
+                <caption id="t-caption" class="table__caption">Open work orders — week 41</caption>
+                <thead>
+                  <tr><th scope="col">Work order</th><th scope="col">Vehicle</th><th scope="col">Mechanic</th><th scope="col" class="table__num">Labour (h)</th><th scope="col" class="table__num">Parts (€)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">WO-4182</th><td>Van KX-219<span class="table__secondary">Ford Transit, 84,212 km</span></td><td>Marta Quintero</td><td class="table__num">3.5</td><td class="table__num">412.80</td></tr>
+                  <tr><th scope="row">WO-4185</th><td>Truck TR-077<span class="table__secondary">Volvo FH, 312,940 km</span></td><td>Idris Okafor</td><td class="table__num">11.0</td><td class="table__num">2,940.00</td></tr>
+                  <tr><th scope="row">WO-4191</th><td>Van KX-224<span class="table__secondary">Mercedes Sprinter, 51,006 km</span></td><td>Lena Brandt</td><td class="table__num">1.25</td><td class="table__num">68.40</td></tr>
+                  <tr><th scope="row">WO-4193</th><td>Pickup PU-012<span class="table__secondary">Toyota Hilux, 140,377 km</span></td><td>Marta Quintero</td><td class="table__num">0.75</td><td class="table__num">0.00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="table-wrap" role="region" aria-labelledby="wo-caption" tabindex="0"&gt;
+  &lt;table class="table table--striped"&gt;
+    &lt;caption id="wo-caption" class="table__caption"&gt;Open work orders — week 41&lt;/caption&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;&lt;th scope="col"&gt;Work order&lt;/th&gt;&lt;th scope="col"&gt;Vehicle&lt;/th&gt;&lt;th scope="col"&gt;Mechanic&lt;/th&gt;&lt;th scope="col" class="table__num"&gt;Labour (h)&lt;/th&gt;&lt;th scope="col" class="table__num"&gt;Parts (€)&lt;/th&gt;&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt;&lt;th scope="row"&gt;WO-4182&lt;/th&gt;&lt;td&gt;Van KX-219&lt;span class="table__secondary"&gt;Ford Transit, 84,212 km&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Marta Quintero&lt;/td&gt;&lt;td class="table__num"&gt;3.5&lt;/td&gt;&lt;td class="table__num"&gt;412.80&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope="row"&gt;WO-4185&lt;/th&gt;&lt;td&gt;Truck TR-077&lt;span class="table__secondary"&gt;Volvo FH, 312,940 km&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Idris Okafor&lt;/td&gt;&lt;td class="table__num"&gt;11.0&lt;/td&gt;&lt;td class="table__num"&gt;2,940.00&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope="row"&gt;WO-4191&lt;/th&gt;&lt;td&gt;Van KX-224&lt;span class="table__secondary"&gt;Mercedes Sprinter, 51,006 km&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Lena Brandt&lt;/td&gt;&lt;td class="table__num"&gt;1.25&lt;/td&gt;&lt;td class="table__num"&gt;68.40&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th scope="row"&gt;WO-4193&lt;/th&gt;&lt;td&gt;Pickup PU-012&lt;span class="table__secondary"&gt;Toyota Hilux, 140,377 km&lt;/span&gt;&lt;/td&gt;&lt;td&gt;Marta Quintero&lt;/td&gt;&lt;td class="table__num"&gt;0.75&lt;/td&gt;&lt;td class="table__num"&gt;0.00&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.table</code></td><td>block class</td><td>Base table: full width, row dividers</td></tr>
+          <tr><td><code>.table--striped | --compact | --bordered</code></td><td>modifier class</td><td>Zebra rows, tighter cells, cell borders</td></tr>
+          <tr><td><code>.table-wrap</code></td><td>wrapper class</td><td>Horizontal scroll container; add <code>role="region" tabindex="0" aria-labelledby</code></td></tr>
+          <tr><td><code>.table__caption</code></td><td>part class</td><td>Visible caption style (or use <code>.sr-only</code>)</td></tr>
+          <tr><td><code>.table__num</code></td><td>part class</td><td>End-aligned, tabular numerals; put it on the header too</td></tr>
+          <tr><td><code>.table__secondary</code></td><td>part class</td><td>Muted second line in a cell</td></tr>
+          <tr><td><code>[data-density="compact"]</code></td><td>ancestor attribute</td><td>Same as <code>.table--compact</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Header "Parts (€)", value <code>2,940.00</code> end-aligned.</p>
+          <figcaption><strong>Do</strong> put units in the header and align numbers on the decimal side.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Header "Parts", value <code>€2940</code> start-aligned.</p>
+          <figcaption><strong>Don&rsquo;t</strong> repeat units in every cell or start-align numbers.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small"><code>&lt;th scope="row"&gt;WO-4182&lt;/th&gt;</code></p>
+          <figcaption><strong>Do</strong> mark the identifying cell of each row as a row header.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>&lt;div class="row"&gt;</code> grids pretending to be tables.</p>
+          <figcaption><strong>Don&rsquo;t</strong> build tables from divs; screen readers lose row and column context.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+              <caption class="sr-only">Keyboard interaction</caption>
+              <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>Tab</kbd></td><td>Moves focus to the scroll wrapper when the table overflows</td></tr>
+                <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Scrolls the focused wrapper horizontally</td></tr>
+              </tbody>
+            </table>
+      <ul>
+        <li>Role: native <code>&lt;table&gt;</code>. Screen readers announce "table, Open work orders, 5 columns, 5 rows" and read the header with each cell.</li>
+        <li>Every table has a <code>&lt;caption&gt;</code>; hide it with <code>.sr-only</code> only when a visible heading right above says the same.</li>
+        <li><code>scope="col"</code> and <code>scope="row"</code> on headers. Don't use <code>role="grid"</code> unless cells are interactive with arrow-key navigation.</li>
+        <li>The scroll wrapper is focusable so keyboard users can reach overflowing columns; its name comes from the caption.</li>
+        <li>Forced colors: all cell borders switch to <code>CanvasText</code>; stripes are dropped.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--density-comfortable-cell-padding-y</code> / <code>--density-compact-cell-padding-y</code></td><td>Row height per density</td></tr>
+          <tr><td><code>--space-3 | -4</code></td><td>Cell inline padding</td></tr>
+          <tr><td><code>--color-border-default | -strong</code></td><td>Row dividers, header underline</td></tr>
+          <tr><td><code>--color-bg-subtle</code></td><td>Header fill and stripes</td></tr>
+          <tr><td><code>--color-text-default | -muted</code></td><td>Cell text, secondary line</td></tr>
+          <tr><td><code>--font-size-sm | -xs | -md</code></td><td>Cell, secondary line, caption</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring on the scroll wrapper</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

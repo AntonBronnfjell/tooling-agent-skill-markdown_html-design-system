@@ -1,0 +1,66 @@
+/* link.css — Text link. Block: .link
+   Variants: (inline default: underlined, inherits size) | .link--standalone (no underline until hover; weight + optional
+             trailing icon carry the cue) | .link--external (adds an icon + visually hidden "(opens in new tab)")
+             .link--subtle (inherits text color, still underlined — for dense tables)
+   Parts:    .link__icon (svg, aria-hidden; arrow icons also get .icon--mirror-rtl)
+   States:   :hover :focus-visible :active :visited. Docs-only freeze classes share the selectors:
+             .is-hover, .is-focus-visible, .is-active, .is-visited.
+   Rule:     <a href> only. Never a button substitute; never color-only (WCAG 1.4.1). */
+@layer components {
+  .link {
+    --_fg: var(--color-text-link);
+    --_thickness: var(--border-width-thin);
+
+    color: var(--_fg);
+    font-weight: inherit;
+    text-decoration-line: underline;
+    text-decoration-thickness: var(--_thickness);
+    text-underline-offset: 0.2em;
+    text-decoration-skip-ink: auto;
+    border-radius: var(--radius-sm);
+    transition: text-decoration-thickness var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+
+  .link--standalone {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: var(--space-6);
+    font-weight: var(--font-weight-semibold);
+    text-decoration-line: none;
+  }
+  .link--subtle { --_fg: inherit; }
+  .link--external { display: inline; }
+
+  .link__icon {
+    display: inline-block;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    vertical-align: -0.125em;
+    stroke-width: var(--icon-stroke);
+    flex-shrink: 0;
+  }
+  .link--external .link__icon { margin-inline-start: var(--space-0-5); }
+
+  .link:visited,
+  .link.is-visited { color: var(--color-text-link-visited); }
+  .link--subtle:visited { color: inherit; }
+
+  .link:hover,
+  .link.is-hover { --_thickness: var(--border-width-thick); text-decoration-line: underline; }
+
+  .link:active,
+  .link.is-active { --_thickness: var(--border-width-thick); background: var(--color-selected-bg); color: var(--color-selected-fg); }   /* link color fails on the selected fill in dark/HC */
+
+  .link:focus-visible,
+  .link.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    text-decoration-line: underline;
+  }
+
+  @media (forced-colors: active) {
+    .link { color: LinkText; text-decoration-line: underline; }
+    .link:visited { color: VisitedText; }
+  }
+}

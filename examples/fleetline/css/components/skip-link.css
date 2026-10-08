@@ -1,0 +1,43 @@
+/* skip-link.css — Skip link. Block: .skip-link
+   Markup: first focusable element in <body>: <a class="skip-link" href="#main">Skip to main content</a>,
+           target <main id="main" tabindex="-1">. Several are fine (.skip-link + .skip-link: "Skip to search").
+   States: hidden (clipped off-screen, still in the tab order) → :focus-visible / :focus shows it at the top inline-start
+           corner above sticky headers. Docs-only freeze: .is-focus-visible (shows it in place), .skip-link--preview
+           (renders in flow instead of fixed so docs can show it inside a demo card). */
+@layer components {
+  .skip-link {
+    position: fixed;
+    inset-block-start: var(--space-2);
+    inset-inline-start: var(--space-2);
+    z-index: var(--z-tooltip);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4);
+    border-radius: var(--button-radius);
+    background: var(--color-action-primary-bg);
+    color: var(--color-action-primary-fg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    box-shadow: var(--elevation-overlay);
+  }
+  /* Hidden until focused — clipped rather than display:none so it stays in the tab order. */
+  .skip-link:not(:focus, .is-focus-visible) {
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .skip-link:focus-visible,
+  .skip-link.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .skip-link--preview { position: static; display: inline-block; }
+
+  @media (forced-colors: active) {
+    .skip-link { border: var(--border-width-thick) solid CanvasText; }
+  }
+}

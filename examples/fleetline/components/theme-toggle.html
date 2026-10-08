@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Theme toggle — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline theme toggle: a cycling header button and a System / Light / Dark radio group, powered by js/theme.js.">
+  <script>try{var t=localStorage.getItem("ds-theme");if(t&&t!=="system")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/theme-toggle.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { initTheme } from "../js/theme.js"; import { init } from "../js/theme-toggle.js"; initTheme(); init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Theme toggle</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Let people choose how Fleetline looks. Dispatchers on night shift prefer dark; mechanics outdoors usually need light. <strong>System</strong> is the default and follows the device setting.</p>
+      <ul><li><strong>Cycling button</strong> in the app header: one click per step, the name always states the current theme ("Theme: dark").</li><li><strong>Radio group</strong> on the settings page: all options visible, nothing hidden behind clicks.</li><li>Labels are nouns: "System", "Light", "Dark". Don't describe the effect ("Easy on the eyes").</li><li>High contrast follows the OS (<code>prefers-contrast: more</code>); don't add it as a fourth option unless research asks for it.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Button — <code>.btn.btn--ghost.theme-toggle[data-theme-cycle]</code></li><li>Icons — three <code>svg.theme-toggle__icon[data-for]</code>; only the current one shows</li><li>Label — <code>.theme-toggle__label[data-theme-label]</code>, updated by <code>js/theme.js</code></li><li>Radio group — <code>fieldset.theme-choice</code> + <code>legend</code> + three <code>label.theme-choice__option</code> wrapping a radio</li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>The first two demos are live and change this page's theme. The state demos are frozen copies (<code>data-preview</code> on the button, inert radio groups).</p>
+
+      <section id="theme-toggle" aria-labelledby="theme-toggle-h">
+        <h3 id="theme-toggle-h">Theme toggle</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:cycle">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle" data-theme-cycle data-themes="system light dark"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: system</span></button></div>
+            <p>Live: cycles System → Light → Dark; the name says the current theme.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:radio-group">
+            <fieldset class="theme-choice" data-theme-choice><legend class="theme-choice__legend">Appearance</legend><label class="theme-choice__option"><input type="radio" name="theme-live" value="system" checked><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg>System</label><label class="theme-choice__option"><input type="radio" name="theme-live" value="light"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg>Light</label><label class="theme-choice__option"><input type="radio" name="theme-live" value="dark"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg>Dark</label></fieldset>
+            <p>Live: settings form. System follows the operating system.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:system">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle" data-preview="system"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: system</span></button></div><div inert><fieldset class="theme-choice"><legend class="theme-choice__legend">Appearance</legend><label class="theme-choice__option"><input type="radio" name="theme-s" value="system" checked><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg>System</label><label class="theme-choice__option"><input type="radio" name="theme-s" value="light"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg>Light</label><label class="theme-choice__option"><input type="radio" name="theme-s" value="dark"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg>Dark</label></fieldset></div>
+          </div>
+          <div class="ds-demo" data-demo="state:light">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle" data-preview="light"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: light</span></button></div><div inert><fieldset class="theme-choice"><legend class="theme-choice__legend">Appearance</legend><label class="theme-choice__option"><input type="radio" name="theme-l" value="system"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg>System</label><label class="theme-choice__option"><input type="radio" name="theme-l" value="light" checked><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg>Light</label><label class="theme-choice__option"><input type="radio" name="theme-l" value="dark"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg>Dark</label></fieldset></div>
+          </div>
+          <div class="ds-demo" data-demo="state:dark">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle" data-preview="dark"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: dark</span></button></div><div inert><fieldset class="theme-choice"><legend class="theme-choice__legend">Appearance</legend><label class="theme-choice__option"><input type="radio" name="theme-d" value="system"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg>System</label><label class="theme-choice__option"><input type="radio" name="theme-d" value="light"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg>Light</label><label class="theme-choice__option"><input type="radio" name="theme-d" value="dark" checked><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg>Dark</label></fieldset></div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle is-focus-visible" data-preview="system"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: system</span></button></div><div inert><fieldset class="theme-choice"><legend class="theme-choice__legend">Appearance</legend><label class="theme-choice__option"><input type="radio" name="theme-f" value="system"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg>System</label><label class="theme-choice__option"><input type="radio" name="theme-f" value="light" checked><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg>Light</label><label class="theme-choice__option is-focus-visible"><input type="radio" name="theme-f" value="dark"><svg class="theme-choice__icon" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg>Dark</label></fieldset></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;!-- In &lt;head&gt;, before stylesheets: no-flash snippet --&gt;
+&lt;script&gt;try{var t=localStorage.getItem(&quot;ds-theme&quot;);if(t&amp;&amp;t!==&quot;system&quot;)document.documentElement.dataset.theme=t}catch(e){}&lt;/script&gt;
+
+&lt;!-- Cycling button (header) --&gt;
+&lt;button type=&quot;button&quot; class=&quot;btn btn--ghost theme-toggle&quot; data-theme-cycle data-themes=&quot;system light dark&quot;&gt;
+  &lt;svg class=&quot;theme-toggle__icon&quot; data-for=&quot;system&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-monitor&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+  &lt;svg class=&quot;theme-toggle__icon&quot; data-for=&quot;light&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-sun&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+  &lt;svg class=&quot;theme-toggle__icon&quot; data-for=&quot;dark&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-moon&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+  &lt;span class=&quot;theme-toggle__label&quot; data-theme-label&gt;Theme: system&lt;/span&gt;
+&lt;/button&gt;
+
+&lt;!-- Radio group (settings) --&gt;
+&lt;fieldset class=&quot;theme-choice&quot; data-theme-choice&gt;
+  &lt;legend class=&quot;theme-choice__legend&quot;&gt;Appearance&lt;/legend&gt;
+  &lt;label class=&quot;theme-choice__option&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;theme&quot; value=&quot;system&quot; checked&gt;…System&lt;/label&gt;
+  &lt;label class=&quot;theme-choice__option&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;theme&quot; value=&quot;light&quot;&gt;…Light&lt;/label&gt;
+  &lt;label class=&quot;theme-choice__option&quot;&gt;&lt;input type=&quot;radio&quot; name=&quot;theme&quot; value=&quot;dark&quot;&gt;…Dark&lt;/label&gt;
+&lt;/fieldset&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { initTheme } from &quot;./js/theme.js&quot;;
+  import { init } from &quot;./js/theme-toggle.js&quot;;
+  initTheme(); init();
+&lt;/script&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.theme-toggle</code></td><td>block class on a <code>.btn</code></td><td>Cycling theme button</td></tr>
+          <tr><td><code>data-theme-cycle</code>, <code>data-themes</code></td><td>attribute</td><td>Enhanced by <code>js/theme.js</code>; themes in cycle order</td></tr>
+          <tr><td><code>.theme-toggle__icon[data-for]</code></td><td>part</td><td>System / light / dark icon</td></tr>
+          <tr><td><code>[data-theme-label]</code></td><td>attribute</td><td>Text updated to "Theme: …"</td></tr>
+          <tr><td><code>.theme-choice[data-theme-choice]</code></td><td>block + attribute</td><td>Radio group, wired by <code>js/theme-toggle.js</code></td></tr>
+          <tr><td><code>.theme-choice__option</code></td><td>part</td><td>Label wrapping a radio</td></tr>
+          <tr><td><code>data-preview</code></td><td>docs-only attribute</td><td>Freeze the icon of a theme</td></tr>
+          <tr><td><code>setTheme()</code>, <code>getTheme()</code>, <code>onThemeChange()</code></td><td>JS (theme.js)</td><td>Runtime API</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="btn btn--ghost theme-toggle" data-preview="dark"><svg class="theme-toggle__icon" data-for="system" aria-hidden="true" focusable="false"><use href="#icon-monitor"></use></svg><svg class="theme-toggle__icon" data-for="light" aria-hidden="true" focusable="false"><use href="#icon-sun"></use></svg><svg class="theme-toggle__icon" data-for="dark" aria-hidden="true" focusable="false"><use href="#icon-moon"></use></svg><span class="theme-toggle__label" data-theme-label>Theme: dark</span></button></div>
+          <figcaption><strong>Do</strong> say the current theme in the name.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p><code>&lt;button aria-label="Dark mode" aria-pressed="false"&gt;</code> on a three-way cycle</p>
+          <figcaption><strong>Don't</strong> use <code>aria-pressed</code> on a button that cycles through three themes — pressed/unpressed can't describe it.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> (button)</td><td>Switches to the next theme; the name updates ("Theme: light")</td></tr>
+          <tr><td><kbd>Tab</kbd> (radio group)</td><td>Moves into the group, to the checked option</td></tr>
+          <tr><td><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Select the previous / next theme (native radios)</td></tr>
+        </tbody>
+      </table>
+      <ul><li>The choice persists in <code>localStorage</code> (try/catch for private mode) and syncs across tabs through the <code>storage</code> event.</li><li>The no-flash snippet in <code>&lt;head&gt;</code> applies the saved theme before first paint.</li><li>Checked option: selected fill, border and semibold label — not color alone. Forced colors use <code>Highlight</code>.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-action-secondary-*</code></td><td>Option rest / hover</td></tr>
+          <tr><td><code>--color-selected-bg | -fg | -border</code></td><td>Checked option</td></tr>
+          <tr><td><code>--size-control-md</code>, <code>--button-radius</code></td><td>Option size and shape</td></tr>
+          <tr><td><code>--icon-size-sm</code>, <code>--icon-stroke</code></td><td>Icons</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

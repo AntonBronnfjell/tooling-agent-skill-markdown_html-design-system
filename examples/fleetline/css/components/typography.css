@@ -1,0 +1,132 @@
+/* typography.css — type roles, code and lists.
+   Role utilities (visual size is independent of the semantic level):
+     .text-display .text-h1 … .text-h6 .text-lead .text-body .text-small .text-caption .text-overline
+   Modifiers: .text-muted, .text-tabular (tabular numerals for data columns)
+   Code: .code (inline <code>), .code-block (<pre tabindex="0"><code>…</code></pre>)
+   Lists: .list (ul/ol), .list--unstyled (keep role="list" in markup — Safari drops list semantics) */
+@layer components {
+  :where(.text-display, .text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6) {
+    text-wrap: balance;
+    letter-spacing: var(--font-tracking-tight);
+    color: var(--color-text-default);
+  }
+  .text-display {
+    font-family: var(--typography-display-font-family);
+    font-size: var(--typography-display-font-size);
+    font-weight: var(--typography-display-font-weight);
+    line-height: var(--typography-display-line-height);
+  }
+  .text-h1 {
+    font-family: var(--typography-h1-font-family);
+    font-size: var(--typography-h1-font-size);
+    font-weight: var(--typography-h1-font-weight);
+    line-height: var(--typography-h1-line-height);
+  }
+  .text-h2 {
+    font-family: var(--typography-h2-font-family);
+    font-size: var(--typography-h2-font-size);
+    font-weight: var(--typography-h2-font-weight);
+    line-height: var(--typography-h2-line-height);
+  }
+  .text-h3 {
+    font-family: var(--typography-h3-font-family);
+    font-size: var(--typography-h3-font-size);
+    font-weight: var(--typography-h3-font-weight);
+    line-height: var(--typography-h3-line-height);
+  }
+  .text-h4 {
+    font-family: var(--typography-h4-font-family);
+    font-size: var(--typography-h4-font-size);
+    font-weight: var(--typography-h4-font-weight);
+    line-height: var(--typography-h4-line-height);
+  }
+  .text-h5 {
+    font-family: var(--typography-h5-font-family);
+    font-size: var(--typography-h5-font-size);
+    font-weight: var(--typography-h5-font-weight);
+    line-height: var(--typography-h5-line-height);
+  }
+  .text-h6 {
+    font-family: var(--typography-h6-font-family);
+    font-size: var(--typography-h6-font-size);
+    font-weight: var(--typography-h6-font-weight);
+    line-height: var(--typography-h6-line-height);
+  }
+
+  :where(.text-lead, .text-body, .text-small) { max-inline-size: var(--size-measure); text-wrap: pretty; }
+  .text-lead {
+    font-family: var(--typography-lead-font-family);
+    font-size: var(--typography-lead-font-size);
+    font-weight: var(--typography-lead-font-weight);
+    line-height: var(--typography-lead-line-height);
+    color: var(--color-text-muted);
+  }
+  .text-body {
+    font-family: var(--typography-body-font-family);
+    font-size: var(--typography-body-font-size);
+    font-weight: var(--typography-body-font-weight);
+    line-height: var(--typography-body-line-height);
+  }
+  .text-small {
+    font-family: var(--typography-small-font-family);
+    font-size: var(--typography-small-font-size);
+    font-weight: var(--typography-small-font-weight);
+    line-height: var(--typography-small-line-height);
+  }
+  .text-caption {
+    font-family: var(--typography-caption-font-family);
+    font-size: var(--typography-caption-font-size);
+    font-weight: var(--typography-caption-font-weight);
+    line-height: var(--typography-caption-line-height);
+    color: var(--color-text-muted);
+  }
+  .text-overline {
+    font-family: var(--typography-caption-font-family);
+    font-size: var(--typography-caption-font-size);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--typography-caption-line-height);
+    letter-spacing: var(--font-tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .text-muted { color: var(--color-text-muted); }
+  .text-tabular { font-variant-numeric: tabular-nums; }
+
+  /* Code */
+  .code {
+    padding-block: var(--space-px);
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted);
+    font-family: var(--typography-code-font-family);
+    font-size: 0.9em;
+    overflow-wrap: anywhere;
+  }
+  .code-block {
+    overflow-x: auto;
+    padding: var(--space-4);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    font-family: var(--typography-code-font-family);
+    font-size: var(--typography-code-font-size);
+    font-weight: var(--typography-code-font-weight);
+    line-height: var(--typography-code-line-height);
+    white-space: pre;
+    tab-size: 2;
+  }
+  .code-block > code { font: inherit; }
+
+  /* Lists */
+  .list {
+    display: grid;
+    gap: var(--space-1-5);
+    padding-inline-start: var(--space-6);
+    max-inline-size: var(--size-measure);
+  }
+  .list > li { padding-inline-start: var(--space-1); }
+  .list > li::marker { color: var(--color-text-muted); }
+  ol.list > li::marker { font-variant-numeric: tabular-nums; }
+  .list--unstyled { list-style: none; padding-inline-start: 0; }
+  .list--unstyled > li { padding-inline-start: 0; }
+}

@@ -1,0 +1,21 @@
+/* visually-hidden.css — content for assistive technology only.
+   .sr-only and .sr-only--focusable live in css/base.css (utilities layer, !important) so nothing can
+   accidentally reveal them. This file only styles what a revealed focusable element looks like:
+   .skip-link — first element in <body>: <a class="skip-link sr-only sr-only--focusable" href="#main">.
+   When focused, base.css returns it to normal flow at the top of the page; this gives it a surface. */
+@layer components {
+  .skip-link:focus-visible,
+  .skip-link.is-focus-visible {
+    display: inline-block;
+    margin: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-inverse);
+    color: var(--color-text-inverse);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: underline;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+}

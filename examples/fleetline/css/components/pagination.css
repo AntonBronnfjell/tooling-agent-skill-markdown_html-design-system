@@ -1,0 +1,104 @@
+/* pagination.css — Page index navigation. Block: .pagination (<nav aria-label="Pagination, …">)
+   Parts:   .pagination__list (<ul>), .pagination__link (a; aria-current="page" = current: selected bg + border + weight),
+            .pagination__link--step (Previous / Next with icon), .pagination__link[aria-disabled="true"] (a <span>, not a
+            link, on the first / last page), .pagination__ellipsis, .pagination__icon (svg, mirrors in RTL),
+            .pagination__status (compact "Page 3 of 12"), .pagination__bar (data-table footer row),
+            .pagination__size (label + select "Rows per page"), .pagination__select, .pagination__range ("Showing 21–40 of 312")
+   Variants: .pagination--compact (prev / status / next only)
+   States:  :hover :focus-visible, aria-current="page", aria-disabled="true". Docs-only freeze: .is-hover, .is-focus-visible. */
+@layer components {
+  .pagination { font-size: var(--font-size-sm); }
+
+  .pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pagination__link {
+    --_bg: transparent;
+    --_fg: var(--color-text-default);
+    --_border: transparent;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-inline-size: var(--size-control-md);
+    min-block-size: var(--size-control-md);
+    padding-inline: var(--space-2);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-md);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .pagination__link--step { padding-inline: var(--space-3); }
+
+  a.pagination__link:hover,
+  .pagination__link.is-hover { --_bg: var(--color-action-ghost-bg-hover); }
+  .pagination__link:focus-visible,
+  .pagination__link.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .pagination__link[aria-current="page"] {
+    --_bg: var(--color-selected-bg);
+    --_fg: var(--color-selected-fg);
+    --_border: var(--color-selected-border);
+    font-weight: var(--font-weight-bold);
+  }
+  .pagination__link[aria-disabled="true"] { --_fg: var(--color-text-disabled); cursor: not-allowed; }
+
+  .pagination__icon {
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+  }
+  .pagination__icon:dir(rtl) { transform: scaleX(-1); }
+
+  .pagination__ellipsis {
+    display: inline-grid;
+    place-items: center;
+    min-inline-size: var(--size-control-sm);
+    color: var(--color-text-muted);
+  }
+  .pagination__status { padding-inline: var(--space-2); color: var(--color-text-default); font-variant-numeric: tabular-nums; }
+
+  /* Data-table footer row: page size · range · pages */
+  .pagination__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    font-size: var(--font-size-sm);
+  }
+  .pagination__size { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-text-default); }
+  .pagination__select {
+    min-block-size: var(--size-control-sm);
+    padding-inline: var(--space-2);
+    border: var(--border-width-thin) solid var(--input-border);
+    border-radius: var(--input-radius);
+    background: var(--input-bg);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+  }
+  .pagination__select:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .pagination__range { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+  @media (forced-colors: active) {
+    .pagination__link[aria-current="page"] { border-color: Highlight; }
+    .pagination__link[aria-disabled="true"] { color: GrayText; }
+  }
+}

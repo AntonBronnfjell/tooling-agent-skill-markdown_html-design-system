@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Switch — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline switch: immediate on/off settings with focus, disabled and label variants.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/switch.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Switch</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a switch for a setting that takes effect immediately — notifications, showing retired vehicles on the map, auto-assigning work orders. Use a checkbox when the choice is only applied after pressing a Save or Submit button.</p>
+        <ul>
+          <li>The label names the setting that is on ("Text drivers about schedule changes"), never "On/Off" or a question.</li>
+          <li>The setting changes the moment it is toggled — no Save button for it.</li>
+          <li>If the change is saved to the server, set <code>aria-busy="true"</code> on the switch while saving and revert with an error message if it fails.</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Track — <code>input[type=checkbox][role=switch].switch__input</code> (native, <code>appearance: none</code>), 44 × 24px</li>
+        <li>Thumb — <code>::before</code>, moves to the end when on</li>
+        <li>Label — <code>label.switch__label[for]</code></li>
+        <li>Hint (optional) — <code>.switch__hint</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="switch" aria-labelledby="switch-h">
+        <h3 id="switch-h">Switch</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:off">
+            <div class="switch">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-off">
+              <label class="switch__label" for="sw-off">Show retired vehicles on the map</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:on">
+            <div class="switch">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-on" checked>
+              <label class="switch__label" for="sw-on">Show retired vehicles on the map</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="stack stack--gap-3">
+            <div class="switch">
+              <input class="switch__input is-focus-visible" type="checkbox" role="switch" id="sw-focus">
+              <label class="switch__label" for="sw-focus">Auto-assign new work orders</label>
+            </div>
+            <div class="switch">
+              <input class="switch__input is-hover" type="checkbox" role="switch" id="sw-hover" checked>
+              <label class="switch__label" for="sw-hover">Auto-assign new work orders</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="stack stack--gap-3">
+            <div class="switch">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-dis" disabled aria-describedby="sw-dis-hint">
+              <label class="switch__label" for="sw-dis">Allow drivers to edit odometer readings</label>
+              <p class="switch__hint" id="sw-dis-hint">Only fleet admins can change this.</p>
+            </div>
+            <div class="switch">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-dis-on" checked disabled>
+              <label class="switch__label" for="sw-dis-on">Record GPS location with inspections</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-label">
+            <div class="stack stack--gap-4">
+            <div class="switch">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-lbl" checked aria-describedby="sw-lbl-hint">
+              <label class="switch__label" for="sw-lbl">Text drivers about schedule changes</label>
+              <p class="switch__hint" id="sw-lbl-hint">Drivers get an SMS when their vehicle's service date moves.</p>
+            </div>
+            <div class="switch switch--label-start">
+              <input class="switch__input" type="checkbox" role="switch" id="sw-lbl-end" aria-describedby="sw-lbl-end-hint">
+              <label class="switch__label" for="sw-lbl-end">Daily defect summary email</label>
+              <p class="switch__hint" id="sw-lbl-end-hint">Sent to depot managers at 07:00.</p>
+            </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="switch [switch--label-start]"&gt;
+        &lt;input class="switch__input" type="checkbox" role="switch" id="sms" aria-describedby="sms-hint" checked&gt;
+        &lt;label class="switch__label" for="sms"&gt;Text drivers about schedule changes&lt;/label&gt;
+        &lt;p class="switch__hint" id="sms-hint"&gt;Drivers get an SMS when their vehicle's service date moves.&lt;/p&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Async: while the change is saving --&gt;
+      &lt;div class="switch" aria-busy="true"&gt;…&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.switch</code>, <code>.switch__input</code>, <code>.switch__label</code>, <code>.switch__hint</code></td><td>block / parts</td><td>One switch</td></tr>
+      <tr><td><code>role="switch"</code></td><td>attribute (required)</td><td>Announced as on/off instead of checked</td></tr>
+      <tr><td><code>.switch--label-start</code></td><td>modifier class</td><td>Label first, switch at the inline end (settings lists)</td></tr>
+      <tr><td><code>checked</code>, <code>disabled</code></td><td>attribute</td><td>On; not operable (both values shown)</td></tr>
+      <tr><td><code>aria-busy="true"</code> on <code>.switch</code></td><td>attribute</td><td>Saving: thumb pulses, pointer input ignored</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="switch">
+  <input class="switch__input" type="checkbox" role="switch" id="dd-sw1" checked>
+  <label class="switch__label" for="dd-sw1">Text drivers about schedule changes</label>
+</div>
+          <figcaption><strong>Do</strong> name the setting and let it apply immediately.</figcaption></figure>
+        <figure class="ds-dont"><div class="switch">
+  <input class="switch__input" type="checkbox" role="switch" id="dd-sw2">
+  <label class="switch__label" for="dd-sw2">On / Off</label>
+</div>
+<p class="field__hint">Changes apply when you press Save.</p>
+          <figcaption><strong>Don't</strong> label a switch "On/Off" or use it where a Save button applies the change — use a checkbox.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Moves to the switch</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Toggles on/off (native checkbox behavior)</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Role: <code>switch</code> on a native checkbox, so screen readers say "Text drivers about schedule changes, switch, on".</li>
+        <li>State is shown by thumb position and track fill, not color alone; the track border is 3:1 against the surface.</li>
+        <li>Clicking the label toggles it; track 44 × 24px meets the 24px target minimum.</li>
+        <li>Async failures: revert the switch and show an error message next to it, announced with <code>role="alert"</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--color-bg-muted</code>, <code>--input-border</code>, <code>--color-text-muted</code></td><td>Off track, border, thumb</td></tr>
+      <tr><td><code>--color-action-primary-bg | -hover</code>, <code>--color-action-primary-fg</code></td><td>On track and thumb</td></tr>
+      <tr><td><code>--icon-size-lg</code>, <code>--radius-full</code></td><td>Track size and shape</td></tr>
+      <tr><td><code>--color-bg-subtle</code>, <code>--color-text-disabled</code></td><td>Disabled</td></tr>
+      <tr><td><code>--motion-duration-fast</code>, <code>--opacity-disabled</code></td><td>Thumb movement, saving pulse</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

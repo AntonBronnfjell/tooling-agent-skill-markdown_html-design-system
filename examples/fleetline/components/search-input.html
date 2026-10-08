@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search input — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline search input: search landmark, clear button, loading state and keyboard shortcut.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/search-input.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/search-input.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Search input</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a search input to find vehicles, work orders or parts by free text. Use filters (selects, checkboxes) when people narrow a list by known attributes, and a combobox when they must pick exactly one item from a long list.</p>
+        <ul>
+          <li>Wrap it in <code>&lt;search&gt;</code> so it is a landmark; keep a label (visible, or visually hidden when a page heading already says what is searched).</li>
+          <li>Placeholder shows what can be searched ("Plate, VIN or depot"), never the label.</li>
+          <li>Show the <kbd>/</kbd> shortcut only for the main search on a page.</li>
+          <li>Searching takes longer than about a second? Show the spinner and announce "Searching…".</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Landmark — <code>&lt;search class="search"&gt;</code> with a <code>form</code></li>
+        <li>Field — <code>.input.input--affixed.search__box</code> (from text field)</li>
+        <li>Search icon (decorative) — <code>.search__icon</code></li>
+        <li>Input — <code>input[type=search].search__control</code></li>
+        <li>Spinner / shortcut hint — <code>.search__spinner</code>, <code>kbd.search__kbd</code></li>
+        <li>Clear button — <code>button.search__clear[aria-label="Clear search"]</code></li>
+        <li>Status — <code>.search__status[role=status]</code> (visually hidden)</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="search-input" aria-labelledby="search-input-h">
+        <h3 id="search-input-h">Search input</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:empty">
+            <search class="search">
+              <form class="search__form" action="#" method="get">
+                <label class="label" for="si-empty">Search vehicles</label>
+                <div class="input input--affixed search__box">
+                  <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                  <input class="input__control search__control" id="si-empty" name="q" type="search" placeholder="Plate, VIN or depot" autocomplete="off" spellcheck="false">
+                  <span class="search__spinner" aria-hidden="true"></span>
+                  <button type="button" class="search__clear" aria-label="Clear search" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                </div>
+                <p class="search__status sr-only" role="status"></p>
+              </form>
+            </search>
+          </div>
+          <div class="ds-demo" data-demo="state:filled">
+            <search class="search">
+              <form class="search__form" action="#" method="get">
+                <label class="label" for="si-filled">Search vehicles</label>
+                <div class="input input--affixed search__box">
+                  <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                  <input class="input__control search__control" id="si-filled" name="q" type="search" placeholder="Plate, VIN or depot" autocomplete="off" spellcheck="false" value="North Yard">
+                  <span class="search__spinner" aria-hidden="true"></span>
+                  <button type="button" class="search__clear" aria-label="Clear search"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                </div>
+                <p class="search__status sr-only" role="status"></p>
+              </form>
+            </search>
+          </div>
+          <div class="ds-demo" data-demo="state:loading">
+            <search class="search">
+              <form class="search__form" action="#" method="get">
+                <label class="label" for="si-loading">Search vehicles</label>
+                <div class="input input--affixed search__box" aria-busy="true">
+                  <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                  <input class="input__control search__control" id="si-loading" name="q" type="search" placeholder="Plate, VIN or depot" autocomplete="off" spellcheck="false" value="WF0XXXTTGXKJ">
+                  <span class="search__spinner" aria-hidden="true"></span>
+                  <button type="button" class="search__clear" aria-label="Clear search"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                </div>
+                <p class="search__status sr-only" role="status">Searching…</p>
+              </form>
+            </search>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-shortcut">
+            <search class="search" data-shortcut="/">
+              <form class="search__form" action="#" method="get">
+                <label class="sr-only" for="si-kbd">Search work orders</label>
+                <div class="input input--affixed search__box">
+                  <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                  <input class="input__control search__control" id="si-kbd" name="q" type="search" placeholder="Plate, VIN or depot" autocomplete="off" spellcheck="false" aria-keyshortcuts="/">
+                  <span class="search__spinner" aria-hidden="true"></span>
+                  <kbd class="search__kbd" aria-hidden="true">/</kbd>
+                  <button type="button" class="search__clear" aria-label="Clear search" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                </div>
+                <p class="search__status sr-only" role="status"></p>
+              </form>
+            </search>
+            <p class="field__hint">Press <kbd>/</kbd> anywhere on the page to jump here.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;search class="search" data-shortcut="/"&gt;
+        &lt;form class="search__form" action="/vehicles" method="get"&gt;
+          &lt;label class="label" for="q"&gt;Search vehicles&lt;/label&gt;
+          &lt;div class="input input--affixed search__box"&gt;            &lt;!-- aria-busy="true" while loading --&gt;
+            &lt;svg class="search__icon" aria-hidden="true"&gt;&lt;use href="#icon-search"&gt;&lt;/use&gt;&lt;/svg&gt;
+            &lt;input class="input__control search__control" id="q" name="q" type="search" aria-keyshortcuts="/"&gt;
+            &lt;span class="search__spinner" aria-hidden="true"&gt;&lt;/span&gt;
+            &lt;kbd class="search__kbd" aria-hidden="true"&gt;/&lt;/kbd&gt;
+            &lt;button type="button" class="search__clear" aria-label="Clear search" hidden&gt;…&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;p class="search__status sr-only" role="status"&gt;&lt;/p&gt;   &lt;!-- "Searching…", "12 vehicles found" --&gt;
+        &lt;/form&gt;
+      &lt;/search&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.search</code></td><td>block class on <code>&lt;search&gt;</code></td><td>Landmark wrapper; <code>data-enhanced</code> once JS runs</td></tr>
+      <tr><td><code>data-shortcut="/"</code></td><td>attribute</td><td>Global key that focuses the field (ignored while typing elsewhere)</td></tr>
+      <tr><td><code>.search__box[aria-busy="true"]</code></td><td>attribute</td><td>Loading: spinner replaces the shortcut hint</td></tr>
+      <tr><td><code>.search__clear</code></td><td>part</td><td>Shown while filled; clears and returns focus</td></tr>
+      <tr><td><code>.search__status</code></td><td>part (role=status)</td><td>Polite loading/result announcements — the app writes the text</td></tr>
+      <tr><td><code>.input--sm | --lg</code></td><td>modifier on the box</td><td>Sizes from text field</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes the clear button</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><search class="search">
+  <form class="search__form" action="#" method="get">
+    <label class="label" for="dd-s1">Search vehicles</label>
+    <div class="input input--affixed search__box">
+      <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+      <input class="input__control search__control" id="dd-s1" name="q" type="search" placeholder="Plate, VIN or depot" autocomplete="off" spellcheck="false" value="KX-219">
+      <span class="search__spinner" aria-hidden="true"></span>
+      <button type="button" class="search__clear" aria-label="Clear search"><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+    </div>
+    <p class="search__status sr-only" role="status"></p>
+  </form>
+</search>
+          <figcaption><strong>Do</strong> keep a label and say in the placeholder what can be searched.</figcaption></figure>
+        <figure class="ds-dont"><div class="input input--affixed"><input class="input__control" type="text" aria-label="Search" placeholder="Search…"></div>
+          <figcaption><strong>Don't</strong> drop the landmark and search type, or use a vague placeholder like "Search…".</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>/</kbd></td><td>Focuses the search field (when shortcut enabled and not typing elsewhere)</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Submits the search</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Clears the field (native for <code>type=search</code>)</td></tr>
+      <tr><td><kbd>Tab</kbd></td><td>Input, then Clear search (when shown)</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Landmark: <code>&lt;search&gt;</code> exposes a search landmark so screen-reader users can jump straight to it.</li>
+        <li>The input role is <code>searchbox</code>; the shortcut is exposed with <code>aria-keyshortcuts="/"</code>, and the visible <code>kbd</code> hint is hidden from assistive tech.</li>
+        <li>Clear search is a labelled icon button; after clearing, focus returns to the input.</li>
+        <li>Loading and result counts are announced through the polite <code>role=status</code> paragraph, not by moving focus.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-*</code>, <code>--size-control-*</code></td><td>Field border, height (from text field)</td></tr>
+      <tr><td><code>--color-text-muted</code></td><td>Icon, clear button</td></tr>
+      <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Clear button hover</td></tr>
+      <tr><td><code>--color-bg-subtle</code>, <code>--color-border-default</code>, <code>--font-family-mono</code></td><td>Shortcut hint</td></tr>
+      <tr><td><code>--color-action-primary-bg</code>, <code>--motion-duration-slower</code></td><td>Spinner</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

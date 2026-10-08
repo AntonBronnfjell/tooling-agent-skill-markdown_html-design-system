@@ -15,4 +15,13 @@ First tagged release.
 - **Agents:** generated `llms.txt`, per-component Markdown, `dist/ds-index.json` and a stdlib MCP server.
 - **Packaging:** Claude Code plugin + marketplace, Cursor and Codex plugin manifests, cross-agent installer (`install.py`/`.sh`/`.ps1`), MIT license.
 - **Quality:** stdlib unit tests with golden outputs, CI for Python 3.8–3.14 on Linux/macOS/Windows with `claude plugin validate`, plugin eval cases.
+- **Example:** `examples/fleetline`, a complete core-tier system (68/68) built with the skill and published to GitHub Pages with Storybook (311 stories). It passes `check --strict`, `taste --strict` and the DESIGN.md lint; axe and keyboard checks pass on 211/212 page × theme combinations.
+- **Shared JS** for generated systems: `js/lib/invokers.js` (fallback for `commandfor`/`command`), plus `ds:themechange` events between the docs toolbar and `theme.js`. A `size.sticky-offset` token drives `scroll-padding` so focused elements aren't hidden under sticky headers.
+- **Component contract:**
+  - readable hint text under disabled controls;
+  - selected fills recolor all their descendant text;
+  - links inside tinted fills follow the fill's text color;
+  - unique landmark labels on docs pages;
+  - frozen demo states don't animate.
+  - The error summary moved to core, because the core form-layout pattern depends on it.
 - **References:** decision guide, tokens, component contract, CSS architecture, conventions, motion, content design, performance, testing (incl. visual regression), packaging, governance (incl. accessibility law), Storybook for every stack, email build, companion skills.

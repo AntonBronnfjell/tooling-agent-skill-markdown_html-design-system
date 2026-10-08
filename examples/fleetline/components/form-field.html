@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form field — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline form field: label, helper, error, counter, horizontal layout and fieldset.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/form-field.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Form field</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Every Fleetline form control sits inside a form field: a visible label, the control, optional helper text, and an error message when validation fails. The field wires these together with <code>for</code>/<code>id</code> and <code>aria-describedby</code> once, so every control behaves the same.</p>
+      <ul>
+        <li><strong>Labels are nouns</strong> ("Plate number", "Odometer reading"), sentence case, no colon. Placeholders never replace labels.</li>
+        <li><strong>Helper text</strong> explains format or why we ask ("In kilometres, as shown on the dashboard"). It never repeats the label.</li>
+        <li><strong>Errors</strong> say what to do: "Enter a reading higher than the last one (84,210 km)". No blame, no "invalid input".</li>
+        <li><strong>Required vs optional</strong>: in long forms most fields are required, so mark the few optional ones with "(optional)". In short forms mark required fields with * and explain it once above the form.</li>
+        <li>Use <strong>fieldset</strong> to group controls that answer one question: an address, a set of checkboxes, the parts of a date.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Field — <code>.field</code>, a grid with a 6px gap</li>
+        <li>Label — <code>label.label[for]</code>, with optional <code>.label__required</code> or <code>.label__optional</code></li>
+        <li>Control — any form control (<code>.input</code>, select, textarea…)</li>
+        <li>Helper text — <code>.field__hint</code>, referenced by <code>aria-describedby</code></li>
+        <li>Error — <code>.field__error</code>: icon + visually hidden "Error:" + message, referenced by <code>aria-describedby</code></li>
+        <li>Counter (optional) — <code>.field__counter</code>, updated by <code>js/form-field.js</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="label" aria-labelledby="label-h">
+        <h3 id="label-h">Label</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:label">
+            <div class="field">
+              <label class="label" for="lb-plate">Plate number</label>
+              <input class="input" id="lb-plate" name="plate" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:required">
+            <p class="text-small text-muted">Fields marked * are required.</p>
+            <div class="field">
+              <label class="label" for="lb-vin">Vehicle identification number (VIN) <span class="label__required" aria-hidden="true">*</span></label>
+              <input class="input" id="lb-vin" name="vin" type="text" required autocomplete="off" autocapitalize="characters" spellcheck="false">
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:optional">
+            <div class="field">
+              <label class="label" for="lb-nick">Fleet nickname <span class="label__optional">(optional)</span></label>
+              <input class="input" id="lb-nick" name="nickname" type="text" autocomplete="off">
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;label class="label" for="vin"&gt;Vehicle identification number (VIN) &lt;span class="label__required" aria-hidden="true"&gt;*&lt;/span&gt;&lt;/label&gt;
+&lt;input class="input" id="vin" name="vin" type="text" required&gt;   &lt;!-- required attribute, not only the asterisk --&gt;
+
+&lt;label class="label" for="nickname"&gt;Fleet nickname &lt;span class="label__optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;</code></pre>
+      </section>
+
+      <section id="form-field" aria-labelledby="form-field-h">
+        <h3 id="form-field-h">Form field</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:with-helper">
+            <div class="field">
+              <label class="label" for="ff-odo">Odometer reading</label>
+              <input class="input" id="ff-odo" name="odometer" type="text" inputmode="numeric" aria-describedby="ff-odo-hint">
+              <p class="field__hint" id="ff-odo-hint">In kilometres, as shown on the dashboard.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-error">
+            <div class="field">
+              <label class="label" for="ff-odo-err">Odometer reading</label>
+              <input class="input" id="ff-odo-err" name="odometer" type="text" inputmode="numeric" value="8421" aria-invalid="true" aria-describedby="ff-odo-err-hint ff-odo-err-msg">
+              <p class="field__hint" id="ff-odo-err-hint">In kilometres, as shown on the dashboard.</p>
+              <p class="field__error" id="ff-odo-err-msg">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Enter a reading higher than the last one (84,210 km).</span>
+              </p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-counter">
+            <div class="field">
+              <label class="label" for="ff-title">Work order title</label>
+              <input class="input" id="ff-title" name="title" type="text" value="Replace front brake pads" data-counter="ff-title-count" aria-describedby="ff-title-hint ff-title-count">
+              <p class="field__hint" id="ff-title-hint">Mechanics see this on their task list. Keep it short.</p>
+              <p class="field__counter" id="ff-title-count" data-max="60">Up to 60 characters</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:horizontal">
+            <div class="stack stack--gap-4">
+              <div class="field field--horizontal">
+                <label class="label" for="ff-h-plate">Plate number</label>
+                <input class="input" id="ff-h-plate" name="plate" type="text" value="KX-219">
+              </div>
+              <div class="field field--horizontal">
+                <label class="label" for="ff-h-depot">Home depot</label>
+                <input class="input" id="ff-h-depot" name="depot" type="text" value="North Yard" aria-describedby="ff-h-depot-hint">
+                <p class="field__hint" id="ff-h-depot-hint">Where the vehicle parks overnight.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="field"&gt;
+  &lt;label class="label" for="odometer"&gt;Odometer reading&lt;/label&gt;
+  &lt;input class="input" id="odometer" name="odometer" inputmode="numeric"
+         aria-invalid="true" aria-describedby="odometer-hint odometer-error"&gt;
+  &lt;p class="field__hint" id="odometer-hint"&gt;In kilometres, as shown on the dashboard.&lt;/p&gt;
+  &lt;p class="field__error" id="odometer-error"&gt;
+    &lt;svg class="field__error-icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-alert-circle"&gt;&lt;/use&gt;&lt;/svg&gt;
+    &lt;span&gt;&lt;span class="sr-only"&gt;Error: &lt;/span&gt;Enter a reading higher than the last one (84,210 km).&lt;/span&gt;
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Counter: js/form-field.js → init(root) --&gt;
+&lt;input class="input" id="title" data-counter="title-count" aria-describedby="title-count"&gt;
+&lt;p class="field__counter" id="title-count" data-max="60"&gt;Up to 60 characters&lt;/p&gt;
+
+&lt;!-- Horizontal from 48rem --&gt;
+&lt;div class="field field--horizontal"&gt;…&lt;/div&gt;</code></pre>
+      </section>
+
+      <section id="fieldset" aria-labelledby="fieldset-h">
+        <h3 id="fieldset-h">Fieldset</h3>
+        <div class="ds-demo" data-demo="variant:fieldset">
+          <fieldset class="fieldset">
+            <legend class="fieldset__legend">Depot address</legend>
+            <div class="fieldset__body">
+              <div class="field">
+                <label class="label" for="fs-street">Street address</label>
+                <input class="input" id="fs-street" name="street" type="text" autocomplete="street-address">
+              </div>
+              <div class="field">
+                <label class="label" for="fs-city">Town or city</label>
+                <input class="input" id="fs-city" name="city" type="text" autocomplete="address-level2">
+              </div>
+              <div class="field" style="--field-max: 12rem">
+                <label class="label" for="fs-postcode">Postcode</label>
+                <input class="input" id="fs-postcode" name="postcode" type="text" autocomplete="postal-code" autocapitalize="characters">
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <pre class="ds-code"><code>&lt;fieldset class="fieldset"&gt;
+  &lt;legend class="fieldset__legend"&gt;Depot address&lt;/legend&gt;
+  &lt;div class="fieldset__body"&gt;
+    &lt;div class="field"&gt;…Street address…&lt;/div&gt;
+    &lt;div class="field"&gt;…Town or city…&lt;/div&gt;
+    &lt;div class="field" style="--field-max: 12rem"&gt;…Postcode…&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.field</code>, <code>.field--horizontal</code></td><td>block / modifier</td><td>Field wrapper; label beside control from 48rem</td></tr>
+          <tr><td><code>--field-max</code></td><td>custom property</td><td>Max width (default 32rem); size fields to the expected answer</td></tr>
+          <tr><td><code>.label</code>, <code>.label__required</code>, <code>.label__optional</code></td><td>block / parts</td><td>Label and its markers</td></tr>
+          <tr><td><code>.field__hint</code>, <code>.field__error</code>, <code>.field__error-icon</code>, <code>.field__counter</code></td><td>parts</td><td>Helper, error, counter (reference all by <code>aria-describedby</code>)</td></tr>
+          <tr><td><code>required</code>, <code>aria-invalid="true"</code></td><td>attribute on the control</td><td>Required and invalid states</td></tr>
+          <tr><td><code>data-counter="&lt;counter id&gt;"</code>, <code>data-max</code></td><td>attribute</td><td>Enables the live counter (<code>js/form-field.js</code>, <code>init(root)</code>)</td></tr>
+          <tr><td><code>.fieldset</code>, <code>.fieldset__legend</code>, <code>.fieldset__body</code></td><td>block / parts</td><td>Grouped controls</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="field"><label class="label" for="dd-do">Odometer reading</label><input class="input" id="dd-do" type="text" inputmode="numeric" aria-describedby="dd-do-hint"><p class="field__hint" id="dd-do-hint">In kilometres.</p></div>
+          <figcaption><strong>Do</strong> keep a visible label and put format help in the hint.</figcaption></figure>
+        <figure class="ds-dont"><div class="field"><input class="input" type="text" placeholder="Odometer (km)" aria-label="Odometer (km)"></div>
+          <figcaption><strong>Don't</strong> use the placeholder as the label; it disappears as soon as someone types.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Name: <code>&lt;label for&gt;</code> gives the control its accessible name and makes the label a click target. Groups get their name from <code>&lt;legend&gt;</code>.</li>
+        <li>Description: hint, error and counter ids go in <code>aria-describedby</code>, hint first. Screen readers read them after the name.</li>
+        <li>Required: the <code>required</code> attribute is announced; the visual * is <code>aria-hidden</code> and explained once in text.</li>
+        <li>Errors are never color alone: border weight changes, an icon appears and the message starts with visually hidden "Error:". Show inline errors after submit or blur, not on every keystroke; on submit, move focus to an error summary.</li>
+        <li>Counter: the visible count updates live; a separate polite status region announces it after typing pauses (800ms) so speech isn't flooded. Typing past the limit is allowed and marked invalid.</li>
+      </ul>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody><tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves between controls in reading order; labels, hints and legends aren't focusable</td></tr></tbody>
+      </table>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--font-size-sm | -md</code>, <code>--font-weight-semibold</code></td><td>Label and legend type</td></tr>
+          <tr><td><code>--color-text-default | -muted</code></td><td>Label, hint and counter text</td></tr>
+          <tr><td><code>--color-feedback-danger-fg | -icon</code></td><td>Error message, required marker and error icon</td></tr>
+          <tr><td><code>--space-1-5 | -4</code></td><td>Gap inside a field; gap between fields</td></tr>
+          <tr><td><code>--icon-size-sm</code>, <code>--icon-stroke</code></td><td>Error icon</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

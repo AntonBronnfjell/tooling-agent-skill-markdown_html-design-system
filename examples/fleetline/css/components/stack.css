@@ -1,0 +1,30 @@
+/* stack.css — one-dimensional layout. The parent owns spacing; children stay margin-free.
+   Blocks: .stack (vertical), .cluster (wrapping row)
+   Modifiers: .stack--horizontal, .stack--gap-1 | -2 | -3 | -4 (default) | -6 | -8,
+              .stack--align-center, .cluster--between
+   Custom property: --stack-gap / --cluster-gap (only assign a --space-* token) */
+@layer components {
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--stack-gap, var(--space-4));
+    min-inline-size: 0;
+  }
+  .stack--horizontal { flex-direction: row; align-items: center; }
+  .stack--align-center { align-items: center; }
+
+  .stack--gap-1 { --stack-gap: var(--space-1); }
+  .stack--gap-2 { --stack-gap: var(--space-2); }
+  .stack--gap-3 { --stack-gap: var(--space-3); }
+  .stack--gap-4 { --stack-gap: var(--space-4); }
+  .stack--gap-6 { --stack-gap: var(--space-6); }
+  .stack--gap-8 { --stack-gap: var(--space-8); }
+
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--cluster-gap, var(--space-2));
+  }
+  .cluster--between { justify-content: space-between; }
+}

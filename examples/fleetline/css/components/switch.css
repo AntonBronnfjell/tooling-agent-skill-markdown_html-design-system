@@ -1,0 +1,137 @@
+/* switch.css — Switch / toggle for settings that apply immediately. Block alias: .switch
+   Markup:    <div class="switch">
+                <input class="switch__input" type="checkbox" role="switch" id="…" [aria-describedby="…-hint"]>
+                <label class="switch__label" for="…">Notify drivers of schedule changes</label>
+                <p class="switch__hint" id="…-hint">…</p>              (optional)
+              </div>
+   Modifiers: .switch--label-start (label first, switch pushed to the inline end — settings lists)
+   States:    :checked (on), :disabled (both values), aria-busy="true" on .switch while an async
+              change is saving. Docs-only freeze classes: .is-hover, .is-focus-visible.
+   Pattern:   native checkbox with appearance:none draws the track; ::before is the thumb. On = thumb
+              at the end + filled track (position and fill), so state is never color alone. */
+@layer components {
+  .switch {
+    --_track-h: var(--icon-size-lg);
+    --_track-w: calc(var(--icon-size-lg) * 2 - var(--space-1));
+    --_thumb: calc(var(--_track-h) - var(--space-1-5));
+    --_bg: var(--color-bg-muted);
+    --_border: var(--input-border);
+    --_thumb-bg: var(--color-text-muted);
+
+    display: grid;
+    grid-template-columns: var(--_track-w) minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .switch__input {
+    appearance: none;
+    position: relative;
+    display: block;
+    inline-size: var(--_track-w);
+    block-size: var(--_track-h);
+    margin: 0;
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-full);
+    background: var(--_bg);
+    cursor: pointer;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .switch__input::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--space-0-5);
+    inline-size: var(--_thumb);
+    block-size: var(--_thumb);
+    border-radius: var(--radius-full);
+    background: var(--_thumb-bg);
+    transform: translateY(-50%);
+    transition:
+      inset-inline-start var(--motion-duration-fast) var(--motion-easing-standard),
+      background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+
+  .switch__label {
+    padding-block-start: calc((var(--_track-h) - 1lh) / 2);
+    color: var(--color-text-default);
+    font-size: var(--font-size-md);
+    line-height: var(--font-line-height-snug);
+    cursor: pointer;
+  }
+  .switch__hint {
+    grid-column: 2;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-snug);
+  }
+
+  /* Label first, switch at the end (settings rows) */
+  .switch--label-start { grid-template-columns: minmax(0, 1fr) var(--_track-w); }
+  .switch--label-start .switch__input { grid-column: 2; grid-row: 1; }
+  .switch--label-start .switch__label { grid-column: 1; grid-row: 1; }
+  .switch--label-start .switch__hint { grid-column: 1; }
+
+  /* Hover */
+  .switch__input:hover:not(:disabled),
+  .switch:has(> .switch__label:hover) > .switch__input:not(:disabled, :checked),
+  .switch__input.is-hover { --_border: var(--color-text-default); --_thumb-bg: var(--color-text-default); }
+
+  /* On */
+  .switch__input:checked {
+    --_bg: var(--color-action-primary-bg);
+    --_border: var(--color-action-primary-bg);
+    --_thumb-bg: var(--color-action-primary-fg);
+  }
+  .switch__input:checked::before {
+    inset-inline-start: calc(100% - var(--_thumb) - var(--space-0-5));
+  }
+  .switch__input:checked:hover:not(:disabled),
+  .switch__input:checked.is-hover {
+    --_bg: var(--color-action-primary-bg-hover);
+    --_border: var(--color-action-primary-bg-hover);
+    --_thumb-bg: var(--color-action-primary-fg);
+  }
+
+  /* Focus */
+  .switch__input:focus-visible,
+  .switch__input.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Disabled — both values; the thumb position still tells on/off */
+  .switch__input:disabled {
+    --_bg: var(--color-bg-subtle);
+    --_border: var(--color-border-default);
+    --_thumb-bg: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+  .switch__input:disabled:checked { --_bg: var(--color-bg-muted); }
+  .switch:has(> .switch__input:disabled) .switch__label {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Saving (async): thumb pulses, control is inert until the request settles */
+  .switch[aria-busy="true"] .switch__input { pointer-events: none; }
+  .switch[aria-busy="true"] .switch__input::before {
+    animation: switch-pulse var(--motion-duration-slower) var(--motion-easing-standard) infinite alternate;
+  }
+
+  @media (forced-colors: active) {
+    .switch__input { border-color: CanvasText; background: Canvas; }
+    .switch__input::before { forced-color-adjust: none; background: CanvasText; }
+    .switch__input:checked { background: Highlight; border-color: Highlight; }
+    .switch__input:checked::before { background: HighlightText; }
+    .switch__input:disabled { border-color: GrayText; }
+    .switch__input:disabled::before { background: GrayText; }
+    .switch:has(:disabled) .switch__label { color: GrayText; }
+  }
+}
+@keyframes switch-pulse { to { opacity: var(--opacity-disabled); } }

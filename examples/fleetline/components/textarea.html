@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Textarea — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline textarea: multi-line input with every state, auto-grow and a character counter.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/textarea.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/form-field.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Textarea</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a textarea for answers longer than a sentence: defect descriptions, handover notes, reasons for a rejected inspection. Use a text field for single-line answers like a plate number or a part code.</p>
+        <ul>
+          <li>Always inside a <a href="form-field.html">form field</a> with a visible label that says what to write ("Defect description", not "Notes").</li>
+          <li>Size it to the expected answer with <code>rows</code>; use <code>.textarea--auto-grow</code> when length varies a lot.</li>
+          <li>When there is a limit, show a counter. Don't use <code>maxlength</code>: it silently cuts pasted text.</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>textarea.textarea</code>; same border, radius and states as the text field</li>
+        <li>Value / placeholder text</li>
+        <li>Resize handle (vertical only; hidden when auto-grow, read-only or disabled)</li>
+        <li>Counter (optional) — <code>.field__counter</code> wired with <code>data-counter</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="textarea" aria-labelledby="textarea-h">
+        <h3 id="textarea-h">Textarea</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <div class="field">
+              <label class="label" for="ta-default">Defect description</label>
+              <textarea class="textarea" id="ta-default" name="notes" rows="4" placeholder="e.g. Brake warning light on after cold start"></textarea>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="field">
+              <label class="label" for="ta-hover">Defect description</label>
+              <textarea class="textarea is-hover" id="ta-hover" name="notes" rows="4"></textarea>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="field">
+              <label class="label" for="ta-focus">Defect description</label>
+              <textarea class="textarea is-focus-visible" id="ta-focus" name="notes" rows="4">Coolant level low</textarea>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:filled">
+            <div class="field">
+              <label class="label" for="ta-filled">Work carried out</label>
+              <textarea class="textarea" id="ta-filled" name="notes" rows="4">Front nearside tyre worn to 2 mm. Replaced with stock tyre from North Yard. Torque checked at 450 Nm.</textarea>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="field">
+              <label class="label" for="ta-disabled">Handover notes</label>
+              <textarea class="textarea" id="ta-disabled" name="notes" rows="4" disabled aria-describedby="ta-disabled-hint">Vehicle moved to bay 4 for overnight charging.</textarea>
+            <p class="field__hint" id="ta-disabled-hint">Notes are locked once the work order is closed.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:read-only">
+            <div class="field">
+              <label class="label" for="ta-readonly">Driver's defect report</label>
+              <textarea class="textarea" id="ta-readonly" name="notes" rows="4" readonly>Vibration through steering wheel above 80 km/h. Reported by Tomás Ruiz, route 12.</textarea>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <div class="field">
+              <label class="label" for="ta-invalid">Reason for failing the inspection</label>
+              <textarea class="textarea" id="ta-invalid" name="reason" rows="4" required aria-invalid="true" aria-describedby="ta-invalid-msg"></textarea>
+            <p class="field__error" id="ta-invalid-msg">
+              <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+              <span><span class="sr-only">Error: </span>Enter the reason the vehicle failed inspection.</span>
+            </p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:auto-grow">
+            <div class="field">
+              <label class="label" for="ta-grow">Handover notes</label>
+              <textarea class="textarea textarea--auto-grow" id="ta-grow" name="notes" rows="4" rows="2" aria-describedby="ta-grow-hint"></textarea>
+            <p class="field__hint" id="ta-grow-hint">Grows as you type, up to 12 lines.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-counter">
+            <div class="field">
+              <label class="label" for="ta-count">Message to driver</label>
+              <textarea class="textarea" id="ta-count" name="message" rows="3" data-counter="ta-count-n" aria-describedby="ta-count-hint ta-count-n">KX-219 is ready for collection at North Yard, bay 2.</textarea>
+              <p class="field__hint" id="ta-count-hint">Sent as a text message to the driver's phone.</p>
+              <p class="field__counter" id="ta-count-n" data-max="160">Up to 160 characters</p>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;textarea class="textarea" id="defect" name="defect" rows="4"&gt;&lt;/textarea&gt;
+      &lt;textarea class="textarea" … disabled&gt;   &lt;textarea class="textarea" … readonly&gt;
+      &lt;textarea class="textarea" … aria-invalid="true" aria-describedby="defect-error"&gt;&lt;/textarea&gt;
+
+      &lt;!-- Auto-grow (field-sizing: content where supported; rows + resize elsewhere) --&gt;
+      &lt;textarea class="textarea textarea--auto-grow" rows="2" style="--textarea-max-rows: 12"&gt;&lt;/textarea&gt;
+
+      &lt;!-- Counter: js/form-field.js → init(root) --&gt;
+      &lt;textarea class="textarea" id="msg" data-counter="msg-count" aria-describedby="msg-count"&gt;&lt;/textarea&gt;
+      &lt;p class="field__counter" id="msg-count" data-max="160"&gt;Up to 160 characters&lt;/p&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.textarea</code></td><td>block class</td><td>Bordered multi-line input</td></tr>
+      <tr><td><code>.textarea--auto-grow</code></td><td>modifier class</td><td>Content-sized between min and max rows</td></tr>
+      <tr><td><code>--textarea-min-rows</code>, <code>--textarea-max-rows</code></td><td>custom property (number)</td><td>Auto-grow bounds (3 / 12)</td></tr>
+      <tr><td><code>rows</code></td><td>attribute</td><td>Initial height and the no-<code>field-sizing</code> fallback</td></tr>
+      <tr><td><code>data-counter</code> + <code>.field__counter[data-max]</code></td><td>attribute / part</td><td>Live counter (js/form-field.js); over the limit sets <code>aria-invalid</code> but never blocks typing</td></tr>
+      <tr><td><code>disabled</code> / <code>readonly</code> / <code>aria-invalid="true"</code></td><td>attribute</td><td>States</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="field"><label class="label" for="dd-ta1">Defect description</label><textarea class="textarea" id="dd-ta1" rows="3"></textarea></div>
+          <figcaption><strong>Do</strong> label the field with what to write and give it room for the expected answer.</figcaption></figure>
+        <figure class="ds-dont"><div class="field"><textarea class="textarea" aria-label="Notes" rows="1" placeholder="Describe the defect, where it is and when it started…"></textarea></div>
+          <figcaption><strong>Don't</strong> rely on a placeholder as the label or squeeze a long answer into one row.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Moves focus into and out of the textarea (Tab is never captured)</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Inserts a new line</td></tr>
+      <tr><td>Typing, arrows, <kbd>Home</kbd> <kbd>End</kbd></td><td>Native text editing</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Role: native multi-line <code>textbox</code>. Name from <code>&lt;label for&gt;</code>; hint, counter and error via <code>aria-describedby</code>.</li>
+        <li>Counter: visible text updates on every keystroke; a separate polite status region announces it after a typing pause.</li>
+        <li>Invalid: thicker red border, icon and message — never color alone. <code>:user-invalid</code> only applies after interaction.</li>
+        <li>Text is 16px so iOS does not zoom; resize is vertical only so it never breaks the layout at 320px.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-border</code>, <code>--input-bg</code>, <code>--input-radius</code></td><td>Shared with text field</td></tr>
+      <tr><td><code>--size-control-md</code></td><td>Minimum height (2 × control)</td></tr>
+      <tr><td><code>--color-border-focus</code>, <code>--focus-ring-*</code></td><td>Focus</td></tr>
+      <tr><td><code>--color-border-invalid</code></td><td>Invalid border</td></tr>
+      <tr><td><code>--color-bg-subtle</code>, <code>--color-bg-muted</code>, <code>--color-text-disabled</code></td><td>Read-only and disabled</td></tr>
+      <tr><td><code>--color-text-subtle</code></td><td>Placeholder</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

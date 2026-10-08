@@ -619,7 +619,7 @@ HTML_RULES = [
     (re.compile(r"tabindex=\"[1-9]", re.I), "positive tabindex"),
     (re.compile(r"<(div|span)[^>]*\bonclick=", re.I), "click handler on div/span — use <button>"),
     (re.compile(r"<button(?![^>]*\btype=)[^>]*>", re.I), "button without explicit type"),
-    (re.compile(r"<a(?![^>]*\bhref=)[^>]*>", re.I), "<a> without href — use <button> for actions"),
+    (re.compile(r"<a\b(?![^>]*\bhref=)[^>]*>", re.I), "<a> without href — use <button> for actions"),   # \b: not <article>/<aside>
     (re.compile(r"user-scalable\s*=\s*no|maximum-scale\s*=\s*1", re.I), "zoom disabled in viewport meta"),
     (re.compile(r"on\w+=\"[^\"]*\.(showModal|show|close|showPopover|hidePopover|togglePopover)\(", re.I),
      "inline JS opening/closing a dialog or popover — use invoker commands: commandfor=\"id\" command=\"show-modal|close|toggle-popover\""),
@@ -718,7 +718,7 @@ def cmd_init(a):
                      ("tokens/themes/high-contrast.json", "tokens/themes/high-contrast.json"),
                      ("base.css", "css/base.css"), ("docs.css", "docs/docs.css"), ("docs.js", "docs/docs.js"),
                      ("component.html", "docs/_component-template.html"),
-                     ("theme.js", "js/theme.js")]:
+                     ("theme.js", "js/theme.js"), ("lib/invokers.js", "js/lib/invokers.js")]:
         safe_copy(tpl / src, root / dst, kind="owned")
     cfg = json.loads((tpl / "ds.config.json").read_text(encoding="utf-8"))
     if (root / "ds.config.json").exists():   # re-init: keep every decision already recorded
@@ -2545,7 +2545,9 @@ TASTE_RULES = [
 def cmd_taste(a):
     root = Path(a.path)
     exts = {".css", ".scss", ".html", ".jsx", ".tsx", ".vue", ".svelte", ".astro", ".md", ".mdx"}
-    files = [root] if root.is_file() else [p_ for p_ in root.rglob("*") if p_.suffix in exts and not set(p_.parts) & SKIP_DIRS]
+    # Docs chrome and templates (docs/, _*.html) hold deliberate "don't" examples — they aren't product UI.
+    files = [root] if root.is_file() else [p_ for p_ in root.rglob("*") if p_.suffix in exts and not set(p_.parts) & SKIP_DIRS
+                                           and "docs" not in p_.relative_to(root).parts and not p_.name.startswith("_")]
     hits, per_rule = [], {}
     for f in files:
         text = f.read_text(encoding="utf-8", errors="ignore")
@@ -2605,6 +2607,13 @@ const pages = ['components', 'patterns'].filter((d) => existsSync(d))
 const themes = __THEMES__;
 
 async function open(page, url, theme, dir = 'ltr') {
+  // Deterministic: no transition/animation ever runs (installed before any page content), so axe and
+  // screenshots always read final colors — never a surface caught mid-fade.
+  await page.addInitScript(() => {
+    const style = document.createElement('style');
+    style.textContent = '*,*::before,*::after{transition:none!important;animation:none!important}';
+    (document.head || document.documentElement).appendChild(style);
+  });
   await page.goto(`/${url}`);
   await page.evaluate(([t, d]) => {
     t === 'light' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', t);
@@ -2613,6 +2622,8 @@ async function open(page, url, theme, dir = 'ltr') {
   await page.evaluate(() => document.fonts.ready);
   // Let style recalculation settle after the theme switch; without it axe can read a half-applied theme.
   await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  // Wait until nothing is animating (e.g. a popover fading in): axe blends text with half-transparent surfaces.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
 }
 
 for (const url of pages) {

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Select — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline select: native select restyled with every state, sizes and option groups.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/select.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Select</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a select to pick one option from a known list of about 5–15 items — depot, service type, vehicle class. Use radios for 2–5 options people should compare, and a combobox when the list is long or people know what they are looking for (a part number, one of 400 vehicles).</p>
+        <ul>
+          <li>Start with a prompt option ("Choose a depot", <code>value=""</code>) unless there is a safe default.</li>
+          <li>Group long lists with <code>optgroup</code>; order options alphabetically or by frequency.</li>
+          <li>It's a native <code>&lt;select&gt;</code>: the OS picker works with touch, screen readers and gloves.</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Wrapper — <code>.select</code>, draws the chevron (<code>::after</code>, masked <code>currentColor</code>)</li>
+        <li>Control — native <code>select.select__control</code>, same border, radius and heights as the text field</li>
+        <li>Value or prompt option</li>
+        <li>Picker — the OS list, or a token-styled <code>::picker(select)</code> where customizable select is supported</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="select" aria-labelledby="select-h">
+        <h3 id="select-h">Select</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <div class="field">
+              <label class="label" for="sl-default">Home depot</label>
+              <div class="select">
+                <select class="select__control" id="sl-default" name="depot">
+                <option value="">Choose a depot</option>
+                <option>North Yard</option>
+                <option>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="field">
+              <label class="label" for="sl-hover">Home depot</label>
+              <div class="select">
+                <select class="select__control is-hover" id="sl-hover" name="depot">
+                <option value="">Choose a depot</option>
+                <option>North Yard</option>
+                <option>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="field">
+              <label class="label" for="sl-focus">Home depot</label>
+              <div class="select">
+                <select class="select__control is-focus-visible" id="sl-focus" name="depot">
+                <option value="">Choose a depot</option>
+                <option>North Yard</option>
+                <option selected>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:filled">
+            <div class="field">
+              <label class="label" for="sl-filled">Home depot</label>
+              <div class="select">
+                <select class="select__control" id="sl-filled" name="depot">
+                <option value="">Choose a depot</option>
+                <option selected>North Yard</option>
+                <option>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="field">
+              <label class="label" for="sl-disabled">Home depot</label>
+              <div class="select">
+                <select class="select__control" id="sl-disabled" name="depot" disabled aria-describedby="sl-disabled-hint">
+                <option value="">Choose a depot</option>
+                <option selected>North Yard</option>
+                <option>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+              <p class="field__hint" id="sl-disabled-hint">Vehicles can't change depot while a work order is open.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:read-only">
+            <div class="field">
+              <label class="label" for="sl-readonly">Home depot</label>
+              <div class="select">
+                <select class="select__control" id="sl-readonly" name="depot" aria-readonly="true" aria-describedby="sl-readonly-hint">
+                <option selected>Airport Logistics Park</option>
+                </select>
+              </div>
+              <p class="field__hint" id="sl-readonly-hint">Set by the leasing contract.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <div class="field">
+              <label class="label" for="sl-invalid">Home depot</label>
+              <div class="select">
+                <select class="select__control" id="sl-invalid" name="depot" required aria-invalid="true" aria-describedby="sl-invalid-err">
+                <option value="">Choose a depot</option>
+                <option>North Yard</option>
+                <option>Harbour Road</option>
+                <option>Airport Logistics Park</option>
+                <option>Westgate Industrial Estate</option>
+                </select>
+              </div>
+              <p class="field__error" id="sl-invalid-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Select the depot where the vehicle parks overnight.</span>
+              </p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-groups">
+            <div class="field">
+              <label class="label" for="sl-groups">Service type</label>
+              <div class="select">
+                <select class="select__control" id="sl-groups" name="depot">
+                <option value="">Choose a service type</option>
+                <optgroup label="Preventive">
+                  <option>Interim service</option>
+                  <option selected>Full service</option>
+                  <option>Tachograph calibration</option>
+                </optgroup>
+                <optgroup label="Repair">
+                  <option>Brakes</option>
+                  <option>Suspension and steering</option>
+                  <option>Electrical</option>
+                </optgroup>
+                <optgroup label="Compliance">
+                  <option>Annual roadworthiness test</option>
+                  <option>Emissions test</option>
+                </optgroup>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="select [select--sm | select--lg]"&gt;
+        &lt;select class="select__control" id="depot" name="depot" required&gt;
+          &lt;option value=""&gt;Choose a depot&lt;/option&gt;
+          &lt;option&gt;North Yard&lt;/option&gt;
+          &lt;optgroup label="Preventive"&gt;…&lt;/optgroup&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      &lt;!-- States --&gt;
+      &lt;select class="select__control" … disabled&gt;
+      &lt;select class="select__control" … aria-invalid="true" aria-describedby="depot-error"&gt;
+      &lt;!-- Read-only: &lt;select&gt; has no readonly; render only the current option --&gt;
+      &lt;select class="select__control" … aria-readonly="true"&gt;&lt;option selected&gt;Airport Logistics Park&lt;/option&gt;&lt;/select&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.select</code> + <code>.select__control</code></td><td>block / part</td><td>Wrapper with chevron + native select</td></tr>
+      <tr><td><code>.select--sm | --lg</code></td><td>modifier class</td><td>32 / 40 (default) / 48px — same as inputs and buttons</td></tr>
+      <tr><td><code>disabled</code>, <code>required</code></td><td>attribute</td><td>Native states</td></tr>
+      <tr><td><code>aria-invalid="true"</code>, <code>:user-invalid</code></td><td>attribute / pseudo-class</td><td>Invalid</td></tr>
+      <tr><td><code>aria-readonly="true"</code> + one option</td><td>attribute</td><td>Read-only (focusable, submitted, no chevron)</td></tr>
+      <tr><td><code>option[value=""]</code></td><td>markup</td><td>Prompt option, shown muted while selected</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="field">
+  <label class="label" for="dd-sl1">Home depot</label>
+  <div class="select">
+    <select class="select__control" id="dd-sl1" name="depot">
+    <option value="">Choose a depot</option>
+    <option>North Yard</option>
+    <option>Harbour Road</option>
+    <option>Airport Logistics Park</option>
+    <option>Westgate Industrial Estate</option>
+    </select>
+  </div>
+</div>
+          <figcaption><strong>Do</strong> use a native select with a prompt option for a short, known list.</figcaption></figure>
+        <figure class="ds-dont"><div class="field">
+  <label class="label" for="dd-sl2">Vehicle</label>
+  <div class="select">
+    <select class="select__control" id="dd-sl2" name="depot">
+    <option>KX-219</option><option>KX-220</option><option>… 412 more vehicles</option>
+    </select>
+  </div>
+</div>
+          <figcaption><strong>Don't</strong> use a select for hundreds of options — use a combobox with search.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Focuses the select</td></tr>
+      <tr><td><kbd>Space</kbd> / <kbd>Enter</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd></td><td>Opens the picker</td></tr>
+      <tr><td><kbd>↑</kbd> <kbd>↓</kbd>, typing</td><td>Moves between options / jumps by first letters</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Closes the picker without changing the value</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>combobox</code>/<code>listbox</code> (by platform) — all keyboard and screen-reader behavior is native.</li>
+        <li>The chevron is decorative (on the wrapper) and uses <code>currentColor</code>, so it follows themes and forced colors.</li>
+        <li>Invalid: thicker red border, icon and message, linked with <code>aria-describedby</code>.</li>
+        <li>Read-only keeps the value focusable and announced; only one option is rendered so it can't be changed.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-border</code>, <code>--input-bg</code>, <code>--input-radius</code></td><td>Shared with text field</td></tr>
+      <tr><td><code>--size-control-sm | -md | -lg</code></td><td>Heights</td></tr>
+      <tr><td><code>--color-text-muted</code></td><td>Chevron, prompt option</td></tr>
+      <tr><td><code>--color-border-focus</code>, <code>--focus-ring-*</code>, <code>--color-border-invalid</code></td><td>Focus, invalid</td></tr>
+      <tr><td><code>--color-bg-overlay</code>, <code>--overlay-radius</code>, <code>--overlay-shadow</code>, <code>--color-selected-*</code></td><td>Customizable picker</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

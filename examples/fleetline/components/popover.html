@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Popover — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline popover: native [popover] opened by invoker commands, placed with CSS anchor positioning and the shared flip fallbacks.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/popover.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Popover</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a popover for a small amount of related, optional content next to its trigger: a vehicle summary from a table row, quick actions on a work order, a short form like "Snooze reminder". The page stays usable while it's open, and clicking outside or pressing Esc closes it.</p>
+      <ul>
+        <li>Use a <strong>tooltip</strong> instead for a single non-interactive line; a <strong>menu</strong> for a list of commands; a <strong>modal</strong> when the user must decide before going on.</li>
+        <li>Keep it under ~22rem wide and a few lines tall. If it needs scrolling, it should be a drawer or a page.</li>
+        <li>Title in sentence case naming the object ("Vehicle KX-24"); actions are verb + object ("Schedule service").</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Trigger — a <code>&lt;button&gt;</code> with <code>commandfor</code> + <code>command="toggle-popover"</code> and an <code>anchor-name</code></li>
+        <li>Surface — <code>&lt;div class="popover" popover role="dialog"&gt;</code>, overlay surface and shadow</li>
+        <li>Header (optional) — <code>.popover__title</code> and a close button</li>
+        <li>Body — <code>.popover__body</code>, may contain links and controls</li>
+        <li>Footer (optional) — <code>.popover__footer</code> actions</li>
+        <li>Arrow (optional) — <code>.popover__arrow</code>, decorative</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="popover" aria-labelledby="popover-h">
+        <h3 id="popover-h">Popover</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:closed">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary" commandfor="pop-kx24" command="toggle-popover" style="anchor-name: --pop-kx24;">
+                <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>
+                <span class="btn__label">KX-24 details</span>
+              </button>
+            </div>
+            <p>Closed: the trigger only. Activate it to open the real popover below the button.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:open">
+            <div class="popover is-open" role="group" aria-labelledby="pv-kx24-title">
+              <div class="popover__header">
+                <h4 class="popover__title" id="pv-kx24-title">Vehicle KX-24</h4>
+                <button type="button" class="btn btn--ghost btn--sm" aria-label="Close">
+                  <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                </button>
+              </div>
+              <div class="popover__body">
+                <p>Ford Transit, Northside Depot. 85,200 km — brake inspection is 1,200 km overdue.</p>
+              </div>
+              <div class="popover__footer">
+                <button type="button" class="btn btn--primary btn--sm">Schedule service</button>
+                <a class="btn btn--ghost btn--sm" href="#popover">View history</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:with-arrow">
+            <div class="popover popover--arrow is-open" role="group" aria-labelledby="pv-arrow-title" style="margin-block-start: var(--space-2);">
+              <span class="popover__arrow" aria-hidden="true"></span>
+              <div class="popover__body">
+                <p id="pv-arrow-title"><strong>Odometer synced 4 min ago</strong> from the KX-24 telematics unit.</p>
+              </div>
+            </div>
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary btn--sm" commandfor="pop-arrow" command="toggle-popover" style="anchor-name: --pop-arrow;">Sync status</button>
+            </div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:placements">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary btn--sm" commandfor="pop-below" command="toggle-popover" style="anchor-name: --pop-below;">Below</button>
+              <button type="button" class="btn btn--secondary btn--sm" commandfor="pop-above" command="toggle-popover" style="anchor-name: --pop-above;">Above</button>
+              <button type="button" class="btn btn--secondary btn--sm" commandfor="pop-start" command="toggle-popover" style="anchor-name: --pop-start;">Inline start</button>
+              <button type="button" class="btn btn--secondary btn--sm" commandfor="pop-end" command="toggle-popover" style="anchor-name: --pop-end;">Inline end</button>
+            </div>
+            <p>Placements are logical, so "inline start" is the left in English and the right in Arabic. Near a viewport edge the popover flips with the shared <code>--flip-block</code> / <code>--flip-inline</code> tries.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--secondary" commandfor="pop-kx24" command="toggle-popover"
+        style="anchor-name: --pop-kx24"&gt;KX-24 details&lt;/button&gt;
+
+&lt;div id="pop-kx24" class="popover" popover role="dialog" aria-labelledby="kx24-title"
+     style="position-anchor: --pop-kx24"&gt;
+  &lt;div class="popover__header"&gt;
+    &lt;h4 class="popover__title" id="kx24-title"&gt;Vehicle KX-24&lt;/h4&gt;
+    &lt;button type="button" class="btn btn--ghost btn--sm" commandfor="pop-kx24" command="hide-popover" aria-label="Close"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="popover__body"&gt;&lt;p&gt;…&lt;/p&gt;&lt;/div&gt;
+  &lt;div class="popover__footer"&gt;…&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Arrow and placements --&gt;
+&lt;div class="popover popover--arrow" popover&gt;&lt;span class="popover__arrow" aria-hidden="true"&gt;&lt;/span&gt;…&lt;/div&gt;
+&lt;div class="popover popover--block-start | popover--inline-start | popover--inline-end" popover&gt;…&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.popover[popover]</code></td><td>block</td><td>Surface; <code>popover</code> (auto) gives light dismiss and Esc</td></tr>
+          <tr><td><code>commandfor="id" command="toggle-popover | show-popover | hide-popover"</code></td><td>invoker attributes</td><td>Open/close without JS; the browser exposes the expanded state on the trigger</td></tr>
+          <tr><td><code>anchor-name</code> / <code>position-anchor</code></td><td>inline style per instance</td><td>Ties the surface to its trigger</td></tr>
+          <tr><td><code>.popover--block-start | --inline-start | --inline-end</code></td><td>modifier</td><td>Preferred placement (default below, aligned to the inline start)</td></tr>
+          <tr><td><code>.popover--arrow</code> + <code>.popover__arrow</code></td><td>modifier + part</td><td>Pointer toward the trigger (block placements)</td></tr>
+          <tr><td><code>.popover__header | __title | __body | __footer</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>.is-open</code></td><td>docs-only class</td><td>Renders an open popover in page flow (same rule as <code>:popover-open</code>)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>Vehicle summary + "Schedule service" in a popover next to the row.</p>
+          <figcaption><strong>Do</strong> keep popovers short and related to their trigger.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>A 12-field "Edit vehicle" form inside a popover.</p>
+          <figcaption><strong>Don't</strong> put long forms in a popover: a stray click outside discards them. Use a modal or a page.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on trigger</td><td>Toggles the popover</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>From the trigger moves into the popover (it follows the trigger in focus order); can leave it — not a trap</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes the popover and returns focus to the trigger</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: <code>role="dialog"</code> (non-modal) with <code>aria-labelledby</code> pointing to the title, or an <code>aria-label</code>.</li>
+        <li>The trigger's expanded/collapsed state is exposed by the browser for invoker-controlled popovers; add <code>aria-expanded</code> yourself only when opening from script.</li>
+        <li>Light dismiss is native for <code>popover="auto"</code>; focus returns to the invoker when the popover closes with focus inside.</li>
+        <li>Without anchor positioning the popover opens centered in the viewport — still fully usable.</li>
+        <li>The arrow is decorative (<code>aria-hidden</code>). Forced colors: a <code>CanvasText</code> border keeps the surface visible.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-overlay</code></td><td>Surface</td></tr>
+          <tr><td><code>--overlay-radius</code>, <code>--overlay-shadow</code></td><td>Shape and elevation</td></tr>
+          <tr><td><code>--color-border-default</code></td><td>Border and arrow edge</td></tr>
+          <tr><td><code>--space-2 | -3</code></td><td>Gap to the trigger (larger with arrow)</td></tr>
+          <tr><td><code>--motion-duration-base | -fast</code>, <code>--motion-easing-enter | -exit</code></td><td>Fade in and out</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Real popovers -->
+  <div id="pop-kx24" class="popover" popover role="dialog" aria-labelledby="kx24-title" style="position-anchor: --pop-kx24;">
+    <div class="popover__header">
+      <h4 class="popover__title" id="kx24-title">Vehicle KX-24</h4>
+      <button type="button" class="btn btn--ghost btn--sm" commandfor="pop-kx24" command="hide-popover" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="popover__body"><p>Ford Transit, Northside Depot. 85,200 km — brake inspection is 1,200 km overdue.</p></div>
+    <div class="popover__footer">
+      <button type="button" class="btn btn--primary btn--sm">Schedule service</button>
+      <a class="btn btn--ghost btn--sm" href="#popover">View history</a>
+    </div>
+  </div>
+  <div id="pop-arrow" class="popover popover--arrow" popover role="dialog" aria-label="Sync status" style="position-anchor: --pop-arrow;">
+    <span class="popover__arrow" aria-hidden="true"></span>
+    <div class="popover__body"><p><strong>Odometer synced 4 min ago</strong> from the KX-24 telematics unit.</p></div>
+  </div>
+  <div id="pop-below" class="popover" popover role="dialog" aria-label="Below" style="position-anchor: --pop-below;"><div class="popover__body"><p>Opens below, flips above near the bottom edge.</p></div></div>
+  <div id="pop-above" class="popover popover--block-start" popover role="dialog" aria-label="Above" style="position-anchor: --pop-above;"><div class="popover__body"><p>Opens above, flips below near the top edge.</p></div></div>
+  <div id="pop-start" class="popover popover--inline-start" popover role="dialog" aria-label="Inline start" style="position-anchor: --pop-start;"><div class="popover__body"><p>Opens at the inline start.</p></div></div>
+  <div id="pop-end" class="popover popover--inline-end" popover role="dialog" aria-label="Inline end" style="position-anchor: --pop-end;"><div class="popover__body"><p>Opens at the inline end.</p></div></div>
+</body>
+</html>

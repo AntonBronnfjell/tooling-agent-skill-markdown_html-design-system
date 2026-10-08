@@ -1,0 +1,93 @@
+/* toast.css — Toast: a transient global notice. Block alias: .toast (+ host .toast-region)
+   Host:     <section class="toast-region" popover="manual" aria-label="Notifications"> created by js/toast.js,
+             bottom inline-end, newest at the bottom, at most 3 visible. Top layer, so it sits above dialogs;
+             without popover support it falls back to position: fixed + --z-toast.
+   Tones:    .toast--info (default) | .toast--success | .toast--warning | .toast--danger
+   Parts:    .toast__icon (aria-hidden), .toast__content, .toast__title, .toast__message,
+             .toast__action (a .btn--sm), .toast__close (icon button, aria-label="Dismiss notification")
+   States:   [data-state="closing"] while the exit transition runs (set by js/toast.js).
+             .toast-stack is a docs-only static list for the stacked demo.
+   Motion:   slide 8px from the inline-end edge + fade (base/enter); exit fast/exit. */
+@layer components {
+  .toast-region {
+    position: fixed;
+    inset: auto;
+    inset-block-end: var(--space-4);
+    inset-inline-end: var(--space-4);
+    z-index: var(--z-toast);
+    inline-size: min(24rem, 100vw - 2 * var(--space-4));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .toast-region__list,
+  .toast-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .toast {
+    --_icon: var(--color-feedback-info-icon);
+    --_dir: 1;
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4) var(--space-2);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-inline-start: var(--space-1) solid var(--_icon);
+    border-radius: var(--radius-md);
+    background: var(--color-elevation-surface-overlay);
+    color: var(--color-text-default);
+    box-shadow: var(--elevation-overlay);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-normal);
+    pointer-events: auto;
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--motion-duration-base) var(--motion-easing-enter),
+      translate var(--motion-duration-base) var(--motion-easing-enter);
+  }
+  @starting-style {
+    .toast-region .toast { opacity: 0; translate: calc(var(--_dir) * var(--space-2)) 0; }
+  }
+  .toast:dir(rtl) { --_dir: -1; }
+  .toast[data-state="closing"] {
+    opacity: 0;
+    translate: calc(var(--_dir) * var(--space-2)) 0;
+    transition-duration: var(--motion-duration-fast);
+    transition-timing-function: var(--motion-easing-exit);
+  }
+
+  .toast--success { --_icon: var(--color-feedback-success-icon); }
+  .toast--warning { --_icon: var(--color-feedback-warning-icon); }
+  .toast--danger { --_icon: var(--color-feedback-danger-icon); }
+
+  .toast__icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    margin-block-start: var(--space-px);
+    color: var(--_icon);
+    stroke-width: var(--icon-stroke);
+  }
+  .toast__content { flex: 1; min-inline-size: 0; display: grid; gap: var(--space-0-5); padding-block-start: var(--space-px); }
+  .toast__title { font-weight: var(--font-weight-semibold); }
+  .toast__message { margin: 0; color: var(--color-text-muted); }
+  .toast__action { align-self: center; flex-shrink: 0; }
+  .toast__close { flex-shrink: 0; margin-block: calc(-1 * var(--space-1)); }
+
+  @media (forced-colors: active) {
+    .toast { border-color: CanvasText; }
+    .toast__icon { color: CanvasText; }
+  }
+}

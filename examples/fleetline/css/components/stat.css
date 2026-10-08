@@ -1,0 +1,112 @@
+/* stat.css — Metric / statistic. Block alias: .stat
+   Markup:   <div class="stat"> <dl class="stat__body"><dt class="stat__label">…</dt><dd class="stat__value">…</dd></dl> …
+             (or a plain <div> structure; group several in a .stat-group)
+   Parts:    .stat__label, .stat__value (large, tabular numerals), .stat__unit, .stat__delta (arrow icon + text,
+             direction is in the words: "Up 1.2 pts vs last week"), .stat__note, .stat__sparkline (decorative SVG,
+             aria-hidden — the delta text carries the trend)
+   Delta tone: .stat__delta--good | --bad | --flat → feedback success/danger/neutral pairs. Tone follows meaning,
+             not direction: more uptime is good, more overdue services is bad.
+   States:   aria-busy="true" on .stat = loading skeleton (keep the label visible; sr-only text says what loads)
+   Layout:   .stat-group — auto-fit grid of stats. */
+@layer components {
+  .stat {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--card-radius);
+    background: var(--color-elevation-surface-raised);
+    color: var(--color-text-default);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__body { display: grid; gap: var(--space-1); margin: 0; }
+  .stat__label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+  .stat__value {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-tight);
+    letter-spacing: var(--font-tracking-tight);
+  }
+  .stat__unit {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--font-tracking-normal);
+  }
+  .stat__note { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+
+  .stat__delta {
+    --_bg: var(--color-bg-subtle);
+    --_fg: var(--color-text-default);
+    --_border: var(--color-border-default);
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding-block: var(--space-0-5);
+    padding-inline: var(--space-2);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-full);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+  }
+  .stat__delta--good { --_bg: var(--color-feedback-success-bg); --_fg: var(--color-feedback-success-fg); --_border: var(--color-feedback-success-border); }
+  .stat__delta--bad  { --_bg: var(--color-feedback-danger-bg);  --_fg: var(--color-feedback-danger-fg);  --_border: var(--color-feedback-danger-border); }
+  .stat__delta--flat { --_bg: var(--color-bg-subtle); --_fg: var(--color-text-default); --_border: var(--color-border-default); }
+  .stat__delta svg {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+  }
+
+  .stat__sparkline {
+    inline-size: 100%;
+    block-size: var(--space-10);
+    color: var(--dataviz-categorical-1);
+    overflow: visible;
+  }
+  .stat__sparkline path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .stat__sparkline circle { fill: currentColor; }
+
+  /* Loading skeleton */
+  .stat__skeleton {
+    display: block;
+    block-size: var(--space-4);
+    inline-size: 60%;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-muted);
+    animation: stat-pulse calc(var(--motion-duration-slower) * 3) var(--motion-easing-standard) infinite alternate;
+  }
+  .stat__skeleton--value { block-size: var(--space-8); inline-size: 45%; }
+  .stat__skeleton--delta { block-size: var(--space-5); inline-size: 35%; border-radius: var(--radius-full); }
+  .stat[aria-busy="true"] { cursor: progress; }
+
+  .stat-group {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (forced-colors: active) {
+    .stat, .stat__delta { border-color: CanvasText; }
+    .stat__sparkline { color: CanvasText; }
+    .stat__skeleton { background: GrayText; }
+  }
+}
+
+@keyframes stat-pulse { from { opacity: 1; } to { opacity: 0.45; } }

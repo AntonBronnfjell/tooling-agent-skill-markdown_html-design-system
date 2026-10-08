@@ -391,6 +391,13 @@
         "value": 65,
         "unit": "ch"
       }
+    },
+    "sticky-offset": {
+      "$value": {
+        "value": 4,
+        "unit": "rem"
+      },
+      "$description": "Height reserved for sticky headers: scroll-padding so focused/anchored elements aren't hidden (WCAG 2.4.11)."
     }
   },
   "focus": {

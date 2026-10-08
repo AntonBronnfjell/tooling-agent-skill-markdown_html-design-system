@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Breadcrumbs — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline breadcrumbs: hierarchy trail with current page, collapsed middle levels and a mobile parent link.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/breadcrumbs.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">document.querySelectorAll(".breadcrumbs__overflow").forEach((p) => p.addEventListener("toggle", (e) => document.querySelector(`[aria-controls="${p.id}"]`)?.setAttribute("aria-expanded", String(e.newState === "open"))));</script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Breadcrumbs</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use breadcrumbs on pages three or more levels deep (Fleet › depot › vehicle type › vehicle) so people can see where they are and step back up. Don't use them on top-level pages or for step-by-step flows (use a stepper).</p>
+      <ul><li>Each crumb is the title of that page, sentence case, short ("North Yard depot", not "Depot details for North Yard").</li><li>The current page comes last and is not a link.</li><li>Above 4 levels, collapse the middle into "…"; on phones only the parent remains.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Landmark — <code>nav.breadcrumbs[aria-label=Breadcrumb]</code></li><li>Ordered list — <code>ol.breadcrumbs__list</code></li><li>Ancestor link — <code>a.breadcrumbs__link</code></li><li>Separator — "/" drawn by CSS, not read aloud</li><li>Current page — <code>span.breadcrumbs__current[aria-current=page]</code></li><li>Overflow (optional) — <code>button.breadcrumbs__more</code> + <code>ul.breadcrumbs__overflow[popover]</code></li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="breadcrumbs" aria-labelledby="breadcrumbs-h">
+        <h3 id="breadcrumbs-h">Breadcrumbs</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default state:current">
+            <nav class="breadcrumbs" aria-label="Breadcrumb"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#north-yard">North Yard depot</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#vans">Vans</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Van KX-219</span></li></ol></nav>
+            <p>The last item is the current page: plain text with <code>aria-current="page"</code>.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:collapsed">
+            <nav class="breadcrumbs" aria-label="Breadcrumb (collapsed example)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><button type="button" class="breadcrumbs__more" aria-label="Show 3 more levels" aria-expanded="false" aria-controls="bc-more" commandfor="bc-more" command="toggle-popover" style="anchor-name:--bc-more">…</button><ul class="breadcrumbs__overflow" id="bc-more" popover style="position-anchor:--bc-more"><li><a class="breadcrumbs__link" href="#north-yard">North Yard depot</a></li><li><a class="breadcrumbs__link" href="#vans">Vans</a></li><li><a class="breadcrumbs__link" href="#kx-219">Van KX-219</a></li></ul></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#wo-4182">Work order WO-4182</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Brake inspection</span></li></ol></nav>
+            <p>More than 4 levels: middle levels collapse into a list behind "…".</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:mobile">
+            <div style="max-inline-size: 20rem;"><nav class="breadcrumbs" aria-label="Breadcrumb (mobile example)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#north-yard">North Yard depot</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#vans">Vans</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Van KX-219</span></li></ol></nav></div>
+            <p>Narrow container: only the parent shows, as "← Vans".</p>
+          </div>
+          <div class="ds-demo" data-demo="state:hover state:focus-visible">
+            <nav class="breadcrumbs" aria-label="Breadcrumb (states example)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link is-hover" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link is-focus-visible" href="#north-yard">North Yard depot</a></li></ol></nav>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;nav class=&quot;breadcrumbs&quot; aria-label=&quot;Breadcrumb&quot;&gt;
+  &lt;ol class=&quot;breadcrumbs__list&quot;&gt;
+    &lt;li class=&quot;breadcrumbs__item&quot;&gt;&lt;a class=&quot;breadcrumbs__link&quot; href=&quot;/fleet&quot;&gt;Fleet&lt;/a&gt;&lt;/li&gt;
+    &lt;li class=&quot;breadcrumbs__item&quot;&gt;&lt;a class=&quot;breadcrumbs__link&quot; href=&quot;/depots/north-yard&quot;&gt;North Yard depot&lt;/a&gt;&lt;/li&gt;
+    &lt;li class=&quot;breadcrumbs__item&quot;&gt;&lt;a class=&quot;breadcrumbs__link&quot; href=&quot;/depots/north-yard/vans&quot;&gt;Vans&lt;/a&gt;&lt;/li&gt;
+    &lt;li class=&quot;breadcrumbs__item&quot;&gt;&lt;span class=&quot;breadcrumbs__current&quot; aria-current=&quot;page&quot;&gt;Van KX-219&lt;/span&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;
+
+&lt;!-- Collapsed middle levels: disclosure with plain links (not role=&quot;menu&quot;) --&gt;
+&lt;li class=&quot;breadcrumbs__item&quot;&gt;
+  &lt;button type=&quot;button&quot; class=&quot;breadcrumbs__more&quot; aria-label=&quot;Show 3 more levels&quot; aria-expanded=&quot;false&quot;
+          aria-controls=&quot;bc-more&quot; commandfor=&quot;bc-more&quot; command=&quot;toggle-popover&quot; style=&quot;anchor-name:--bc-more&quot;&gt;…&lt;/button&gt;
+  &lt;ul class=&quot;breadcrumbs__overflow&quot; id=&quot;bc-more&quot; popover style=&quot;position-anchor:--bc-more&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;breadcrumbs__link&quot; href=&quot;/depots/north-yard&quot;&gt;North Yard depot&lt;/a&gt;&lt;/li&gt;
+    …
+  &lt;/ul&gt;
+&lt;/li&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.breadcrumbs</code></td><td>block class</td><td><code>&lt;nav&gt;</code>; inline-size container</td></tr>
+          <tr><td><code>.breadcrumbs__list | __item | __link | __current</code></td><td>parts</td><td>Trail</td></tr>
+          <tr><td><code>.breadcrumbs__more</code>, <code>.breadcrumbs__overflow</code></td><td>parts</td><td>Collapsed levels (popover via invoker)</td></tr>
+          <tr><td><code>aria-current="page"</code></td><td>attribute</td><td>Current page</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <nav class="breadcrumbs" aria-label="Breadcrumb (do example)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#vans">Vans</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Van KX-219</span></li></ol></nav>
+          <figcaption><strong>Do</strong> end with the current page as plain text.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>Fleet &gt; Vans &gt; <a class="breadcrumbs__link" href="#kx-219">Van KX-219</a> (link to itself)</p>
+          <figcaption><strong>Don't</strong> make the current page a link or type separators into the text.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves through the links (and the "…" button)</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Follows a link; on "…" opens the hidden levels</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes the hidden-levels list, focus returns to "…"</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Screen readers announce "Breadcrumb, navigation" and "list, 4 items"; separators use CSS alt text <code>content: "/" / ""</code>, so they aren't read.</li><li>Current page: <code>aria-current="page"</code> plus semibold, no underline.</li><li>"…" has a name that says what it reveals ("Show 3 more levels").</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-text-link</code></td><td>Ancestor links</td></tr>
+          <tr><td><code>--color-text-default</code></td><td>Current page</td></tr>
+          <tr><td><code>--color-text-subtle</code></td><td>Separator</td></tr>
+          <tr><td><code>--color-elevation-surface-overlay</code>, <code>--overlay-radius | -shadow</code></td><td>Overflow list</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

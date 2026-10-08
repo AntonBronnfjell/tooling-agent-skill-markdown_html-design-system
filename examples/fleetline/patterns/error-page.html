@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error pages — Fleetline</title>
+  <meta name="ds-status" content="beta">
+  <meta name="description" content="Fleetline error pages: 404 not found, 403 no access, 500 server error with a reference ID, and offline. The header stays so people can recover; each page is a result panel inside the top-nav-only app shell.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/skip-link.css">
+  <link rel="stylesheet" href="../css/components/top-nav.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/text-field.css">
+  <link rel="stylesheet" href="../css/components/search-input.css">
+  <link rel="stylesheet" href="../css/components/result-panel.css">
+  <link rel="stylesheet" href="../css/patterns/app-shell.css">
+  <link rel="stylesheet" href="../css/patterns/error-page.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init as topNav } from "../js/top-nav.js"; import { init as search } from "../js/search-input.js"; topNav(); search();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-file-question" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17h.01"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="icon-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    <symbol id="icon-rotate-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></symbol>
+    <symbol id="icon-wifi-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Error pages</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use these full pages when a whole screen can't be shown. For a failure inside one part of a screen (a tile that didn't load, a save that failed) use an inline alert or the result panel in place, and keep the rest of the screen working.</p>
+      <ul>
+        <li><strong>Keep the header.</strong> Error pages use the top-nav-only app shell, so people can navigate away without the back button.</li>
+        <li><strong>Plain language, no blame:</strong> say what happened, what is safe, and what to do next. No status codes as the headline, no jokes, no "Oops".</li>
+        <li><strong>404:</strong> a search box plus the way home. <strong>403:</strong> who you're signed in as, who can grant access, "Request access" and "Switch account". <strong>500:</strong> "Try again", the status page, and a copyable reference ID. <strong>Offline:</strong> what is saved locally and that it will sync on its own.</li>
+        <li>Correct HTTP status and a matching <code>&lt;title&gt;</code> ("Page not found — Fleetline"); the result title is the page's only <code>h1</code>.</li>
+        <li>Planned downtime is not a 500: use the service-unavailable pattern with the return time.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Header — <code>header.top-nav</code> inside <code>.app-shell--top-nav-only</code></li>
+        <li>Main — <code>main#main.app-shell__main.error-page</code> (centres the panel vertically)</li>
+        <li>Result panel — <code>.result.result--page</code> + tone (<code>--error</code>, <code>--warning</code>, <code>--no-permission</code>)</li>
+        <li>Title — <code>h1.result__title</code>; description; reference ID <code>.result__reference</code> (500)</li>
+        <li>Search (404) — <code>search.search.error-page__search</code></li>
+        <li>Actions — <code>.result__actions</code>; technical details <code>details.result__details</code> (500, optional)</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Each page renders in a frame; in the product the panel title is the <code>h1</code> and the region is the document's <code>&lt;main&gt;</code>.</p>
+
+      <section id="error-page" aria-labelledby="error-page-h">
+        <h3 id="error-page-h">Error pages (404/500)</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:404" style="grid-column: 1 / -1;">
+            <p class="ds-demo__label">variant:404 — &lt;title&gt;Page not found — Fleetline&lt;/title&gt;</p>
+            <div style="--app-shell-min-block-size: 100%; block-size: 34rem; overflow: auto; border: var(--border-width-thin) solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-canvas);">
+              <div class="app-shell app-shell--top-nav-only">
+                <header class="top-nav app-shell__header">
+                  <div class="top-nav__bar">
+                    <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="e404-panel"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                    <a class="top-nav__brand" href="#dispatch"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                    <div class="top-nav__panel" id="e404-panel">
+                      <nav class="top-nav__nav" aria-label="Main (404 example)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders" aria-current="page">Work orders</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                    </div>
+                  </div>
+                </header>
+                <div class="app-shell__body">
+                  <div class="app-shell__main error-page" id="e404-main" tabindex="-1">
+                    <section class="result result--page" aria-labelledby="e404-t">
+                      <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-file-question"></use></svg></span>
+                      <h4 class="result__title" id="e404-t" tabindex="-1">We can’t find that page</h4>
+                      <p class="result__description">The work order may have been archived, or the link has a typo. Search for it by number or plate.</p>
+                      <search class="search error-page__search">
+                        <form class="search__form" action="#search" method="get">
+                          <label class="label" for="e404-q">Search vehicles and work orders</label>
+                          <div class="input input--affixed search__box">
+                            <svg class="search__icon" aria-hidden="true" focusable="false"><use href="#icon-search"></use></svg>
+                            <input class="input__control search__control" id="e404-q" name="q" type="search" placeholder="Plate, VIN or WO number" autocomplete="off" spellcheck="false">
+                            <span class="search__spinner" aria-hidden="true"></span>
+                            <button type="button" class="search__clear" aria-label="Clear search" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button>
+                          </div>
+                          <p class="search__status sr-only" role="status"></p>
+                        </form>
+                      </search>
+                      <div class="result__actions">
+                        <a class="btn btn--secondary" href="#dispatch">Go to dispatch board</a>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>Not found: plain words, no blame, a search box and the way home. Respond with HTTP 404.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:403" style="grid-column: 1 / -1;">
+            <p class="ds-demo__label">variant:403 — &lt;title&gt;No access — Fleetline&lt;/title&gt;</p>
+            <div style="--app-shell-min-block-size: 100%; block-size: 34rem; overflow: auto; border: var(--border-width-thin) solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-canvas);">
+              <div class="app-shell app-shell--top-nav-only">
+                <header class="top-nav app-shell__header">
+                  <div class="top-nav__bar">
+                    <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="e403-panel"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                    <a class="top-nav__brand" href="#dispatch"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                    <div class="top-nav__panel" id="e403-panel">
+                      <nav class="top-nav__nav" aria-label="Main (403 example)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders">Work orders</a></li><li><a class="top-nav__link" href="#reports" aria-current="page">Reports</a></li></ul></nav>
+                    </div>
+                  </div>
+                </header>
+                <div class="app-shell__body">
+                  <div class="app-shell__main error-page" id="e403-main" tabindex="-1">
+                    <section class="result result--page result--no-permission" aria-labelledby="e403-t">
+                      <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-lock"></use></svg></span>
+                      <h4 class="result__title" id="e403-t" tabindex="-1">You don’t have access to Harbour Road reports</h4>
+                      <p class="result__description">You’re signed in as Rosa Méndez (North Yard dispatch). Reports for other depots are limited to their managers. Priya Shah, fleet admin, can give you access.</p>
+                      <div class="result__actions">
+                        <button type="button" class="btn btn--primary">Request access</button>
+                        <a class="btn btn--ghost" href="#switch-account">Switch account</a>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>No access: say who you're signed in as, who can grant access, and offer to switch account. HTTP 403.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:500" style="grid-column: 1 / -1;">
+            <p class="ds-demo__label">variant:500 — &lt;title&gt;Something went wrong — Fleetline&lt;/title&gt;</p>
+            <div style="--app-shell-min-block-size: 100%; block-size: 34rem; overflow: auto; border: var(--border-width-thin) solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-canvas);">
+              <div class="app-shell app-shell--top-nav-only">
+                <header class="top-nav app-shell__header">
+                  <div class="top-nav__bar">
+                    <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="e500-panel"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                    <a class="top-nav__brand" href="#dispatch"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                    <div class="top-nav__panel" id="e500-panel">
+                      <nav class="top-nav__nav" aria-label="Main (500 example)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch" aria-current="page">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders">Work orders</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                    </div>
+                  </div>
+                </header>
+                <div class="app-shell__body">
+                  <div class="app-shell__main error-page" id="e500-main" tabindex="-1">
+                    <section class="result result--page result--error" aria-labelledby="e500-t">
+                      <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-circle-x"></use></svg></span>
+                      <h4 class="result__title" id="e500-t" tabindex="-1">Something went wrong on our side</h4>
+                      <p class="result__description">We couldn’t load the dispatch board. Nothing you saved is lost. Try again in a minute; if it keeps happening, give support this reference: <code class="result__reference">ERR-20261008-4QX7</code></p>
+                      <div class="result__actions">
+                        <a class="btn btn--primary" href="#dispatch"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-rotate-cw"></use></svg><span class="btn__label">Try again</span></a>
+                        <a class="btn btn--ghost" href="#status">Check service status</a>
+                      </div>
+                      <details class="result__details">
+                        <summary>Technical details</summary>
+                        <dl>
+                          <dt>Reference</dt><dd>ERR-20261008-4QX7</dd>
+                          <dt>Time</dt><dd><time datetime="2026-10-08T14:32:07Z">8 Oct 2026, 14:32 UTC</time></dd>
+                          <dt>Request</dt><dd>GET /dispatch/north-yard → 500</dd>
+                        </dl>
+                      </details>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>Server error: reassure about data, offer retry and the status page, and show a copyable reference ID. HTTP 500.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:offline" style="grid-column: 1 / -1;">
+            <p class="ds-demo__label">variant:offline — &lt;title&gt;You're offline — Fleetline&lt;/title&gt;</p>
+            <div style="--app-shell-min-block-size: 100%; block-size: 34rem; overflow: auto; border: var(--border-width-thin) solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-canvas);">
+              <div class="app-shell app-shell--top-nav-only">
+                <header class="top-nav app-shell__header">
+                  <div class="top-nav__bar">
+                    <button type="button" class="btn btn--ghost top-nav__toggle" aria-controls="eoff-panel"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-menu"></use></svg><span class="btn__label">Menu</span></button>
+                    <a class="top-nav__brand" href="#dispatch"><svg class="top-nav__logo" aria-hidden="true" focusable="false"><use href="#icon-truck"></use></svg>Fleetline</a>
+                    <div class="top-nav__panel" id="eoff-panel">
+                      <nav class="top-nav__nav" aria-label="Main (offline example)"><ul class="top-nav__list"><li><a class="top-nav__link" href="#dispatch">Dispatch</a></li><li><a class="top-nav__link" href="#vehicles">Vehicles</a></li><li><a class="top-nav__link" href="#work-orders" aria-current="page">Work orders</a></li><li><a class="top-nav__link" href="#reports">Reports</a></li></ul></nav>
+                    </div>
+                  </div>
+                </header>
+                <div class="app-shell__body">
+                  <div class="app-shell__main error-page" id="eoff-main" tabindex="-1">
+                    <section class="result result--page result--warning" aria-labelledby="eoff-t">
+                      <span class="result__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-wifi-off"></use></svg></span>
+                      <h4 class="result__title" id="eoff-t" tabindex="-1">You’re offline</h4>
+                      <p class="result__description">This tablet can’t reach Fleetline. 2 service logs are saved on it and will send on their own when the connection is back.</p>
+                      <div class="result__actions">
+                        <button type="button" class="btn btn--primary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-rotate-cw"></use></svg><span class="btn__label">Try again</span></button>
+                        <a class="btn btn--ghost" href="#saved-logs">View saved service logs</a>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p>Offline (service worker fallback on tablets): say what is safe locally and that it will sync without action.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;title&gt;Something went wrong — Fleetline&lt;/title&gt;
+…
+&lt;div class="app-shell app-shell--top-nav-only"&gt;
+  &lt;header class="top-nav app-shell__header"&gt;…&lt;/header&gt;
+  &lt;div class="app-shell__body"&gt;
+    &lt;main class="app-shell__main error-page" id="main" tabindex="-1"&gt;
+      &lt;section class="result result--page result--error" aria-labelledby="err-t"&gt;
+        &lt;span class="result__icon" aria-hidden="true"&gt;&lt;svg&gt;…&lt;/svg&gt;&lt;/span&gt;
+        &lt;h1 class="result__title" id="err-t"&gt;Something went wrong on our side&lt;/h1&gt;
+        &lt;p class="result__description"&gt;… reference: &lt;code class="result__reference"&gt;ERR-20261008-4QX7&lt;/code&gt;&lt;/p&gt;
+        &lt;div class="result__actions"&gt;
+          &lt;a class="btn btn--primary" href=""&gt;Try again&lt;/a&gt;
+          &lt;a class="btn btn--ghost" href="https://status.fleetline.app"&gt;Check service status&lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/main&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.error-page</code></td><td>block, on <code>.app-shell__main</code></td><td>Centres the result panel in the available height</td></tr>
+          <tr><td><code>.error-page__search</code></td><td>part, on <code>search.search</code></td><td>Full-width search inside the centred panel (404)</td></tr>
+          <tr><td><code>.result--page</code> + tone</td><td>component modifiers</td><td>404 info (default) · 403 <code>--no-permission</code> · 500 <code>--error</code> · offline <code>--warning</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><figcaption><strong>Do</strong> say what is safe ("Nothing you saved is lost") and give a reference ID support can look up.</figcaption></figure>
+        <figure class="ds-dont"><figcaption><strong>Don't</strong> strip the header or show a raw stack trace; technical details go in a collapsed <code>details</code>.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Announcement and focus</caption>
+        <thead><tr><th scope="col">Situation</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>Full page load (server error page)</td><td>The <code>&lt;title&gt;</code> is announced; the <code>h1</code> is the first heading in main</td></tr>
+          <tr><td>Client-side route fails</td><td>Update <code>document.title</code>, then move focus to the <code>h1</code> (<code>tabindex="-1"</code>) so the change is announced</td></tr>
+          <tr><td>Connection drops</td><td>Show the offline page (or an inline banner) and announce it once through <code>role="status"</code>; don't trap focus</td></tr>
+          <tr><td>Reference ID</td><td>Plain text, selectable with one click (<code>user-select: all</code>), readable by screen readers character by character</td></tr>
+        </tbody>
+      </table>
+      <p>Tone comes from the icon and the title words, never color alone. "Try again" for a page load is a link to the same URL (works without JavaScript); offline retry is a button because it only re-checks the connection.</p>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-container-sm</code></td><td>Max width of the 404 search</td></tr>
+          <tr><td><code>--color-feedback-danger-*</code>, <code>--color-feedback-warning-*</code>, <code>--color-bg-muted</code></td><td>Icon disc tones via the result panel</td></tr>
+          <tr><td><code>--space-16</code></td><td>Page-level padding of <code>.result--page</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

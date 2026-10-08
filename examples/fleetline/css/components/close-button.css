@@ -1,0 +1,60 @@
+/* close-button.css — Standard dismiss control for dialogs, drawers, toasts, alerts and popovers.
+   Block alias: .close-btn   Sizes: .close-btn--sm (toasts, alerts, chips) | (md default) | .close-btn--lg (tablet)
+   Parts:  .close-btn__icon (svg "x", aria-hidden)
+   States: :hover :focus-visible :active, disabled (rare: only while a dialog is saving).
+           Docs-only freeze classes share the selectors: .is-hover, .is-focus-visible, .is-active.
+   Placement: the parent puts it top inline-end (e.g. grid-area or align-self: start; justify-self: end).
+   Name:   aria-label="Close" (dialogs) or a specific one ("Dismiss notification", "Close vehicle details"). */
+@layer components {
+  .close-btn {
+    --_h: var(--button-height-md);
+    --_icon: var(--icon-size-md);
+    --_bg: var(--color-action-ghost-bg);
+    --_fg: var(--color-text-muted);
+
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: var(--_h);
+    block-size: var(--_h);
+    padding: 0;
+    border: var(--border-width-thin) solid transparent;
+    border-radius: var(--button-radius);
+    background: var(--_bg);
+    color: var(--_fg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .close-btn--sm { --_h: var(--button-height-sm); --_icon: var(--icon-size-sm); }
+  .close-btn--lg { --_h: var(--button-height-lg); --_icon: var(--icon-size-lg); }
+
+  .close-btn__icon {
+    inline-size: var(--_icon);
+    block-size: var(--_icon);
+    stroke-width: var(--icon-stroke);
+    pointer-events: none;
+  }
+
+  .close-btn:hover:not(:disabled),
+  .close-btn.is-hover { --_bg: var(--color-action-ghost-bg-hover); --_fg: var(--color-text-default); }
+
+  .close-btn:active:not(:disabled),
+  .close-btn.is-active { --_bg: var(--color-action-ghost-bg-active); --_fg: var(--color-text-default); }
+
+  .close-btn:focus-visible,
+  .close-btn.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .close-btn:disabled { --_bg: transparent; --_fg: var(--color-text-disabled); cursor: not-allowed; }
+
+  @media (forced-colors: active) {
+    .close-btn { color: ButtonText; }
+    .close-btn:hover, .close-btn.is-hover { border-color: ButtonText; }
+    .close-btn:disabled { color: GrayText; }
+  }
+}

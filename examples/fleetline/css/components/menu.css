@@ -1,0 +1,160 @@
+/* menu.css — Menu button + dropdown menu (APG Menu Button). Block: .menu
+   Trigger:  any .btn / .icon-btn with aria-haspopup="menu" aria-expanded aria-controls, opened by
+             commandfor="<menu id>" command="toggle-popover". Optional .menu-trigger__chevron (svg) rotates when open.
+   Surface:  <div class="menu" id popover role="menu" aria-labelledby|aria-label> — anchored to the trigger with
+             CSS anchor positioning (style="anchor-name:--x" on trigger, style="position-anchor:--x" on menu) and
+             the shared try-set from base.css (--flip-block, --flip-inline). Without anchor support it opens centered.
+   Variants: .menu--sub (submenu, opens inline-end) · .menu--static (docs-only in-flow preview of an open menu)
+   Parts:    .menu__item (button role=menuitem | menuitemcheckbox | menuitemradio), .menu__icon, .menu__label,
+             .menu__shortcut (<kbd>), .menu__check (svg, shown when aria-checked="true"), .menu__chevron (submenu),
+             .menu__group (role=group + aria-labelledby), .menu__group-label, .menu__separator (role=separator)
+   Item modifiers: .menu__item--danger
+   States:   item :hover / :focus-visible (highlight), aria-disabled="true" (stays focusable, not actionable),
+             aria-checked="true", aria-expanded="true" (submenu parent). Docs-only: .is-hover, .is-focus-visible.
+   Behavior: js/menu.js — roving focus (↑/↓/Home/End, typeahead), Esc + Tab close, focus returns to the trigger. */
+@layer components {
+  .menu {
+    --_item-h: var(--size-control-md);
+
+    inset: auto;
+    margin: var(--space-1);
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: --flip-block, --flip-inline;
+    min-inline-size: 12rem;
+    max-inline-size: min(22rem, calc(100vw - var(--space-8)));
+    max-block-size: calc(100dvh - var(--space-8));
+    overflow-y: auto;
+    padding: var(--space-1);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--overlay-radius);
+    background: var(--color-elevation-surface-overlay);
+    box-shadow: var(--overlay-shadow);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+    z-index: var(--z-dropdown);
+  }
+  .menu:popover-open,
+  .menu--static { display: grid; gap: var(--space-0-5); }
+
+  .menu--sub {
+    position-area: inline-end span-block-end;
+    position-try-fallbacks: --flip-inline, --flip-block;
+    margin: 0 var(--space-1);
+  }
+  .menu--static {
+    position: static;
+    inline-size: max-content;
+    margin: 0;
+    box-shadow: var(--elevation-raised);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .menu:popover-open {
+      animation: menu-enter var(--motion-duration-fast) var(--motion-easing-enter);
+    }
+  }
+
+  /* Item */
+  .menu__item {
+    --_bg: transparent;
+    --_fg: var(--color-text-default);
+
+    display: grid;
+    grid-template-columns: var(--icon-size-sm) 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: 100%;
+    min-block-size: var(--_item-h);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2) var(--space-3);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--_bg);
+    color: var(--_fg);
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  [data-density="compact"] .menu { --_item-h: var(--size-control-sm); }
+
+  .menu__item:hover:not([aria-disabled="true"]),
+  .menu__item.is-hover,
+  .menu__item:focus-visible,
+  .menu__item.is-focus-visible,
+  .menu__item[aria-expanded="true"] { --_bg: var(--color-action-ghost-bg-hover); }
+
+  .menu__item:focus-visible,
+  .menu__item.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+
+  .menu__item[aria-disabled="true"] { --_fg: var(--color-text-disabled); cursor: not-allowed; }
+  .menu__item--danger { --_fg: var(--color-feedback-danger-fg); }
+  .menu__item--danger:hover:not([aria-disabled="true"]),
+  .menu__item--danger:focus-visible { --_bg: var(--color-feedback-danger-bg); }
+
+  /* Parts */
+  .menu__icon,
+  .menu__check,
+  .menu__chevron {
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+  }
+  /* Parts sit on one row by column, so DOM order is free (a submenu's chevron may come before its label). */
+  .menu__item > * { grid-row: 1; }
+  .menu__icon { grid-column: 1; color: var(--color-text-muted); }
+  .menu__item[aria-disabled="true"] .menu__icon { color: inherit; }
+  .menu__label { grid-column: 2; min-inline-size: 0; overflow-wrap: anywhere; }
+  .menu__check { grid-column: 1; grid-row: 1; visibility: hidden; color: var(--color-selected-fg); }
+  .menu__item[aria-checked="true"] .menu__check { visibility: visible; }
+  .menu__shortcut {
+    grid-column: 3;
+    color: var(--color-text-muted);
+    font-family: inherit;
+    font-size: var(--font-size-xs);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .menu__chevron { grid-column: 3; color: var(--color-text-muted); }
+  .menu__chevron:dir(rtl) { transform: scaleX(-1); }
+
+  .menu__group { display: grid; gap: var(--space-0-5); }
+  .menu__group-label {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+  }
+  .menu__separator {
+    block-size: var(--border-width-thin);
+    margin-block: var(--space-1);
+    border: 0;
+    background: var(--color-border-subtle);
+  }
+
+  /* Trigger chevron */
+  .menu-trigger__chevron {
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  [aria-expanded="true"] > .menu-trigger__chevron { transform: rotate(180deg); }
+
+  @media (forced-colors: active) {
+    .menu { border-color: CanvasText; }
+    .menu__item:hover, .menu__item:focus-visible, .menu__item.is-hover, .menu__item.is-focus-visible {
+      background: Highlight; color: HighlightText;
+    }
+    .menu__item[aria-disabled="true"] { color: GrayText; }
+    .menu__separator { background: CanvasText; }
+  }
+}
+
+@keyframes menu-enter {
+  from { opacity: 0; translate: 0 calc(var(--space-1) * -1); }
+}

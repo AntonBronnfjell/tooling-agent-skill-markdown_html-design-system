@@ -1,0 +1,44 @@
+/* divider.css — boundaries between content.
+   Block: .divider
+     <hr class="divider">                                      thematic break (semantic)
+     <span class="divider divider--vertical" role="separator" aria-orientation="vertical"></span>
+     <div class="divider-label"><span>or</span></div>           labelled break; the text is read normally
+   Modifiers: .divider--strong (border-strong, for 3:1 when the line itself carries meaning) */
+@layer components {
+  .divider {
+    flex-shrink: 0;
+    align-self: stretch;
+    block-size: 0;
+    border: 0;
+    border-block-start: var(--border-width-thin) solid var(--color-border-default);
+    margin: 0;
+  }
+  .divider--strong { border-color: var(--color-border-strong); }
+  .divider--vertical {
+    display: block;
+    block-size: auto;
+    min-block-size: var(--space-6);
+    inline-size: 0;
+    border-block-start: 0;
+    border-inline-start: var(--border-width-thin) solid var(--color-border-default);
+  }
+
+  .divider-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--typography-small-font-size);
+    line-height: var(--typography-small-line-height);
+  }
+  .divider-label::before,
+  .divider-label::after {
+    content: "";
+    flex: 1;
+    border-block-start: var(--border-width-thin) solid var(--color-border-default);
+  }
+
+  @media (forced-colors: active) {
+    .divider, .divider-label::before, .divider-label::after { border-color: CanvasText; }
+  }
+}

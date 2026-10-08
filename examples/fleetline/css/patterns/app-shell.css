@@ -1,0 +1,101 @@
+/* app-shell.css — Application shell (pattern). Block: .app-shell  (container: app-shell)
+   Composition only: skip-link → header.top-nav → nav.side-nav → main → optional aside → footer.
+     <div class="app-shell">                         (or directly on <body>)
+       <a class="skip-link" href="#main">Skip to main content</a>
+       <header class="top-nav top-nav--sticky app-shell__header">…</header>
+       <div class="app-shell__body">
+         <nav class="side-nav app-shell__nav" aria-label="Workshop">…</nav>
+         <main class="app-shell__main" id="main" tabindex="-1">…</main>
+         <aside class="app-shell__aside" aria-label="…">…</aside>      (optional)
+       </div>
+       <footer class="app-shell__footer">…</footer>
+     </div>
+   Variants: (sidebar default) | .app-shell--top-nav-only (no side-nav; main centred to --size-container-xl)
+   Responsive (container query on the shell, literal copy of --breakpoint-lg = 64rem): below lg the side-nav
+             is hidden and the top-nav Menu carries navigation (top-nav collapses itself below 48rem).
+   Prefer document scroll: the shell grows with content; nothing scrolls independently.
+   Custom property: --app-shell-min-block-size (default 100dvh; docs frames set it to 100%).
+   Layout only — every visual comes from the components. */
+@layer patterns {
+  .app-shell {
+    container: app-shell / inline-size;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-block-size: var(--app-shell-min-block-size, 100dvh);
+  }
+
+  .app-shell__body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "nav main";
+    min-inline-size: 0;
+  }
+  .app-shell__body:has(> .app-shell__aside) {
+    grid-template-columns: auto minmax(0, 1fr) 20rem;
+    grid-template-areas: "nav main aside";
+  }
+
+  .app-shell__nav { grid-area: nav; }
+
+  .app-shell__main {
+    grid-area: main;
+    display: grid;
+    align-content: start;
+    gap: var(--space-6);
+    min-inline-size: 0;
+    padding-block: var(--space-6) var(--space-10);
+    padding-inline: var(--space-6);
+  }
+
+  .app-shell__aside {
+    grid-area: aside;
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding-block: var(--space-6);
+    padding-inline: 0 var(--space-6);
+  }
+
+  .app-shell__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-4);
+    padding-inline: var(--space-6);
+  }
+
+  /* Top-nav only: one column, readable width. */
+  .app-shell--top-nav-only .app-shell__body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "main";
+  }
+  .app-shell--top-nav-only .app-shell__body:has(> .app-shell__aside) {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    grid-template-areas: "main aside";
+  }
+  .app-shell--top-nav-only .app-shell__main {
+    inline-size: 100%;
+    max-inline-size: var(--size-container-xl);
+    margin-inline: auto;
+  }
+
+  /* Below lg: side-nav off-canvas (top-nav Menu takes over), aside drops under main. */
+  @container app-shell (inline-size < 64rem) {
+    .app-shell__nav { display: none; }
+    .app-shell__body,
+    .app-shell__body:has(> .app-shell__aside),
+    .app-shell--top-nav-only .app-shell__body:has(> .app-shell__aside) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "main" "aside";
+    }
+    .app-shell__aside { padding-inline: var(--space-6); }
+  }
+
+  /* Mobile: tighter gutters for tablets in portrait and phones. */
+  @container app-shell (inline-size < 40rem) {
+    .app-shell__main { gap: var(--space-4); padding-block: var(--space-4) var(--space-8); padding-inline: var(--space-4); }
+    .app-shell__aside,
+    .app-shell__footer { padding-inline: var(--space-4); }
+  }
+}

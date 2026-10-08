@@ -1,0 +1,106 @@
+/* avatar.css — Avatar. Block alias: .avatar
+   Content (pick one): img.avatar__img (alt = name, or alt="" when the name is printed beside it)
+                       → span.avatar__initials → svg.avatar__icon (generic person, aria-hidden)
+   Sizes:  .avatar--sm (32px) | md default (40px) | .avatar--lg (48px) → --size-control-*, so avatars line up with
+           buttons and inputs in the same row.
+   Tones (initials): .avatar--tone-neutral (default) | --tone-teal | --tone-blue — pick by a stable hash of the
+           person's id (id % 3) so a mechanic keeps the same color everywhere. Pairs are contrast-checked tokens.
+   Status: .avatar__status[data-status="available|busy|away|off"] — a dot with a distinct shape per status
+           (filled / bar / ring), plus visible or .sr-only text. Never color alone.
+   Pattern: private props --_size, --_bg, --_fg. */
+@layer components {
+  .avatar {
+    --_size: var(--size-control-md);
+    --_bg: var(--color-bg-subtle);
+    --_fg: var(--color-text-default);
+    --_border: var(--color-border-default);
+
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-full);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-size: calc(var(--_size) * 0.4);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    user-select: none;
+  }
+
+  .avatar--sm { --_size: var(--size-control-sm); }
+  .avatar--lg { --_size: var(--size-control-lg); }
+
+  .avatar--tone-neutral { --_bg: var(--color-bg-subtle); --_fg: var(--color-text-default); }
+  .avatar--tone-teal { --_bg: var(--color-selected-bg); --_fg: var(--color-selected-fg); --_border: var(--color-selected-bg); }
+  .avatar--tone-blue { --_bg: var(--color-feedback-info-bg); --_fg: var(--color-feedback-info-fg); --_border: var(--color-feedback-info-border); }
+
+  /* Parts */
+  .avatar__img {
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+  }
+  .avatar__initials { letter-spacing: var(--font-tracking-wide); text-transform: uppercase; }
+  .avatar__icon {
+    inline-size: 60%;
+    block-size: 60%;
+    stroke-width: var(--icon-stroke);
+    color: var(--color-text-muted);
+  }
+
+  .avatar__status {
+    --_dot: var(--color-feedback-success-icon);
+    position: absolute;
+    inset-block-end: calc(var(--border-width-thick) * -1);
+    inset-inline-end: calc(var(--border-width-thick) * -1);
+    display: grid;
+    place-items: center;
+    inline-size: max(var(--space-3), calc(var(--_size) * 0.3));
+    block-size: max(var(--space-3), calc(var(--_size) * 0.3));
+    border-radius: var(--radius-full);
+    background: var(--_dot);
+    box-shadow: 0 0 0 var(--border-width-thick) var(--color-bg-surface);
+  }
+  /* Shape carries meaning too: busy = bar, away = ring, off = hollow grey ring. */
+  .avatar__status[data-status="busy"] { --_dot: var(--color-feedback-danger-icon); }
+  .avatar__status[data-status="busy"]::after {
+    content: "";
+    inline-size: 60%;
+    block-size: var(--border-width-thick);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+  }
+  .avatar__status[data-status="away"] { --_dot: var(--color-feedback-warning-icon); }
+  .avatar__status[data-status="away"]::after {
+    content: "";
+    inline-size: 40%;
+    block-size: 40%;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-surface);
+  }
+  .avatar__status[data-status="off"] {
+    --_dot: var(--color-bg-surface);
+    border: var(--border-width-thick) solid var(--color-border-strong);
+  }
+
+  /* Avatar + name row (name printed beside the avatar → img alt=""). */
+  .avatar-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+  .avatar-label__text { display: grid; min-inline-size: 0; line-height: var(--font-line-height-snug); }
+  .avatar-label__name { font-weight: var(--font-weight-semibold); }
+  .avatar-label__detail { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+
+  @media (forced-colors: active) {
+    .avatar { border-color: CanvasText; }
+    .avatar__status { background: CanvasText; forced-color-adjust: none; }
+  }
+}

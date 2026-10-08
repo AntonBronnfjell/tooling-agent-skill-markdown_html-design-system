@@ -264,6 +264,7 @@
   --size-container-lg: 64rem;
   --size-container-xl: 80rem;
   --size-measure: 65ch;
+  --size-sticky-offset: 4rem;
   --focus-ring-width: 2px;
   --focus-ring-offset: 2px;
   --focus-ring-color: var(--color-border-focus);

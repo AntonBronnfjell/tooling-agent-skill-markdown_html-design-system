@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tag — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline tags and chips: static metadata, removable filter tags and selectable filter chips with aria-pressed.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/tag.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="icon-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Tag</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a <strong>static tag</strong> for metadata people scan (vehicle features, depot). Use a <strong>removable tag</strong> to show applied filters that can be cleared one by one. Use a <strong>selectable chip</strong> for quick on/off filters above a list. Use a <strong>badge</strong> for status, and checkboxes in a form when the choice is part of data entry.</p>
+      <ul>
+        <li>Keep labels to one to three words ("Refrigerated", "Depot north"). Long labels truncate at 16rem; put the full text in <code>title</code> and make sure it also appears elsewhere (a detail view), because <code>title</code> isn't keyboard accessible.</li>
+        <li>Remove buttons say what they remove: "Remove filter: Overdue".</li>
+        <li>Filter chips in a group get a group label: "Filter by status".</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>span.tag</code> (static/removable) or <code>button.tag.tag--selectable</code></li>
+        <li>Leading icon (optional) — <code>.tag__icon</code>; check mark <code>.tag__check</code> appears when selected</li>
+        <li>Label — <code>.tag__label</code>, truncates</li>
+        <li>Remove button (removable) — <code>button.tag__remove</code>, 24×24 minimum</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="tag" aria-labelledby="tag-h">
+        <h3 id="tag-h">Tag / chip</h3>
+        <p>Static tags describe; removable tags show applied filters; selectable chips toggle a filter.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:static">
+            <ul class="tag-list" role="list" aria-label="Vehicle tags">
+              <li><span class="tag">Refrigerated</span></li>
+              <li><span class="tag"><svg class="tag__icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg><span class="tag__label">Depot north</span></span></li>
+              <li><span class="tag"><span class="tag__label" title="Hazardous goods certified (ADR class 3)">Hazardous goods certified (ADR class 3)</span></span></li>
+            </ul>
+          </div>
+          <div class="ds-demo" data-demo="variant:removable">
+            <ul class="tag-list" role="list" aria-label="Active filters">
+              <li><span class="tag tag--removable"><span class="tag__label">Overdue</span><button type="button" class="tag__remove" aria-label="Remove filter: Overdue"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></span></li>
+              <li><span class="tag tag--removable"><span class="tag__label">Vans</span><button type="button" class="tag__remove is-hover" aria-label="Remove filter: Vans"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></span></li>
+            </ul>
+          </div>
+          <div class="ds-demo" data-demo="variant:selectable">
+            <div class="tag-list" role="group" aria-label="Filter by vehicle type">
+              <button type="button" class="tag tag--selectable" aria-pressed="false"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Vans</span></button>
+              <button type="button" class="tag tag--selectable" aria-pressed="false"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Trucks</span></button>
+              <button type="button" class="tag tag--selectable is-hover" aria-pressed="false"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Pickups</span></button>
+              <button type="button" class="tag tag--selectable" aria-pressed="false" disabled><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Trailers</span></button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:selected">
+            <div class="tag-list" role="group" aria-label="Filter by status">
+              <button type="button" class="tag tag--selectable" aria-pressed="true"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Overdue</span></button>
+              <button type="button" class="tag tag--selectable" aria-pressed="true"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">In workshop</span></button>
+              <button type="button" class="tag tag--selectable" aria-pressed="false"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">In service</span></button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="tag-list">
+              <button type="button" class="tag tag--selectable is-focus-visible" aria-pressed="false"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Due this week</span></button>
+              <span class="tag tag--removable"><span class="tag__label">Depot south</span><button type="button" class="tag__remove is-focus-visible" aria-label="Remove filter: Depot south"><svg class="" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></span>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;ul class="tag-list" role="list" aria-label="Active filters"&gt;
+  &lt;li&gt;&lt;span class="tag tag--removable"&gt;&lt;span class="tag__label"&gt;Overdue&lt;/span&gt;&lt;button type="button" class="tag__remove" aria-label="Remove filter: Overdue"&gt;&lt;svg class="" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-x"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/span&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;span class="tag tag--removable"&gt;&lt;span class="tag__label"&gt;Vans&lt;/span&gt;&lt;button type="button" class="tag__remove is-hover" aria-label="Remove filter: Vans"&gt;&lt;svg class="" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-x"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/span&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="tag-list" role="group" aria-label="Filter by status"&gt;
+  &lt;button type="button" class="tag tag--selectable" aria-pressed="true"&gt;&lt;svg class="tag__check" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-check"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;span class="tag__label"&gt;Overdue&lt;/span&gt;&lt;/button&gt;
+  &lt;button type="button" class="tag tag--selectable" aria-pressed="true"&gt;&lt;svg class="tag__check" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-check"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;span class="tag__label"&gt;In workshop&lt;/span&gt;&lt;/button&gt;
+  &lt;button type="button" class="tag tag--selectable" aria-pressed="false"&gt;&lt;svg class="tag__check" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-check"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;span class="tag__label"&gt;In service&lt;/span&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.tag</code></td><td>block class</td><td>Static tag</td></tr>
+          <tr><td><code>.tag--removable</code> + <code>.tag__remove</code></td><td>modifier + part</td><td>Tag with a remove button</td></tr>
+          <tr><td><code>.tag--selectable</code> on <code>&lt;button aria-pressed&gt;</code></td><td>modifier + attribute</td><td>Filter chip; <code>aria-pressed="true"</code> = selected</td></tr>
+          <tr><td><code>.tag__label | __icon | __check</code></td><td>part classes</td><td>Content</td></tr>
+          <tr><td><code>.tag-list</code></td><td>wrapper class</td><td>Wrapping row with gaps (use <code>ul role="list"</code> or <code>role="group"</code>)</td></tr>
+          <tr><td><code>disabled</code></td><td>attribute</td><td>Unavailable chip</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freeze states</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <button type="button" class="tag tag--selectable" aria-pressed="true"><svg class="tag__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="tag__label">Overdue</span></button>
+          <figcaption><strong>Do</strong> show selection with a check mark and fill.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Selected only by a slightly darker fill.</p>
+          <figcaption><strong>Don&rsquo;t</strong> rely on color to show which filters are on.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small"><code>aria-label="Remove filter: Overdue"</code></p>
+          <figcaption><strong>Do</strong> name the remove button after the tag.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>aria-label="Remove"</code> on every tag</p>
+          <figcaption><strong>Don&rsquo;t</strong> use the same name for every remove button.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+              <caption class="sr-only">Keyboard interaction</caption>
+              <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>Tab</kbd></td><td>Moves to each chip or remove button</td></tr>
+                <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Toggles a chip; activates a remove button</td></tr>
+              </tbody>
+            </table>
+      <ul>
+        <li>Selectable chips are toggle buttons (<code>aria-pressed</code>), announced as "Overdue, toggle button, pressed".</li>
+        <li>After removing a tag, move focus to the next tag's remove button, or to the filter field when none remain, and announce "Filter Overdue removed" in a <code>role="status"</code> region.</li>
+        <li>Hit area: chips are 32px high; remove buttons are 24×24px (WCAG 2.5.8).</li>
+        <li>Contrast: selected uses <code>selected.fg</code>/<code>selected.bg</code> (checked pair).</li>
+        <li>Forced colors: borders become <code>CanvasText</code>; selected border becomes 2px <code>Highlight</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-control-sm</code></td><td>Tag height</td></tr>
+          <tr><td><code>--radius-md</code></td><td>Shape (8px, same as controls)</td></tr>
+          <tr><td><code>--color-bg-subtle</code>, <code>--color-border-default</code>, <code>--color-text-default</code></td><td>Resting tag</td></tr>
+          <tr><td><code>--color-selected-bg | -fg | -border</code></td><td>Selected chip</td></tr>
+          <tr><td><code>--color-action-secondary-bg-hover</code>, <code>--color-action-ghost-bg-hover</code></td><td>Hover fills</td></tr>
+          <tr><td><code>--color-bg-muted</code>, <code>--color-text-disabled</code></td><td>Disabled chip</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

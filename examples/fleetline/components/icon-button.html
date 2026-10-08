@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Icon button — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline icon-only buttons: square and circle shapes, three sizes, toggle and badge variants with every state.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/icon-button.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="icon-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Icon button</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use an icon button for frequent, well-known actions where space is tight: row actions in the work-order table, toolbar actions, the notification bell. If the icon isn't instantly recognizable to a new dispatcher, use a <strong>button</strong> with a text label instead.</p>
+      <ul>
+        <li><strong>Name every icon button</strong> with <code>aria-label</code> using verb + object, including the item in lists ("Edit work order WO-4182", not "Edit").</li>
+        <li><strong>Pair with a tooltip</strong> that shows the same text (tooltip component) — sighted mouse users need the name too.</li>
+        <li><strong>Square</strong> is the default; <strong>circle</strong> is for overflow ("more") and floating actions.</li>
+        <li>Toggle icon buttons (pin, mute) keep their label and switch <code>aria-pressed</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>&lt;button type="button" class="icon-btn" aria-label="…"&gt;</code>, square of the button height</li>
+        <li>Icon — <code>svg.icon-btn__icon</code>, <code>aria-hidden="true"</code></li>
+        <li>Badge (optional) — <code>.icon-btn__badge</code>, decorative; the count lives in the accessible name</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="icon-button" aria-labelledby="icon-button-h">
+        <h3 id="icon-button-h">Icon button</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:square state:default">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--square" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button><button type="button" class="icon-btn icon-btn--square icon-btn--outline" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button><button type="button" class="icon-btn icon-btn--square icon-btn--primary" aria-label="Duplicate work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-copy"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:circle">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--circle" aria-label="More actions for van KX-219"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button><button type="button" class="icon-btn icon-btn--circle icon-btn--outline" aria-label="More actions for van KX-219"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="size:sm">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--sm icon-btn--outline" aria-label="Remove filter: Depot North Yard"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg></button></div>
+            <p>32px — dense tables and toolbars.</p>
+          </div>
+          <div class="ds-demo" data-demo="size:md">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Print inspection sheet"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg></button></div>
+            <p>40px — default.</p>
+          </div>
+          <div class="ds-demo" data-demo="size:lg">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--lg icon-btn--primary" aria-label="Start inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg></button></div>
+            <p>48px — tablet screens used with gloves.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline is-hover" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button><button type="button" class="icon-btn is-hover" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline is-focus-visible" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:active">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline is-active" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Delete work order WO-4182" disabled><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg></button><button type="button" class="icon-btn icon-btn--outline" aria-label="Archive van KX-219" aria-disabled="true" aria-describedby="ib-why"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-archive"></use></svg></button></div>
+            <p><span id="ib-why">Close the 2 open work orders before archiving this van.</span></p>
+          </div>
+          <div class="ds-demo" data-demo="variant:toggle">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Pin van KX-219" aria-pressed="false"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-star"></use></svg></button><button type="button" class="icon-btn icon-btn--outline" aria-label="Pin van KX-219" aria-pressed="true"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-star"></use></svg></button></div>
+            <p>Toggle icon buttons keep the same label and use <code>aria-pressed</code>.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:badge">
+            <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Notifications, 3 unread"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-bell"></use></svg><span class="icon-btn__badge" aria-hidden="true">3</span></button></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--outline&quot; aria-label=&quot;Edit work order WO-4182&quot;&gt;
+  &lt;svg class=&quot;icon-btn__icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-pencil&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+&lt;/button&gt;
+
+&lt;!-- Circle, small, large, emphasis --&gt;
+&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--circle&quot; aria-label=&quot;More actions for van KX-219&quot;&gt;…&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--sm&quot; aria-label=&quot;Remove filter: Depot North Yard&quot;&gt;…&lt;/button&gt;
+&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--lg icon-btn--primary&quot; aria-label=&quot;Start inspection&quot;&gt;…&lt;/button&gt;
+
+&lt;!-- Toggle: same label, state in aria-pressed --&gt;
+&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--outline&quot; aria-label=&quot;Pin van KX-219&quot; aria-pressed=&quot;true&quot;&gt;…&lt;/button&gt;
+
+&lt;!-- Count belongs in the name; the badge is decorative --&gt;
+&lt;button type=&quot;button&quot; class=&quot;icon-btn icon-btn--outline&quot; aria-label=&quot;Notifications, 3 unread&quot;&gt;
+  &lt;svg class=&quot;icon-btn__icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-bell&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+  &lt;span class=&quot;icon-btn__badge&quot; aria-hidden=&quot;true&quot;&gt;3&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.icon-btn</code></td><td>block class</td><td>Ghost icon button (default emphasis), square</td></tr>
+          <tr><td><code>.icon-btn--square | --circle</code></td><td>modifier</td><td>Shape</td></tr>
+          <tr><td><code>.icon-btn--outline | --primary</code></td><td>modifier</td><td>Emphasis: secondary outline, primary fill</td></tr>
+          <tr><td><code>.icon-btn--sm | --lg</code></td><td>modifier</td><td>32 / 48px (md 40px default), same as <code>.btn--sm|lg</code></td></tr>
+          <tr><td><code>.icon-btn__icon</code>, <code>.icon-btn__badge</code></td><td>part</td><td>Icon and decorative count</td></tr>
+          <tr><td><code>aria-label</code></td><td>attribute (required)</td><td>Accessible name</td></tr>
+          <tr><td><code>aria-pressed</code></td><td>attribute</td><td>Toggle state (selected colors + border)</td></tr>
+          <tr><td><code>disabled</code> / <code>aria-disabled="true"</code></td><td>attribute</td><td>Unavailable; aria-disabled stays focusable and explains why</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible | .is-active</code></td><td>docs-only class</td><td>Freeze a state</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Edit work order WO-4182"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg></button></div>
+          <figcaption><strong>Do</strong> name the action and the object in <code>aria-label</code>.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="ds-demo__row"><button type="button" class="icon-btn icon-btn--outline" aria-label="Icon"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg></button></div>
+          <figcaption><strong>Don't</strong> use ambiguous icons or generic names; when in doubt, show a text label.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves focus to the button (skipped when <code>disabled</code>)</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Activates; toggles <code>aria-pressed</code> for toggle buttons</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>&lt;button&gt;</code>. Name: <code>aria-label</code> (the lint in <code>ds.py check</code> flags icon-only buttons without one).</li>
+        <li>Badges: put the count in the name ("Notifications, 3 unread"), hide the visual badge with <code>aria-hidden</code>.</li>
+        <li>Target size: 32px minimum (WCAG 2.5.8 needs 24px); use <code>--lg</code> on tablet screens.</li>
+        <li>Pressed state is shown by fill <em>and</em> border, never color alone; forced colors use <code>Highlight</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--button-height-sm | -md | -lg</code></td><td>Square size</td></tr>
+          <tr><td><code>--button-radius</code>, <code>--radius-full</code></td><td>Square / circle shape</td></tr>
+          <tr><td><code>--color-action-{ghost|secondary|primary}-*</code></td><td>Emphasis colors per state</td></tr>
+          <tr><td><code>--color-selected-bg | -fg | -border</code></td><td>Pressed state</td></tr>
+          <tr><td><code>--color-action-danger-bg | -fg</code></td><td>Badge</td></tr>
+          <tr><td><code>--icon-size-sm | -md | -lg</code>, <code>--icon-stroke</code></td><td>Icon</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Focus ring</td></tr>
+          <tr><td><code>--motion-duration-fast</code></td><td>Color transitions</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

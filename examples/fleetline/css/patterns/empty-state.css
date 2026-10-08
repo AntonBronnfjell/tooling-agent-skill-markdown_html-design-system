@@ -1,0 +1,31 @@
+/* empty-state.css — Empty state (pattern). Block: .empty-state
+   Composition only: a .result panel (result-panel.css; info tone by default) placed where the list, table or
+   page content would be. The pattern only reserves the region so the page doesn't jump when data arrives.
+     <div class="empty-state" role="status"?>                          (role only when it replaces content live)
+       <section class="result" aria-labelledby="…">
+         <span class="result__icon" aria-hidden="true"><svg>…</svg></span>
+         <h2 class="result__title" id="…">No work orders yet</h2>
+         <p class="result__description">One sentence of guidance.</p>
+         <div class="result__actions"> one primary button (+ optional secondary link) </div>
+       </section>
+     </div>
+   Variants (content, not classes): first use · no results (+ clear filters) · cleared ("All caught up").
+   Custom property: --empty-state-min-block-size (default 20rem; match the height of the content it replaces).
+   Layout only. */
+@layer patterns {
+  .empty-state {
+    display: grid;
+    align-content: center;
+    min-block-size: var(--empty-state-min-block-size, 20rem);
+    min-inline-size: 0;
+  }
+
+  /* Filter bar above a no-results state: search + filters + clear, wrapping on narrow screens. */
+  .empty-state__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-3) var(--space-4);
+  }
+  .empty-state__toolbar > :first-child { flex: 1 1 16rem; }
+}

@@ -1,0 +1,173 @@
+/* radio.css — Radio and radio group. Block alias: .radio
+   Item:      <div class="radio">
+                <input class="radio__input" type="radio" name="…" id="…" [aria-describedby="…-hint"]>
+                <label class="radio__label" for="…">…</label>
+                <p class="radio__hint" id="…-hint">…</p>             (optional)
+              </div>
+   Group:     <fieldset class="fieldset radio-group" aria-describedby="…hint …error">
+                <legend class="fieldset__legend">…</legend> [.field__hint] [.field__error]
+                <div class="radio-group__items"> .radio × n </div>
+              </fieldset>
+   Modifiers: .radio-group--horizontal (wrapping row, short answers only),
+              .radio-group--cards (each .radio becomes a bordered tile; the label stretches over it)
+   States:    :checked, :disabled, :user-invalid (required radios after interaction), group error = a
+              .field__error inside the group. Arrow keys between radios are native (same name).
+              Docs-only freeze classes: .is-hover, .is-focus-visible. */
+@layer components {
+  .radio {
+    --_size: var(--icon-size-lg);
+    --_bg: var(--input-bg);
+    --_border: var(--input-border);
+    --_dot: transparent;
+
+    display: grid;
+    grid-template-columns: var(--_size) minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .radio__input {
+    appearance: none;
+    display: grid;
+    place-content: center;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    margin: 0;
+    border: var(--border-width-thick) solid var(--_border);
+    border-radius: var(--radius-full);
+    background: var(--_bg);
+    cursor: pointer;
+    transition: border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .radio__input::before {
+    content: "";
+    inline-size: calc(var(--_size) / 2);
+    block-size: calc(var(--_size) / 2);
+    border-radius: var(--radius-full);
+    background: var(--_dot);
+    transform: scale(0);
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+
+  .radio__label {
+    padding-block-start: calc((var(--_size) - 1lh) / 2);
+    color: var(--color-text-default);
+    font-size: var(--font-size-md);
+    line-height: var(--font-line-height-snug);
+    cursor: pointer;
+  }
+  .radio__title { display: block; font-weight: var(--font-weight-semibold); }
+  .radio__hint {
+    grid-column: 2;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-snug);
+  }
+
+  /* Hover */
+  .radio__input:hover:not(:disabled),
+  .radio:has(> .radio__label:hover) > .radio__input:not(:disabled, :checked),
+  .radio__input.is-hover { --_border: var(--color-text-default); }
+
+  /* Checked: ring in the action color + filled centre dot (shape, not only color) */
+  .radio__input:checked {
+    --_border: var(--color-action-primary-bg);
+    --_dot: var(--color-action-primary-bg);
+  }
+  .radio__input:checked::before { transform: scale(1); }
+  .radio__input:checked:hover:not(:disabled),
+  .radio__input:checked.is-hover {
+    --_border: var(--color-action-primary-bg-hover);
+    --_dot: var(--color-action-primary-bg-hover);
+  }
+
+  /* Focus */
+  .radio__input:focus-visible,
+  .radio__input.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Invalid */
+  .radio__input:user-invalid,
+  .radio-group:has(> .field__error) .radio__input:not(:checked, :disabled) {
+    --_border: var(--color-border-invalid);
+  }
+  .radio-group:has(> .field__error):not(.radio-group--cards) {
+    padding-inline-start: var(--space-4);
+    border-inline-start: var(--border-width-thick) solid var(--color-border-invalid);
+  }
+
+  /* Disabled — both values */
+  .radio__input:disabled {
+    --_bg: var(--color-bg-muted);
+    --_border: var(--color-border-default);
+    --_dot: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+  .radio:has(> .radio__input:disabled) .radio__label {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Group layout */
+  .radio-group__items { display: grid; gap: var(--space-3); }
+  .radio-group--horizontal .radio-group__items {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-6);
+    row-gap: var(--space-3);
+  }
+
+  /* Cards: whole tile is the hit area (label ::after stretches over it), selected = border + tint + dot. */
+  .radio-group--cards .radio-group__items {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  }
+  .radio-group--cards .radio {
+    --_card-border: var(--color-border-default);
+    position: relative;
+    padding: var(--space-4);
+    border: var(--border-width-thin) solid var(--_card-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+    box-shadow: inset 0 0 0 var(--_card-ring, 0) var(--_card-border);
+  }
+  .radio-group--cards .radio__label::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .radio-group--cards .radio__hint { position: relative; pointer-events: none; }
+  .radio-group--cards .radio:hover:not(:has(:disabled)),
+  .radio-group--cards .radio:has(.is-hover) { --_card-border: var(--color-text-muted); }
+  .radio-group--cards .radio:has(> .radio__input:checked) :is(.radio__label, .radio__hint) { color: var(--color-selected-fg); }
+  .radio-group--cards .radio:has(> .radio__input:checked) {
+    --_card-border: var(--color-selected-border);
+    --_card-ring: var(--border-width-thin);
+    background: var(--color-selected-bg);
+  }
+  .radio-group--cards .radio:has(> .radio__input:focus-visible),
+  .radio-group--cards .radio:has(> .radio__input.is-focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .radio-group--cards .radio__input:focus-visible { outline-color: transparent; }
+  .radio-group--cards .radio:has(> .radio__input:disabled) { background: var(--color-bg-subtle); }
+  .radio-group--cards:has(> .field__error) .radio:not(:has(:checked)) { --_card-border: var(--color-border-invalid); }
+
+  @media (forced-colors: active) {
+    .radio__input { border-color: CanvasText; background: Canvas; }
+    .radio__input:checked { border-color: Highlight; }
+    .radio__input::before { forced-color-adjust: none; background: Highlight; }
+    .radio__input:disabled { border-color: GrayText; }
+    .radio__input:disabled::before { background: GrayText; }
+    .radio:has(:disabled) .radio__label { color: GrayText; }
+    .radio-group--cards .radio { border-color: CanvasText; }
+    .radio-group--cards .radio:has(:checked) { border-color: Highlight; }
+    .radio-group--cards .radio:has(:focus-visible) { outline-color: Highlight; }
+  }
+}

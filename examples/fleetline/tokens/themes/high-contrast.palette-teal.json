@@ -1,0 +1,19 @@
+{
+  "color": {
+    "action": {
+      "primary": {
+        "bg": {
+          "$value": "{color.teal.800}"
+        },
+        "fg": {
+          "$value": "{color.gray.0}"
+        }
+      }
+    },
+    "text": {
+      "link": {
+        "$value": "{color.teal.800}"
+      }
+    }
+  }
+}

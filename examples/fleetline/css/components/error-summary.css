@@ -1,0 +1,8 @@
+/* error-summary — form-level list of problems linking to each field (GOV.UK pattern), on an .alert--danger surface.
+   API: .error-summary (+ .alert.alert--danger), .error-summary__list; tabindex="-1" so js/error-summary.js can focus it. */
+@layer components {
+  .error-summary:focus-visible, .error-summary:focus { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); }
+  .error-summary__list { display: grid; gap: var(--space-1); padding-inline-start: var(--space-5); }
+  .error-summary__list .link { color: var(--color-feedback-danger-fg); }
+  @media (forced-colors: active) { .error-summary:focus-visible { outline-color: Highlight; } }
+}

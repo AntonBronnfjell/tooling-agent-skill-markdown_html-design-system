@@ -1,0 +1,80 @@
+/* page-header.css — Title, meta and actions at the top of a page. Block: .page-header (<header> inside <main>;
+   container: page-header)
+   Parts:   .page-header__breadcrumbs (slot for .breadcrumbs), .page-header__main (title + actions row),
+            .page-header__heading, .page-header__title (the page's only <h1>), .page-header__description,
+            .page-header__meta (<dl>/<ul> of status, owner, updated time), .page-header__meta-item,
+            .page-header__status (dot + text; data-tone="success|warning|danger|info"), .page-header__actions,
+            .page-header__tabs (slot for .tabs; URL tabs use links + aria-current)
+   Narrow (container < 40rem): actions wrap under the title; secondary actions go into the overflow menu. */
+@layer components {
+  .page-header {
+    container: page-header / inline-size;
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .page-header__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+  }
+  .page-header__heading { display: grid; gap: var(--space-2); min-inline-size: 0; flex: 1 1 20rem; }
+
+  .page-header__title {
+    color: var(--color-text-default);
+    font-family: var(--typography-h1-font-family);
+    font-size: var(--typography-h2-font-size);
+    font-weight: var(--typography-h1-font-weight);
+    line-height: var(--typography-h1-line-height);
+    overflow-wrap: anywhere;
+  }
+  .page-header__description { max-inline-size: var(--size-measure); color: var(--color-text-muted); }
+
+  .page-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+  .page-header__meta-item { display: inline-flex; align-items: center; gap: var(--space-1-5); }
+  .page-header__meta-icon { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); stroke-width: var(--icon-stroke); }
+
+  .page-header__status {
+    --_dot: var(--color-feedback-info-icon);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    color: var(--color-text-default);
+    font-weight: var(--font-weight-semibold);
+  }
+  .page-header__status::before {
+    content: "";
+    inline-size: var(--space-2);
+    block-size: var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--_dot);
+  }
+  .page-header__status[data-tone="success"] { --_dot: var(--color-feedback-success-icon); }
+  .page-header__status[data-tone="warning"] { --_dot: var(--color-feedback-warning-icon); }
+  .page-header__status[data-tone="danger"] { --_dot: var(--color-feedback-danger-icon); }
+
+  .page-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+  .page-header__tabs { margin-block-start: var(--space-1); }
+
+  @container page-header (max-width: 40rem) {
+    .page-header__title { font-size: var(--typography-h3-font-size); }
+    .page-header__actions { inline-size: 100%; }
+  }
+
+  @media (forced-colors: active) {
+    .page-header__status::before { background: CanvasText; }
+  }
+}

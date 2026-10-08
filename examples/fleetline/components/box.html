@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Box — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline Box: a token-driven container for padding, surface, border and radius.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/box.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Box</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use Box when you need a padded, optionally bordered surface and no richer component fits — a summary panel, a group of fields, a placeholder slot. It exposes only token steps, so apps never invent a 13px padding or a one-off grey.</p>
+      <ul>
+        <li>Reach for <strong>Card</strong> when the block has a title, actions or links; for <strong>Stack</strong> or <strong>Grid</strong> when you only need spacing between children.</li>
+        <li>Box never sets an outer margin. The parent layout decides spacing.</li>
+        <li>Use <code>--surface-raised</code> only for things that float above the page; flat panels use <code>--surface-subtle</code> or a border.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>.box</code> (any element: <code>div</code>, <code>section</code>, <code>li</code>)</li>
+        <li>Padding — <code>.box--pad-{2|3|4|6|8}</code></li>
+        <li>Surface — <code>.box--surface | -subtle | -sunken | -raised</code></li>
+        <li>Border and radius — <code>.box--bordered</code>, <code>.box--radius-{md|lg}</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="box" aria-labelledby="box-h">
+        <h3 id="box-h">Box</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <div class="box box--pad-4 box--bordered box--radius-md">
+              <p class="text-overline">Next service</p>
+              <p class="text-body">Truck HT-507 · 12 Nov · Oil and filter change</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:surface-subtle">
+            <div class="box box--pad-4 box--surface-subtle box--radius-md">
+              <p class="text-body">3 vehicles are due for inspection this week.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:surface-sunken">
+            <div class="box box--pad-3 box--surface-sunken box--radius-md">
+              <p class="text-small">Drop a photo of the damage here, or attach it from the work order.</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:surface-raised">
+            <div class="box box--pad-6 box--surface-raised box--radius-lg">
+              <p class="text-h5">Van KX-219</p>
+              <p class="text-small text-muted">In workshop · Bay 4</p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:padding-scale">
+            <div class="ds-demo__row">
+              <div class="box box--pad-2 box--bordered box--radius-md"><span class="text-small">pad-2</span></div>
+              <div class="box box--pad-3 box--bordered box--radius-md"><span class="text-small">pad-3</span></div>
+              <div class="box box--pad-4 box--bordered box--radius-md"><span class="text-small">pad-4</span></div>
+              <div class="box box--pad-6 box--bordered box--radius-md"><span class="text-small">pad-6</span></div>
+              <div class="box box--pad-8 box--bordered box--radius-md"><span class="text-small">pad-8</span></div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="box box--pad-4 box--bordered box--radius-md"&gt;
+  &lt;p class="text-overline"&gt;Next service&lt;/p&gt;
+  &lt;p class="text-body"&gt;Truck HT-507 · 12 Nov · Oil and filter change&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="box box--pad-6 box--surface-raised box--radius-lg"&gt;…&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.box</code></td><td>block class</td><td>Block container with no margin</td></tr>
+          <tr><td><code>.box--pad-2 | -3 | -4 | -6 | -8</code></td><td>modifier class</td><td>Padding from <code>--space-*</code></td></tr>
+          <tr><td><code>.box--surface | -surface-subtle | -surface-sunken | -surface-raised</code></td><td>modifier class</td><td>Background (raised adds elevation shadow)</td></tr>
+          <tr><td><code>.box--bordered</code></td><td>modifier class</td><td>1px default border</td></tr>
+          <tr><td><code>.box--radius-md | -lg</code></td><td>modifier class</td><td>Corner radius (md = Fleetline's 8px shape)</td></tr>
+          <tr><td><code>--box-padding</code>, <code>--box-radius</code></td><td>custom property</td><td>Override with another token, never a raw value</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="box box--pad-4 box--bordered box--radius-md"><p class="text-small">Bay 4 · 2 vehicles waiting</p></div>
+          <figcaption><strong>Do</strong> combine token modifiers instead of writing new CSS.</figcaption></figure>
+        <figure class="ds-dont"><div class="box box--pad-4 box--surface-raised box--radius-md"><div class="box box--pad-4 box--surface-raised box--radius-md"><p class="text-small">Bay 4</p></div></div>
+          <figcaption><strong>Don't</strong> nest raised boxes; stacked shadows read as clutter.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Box is presentational: it adds no role. Use a semantic element (<code>section</code> with a heading, <code>li</code>) when the content needs one.</li>
+        <li>No keyboard interaction. Don't make a Box clickable; put a link or button inside it.</li>
+        <li>Surfaces that differ only by fill get a visible border in forced-colors mode.</li>
+        <li>Text on every surface keeps ≥ 4.5:1 (<code>color.text.default</code> on sunken and raised surfaces is a checked contrast pair).</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--space-2 | -3 | -4 | -6 | -8</code></td><td>Padding steps</td></tr>
+          <tr><td><code>--color-bg-surface | -subtle</code>, <code>--color-elevation-surface-sunken | -raised</code></td><td>Surfaces</td></tr>
+          <tr><td><code>--elevation-raised</code></td><td>Raised shadow</td></tr>
+          <tr><td><code>--color-border-default</code>, <code>--border-width-thin</code></td><td>Border</td></tr>
+          <tr><td><code>--radius-md | -lg</code></td><td>Radius</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

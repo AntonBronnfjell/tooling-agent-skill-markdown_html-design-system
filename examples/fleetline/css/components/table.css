@@ -1,0 +1,87 @@
+/* table.css — Table (basic). Block alias: .table
+   Markup:   <div class="table-wrap" role="region" aria-labelledby="<caption id>" tabindex="0"> <table class="table">…
+   Variants: .table--striped | .table--compact | .table--bordered   (default: row dividers only)
+   Parts:    caption (.table__caption, visible or .sr-only), th[scope], .table__num (numeric cell: end-aligned,
+             tabular-nums), .table__secondary (muted second line inside a cell)
+   Wrapper:  .table-wrap — focusable scroll container for horizontal overflow (keyboard users can scroll it).
+   Density:  [data-density="compact"] on any ancestor = .table--compact.
+   Pattern:  variants only set private custom properties (--_py, --_px, --_stripe, --_cell-border). */
+@layer components {
+  .table-wrap {
+    max-inline-size: 100%;
+    overflow-x: auto;
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+  }
+  .table-wrap:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .table {
+    --_py: var(--density-comfortable-cell-padding-y);
+    --_px: var(--space-4);
+    --_stripe: transparent;
+    --_cell-border: transparent;
+
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-normal);
+    color: var(--color-text-default);
+  }
+
+  .table caption,
+  .table__caption {
+    caption-side: top;
+    padding-block: var(--space-3);
+    padding-inline: var(--_px);
+    text-align: start;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-default);
+  }
+
+  .table th,
+  .table td {
+    padding-block: var(--_py);
+    padding-inline: var(--_px);
+    border-block-end: var(--border-width-thin) solid var(--color-border-default);
+    border-inline: var(--border-width-thin) solid var(--_cell-border);
+    text-align: start;
+    vertical-align: top;
+  }
+  .table thead th {
+    background: var(--color-bg-subtle);
+    color: var(--color-text-default);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    border-block-end-color: var(--color-border-strong);
+    vertical-align: bottom;
+  }
+  .table tbody th { font-weight: var(--font-weight-semibold); }
+  .table tbody tr:last-child > * { border-block-end-color: transparent; }
+
+  .table .table__num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .table__secondary {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Variants */
+  .table--striped tbody tr:nth-child(even) > * { background: var(--color-bg-subtle); }
+  .table--compact,
+  [data-density="compact"] .table { --_py: var(--density-compact-cell-padding-y); --_px: var(--space-3); }
+  .table--bordered { --_cell-border: var(--color-border-default); }
+
+  @media (forced-colors: active) {
+    .table th, .table td { border-color: CanvasText; }
+    .table--striped tbody tr:nth-child(even) > * { background: Canvas; }
+  }
+}

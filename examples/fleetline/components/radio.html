@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radio — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline radio and radio group: states, horizontal layout and selectable cards.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/radio.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Radio</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use radios when people must choose exactly one option from a short list (up to about 6) and it helps to see all options at once — service type, priority, which bay. Use a select for longer lists, checkboxes when several answers are allowed.</p>
+        <ul>
+          <li>Always in a fieldset whose legend asks the question.</li>
+          <li>Order options logically (by frequency, severity or time) and avoid preselecting an answer people must think about.</li>
+          <li>Cards add a description per option; use them when options need explaining (service plans), not for "Yes / No".</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Circle — <code>input[type=radio].radio__input</code> (native, <code>appearance: none</code>), 24px</li>
+        <li>Dot — <code>::before</code>, scales in when checked</li>
+        <li>Label — <code>label.radio__label[for]</code>; optional <code>.radio__title</code> for cards</li>
+        <li>Hint (optional) — <code>.radio__hint</code></li>
+        <li>Group — <code>fieldset.radio-group</code> with legend, hint, error and <code>.radio-group__items</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="radio" aria-labelledby="radio-h">
+        <h3 id="radio-h">Radio</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:unchecked">
+            <div class="radio">
+              <input class="radio__input" type="radio" id="rd-off" name="r1">
+              <label class="radio__label" for="rd-off">Scheduled service</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:checked">
+            <div class="radio">
+              <input class="radio__input" type="radio" id="rd-on" name="r2" checked>
+              <label class="radio__label" for="rd-on">Scheduled service</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="stack stack--gap-3">
+            <div class="radio">
+              <input class="radio__input is-hover" type="radio" id="rd-hover" name="r3">
+              <label class="radio__label" for="rd-hover">Roadside repair</label>
+            </div>
+            <div class="radio">
+              <input class="radio__input is-hover" type="radio" id="rd-hover-on" name="r3" checked>
+              <label class="radio__label" for="rd-hover-on">Workshop repair</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="radio">
+              <input class="radio__input is-focus-visible" type="radio" id="rd-focus" name="r4" checked>
+              <label class="radio__label" for="rd-focus">Workshop repair</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="stack stack--gap-3">
+            <div class="radio">
+              <input class="radio__input" type="radio" id="rd-dis" name="r5" disabled aria-describedby="rd-dis-hint">
+              <label class="radio__label" for="rd-dis">Bay 3 — lift</label>
+              <p class="radio__hint" id="rd-dis-hint">Out of service until 14 March.</p>
+            </div>
+            <div class="radio">
+              <input class="radio__input" type="radio" id="rd-dis-on" name="r6" checked disabled>
+              <label class="radio__label" for="rd-dis-on">Bay 1 — pit</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <fieldset class="fieldset radio-group" aria-describedby="rd-inv-err">
+              <legend class="fieldset__legend">How urgent is the repair?</legend>
+              <p class="field__error" id="rd-inv-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Select how urgent the repair is.</span>
+              </p>
+              <div class="radio-group__items">
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rd-inv1" name="urgency" required>
+                  <label class="radio__label" for="rd-inv1">Off the road now</label>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rd-inv2" name="urgency">
+                  <label class="radio__label" for="rd-inv2">Within 48 hours</label>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rd-inv3" name="urgency">
+                  <label class="radio__label" for="rd-inv3">At next service</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="radio"&gt;
+        &lt;input class="radio__input" type="radio" id="svc-scheduled" name="service" value="scheduled"&gt;
+        &lt;label class="radio__label" for="svc-scheduled"&gt;Scheduled service&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;!-- Required radios get :user-invalid after interaction; a .field__error in the group marks the whole group --&gt;</code></pre>
+      </section>
+
+      <section id="radio-group" aria-labelledby="radio-group-h">
+        <h3 id="radio-group-h">Radio group</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:group-vertical">
+            <fieldset class="fieldset radio-group">
+              <legend class="fieldset__legend">Which bay should KX-219 go to?</legend>
+              <div class="radio-group__items">
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-v1" name="bay" checked>
+                  <label class="radio__label" for="rg-v1">Bay 1 — pit</label>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-v2" name="bay" aria-describedby="rg-v2-hint">
+                  <label class="radio__label" for="rg-v2">Bay 2 — lift</label>
+                  <p class="radio__hint" id="rg-v2-hint">Max 3.5 t.</p>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-v3" name="bay">
+                  <label class="radio__label" for="rg-v3">Bay 4 — EV charging</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:group-horizontal">
+            <fieldset class="fieldset radio-group radio-group--horizontal">
+              <legend class="fieldset__legend">Odometer unit</legend>
+              <div class="radio-group__items">
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-h1" name="unit" checked>
+                  <label class="radio__label" for="rg-h1">Kilometres</label>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-h2" name="unit">
+                  <label class="radio__label" for="rg-h2">Miles</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:cards">
+            <fieldset class="fieldset radio-group radio-group--cards">
+              <legend class="fieldset__legend">Service plan</legend>
+              <div class="radio-group__items">
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-c1" name="plan" checked aria-describedby="rg-c1-hint">
+                  <label class="radio__label" for="rg-c1"><span class="radio__title">Interim</span></label>
+                  <p class="radio__hint" id="rg-c1-hint">Every 10,000 km or 6 months. Oil, filters, safety check.</p>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-c2" name="plan" aria-describedby="rg-c2-hint">
+                  <label class="radio__label" for="rg-c2"><span class="radio__title">Full</span></label>
+                  <p class="radio__hint" id="rg-c2-hint">Every 20,000 km or 12 months. Adds brakes, coolant, belts.</p>
+                </div>
+                <div class="radio">
+                  <input class="radio__input" type="radio" id="rg-c3" name="plan" disabled aria-describedby="rg-c3-hint">
+                  <label class="radio__label" for="rg-c3"><span class="radio__title">Major</span></label>
+                  <p class="radio__hint" id="rg-c3-hint">Not available for vehicles under 3 years old.</p>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;fieldset class="fieldset radio-group [radio-group--horizontal | radio-group--cards]"&gt;
+        &lt;legend class="fieldset__legend"&gt;Service plan&lt;/legend&gt;
+        &lt;div class="radio-group__items"&gt;
+          &lt;div class="radio"&gt;
+            &lt;input class="radio__input" type="radio" id="plan-interim" name="plan" aria-describedby="plan-interim-hint"&gt;
+            &lt;label class="radio__label" for="plan-interim"&gt;&lt;span class="radio__title"&gt;Interim&lt;/span&gt;&lt;/label&gt;
+            &lt;p class="radio__hint" id="plan-interim-hint"&gt;Every 10,000 km or 6 months.&lt;/p&gt;
+          &lt;/div&gt;
+          …
+        &lt;/div&gt;
+      &lt;/fieldset&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.radio</code>, <code>.radio__input</code>, <code>.radio__label</code>, <code>.radio__title</code>, <code>.radio__hint</code></td><td>block / parts</td><td>One option</td></tr>
+      <tr><td><code>.radio-group</code> (+ <code>.fieldset</code>), <code>.radio-group__items</code></td><td>block / part</td><td>Group</td></tr>
+      <tr><td><code>.radio-group--horizontal</code></td><td>modifier class</td><td>Row of 2–3 short options</td></tr>
+      <tr><td><code>.radio-group--cards</code></td><td>modifier class</td><td>Bordered tiles; label stretches over the tile</td></tr>
+      <tr><td><code>name</code>, <code>checked</code>, <code>disabled</code>, <code>required</code></td><td>attribute</td><td>Native states and grouping</td></tr>
+      <tr><td><code>.field__error</code> inside the group, <code>:user-invalid</code></td><td>part / pseudo-class</td><td>Invalid</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><fieldset class="fieldset radio-group">
+  <legend class="fieldset__legend">Priority</legend>
+  <div class="radio-group__items">
+    <div class="radio">
+      <input class="radio__input" type="radio" id="dd-r1" name="p">
+      <label class="radio__label" for="dd-r1">High</label>
+    </div>
+    <div class="radio">
+      <input class="radio__input" type="radio" id="dd-r2" name="p">
+      <label class="radio__label" for="dd-r2">Normal</label>
+    </div>
+    <div class="radio">
+      <input class="radio__input" type="radio" id="dd-r3" name="p">
+      <label class="radio__label" for="dd-r3">Low</label>
+    </div>
+  </div>
+</fieldset>
+          <figcaption><strong>Do</strong> ask the question in the legend and list every option.</figcaption></figure>
+        <figure class="ds-dont"><div class="radio"><input class="radio__input" type="radio" id="dd-r4" name="x"><label class="radio__label" for="dd-r4">Send me service reminders</label></div>
+          <figcaption><strong>Don't</strong> use a single radio for an opt-in — it can't be unchecked. Use a checkbox.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Into the group (focuses the checked radio, or the first) and out of it — one tab stop</td></tr>
+      <tr><td><kbd>↓</kbd> <kbd>→</kbd> / <kbd>↑</kbd> <kbd>←</kbd></td><td>Next / previous option, selecting it (native, wraps)</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Selects the focused radio if none is checked</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>radio</code> in a <code>fieldset</code> (group) — arrow keys come from sharing a <code>name</code>.</li>
+        <li>Checked = filled dot inside a teal ring, not color alone; circles are 24px with a 2px border at 3:1.</li>
+        <li>Cards: the label's <code>::after</code> covers the tile, so the whole card is clickable; the tile shows the focus ring and a 2px selected border plus tint.</li>
+        <li>Hints are linked with <code>aria-describedby</code>; the group error is linked to the fieldset.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-border</code>, <code>--input-bg</code></td><td>Unchecked circle</td></tr>
+      <tr><td><code>--color-action-primary-bg | -hover</code></td><td>Checked ring and dot</td></tr>
+      <tr><td><code>--color-selected-bg</code>, <code>--color-selected-border</code></td><td>Selected card</td></tr>
+      <tr><td><code>--color-border-default</code>, <code>--color-bg-surface</code>, <code>--radius-md</code></td><td>Card</td></tr>
+      <tr><td><code>--color-border-invalid</code></td><td>Invalid</td></tr>
+      <tr><td><code>--color-bg-muted</code>, <code>--color-text-disabled</code></td><td>Disabled</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

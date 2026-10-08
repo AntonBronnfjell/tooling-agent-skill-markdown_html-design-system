@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spinner — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline spinner and inline spinner: indeterminate loading in a status region, delayed to avoid flashes, still under reduced motion.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/spinner.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Spinner</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a spinner for short waits (about 1–5 seconds) where you can't show progress or the shape of the result: checking a VIN, assigning a mechanic, refreshing a vehicle's location. It fades in only after 320ms, so fast responses never flash a loader.</p>
+      <ul>
+        <li>Loading page content (lists, cards, tables)? Use a <strong>skeleton</strong>. Measurable tasks? Use a <strong>progress bar</strong>.</li>
+        <li>Say what is loading ("Loading service history…"), not just "Loading". Use the visible label variant when the wait may pass 2 seconds.</li>
+        <li>Inside a button, use the button's own loading state (<code>aria-busy</code>) or the inline spinner next to a label that says what's happening.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>.spinner[role="status"]</code></li>
+        <li>Ring — <code>.spinner__ring</code>, <code>aria-hidden</code></li>
+        <li>Label — <code>.sr-only</code> text, or visible <code>.spinner__label</code></li>
+        <li>Inline spinner — <code>.inline-spinner</code>, 1em, current text color</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="spinner" aria-labelledby="spinner-h">
+        <h3 id="spinner-h">Spinner</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="size:sm">
+            <div class="spinner spinner--sm" role="status"><span class="spinner__ring" aria-hidden="true"></span><span class="sr-only">Refreshing location of KX-24…</span></div>
+          </div>
+          <div class="ds-demo" data-demo="size:md">
+            <div class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span><span class="sr-only">Loading service history…</span></div>
+          </div>
+          <div class="ds-demo" data-demo="size:lg">
+            <div class="spinner spinner--lg" role="status"><span class="spinner__ring" aria-hidden="true"></span><span class="sr-only">Loading depot map…</span></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-label">
+            <div class="spinner spinner--labelled" role="status"><span class="spinner__ring" aria-hidden="true"></span><span class="spinner__label">Checking VIN 1FTBW3XM6HKA38291…</span></div>
+            <div class="spinner spinner--labelled spinner--lg spinner--stacked" role="status"><span class="spinner__ring" aria-hidden="true"></span><span class="spinner__label">Loading service history…</span></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="spinner" role="status"&gt;
+  &lt;span class="spinner__ring" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;span class="sr-only"&gt;Loading service history…&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="spinner spinner--sm | spinner--lg" role="status"&gt;…&lt;/div&gt;
+
+&lt;!-- Visible label --&gt;
+&lt;div class="spinner spinner--labelled" role="status"&gt;
+  &lt;span class="spinner__ring" aria-hidden="true"&gt;&lt;/span&gt;&lt;span class="spinner__label"&gt;Checking VIN…&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section id="inline-spinner" aria-labelledby="inline-spinner-h">
+        <h3 id="inline-spinner-h">Inline spinner</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:in-button">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary" aria-disabled="true">
+                <span class="inline-spinner" aria-hidden="true"></span>
+                <span class="btn__label">Assigning mechanic…</span>
+              </button>
+              <span class="sr-only" role="status">Assigning Lee Park to WO-1042…</span>
+            </div>
+            <p>Checking availability <span class="inline-spinner" aria-hidden="true"></span></p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;!-- The label changes to say what's happening; the spinner is decorative --&gt;
+&lt;button type="button" class="btn btn--secondary" aria-disabled="true"&gt;
+  &lt;span class="inline-spinner" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;span class="btn__label"&gt;Assigning mechanic…&lt;/span&gt;
+&lt;/button&gt;
+&lt;span class="sr-only" role="status"&gt;Assigning Lee Park to WO-1042…&lt;/span&gt;
+
+&lt;!-- Keep the label and width stable instead: the button's own loading state --&gt;
+&lt;button type="submit" class="btn btn--primary" aria-busy="true" aria-disabled="true"&gt;
+  &lt;span class="btn__label"&gt;Save work order&lt;/span&gt;&lt;span class="btn__spinner" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.spinner[role="status"]</code></td><td>block</td><td>Container and live region</td></tr>
+          <tr><td><code>.spinner--sm | --lg</code></td><td>modifier</td><td>16px / 40px (24px default)</td></tr>
+          <tr><td><code>.spinner--labelled</code> (+ <code>.spinner--stacked</code>)</td><td>modifier</td><td>Visible label beside (or below) the ring</td></tr>
+          <tr><td><code>.spinner__ring | __label</code></td><td>parts</td><td>Ring and visible label</td></tr>
+          <tr><td><code>.inline-spinner</code></td><td>block</td><td>1em ring in text or controls; always <code>aria-hidden</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="spinner spinner--labelled"><span class="spinner__ring" aria-hidden="true"></span><span class="spinner__label">Loading service history…</span></div>
+          <figcaption><strong>Do</strong> say what is loading.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>Six spinners in a dashboard, one per card.</p>
+          <figcaption><strong>Don't</strong> fill a page with spinners. Use skeletons for content areas.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Role <code>status</code> (polite): screen readers announce the label when the spinner is inserted. Insert the spinner into the page when loading starts; don't keep a hidden one.</li>
+        <li>When loading ends, replace the spinner with the result or a short status ("Service history loaded") so the end is announced too.</li>
+        <li>The region that's loading can carry <code>aria-busy="true"</code>; controls that are waiting carry <code>aria-disabled="true"</code> so they stay focusable.</li>
+        <li>Not focusable, no keyboard interaction. Inline spinners are always <code>aria-hidden</code>; the text next to them does the talking.</li>
+        <li>Reduced motion stops the rotation; the ring and the label still say "loading". Forced colors: the ring uses <code>CanvasText</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-action-primary-bg</code></td><td>Ring color</td></tr>
+          <tr><td><code>--icon-size-sm | -lg</code>, <code>--size-control-md</code></td><td>Sizes sm / md / lg</td></tr>
+          <tr><td><code>--border-width-thick</code></td><td>Ring stroke</td></tr>
+          <tr><td><code>--motion-duration-slow</code></td><td>Reveal delay</td></tr>
+          <tr><td><code>--motion-duration-slower</code></td><td>Rotation period (× 1.6)</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

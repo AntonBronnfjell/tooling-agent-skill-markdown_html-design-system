@@ -1,0 +1,176 @@
+/* modal.css — Modal dialog and alert (confirm) dialog. Block alias: .modal
+   Markup:   <dialog class="modal" aria-labelledby aria-describedby> opened by an invoker
+             <button commandfor="id" command="show-modal">; closed by command="close". No JS.
+   Sizes:    .modal--sm | (md default) | .modal--lg   → 30rem / 40rem / 48rem, never wider than the viewport
+   Variants: .modal--fullscreen-mobile (fills the screen below 40rem), .modal--alert (role="alertdialog")
+   Parts:    .modal__header, .modal__icon (alert only, aria-hidden), .modal__title, .modal__close,
+             .modal__body (the only part that scrolls), .modal__footer (actions, primary at inline-end)
+   States:   real ones via [open] / :modal. Docs-only freeze classes: .is-preview (renders an open dialog
+             in the page flow so docs can show it) and .is-mobile (forces the fullscreen-mobile layout).
+   Pattern:  sizes only set --_w; tones set --_icon-bg / --_icon-fg.
+   Motion:   fade + 8px rise on enter (base, enter easing), shorter fade on exit (fast, exit easing);
+             @starting-style + allow-discrete on display/overlay. base.css neutralizes it under reduced motion. */
+@layer components {
+  .modal {
+    --_w: var(--size-container-sm);
+    --_gutter: var(--space-4);
+    --_icon-bg: var(--color-feedback-info-bg);
+    --_icon-fg: var(--color-feedback-info-icon);
+
+    inline-size: min(var(--_w), 100% - 2 * var(--_gutter));
+    max-inline-size: none;
+    max-block-size: calc(100dvh - 2 * var(--space-8));
+    padding: 0;
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--overlay-radius);
+    background: var(--color-elevation-surface-overlay);
+    color: var(--color-text-default);
+    box-shadow: var(--overlay-shadow);
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    translate: 0 var(--space-2);
+    transition:
+      opacity var(--motion-duration-fast) var(--motion-easing-exit),
+      translate var(--motion-duration-fast) var(--motion-easing-exit),
+      overlay var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete,
+      display var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete;
+  }
+  .modal[open] {
+    display: flex;
+    opacity: 1;
+    translate: 0 0;
+    transition-duration: var(--motion-duration-base);
+    transition-timing-function: var(--motion-easing-enter);
+  }
+  @starting-style {
+    .modal[open] { opacity: 0; translate: 0 var(--space-2); }
+  }
+
+  .modal::backdrop {
+    background: var(--color-bg-overlay);
+    opacity: 0;
+    transition:
+      opacity var(--motion-duration-fast) var(--motion-easing-exit),
+      overlay var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete,
+      display var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete;
+  }
+  .modal[open]::backdrop { opacity: 1; transition-duration: var(--motion-duration-base); }
+  @starting-style {
+    .modal[open]::backdrop { opacity: 0; }
+  }
+
+  /* The page behind a modal must not scroll. */
+  html:has(.modal:modal) { overflow: hidden; scrollbar-gutter: stable; }
+
+  /* Sizes */
+  .modal--sm { --_w: calc(var(--size-container-sm) * 0.75); }
+  .modal--lg { --_w: var(--size-container-md); }
+
+  /* Parts */
+  .modal__header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-block: var(--space-5) var(--space-3);
+    padding-inline: var(--space-6) var(--space-4);
+  }
+  .modal__title {
+    flex: 1;
+    min-inline-size: 0;
+    padding-block-start: var(--space-1);
+    font-family: var(--typography-h4-font-family);
+    font-size: var(--typography-h4-font-size);
+    font-weight: var(--typography-h4-font-weight);
+    line-height: var(--typography-h4-line-height);
+  }
+  .modal__close { flex-shrink: 0; }
+  .modal__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: var(--size-control-md);
+    block-size: var(--size-control-md);
+    border-radius: var(--radius-full);
+    background: var(--_icon-bg);
+    color: var(--_icon-fg);
+  }
+  .modal__icon > svg {
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    stroke-width: var(--icon-stroke);
+  }
+  .modal__body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    padding-block: 0 var(--space-5);
+    padding-inline: var(--space-6);
+    color: var(--color-text-muted);
+  }
+  .modal__body:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+  /* Scrolling body: a hairline separates header/footer only when content actually scrolls. */
+  .modal--scroll .modal__header { border-block-end: var(--border-width-thin) solid var(--color-border-default); }
+  .modal--scroll .modal__footer { border-block-start: var(--border-width-thin) solid var(--color-border-default); }
+  .modal--scroll .modal__body { padding-block-start: var(--space-4); }
+  .modal__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-block: var(--space-4);
+    padding-inline: var(--space-6);
+    background: var(--color-elevation-surface-overlay);
+  }
+
+  /* Alert dialog: tone of the icon follows the consequence. */
+  .modal--alert { --_w: calc(var(--size-container-sm) * 0.75); }
+  .modal--alert .modal__header { padding-inline-end: var(--space-6); }
+  .modal--danger { --_icon-bg: var(--color-feedback-danger-bg); --_icon-fg: var(--color-feedback-danger-icon); }
+  .modal--warning { --_icon-bg: var(--color-feedback-warning-bg); --_icon-fg: var(--color-feedback-warning-icon); }
+
+  /* Fullscreen on small screens (the media query and the docs-only .is-mobile share one look). */
+  @media (width < 40rem) {
+    .modal--fullscreen-mobile {
+      inline-size: 100%;
+      max-block-size: 100dvh;
+      block-size: 100dvh;
+      border: 0;
+      border-radius: 0;
+    }
+    .modal--fullscreen-mobile .modal__footer { flex-direction: column-reverse; }
+    .modal--fullscreen-mobile .modal__footer > .btn { inline-size: 100%; min-block-size: var(--size-touch-target); }
+  }
+  .modal--fullscreen-mobile.is-mobile {
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    border-radius: 0;
+  }
+  .modal--fullscreen-mobile.is-mobile .modal__footer { flex-direction: column-reverse; }
+  .modal--fullscreen-mobile.is-mobile .modal__footer > .btn { inline-size: 100%; min-block-size: var(--size-touch-target); }
+
+  /* Docs-only: show an open dialog inside a demo card instead of the top layer. */
+  .modal.is-preview {
+    position: static;
+    inset: auto;
+    margin: 0;
+    inline-size: 100%;
+    max-inline-size: var(--_w);
+    max-block-size: none;
+    display: flex;
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+
+  @media (forced-colors: active) {
+    .modal { border: var(--border-width-thin) solid CanvasText; }
+    .modal::backdrop { background: Canvas; opacity: 0.8; }
+    .modal__icon { border: var(--border-width-thin) solid CanvasText; }
+  }
+}

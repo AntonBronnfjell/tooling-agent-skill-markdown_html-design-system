@@ -1,0 +1,61 @@
+/* grid.css — two-dimensional layout and page width.
+   Blocks: .grid (12 columns), .grid--auto-fit (no media queries), .container
+   Spans: .col-span-1 … .col-span-12, responsive .col-span-{sm|md|lg|xl}-N
+     Breakpoints are literal rem copies of --breakpoint-* (custom properties can't be used in @media):
+     sm 40rem · md 48rem · lg 64rem · xl 80rem
+   Custom properties: --grid-gap (default --space-4), --grid-min (auto-fit track minimum, default 16rem) */
+@layer components {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--grid-gap, var(--space-4));
+  }
+  .grid > * { grid-column: span 12; min-inline-size: 0; }
+
+  .grid--auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--grid-min, 16rem)), 1fr));
+  }
+  .grid--auto-fit > * { grid-column: auto; }
+
+  .grid > .col-span-1 { grid-column: span 1; }
+  .grid > .col-span-2 { grid-column: span 2; }
+  .grid > .col-span-3 { grid-column: span 3; }
+  .grid > .col-span-4 { grid-column: span 4; }
+  .grid > .col-span-6 { grid-column: span 6; }
+  .grid > .col-span-8 { grid-column: span 8; }
+  .grid > .col-span-9 { grid-column: span 9; }
+  .grid > .col-span-12 { grid-column: span 12; }
+
+  @media (min-width: 40rem) {
+    .grid > .col-span-sm-4 { grid-column: span 4; }
+    .grid > .col-span-sm-6 { grid-column: span 6; }
+    .grid > .col-span-sm-12 { grid-column: span 12; }
+  }
+  @media (min-width: 48rem) {
+    .grid > .col-span-md-3 { grid-column: span 3; }
+    .grid > .col-span-md-4 { grid-column: span 4; }
+    .grid > .col-span-md-6 { grid-column: span 6; }
+    .grid > .col-span-md-8 { grid-column: span 8; }
+  }
+  @media (min-width: 64rem) {
+    .grid > .col-span-lg-3 { grid-column: span 3; }
+    .grid > .col-span-lg-4 { grid-column: span 4; }
+    .grid > .col-span-lg-8 { grid-column: span 8; }
+    .grid > .col-span-lg-9 { grid-column: span 9; }
+  }
+  @media (min-width: 80rem) {
+    .grid > .col-span-xl-2 { grid-column: span 2; }
+    .grid > .col-span-xl-3 { grid-column: span 3; }
+  }
+
+  .container {
+    inline-size: 100%;
+    max-inline-size: var(--container-max, var(--size-container-xl));
+    margin-inline: auto;
+    padding-inline: var(--space-4);
+  }
+  .container--md { --container-max: var(--size-container-md); }
+  .container--lg { --container-max: var(--size-container-lg); }
+  @media (min-width: 48rem) { .container { padding-inline: var(--space-6); } }
+  @media (min-width: 64rem) { .container { padding-inline: var(--space-8); } }
+}

@@ -1,0 +1,52 @@
+/* description-list.css — Description list (key/value pairs). Block alias: .dl
+   Markup:   <dl class="dl"> <div class="dl__row"><dt>Odometer</dt><dd>84,212 km</dd></div> …  (div wrappers are valid HTML)
+   Variants: stacked (default: term above value) | .dl--horizontal (two aligned columns via subgrid; falls back to
+             stacked when the list is narrower than 28rem — container query, no breakpoint)
+   Parts:    .dl__row, dt, dd, .dl__num (tabular numerals), .dl__empty (em dash + .sr-only "Not set")
+   Density:  [data-density="compact"] tightens row padding. */
+@layer components {
+  .dl {
+    --_py: var(--space-3);
+    container-type: inline-size;
+    display: grid;
+    margin: 0;
+  }
+  [data-density="compact"] .dl { --_py: var(--space-2); }
+
+  .dl__row {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--_py);
+    border-block-start: var(--border-width-thin) solid var(--color-border-default);
+  }
+  .dl__row:first-child { border-block-start: 0; padding-block-start: 0; }
+
+  .dl dt {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+  }
+  .dl dd {
+    margin: 0;
+    color: var(--color-text-default);
+    overflow-wrap: anywhere;
+  }
+  .dl__num { font-variant-numeric: tabular-nums; }
+  .dl__empty { color: var(--color-text-muted); }
+
+  /* Horizontal: rows share one column track so all values start on the same line. */
+  .dl--horizontal { grid-template-columns: minmax(8rem, max-content) 1fr; column-gap: var(--space-6); }
+  .dl--horizontal > .dl__row {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+    column-gap: var(--space-6);
+  }
+  @container (inline-size < 28rem) {
+    .dl--horizontal > .dl__row { grid-template-columns: 1fr; }
+  }
+
+  @media (forced-colors: active) {
+    .dl__row { border-color: CanvasText; }
+  }
+}

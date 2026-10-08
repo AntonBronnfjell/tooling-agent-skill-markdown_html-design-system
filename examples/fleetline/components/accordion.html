@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accordion and disclosure — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline accordion and disclosure: native details/summary, exclusive groups via name, no JavaScript.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/accordion.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Accordion and disclosure</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use an <strong>accordion</strong> to let people scan section titles of a long checklist or form summary and open only what they need (inspection sections, work-order details on tablet). Use a <strong>disclosure</strong> for one piece of optional detail ("Show service history"). Don't hide information everyone needs — required fields, errors and the next step stay visible. For switching views of the same object use tabs.</p>
+      <ul>
+        <li><strong>Single</strong> (exclusive, shared <code>name</code>) — when sections are steps or alternatives; keeps the page short on tablet.</li>
+        <li><strong>Multiple</strong> — when people compare sections; default.</li>
+      </ul>
+      <p>Content: summary text is a noun phrase in sentence case ("Brakes", "Parts used"), with an optional count in the meta slot ("2 checks"). A disclosure's summary says what opens: "Show service history (12 entries)".</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Group (accordion) — <code>.accordion</code>, bordered container</li>
+        <li>Item — <code>&lt;details class="accordion__item" name="…"&gt;</code></li>
+        <li>Summary — <code>&lt;summary class="accordion__summary"&gt;</code>: title, meta, chevron</li>
+        <li>Chevron — <code>svg.accordion__icon</code>, rotates 180° when open</li>
+        <li>Panel — <code>.accordion__panel</code></li>
+        <li>Disclosure — <code>&lt;details class="disclosure"&gt;</code> with <code>.disclosure__summary</code> and <code>.disclosure__panel</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>States marked hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>. Those classes share their rule with the real pseudo-class; never use them in product code.</p>
+
+      <section id="accordion" aria-labelledby="accordion-h">
+        <h3 id="accordion-h">Accordion</h3>
+        <p>Grouped inspection checklist. Items sharing a <code>name</code> close each other (single); without it several stay open (multiple).</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:collapsed">
+            <div class="accordion">
+            <details class="accordion__item">
+              <summary class="accordion__summary"><span class="accordion__title">Engine and drivetrain</span><span class="accordion__meta">3 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Oil level, coolant, drive belt tension.</p></div>
+            </details>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:expanded">
+            <div class="accordion">
+            <details class="accordion__item" open>
+              <summary class="accordion__summary"><span class="accordion__title">Brakes</span><span class="accordion__meta">2 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Front pads 3 mm — replace before 86,000 km. Rear pads 7 mm.</p></div>
+            </details>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="accordion">
+            <details class="accordion__item">
+              <summary class="accordion__summary is-focus-visible"><span class="accordion__title">Tyres</span><span class="accordion__meta">4 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Tread depth above 4 mm on all wheels.</p></div>
+            </details>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:single">
+            <div class="accordion">
+            <details class="accordion__item" name="insp-kx219" open>
+              <summary class="accordion__summary"><span class="accordion__title">Engine and drivetrain</span><span class="accordion__meta">3 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Oil level, coolant, drive belt tension.</p></div>
+            </details>
+            <details class="accordion__item" name="insp-kx219">
+              <summary class="accordion__summary"><span class="accordion__title">Brakes</span><span class="accordion__meta">2 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Front pads 3 mm — replace before 86,000 km.</p></div>
+            </details>
+            <details class="accordion__item" name="insp-kx219">
+              <summary class="accordion__summary"><span class="accordion__title">Lights and electrics</span><span class="accordion__meta">5 checks</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Left brake light replaced on 2 Oct.</p></div>
+            </details>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:multiple">
+            <div class="accordion">
+            <details class="accordion__item" open>
+              <summary class="accordion__summary"><span class="accordion__title">Parts used</span><span class="accordion__meta">4 items</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Brake pads (front), wear sensor, brake cleaner, cable ties.</p></div>
+            </details>
+            <details class="accordion__item" open>
+              <summary class="accordion__summary"><span class="accordion__title">Labour</span><span class="accordion__meta">3.5 h</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Marta Quintero, 08:10–11:40.</p></div>
+            </details>
+            <details class="accordion__item">
+              <summary class="accordion__summary"><span class="accordion__title">Notes for the driver</span><span class="accordion__meta">1 note</span><svg class="accordion__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></summary>
+              <div class="accordion__panel"><p>Bedding-in: avoid hard braking for the first 200 km.</p></div>
+            </details>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="accordion"&gt;
+&lt;details class="accordion__item" name="insp-kx219" open&gt;
+  &lt;summary class="accordion__summary"&gt;&lt;span class="accordion__title"&gt;Engine and drivetrain&lt;/span&gt;&lt;span class="accordion__meta"&gt;3 checks&lt;/span&gt;&lt;svg class="accordion__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-chevron-down"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/summary&gt;
+  &lt;div class="accordion__panel"&gt;&lt;p&gt;Oil level, coolant, drive belt tension.&lt;/p&gt;&lt;/div&gt;
+&lt;/details&gt;
+&lt;details class="accordion__item" name="insp-kx219"&gt;
+  &lt;summary class="accordion__summary"&gt;&lt;span class="accordion__title"&gt;Brakes&lt;/span&gt;&lt;span class="accordion__meta"&gt;2 checks&lt;/span&gt;&lt;svg class="accordion__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-chevron-down"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/summary&gt;
+  &lt;div class="accordion__panel"&gt;&lt;p&gt;Front pads 3 mm — replace before 86,000 km.&lt;/p&gt;&lt;/div&gt;
+&lt;/details&gt;
+&lt;details class="accordion__item" name="insp-kx219"&gt;
+  &lt;summary class="accordion__summary"&gt;&lt;span class="accordion__title"&gt;Lights and electrics&lt;/span&gt;&lt;span class="accordion__meta"&gt;5 checks&lt;/span&gt;&lt;svg class="accordion__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-chevron-down"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/summary&gt;
+  &lt;div class="accordion__panel"&gt;&lt;p&gt;Left brake light replaced on 2 Oct.&lt;/p&gt;&lt;/div&gt;
+&lt;/details&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+      <section id="disclosure" aria-labelledby="disclosure-h">
+        <h3 id="disclosure-h">Disclosure</h3>
+        <p>One show/hide for secondary detail next to the content it belongs to.</p>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:disclosure">
+            <details class="disclosure">
+              <summary class="disclosure__summary"><svg class="disclosure__icon" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg>Show service history (12 entries)</summary>
+              <div class="disclosure__panel">
+                <p>Last three: oil change 14 Mar, tyre rotation 2 Jun, brake inspection 2 Oct.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;details class="disclosure"&gt;
+  &lt;summary class="disclosure__summary"&gt;&lt;svg class="disclosure__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-chevron-right"&gt;&lt;/use&gt;&lt;/svg&gt;Show service history (12 entries)&lt;/summary&gt;
+  &lt;div class="disclosure__panel"&gt;
+    &lt;p&gt;Last three: oil change 14 Mar, tyre rotation 2 Jun, brake inspection 2 Oct.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/details&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.accordion</code></td><td>block class</td><td>Group container with dividers</td></tr>
+          <tr><td><code>.accordion__item</code></td><td>part class on <code>&lt;details&gt;</code></td><td>One section</td></tr>
+          <tr><td><code>name="group-id"</code></td><td>attribute</td><td>Same value on all items = only one open at a time (native exclusive accordion)</td></tr>
+          <tr><td><code>open</code></td><td>attribute</td><td>Expanded state (set initially for sections that start open)</td></tr>
+          <tr><td><code>.accordion__summary | __title | __meta | __icon | __panel</code></td><td>part classes</td><td>Header row and content</td></tr>
+          <tr><td><code>.disclosure</code>, <code>.disclosure__summary | __icon | __panel</code></td><td>block + parts</td><td>Single show/hide</td></tr>
+          <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freeze summary states</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p class="text-small">Summary: "Brakes · 2 checks"</p>
+          <figcaption><strong>Do</strong> use short, scannable titles with a count.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small">Summary: "Click here to see more information about brakes"</p>
+          <figcaption><strong>Don&rsquo;t</strong> write instructions in the summary.</figcaption>
+        </figure>
+        <figure class="ds-do">
+          <p class="text-small"><code>&lt;details&gt;&lt;summary&gt;</code></p>
+          <figcaption><strong>Do</strong> use native details/summary; keyboard and state come for free.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p class="text-small"><code>&lt;summary&gt;&lt;h3&gt;…&lt;/h3&gt;&lt;/summary&gt;</code></p>
+          <figcaption><strong>Don&rsquo;t</strong> put a heading inside summary; it loses its button role. If headings are required use the APG button pattern.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+              <caption class="sr-only">Keyboard interaction</caption>
+              <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>Tab</kbd></td><td>Moves between summaries (and into open panels' content)</td></tr>
+                <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Opens or closes the focused section</td></tr>
+              </tbody>
+            </table>
+      <ul>
+        <li>Role: <code>&lt;summary&gt;</code> is exposed as a button with expanded/collapsed state; nothing to add.</li>
+        <li>Exclusive groups use the native <code>name</code> attribute; opening one closes the others and the browser updates every state.</li>
+        <li>Find-in-page and fragment links open closed sections automatically (content stays in the DOM).</li>
+        <li>Chevron is decorative (<code>aria-hidden</code>); the open state is announced, not drawn only. The disclosure chevron mirrors in RTL.</li>
+        <li>Motion: height animates with <code>::details-content</code> where supported, instantly elsewhere and under reduced motion.</li>
+        <li>Target: accordion summaries are at least 44px high (<code>--size-touch-target</code>).</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-touch-target</code></td><td>Minimum summary height</td></tr>
+          <tr><td><code>--color-border-default</code></td><td>Group border and dividers</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Summary hover fill</td></tr>
+          <tr><td><code>--color-text-link</code></td><td>Disclosure trigger text</td></tr>
+          <tr><td><code>--color-text-muted</code></td><td>Meta text</td></tr>
+          <tr><td><code>--icon-size-md | -sm</code>, <code>--icon-stroke</code></td><td>Chevrons</td></tr>
+          <tr><td><code>--motion-duration-base</code>, <code>--motion-easing-standard</code></td><td>Chevron rotation and height animation</td></tr>
+          <tr><td><code>--focus-ring-*</code></td><td>Inset focus ring on summaries</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

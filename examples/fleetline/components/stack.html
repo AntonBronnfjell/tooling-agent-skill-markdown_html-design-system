@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stack — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline Stack and Cluster: one-dimensional layout with token-enforced gaps.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/box.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Stack</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Stack spaces its children evenly along one axis; it is how Fleetline keeps components margin-free. A form is a vertical stack of fields; a header is a horizontal stack of title and actions. Use <strong>Cluster</strong> for items that should wrap onto new lines (button rows, filter chips, tags), and <strong>Grid</strong> for two dimensions.</p>
+      <ul>
+        <li>Pick the gap from the scale: 2–3 inside a component, 4 between fields, 6–8 between sections.</li>
+        <li>Never add margins to children to "fix" spacing — change the parent's gap or nest another stack.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Container — <code>.stack</code> (column) or <code>.stack--horizontal</code> (row), or <code>.cluster</code> (wrapping row)</li>
+        <li>Gap — <code>.stack--gap-{1|2|3|4|6|8}</code> or <code>--stack-gap</code> / <code>--cluster-gap</code></li>
+        <li>Children — any elements, no margins</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="stack" aria-labelledby="stack-h">
+        <h3 id="stack-h">Stack</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:vertical">
+            <div class="stack stack--gap-3">
+              <div class="box box--pad-3 box--bordered box--radius-md">WO-4182 · Replace front brake pads</div>
+              <div class="box box--pad-3 box--bordered box--radius-md">WO-4185 · Annual safety inspection</div>
+              <div class="box box--pad-3 box--bordered box--radius-md">WO-4190 · Replace wiper blades</div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:horizontal">
+            <div class="stack stack--horizontal stack--gap-2">
+              <button type="button" class="btn btn--primary btn--sm">Assign mechanic</button>
+              <button type="button" class="btn btn--ghost btn--sm">View history</button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:gap-scale">
+            <div class="stack stack--gap-4">
+              <div class="stack stack--horizontal stack--gap-1"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-1</span><span class="box box--pad-2 box--surface-subtle box--radius-md">4px</span></div>
+              <div class="stack stack--horizontal stack--gap-2"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-2</span><span class="box box--pad-2 box--surface-subtle box--radius-md">8px</span></div>
+              <div class="stack stack--horizontal stack--gap-3"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-3</span><span class="box box--pad-2 box--surface-subtle box--radius-md">12px</span></div>
+              <div class="stack stack--horizontal stack--gap-4"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-4</span><span class="box box--pad-2 box--surface-subtle box--radius-md">16px</span></div>
+              <div class="stack stack--horizontal stack--gap-6"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-6</span><span class="box box--pad-2 box--surface-subtle box--radius-md">24px</span></div>
+              <div class="stack stack--horizontal stack--gap-8"><span class="box box--pad-2 box--surface-subtle box--radius-md">gap-8</span><span class="box box--pad-2 box--surface-subtle box--radius-md">32px</span></div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="stack stack--gap-3"&gt;…&lt;/div&gt;
+&lt;div class="stack stack--horizontal stack--gap-2"&gt;…&lt;/div&gt;
+
+&lt;!-- Any token works through the custom property --&gt;
+&lt;div class="stack" style="--stack-gap: var(--space-5)"&gt;…&lt;/div&gt;</code></pre>
+      </section>
+
+      <section id="cluster" aria-labelledby="cluster-h">
+        <h3 id="cluster-h">Cluster</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:cluster">
+            <div class="cluster">
+              <button type="button" class="btn btn--secondary btn--sm">North Yard</button>
+              <button type="button" class="btn btn--secondary btn--sm">Riverside depot</button>
+              <button type="button" class="btn btn--secondary btn--sm">Airport hub</button>
+              <button type="button" class="btn btn--secondary btn--sm">Harbour garage</button>
+              <button type="button" class="btn btn--secondary btn--sm">East workshop</button>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:cluster-between">
+            <div class="cluster cluster--between">
+              <span class="text-h6">Open work orders (12)</span>
+              <button type="button" class="btn btn--primary btn--sm">New work order</button>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="cluster"&gt;…&lt;/div&gt;
+&lt;div class="cluster cluster--between"&gt;&lt;h2&gt;Open work orders (12)&lt;/h2&gt;&lt;button …&gt;New work order&lt;/button&gt;&lt;/div&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.stack</code></td><td>block class</td><td>Vertical flex column with gap</td></tr>
+          <tr><td><code>.stack--horizontal</code>, <code>.stack--align-center</code></td><td>modifier class</td><td>Row direction; center alignment</td></tr>
+          <tr><td><code>.stack--gap-1 | -2 | -3 | -4 | -6 | -8</code></td><td>modifier class</td><td>Gap from <code>--space-*</code> (4 is default)</td></tr>
+          <tr><td><code>.cluster</code>, <code>.cluster--between</code></td><td>block / modifier</td><td>Wrapping row; push items to the ends</td></tr>
+          <tr><td><code>--stack-gap</code>, <code>--cluster-gap</code></td><td>custom property</td><td>Assign a <code>--space-*</code> token</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="cluster"><button type="button" class="btn btn--primary btn--sm">Assign mechanic</button><button type="button" class="btn btn--secondary btn--sm">Save draft</button></div>
+          <figcaption><strong>Do</strong> use Cluster for button rows so they wrap on narrow screens and long translations.</figcaption></figure>
+        <figure class="ds-dont"><div class="stack stack--horizontal"><button type="button" class="btn btn--primary btn--sm">Assign mechanic</button><button type="button" class="btn btn--secondary btn--sm">Save draft</button></div>
+          <figcaption><strong>Don't</strong> put long or many items in a non-wrapping horizontal stack — it overflows at 320px.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Layout only: no roles, no keyboard behavior.</li>
+        <li>Keep DOM order equal to visual order; don't reorder with <code>order</code> or <code>flex-direction: row-reverse</code>, or Tab order and reading order will diverge.</li>
+        <li>Gaps use logical flow, so RTL needs nothing extra.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--space-1 | -2 | -3 | -4 | -6 | -8</code></td><td>Gap steps</td></tr>
+          <tr><td><code>--stack-gap</code> (default <code>--space-4</code>), <code>--cluster-gap</code> (default <code>--space-2</code>)</td><td>Component-level gap hooks</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

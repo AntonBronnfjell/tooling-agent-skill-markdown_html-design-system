@@ -1,0 +1,28 @@
+/* error-page.css — Error pages: 404, 403, 500, offline (pattern). Block: .error-page
+   Composition only: app-shell (top-nav-only, so users can recover) + a .result.result--page whose title is the <h1>.
+     <body>
+       <a class="skip-link" href="#main">Skip to main content</a>
+       <div class="app-shell app-shell--top-nav-only">
+         <header class="top-nav app-shell__header">…</header>
+         <div class="app-shell__body">
+           <main class="app-shell__main error-page" id="main" tabindex="-1">
+             <section class="result result--page [--error|--warning|--no-permission]" aria-labelledby="err-t">
+               …<h1 class="result__title" id="err-t">We can't find that page</h1>…
+               [<search class="search error-page__search">…</search>]   (404)
+             </section>
+           </main>
+   Parts:   .error-page__search (search form inside the result, readable width)
+   Layout only. */
+@layer patterns {
+  .error-page {
+    display: grid;
+    align-content: center;
+  }
+
+  .error-page__search {
+    align-self: stretch;
+    inline-size: 100%;
+    max-inline-size: var(--size-container-sm);
+    margin-inline: auto;
+  }
+}

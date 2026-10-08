@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu button — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline menu button: an action menu anchored to its trigger, with icons, shortcuts, checkable items, submenus and disabled items.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/icon-button.css">
+  <link rel="stylesheet" href="../css/components/menu.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/menu.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="icon-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="icon-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Menu button</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a menu button to offer a short list of <em>actions</em> on one thing: a work order, a van, a table view. For choosing a value in a form, use a select or combobox; for navigation, use links (top nav, side nav) — never <code>role="menu"</code> for site navigation.</p>
+      <ul><li>Keep menus to 3–9 items; group with separators and group labels. Put destructive items last, in red, and confirm them.</li><li>Item labels are verb-first and sentence case ("Print job sheet"). The trigger names the object or "Actions"; icon-only triggers name the item ("More actions for van KX-219").</li><li>Checkable items (<code>menuitemcheckbox</code>, <code>menuitemradio</code>) keep the menu open; plain actions close it.</li><li>One submenu level at most; deeper trees belong in a dialog or page.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Trigger — <code>.btn</code> or <code>.icon-btn</code> with <code>aria-haspopup="menu"</code>, <code>aria-expanded</code>, <code>aria-controls</code>, <code>commandfor</code>/<code>command="toggle-popover"</code></li><li>Surface — <code>div.menu[popover][role=menu]</code>, anchored with CSS anchor positioning</li><li>Item — <code>button.menu__item[role=menuitem|menuitemcheckbox|menuitemradio]</code></li><li>Leading icon / check — <code>.menu__icon</code> / <code>.menu__check</code></li><li>Label — <code>.menu__label</code></li><li>Shortcut or submenu chevron — <code>kbd.menu__shortcut</code> / <code>.menu__chevron</code></li><li>Group + label, separator — <code>.menu__group[role=group]</code>, <code>.menu__group-label</code>, <code>hr.menu__separator</code></li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Live demos open real popovers (top layer, light dismiss, Esc — no JavaScript needed to open or close). <code>js/menu.js</code> adds roving focus, typeahead, submenu arrows and checkable items. Frozen previews are inert copies of the open surface. States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="menu-button" aria-labelledby="menu-button-h">
+        <h3 id="menu-button-h">Menu button</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:closed variant:with-icons">
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" id="m-wo-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-wo" commandfor="m-wo" command="toggle-popover" style="anchor-name:--m-wo"><span class="btn__label">Actions</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button><div class="menu" id="m-wo" popover role="menu" aria-labelledby="m-wo-btn" style="position-anchor:--m-wo"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit work order</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-copy"></use></svg><span class="menu__label">Duplicate</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div></div>
+            <p>Live: click, or focus and press <kbd>↓</kbd>. Esc closes and returns focus.</p>
+          </div>
+          <div class="ds-demo" data-demo="state:open">
+            <div inert><div class="ds-demo__row"><button type="button" class="btn btn--secondary" aria-expanded="true"><span class="btn__label">Actions</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button></div><div class="menu menu--static" role="menu" aria-label="Work order actions"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit work order</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-copy"></use></svg><span class="menu__label">Duplicate</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div></div>
+            <p>Frozen preview of the open surface.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-shortcuts">
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" id="m-sc-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-sc" commandfor="m-sc" command="toggle-popover" style="anchor-name:--m-sc"><span class="btn__label">Work order</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button><div class="menu" id="m-sc" popover role="menu" aria-labelledby="m-sc-btn" style="position-anchor:--m-sc"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Assign mechanic</span><kbd class="menu__shortcut">A</kbd></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-copy"></use></svg><span class="menu__label">Duplicate</span><kbd class="menu__shortcut">⌘D</kbd></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span><kbd class="menu__shortcut">⌘P</kbd></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-archive"></use></svg><span class="menu__label">Archive</span><kbd class="menu__shortcut">E</kbd></button></div></div>
+            <p>Shortcuts are hints; the real shortcuts work without opening the menu.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:checkable">
+            <div class="ds-demo__row"><button type="button" class="btn btn--ghost" id="m-cols-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-cols" commandfor="m-cols" command="toggle-popover" style="anchor-name:--m-cols"><span class="btn__label">View options</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button><div class="menu" id="m-cols" popover role="menu" aria-labelledby="m-cols-btn" style="position-anchor:--m-cols"><div class="menu__group" role="group" aria-labelledby="m-cols-g1"><div class="menu__group-label" id="m-cols-g1">Show columns</div><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Odometer</span></button><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Next service</span></button><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Assigned mechanic</span></button></div><hr class="menu__separator" role="separator"><div class="menu__group" role="group" aria-labelledby="m-cols-g2"><div class="menu__group-label" id="m-cols-g2">Sort by</div><button type="button" class="menu__item" role="menuitemradio" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Due date</span></button><button type="button" class="menu__item" role="menuitemradio" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Vehicle</span></button><button type="button" class="menu__item" role="menuitemradio" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Depot</span></button></div></div></div><div inert><div class="menu menu--static" role="menu" aria-label="View options"><div class="menu__group" role="group" aria-labelledby="m-colsp-g1"><div class="menu__group-label" id="m-colsp-g1">Show columns</div><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Odometer</span></button><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Next service</span></button><button type="button" class="menu__item" role="menuitemcheckbox" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Assigned mechanic</span></button></div><hr class="menu__separator" role="separator"><div class="menu__group" role="group" aria-labelledby="m-colsp-g2"><div class="menu__group-label" id="m-colsp-g2">Sort by</div><button type="button" class="menu__item" role="menuitemradio" aria-checked="true"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Due date</span></button><button type="button" class="menu__item" role="menuitemradio" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Vehicle</span></button><button type="button" class="menu__item" role="menuitemradio" aria-checked="false"><svg class="menu__check" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Depot</span></button></div></div></div>
+          </div>
+          <div class="ds-demo" data-demo="variant:submenu">
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" id="m-sub-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-sub" commandfor="m-sub" command="toggle-popover" style="anchor-name:--m-sub"><span class="btn__label">Van KX-219</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button><div class="menu" id="m-sub" popover role="menu" aria-labelledby="m-sub-btn" style="position-anchor:--m-sub"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit details</span></button><button type="button" class="menu__item" role="menuitem" id="m-sub-move-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-sub-move" commandfor="m-sub-move" command="toggle-popover" style="anchor-name:--m-sub-move"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg><svg class="menu__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-right"></use></svg><span class="menu__label">Move to depot</span></button><div class="menu menu--sub" id="m-sub-move" popover role="menu" aria-labelledby="m-sub-move-btn" style="position-anchor:--m-sub-move"><button type="button" class="menu__item" role="menuitem"><span class="menu__label">North Yard</span></button><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Harbor Road</span></button><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Eastgate</span></button><button type="button" class="menu__item" role="menuitem" aria-disabled="true"><span class="menu__label">Airport depot</span></button></div><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button></div></div>
+            <p><kbd>→</kbd> opens the submenu, <kbd>←</kbd> closes it (mirrored in RTL).</p>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled-item">
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" id="m-dis-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-dis" commandfor="m-dis" command="toggle-popover" style="anchor-name:--m-dis"><span class="btn__label">Work order WO-4182</span><svg class="menu-trigger__chevron" aria-hidden="true" focusable="false"><use href="#icon-chevron-down"></use></svg></button><div class="menu" id="m-dis" popover role="menu" aria-labelledby="m-dis-btn" style="position-anchor:--m-dis"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign to Rosa Méndez</span></button><button type="button" class="menu__item" role="menuitem" aria-disabled="true"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Close work order</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button></div></div><p>Disabled items stay focusable so people can discover them; the reason goes next to the trigger: "Log at least one task before closing".</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:icon-trigger">
+            <div class="ds-demo__row"><button type="button" class="icon-btn" id="m-row-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="m-row" commandfor="m-row" command="toggle-popover" style="anchor-name:--m-row" aria-label="More actions for van KX-219"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button><div class="menu" id="m-row" popover role="menu" aria-labelledby="m-row-btn" style="position-anchor:--m-row"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit work order</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-copy"></use></svg><span class="menu__label">Duplicate</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type=&quot;button&quot; class=&quot;btn btn--secondary&quot; id=&quot;wo-actions-btn&quot;
+        aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot; aria-controls=&quot;wo-actions&quot;
+        commandfor=&quot;wo-actions&quot; command=&quot;toggle-popover&quot; style=&quot;anchor-name:--wo-actions&quot;&gt;
+  &lt;span class=&quot;btn__label&quot;&gt;Actions&lt;/span&gt;
+  &lt;svg class=&quot;menu-trigger__chevron&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-chevron-down&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+&lt;/button&gt;
+&lt;div class=&quot;menu&quot; id=&quot;wo-actions&quot; popover role=&quot;menu&quot; aria-labelledby=&quot;wo-actions-btn&quot; style=&quot;position-anchor:--wo-actions&quot;&gt;
+  &lt;button type=&quot;button&quot; class=&quot;menu__item&quot; role=&quot;menuitem&quot;&gt;
+    &lt;svg class=&quot;menu__icon&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-pencil&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+    &lt;span class=&quot;menu__label&quot;&gt;Edit work order&lt;/span&gt;
+    &lt;kbd class=&quot;menu__shortcut&quot;&gt;E&lt;/kbd&gt;
+  &lt;/button&gt;
+  &lt;hr class=&quot;menu__separator&quot; role=&quot;separator&quot;&gt;
+  &lt;div class=&quot;menu__group&quot; role=&quot;group&quot; aria-labelledby=&quot;sort-label&quot;&gt;
+    &lt;div class=&quot;menu__group-label&quot; id=&quot;sort-label&quot;&gt;Sort by&lt;/div&gt;
+    &lt;button type=&quot;button&quot; class=&quot;menu__item&quot; role=&quot;menuitemradio&quot; aria-checked=&quot;true&quot;&gt;
+      &lt;svg class=&quot;menu__check&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;&lt;use href=&quot;#icon-check&quot;&gt;&lt;/use&gt;&lt;/svg&gt;
+      &lt;span class=&quot;menu__label&quot;&gt;Due date&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;!-- Submenu: trigger is a menuitem, the sub-popover is a child of this menu --&gt;
+  &lt;button type=&quot;button&quot; class=&quot;menu__item&quot; role=&quot;menuitem&quot; id=&quot;move-btn&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot;
+          aria-controls=&quot;move&quot; commandfor=&quot;move&quot; command=&quot;toggle-popover&quot; style=&quot;anchor-name:--move&quot;&gt;…&lt;/button&gt;
+  &lt;div class=&quot;menu menu--sub&quot; id=&quot;move&quot; popover role=&quot;menu&quot; aria-labelledby=&quot;move-btn&quot; style=&quot;position-anchor:--move&quot;&gt;…&lt;/div&gt;
+  &lt;button type=&quot;button&quot; class=&quot;menu__item menu__item--danger&quot; role=&quot;menuitem&quot;&gt;…Delete work order&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;module&quot;&gt;import { init } from &quot;./js/menu.js&quot;; init();&lt;/script&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.menu</code></td><td>block class</td><td>Popover surface; <code>role="menu"</code></td></tr>
+          <tr><td><code>.menu--sub</code></td><td>modifier</td><td>Submenu, opens inline-end</td></tr>
+          <tr><td><code>.menu--static</code></td><td>docs-only modifier</td><td>In-flow preview of an open menu</td></tr>
+          <tr><td><code>.menu__item</code>, <code>.menu__item--danger</code></td><td>part / modifier</td><td>Item, destructive item</td></tr>
+          <tr><td><code>.menu__icon | __check | __label | __shortcut | __chevron</code></td><td>part</td><td>Item content</td></tr>
+          <tr><td><code>.menu__group</code>, <code>.menu__group-label</code>, <code>.menu__separator</code></td><td>part</td><td>Grouping</td></tr>
+          <tr><td><code>.menu-trigger__chevron</code></td><td>part (trigger)</td><td>Rotates when <code>aria-expanded="true"</code></td></tr>
+          <tr><td><code>aria-checked</code></td><td>attribute</td><td>Checkable item state</td></tr>
+          <tr><td><code>aria-disabled="true"</code></td><td>attribute</td><td>Unavailable, still focusable</td></tr>
+          <tr><td><code>menu-select</code></td><td>event</td><td>Fired on the item: <code>detail { item, value, checked }</code></td></tr>
+          <tr><td><code>init(root)</code></td><td>JS (js/menu.js)</td><td>Enhances every <code>[aria-haspopup=menu][aria-controls]</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div inert><div class="menu menu--static" role="menu" aria-label="Work order actions"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit work order</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="menu__label">Print job sheet</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div></div>
+          <figcaption><strong>Do</strong> group related actions and put destructive ones last.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div inert><div class="menu menu--static" role="menu" aria-label="Navigation"><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Dashboard</span></button><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Vehicles</span></button><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Depots</span></button><button type="button" class="menu__item" role="menuitem"><span class="menu__label">Reports</span></button></div></div>
+          <figcaption><strong>Don't</strong> use a menu for site navigation — use links in a nav.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>↓</kbd> (trigger)</td><td>Opens and focuses the first item</td></tr>
+          <tr><td><kbd>↑</kbd> (trigger)</td><td>Opens and focuses the last item</td></tr>
+          <tr><td><kbd>↓</kbd> / <kbd>↑</kbd></td><td>Next / previous item (wraps)</td></tr>
+          <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last item</td></tr>
+          <tr><td>Letter keys</td><td>Typeahead to the next item starting with those letters</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> (item)</td><td>Runs the action and closes; toggles checkable items</td></tr>
+          <tr><td><kbd>→</kbd> / <kbd>←</kbd></td><td>Open / close a submenu (mirrored in RTL)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes the current level; focus returns to its trigger</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Closes the whole menu and moves on</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Pattern: WAI-ARIA APG Menu Button. The trigger's <code>aria-expanded</code> is kept in sync on every open and close.</li><li>Disabled items use <code>aria-disabled="true"</code>, stay reachable with arrows, and do nothing when activated.</li><li>Checked state: a check icon plus <code>aria-checked</code> — never color alone.</li><li>Placement: CSS anchor positioning with the shared try set (<code>--flip-block</code>, <code>--flip-inline</code>); without anchor support it opens centered in the top layer, still usable.</li><li>Fallback: browsers without invoker commands get <code>togglePopover()</code> on click from <code>js/menu.js</code>.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-overlay</code>, <code>--overlay-radius</code>, <code>--overlay-shadow</code></td><td>Surface</td></tr>
+          <tr><td><code>--z-dropdown</code></td><td>Stacking (top layer when open as a popover)</td></tr>
+          <tr><td><code>--size-control-md | -sm</code></td><td>Item height (comfortable / compact)</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Highlighted item</td></tr>
+          <tr><td><code>--color-feedback-danger-fg | -bg</code></td><td>Destructive item</td></tr>
+          <tr><td><code>--color-text-disabled</code></td><td>Disabled item</td></tr>
+          <tr><td><code>--color-selected-fg</code></td><td>Check mark</td></tr>
+          <tr><td><code>--motion-duration-fast</code>, <code>--motion-easing-enter</code></td><td>Open animation (skipped with reduced motion)</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

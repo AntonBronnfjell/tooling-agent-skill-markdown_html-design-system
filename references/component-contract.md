@@ -26,6 +26,7 @@ js/<file>.js               only if native HTML can't do it (see §4)
   ```css
   .btn--primary:hover, .btn--primary.is-hover { background: var(--color-action-primary-bg-hover); }
   ```
+- Frozen `.is-*` / `.is-open` demo states must not animate (`transition: none`): a static picture caught mid-fade gives screenshots and axe the wrong colors.
 - Real states use real attributes, not classes: `disabled`, `aria-disabled`, `aria-invalid`, `aria-expanded`, `aria-pressed`, `aria-selected`, `aria-current`, `aria-busy`, `[open]`, `:checked`, `:indeterminate`, `:user-invalid`, `:read-only`.
 
 ## 2. The state matrix
@@ -87,6 +88,11 @@ When JS is needed: one small vanilla ES module per file in `js/`, progressive en
 - Status messages via live regions (`role=status` polite, `role=alert` assertive, only for urgent).
 - Color is never the only signal (status dot + text, invalid field + icon + message).
 - Contrast: text 4.5:1 (3:1 for ≥24px/19px bold), UI boundaries and focus 3:1 — add new pairs to `contrast_pairs`.
+- Contrast traps found by running axe on a real system (`ds.py playwright`):
+  - **Disabled:** WCAG exempts the disabled *control* and its label, not its hint or description. Keep hints at `--color-text-muted`.
+  - **Selected/current/active fills recolor every descendant text** (primary, secondary, meta, hints) with `--color-selected-fg`. High-contrast themes often make the fill black, so text that stays default becomes invisible.
+  - **Link colors on tinted fills:** a link's color is tuned for the canvas, so on `selected.bg` switch it to `selected.fg`.
+- Docs pages that repeat a landmark component (several `role="search"` or `<nav>` demos) need a unique `aria-label` on each repeat, or axe flags `landmark-unique`.
 - Targets ≥ 24px; dragging has a non-drag alternative (slider keys, file input button, transfer list buttons).
 - Respect `prefers-reduced-motion`, `prefers-contrast`, `forced-colors`, 200% zoom & 320px reflow.
 

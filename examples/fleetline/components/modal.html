@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modal — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline modal and alert dialogs on native dialog with invoker commands: sizes, scrolling body, fullscreen on mobile, destructive confirmation.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/modal.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Modal</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use a modal when the dispatcher must finish or cancel a short task before going on: reassign a mechanic, edit a service interval, confirm a deletion. The rest of the page becomes inert until it closes.</p>
+      <ul>
+        <li><strong>Modal dialog</strong> — a focused task with a form or a decision. Keep it to one screen of content; long flows belong on a page.</li>
+        <li><strong>Alert dialog</strong> — a confirmation that interrupts: destructive or irreversible actions only ("Delete work order WO-1042?").</li>
+        <li><strong>Don't</strong> use a modal for information the user doesn't have to act on (use an alert or toast), for filters (use a drawer or popover), or open a modal from a modal.</li>
+      </ul>
+      <p>Content: the title states the task or the consequence as a question ("Reassign work order WO-1042", "Delete work order WO-1042?"). Buttons are verb + object ("Delete work order", "Reassign mechanic"); the dismiss action is "Cancel", never "No" or "OK". Put the primary action at the inline end with Cancel beside it.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Backdrop — <code>::backdrop</code> with <code>--color-bg-overlay</code></li>
+        <li>Container — <code>&lt;dialog class="modal"&gt;</code> on the overlay surface, <code>--overlay-radius</code> and <code>--overlay-shadow</code></li>
+        <li>Header — <code>.modal__header</code>: title <code>.modal__title</code> (an <code>h2</code>) and close button <code>.modal__close</code>; alert dialogs show a tone icon <code>.modal__icon</code> instead of the close button</li>
+        <li>Body — <code>.modal__body</code>, the only part that scrolls</li>
+        <li>Footer — <code>.modal__footer</code>: Cancel, then the primary action at the inline end</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Open dialogs are previewed in the page with the docs-only <code>.is-preview</code> class; every demo also has a real trigger that opens the dialog in the top layer with <code>commandfor</code>/<code>command="show-modal"</code>, without JavaScript.</p>
+
+      <section id="modal" aria-labelledby="modal-h">
+        <h3 id="modal-h">Modal dialog</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:closed">
+            <div class="ds-demo__row">
+              <button type="button" class="btn btn--secondary" commandfor="dlg-reassign" command="show-modal">Reassign mechanic</button>
+            </div>
+            <p>Closed: only the trigger is in the page. The dialog is <code>display: none</code> until opened.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:open size:md">
+            <dialog open class="modal is-preview" aria-labelledby="pv-reassign-title" aria-describedby="pv-reassign-desc">
+              <div class="modal__header">
+                <h2 class="modal__title" id="pv-reassign-title">Reassign work order WO-1042</h2>
+                <button type="button" class="btn btn--ghost btn--sm modal__close" aria-label="Close">
+                  <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                </button>
+              </div>
+              <div class="modal__body">
+                <p id="pv-reassign-desc">Brake inspection on van KX-24 is assigned to Dana Ortiz, who is off shift until Thursday. Pick a mechanic at Northside Depot.</p>
+              </div>
+              <div class="modal__footer">
+                <button type="button" class="btn btn--ghost">Cancel</button>
+                <button type="button" class="btn btn--primary">Reassign mechanic</button>
+              </div>
+            </dialog>
+          </div>
+
+          <div class="ds-demo" data-demo="size:sm">
+            <dialog open class="modal modal--sm is-preview" aria-labelledby="pv-sm-title">
+              <div class="modal__header">
+                <h2 class="modal__title" id="pv-sm-title">Rename depot</h2>
+                <button type="button" class="btn btn--ghost btn--sm modal__close" aria-label="Close">
+                  <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                </button>
+              </div>
+              <div class="modal__body"><p>Northside Depot will be renamed on every work order and report.</p></div>
+              <div class="modal__footer">
+                <button type="button" class="btn btn--ghost">Cancel</button>
+                <button type="button" class="btn btn--primary">Rename depot</button>
+              </div>
+            </dialog>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" commandfor="dlg-sm" command="show-modal">Open small</button></div>
+          </div>
+
+          <div class="ds-demo" data-demo="size:lg">
+            <dialog open class="modal modal--lg is-preview" aria-labelledby="pv-lg-title">
+              <div class="modal__header">
+                <h2 class="modal__title" id="pv-lg-title">Service plan for KX-24</h2>
+                <button type="button" class="btn btn--ghost btn--sm modal__close" aria-label="Close">
+                  <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                </button>
+              </div>
+              <div class="modal__body">
+                <p>Oil change every 10,000 km, brake inspection every 20,000 km, tire rotation every 12,000 km. Next due: brake inspection at 84,000 km (1,200 km overdue).</p>
+              </div>
+              <div class="modal__footer">
+                <button type="button" class="btn btn--ghost">Cancel</button>
+                <button type="button" class="btn btn--primary">Save service plan</button>
+              </div>
+            </dialog>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" commandfor="dlg-lg" command="show-modal">Open large</button></div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:scrolling-body">
+            <dialog open class="modal modal--scroll is-preview" aria-labelledby="pv-scroll-title" style="max-block-size: 22rem;">
+              <div class="modal__header">
+                <h2 class="modal__title" id="pv-scroll-title">Service history — KX-24</h2>
+                <button type="button" class="btn btn--ghost btn--sm modal__close" aria-label="Close">
+                  <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                </button>
+              </div>
+              <div class="modal__body" tabindex="0" aria-label="Service history entries">
+                <p>14 Sep 2026 — Oil and filter change, 82,800 km. Mechanic: Dana Ortiz.</p>
+                <p>2 Aug 2026 — Front brake pads replaced, 79,400 km. Mechanic: Lee Park.</p>
+                <p>19 Jun 2026 — Tire rotation and alignment, 75,100 km. Mechanic: Dana Ortiz.</p>
+                <p>3 May 2026 — Annual roadworthiness inspection passed, 71,600 km.</p>
+                <p>22 Mar 2026 — Coolant hose replaced after leak report, 67,900 km.</p>
+                <p>8 Feb 2026 — Oil and filter change, 64,300 km. Mechanic: Lee Park.</p>
+              </div>
+              <div class="modal__footer">
+                <button type="button" class="btn btn--primary">Export service log</button>
+              </div>
+            </dialog>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" commandfor="dlg-scroll" command="show-modal">Open service history</button></div>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:fullscreen-mobile">
+            <div style="max-inline-size: 20rem; block-size: 26rem; border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); overflow: hidden;">
+              <dialog open class="modal modal--fullscreen-mobile is-preview is-mobile" aria-labelledby="pv-mobile-title">
+                <div class="modal__header">
+                  <h2 class="modal__title" id="pv-mobile-title">Log inspection</h2>
+                  <button type="button" class="btn btn--ghost btn--sm modal__close" aria-label="Close">
+                    <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+                  </button>
+                </div>
+                <div class="modal__body"><p>Below 40rem the dialog fills the screen and stacks its actions full width, so mechanics on a tablet in portrait get 44px targets.</p></div>
+                <div class="modal__footer">
+                  <button type="button" class="btn btn--ghost">Cancel</button>
+                  <button type="button" class="btn btn--primary">Save inspection</button>
+                </div>
+              </dialog>
+            </div>
+            <div class="ds-demo__row"><button type="button" class="btn btn--secondary" commandfor="dlg-mobile" command="show-modal">Open (resize below 40rem)</button></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--secondary" commandfor="dlg-reassign" command="show-modal"&gt;Reassign mechanic&lt;/button&gt;
+
+&lt;dialog id="dlg-reassign" class="modal" aria-labelledby="reassign-title" aria-describedby="reassign-desc" closedby="any"&gt;
+  &lt;div class="modal__header"&gt;
+    &lt;h2 class="modal__title" id="reassign-title"&gt;Reassign work order WO-1042&lt;/h2&gt;
+    &lt;button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-reassign" command="close" aria-label="Close"&gt;
+      &lt;svg class="btn__icon" aria-hidden="true" focusable="false"&gt;&lt;use href="#icon-x"&gt;&lt;/use&gt;&lt;/svg&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="modal__body"&gt;&lt;p id="reassign-desc"&gt;…&lt;/p&gt;&lt;/div&gt;
+  &lt;div class="modal__footer"&gt;
+    &lt;button type="button" class="btn btn--ghost" commandfor="dlg-reassign" command="close"&gt;Cancel&lt;/button&gt;
+    &lt;button type="button" class="btn btn--primary"&gt;Reassign mechanic&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;!-- Sizes and variants --&gt;
+&lt;dialog class="modal modal--sm"&gt;…  &lt;dialog class="modal modal--lg"&gt;…
+&lt;dialog class="modal modal--scroll"&gt;…  &lt;dialog class="modal modal--fullscreen-mobile"&gt;…</code></pre>
+      </section>
+
+      <section id="alert-dialog" aria-labelledby="alert-dialog-h">
+        <h3 id="alert-dialog-h">Alert dialog</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:confirm-destructive">
+            <dialog open class="modal modal--alert modal--danger is-preview" role="alertdialog" aria-labelledby="pv-del-title" aria-describedby="pv-del-desc">
+              <div class="modal__header">
+                <span class="modal__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-trash"></use></svg></span>
+                <h2 class="modal__title" id="pv-del-title">Delete work order WO-1042?</h2>
+              </div>
+              <div class="modal__body">
+                <p id="pv-del-desc">The brake inspection for KX-24, its 3 logged tasks and 12 photos will be deleted. This can't be undone.</p>
+              </div>
+              <div class="modal__footer">
+                <button type="button" class="btn btn--ghost">Cancel</button>
+                <button type="button" class="btn btn--destructive">Delete work order</button>
+              </div>
+            </dialog>
+            <div class="ds-demo__row"><button type="button" class="btn btn--destructive" commandfor="dlg-delete" command="show-modal">Delete work order</button></div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--destructive" commandfor="dlg-delete" command="show-modal"&gt;Delete work order&lt;/button&gt;
+
+&lt;dialog id="dlg-delete" class="modal modal--alert modal--danger" role="alertdialog"
+        aria-labelledby="delete-title" aria-describedby="delete-desc"&gt;
+  &lt;div class="modal__header"&gt;
+    &lt;span class="modal__icon" aria-hidden="true"&gt;&lt;svg focusable="false"&gt;&lt;use href="#icon-trash"&gt;&lt;/use&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;h2 class="modal__title" id="delete-title"&gt;Delete work order WO-1042?&lt;/h2&gt;
+  &lt;/div&gt;
+  &lt;div class="modal__body"&gt;&lt;p id="delete-desc"&gt;… This can't be undone.&lt;/p&gt;&lt;/div&gt;
+  &lt;div class="modal__footer"&gt;
+    &lt;button type="button" class="btn btn--ghost" commandfor="dlg-delete" command="close" autofocus&gt;Cancel&lt;/button&gt;
+    &lt;button type="submit" class="btn btn--destructive" form="delete-wo-1042"&gt;Delete work order&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>&lt;dialog class="modal"&gt;</code></td><td>block</td><td>Modal surface; open with <code>command="show-modal"</code></td></tr>
+          <tr><td><code>.modal--sm | --lg</code></td><td>modifier</td><td>Width 30rem / 48rem (md 40rem default), always within the viewport</td></tr>
+          <tr><td><code>.modal--scroll</code></td><td>modifier</td><td>Adds separators above and below a long scrolling body</td></tr>
+          <tr><td><code>.modal--fullscreen-mobile</code></td><td>modifier</td><td>Fills the screen below 40rem, stacks footer actions</td></tr>
+          <tr><td><code>.modal--alert</code> + <code>.modal--danger | --warning</code></td><td>modifier</td><td>Alert dialog layout and icon tone; pair with <code>role="alertdialog"</code></td></tr>
+          <tr><td><code>.modal__header | __title | __close | __icon | __body | __footer</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>commandfor="id" command="show-modal | close"</code></td><td>invoker attributes</td><td>Open and close without JavaScript</td></tr>
+          <tr><td><code>closedby="any"</code></td><td>attribute</td><td>Light dismiss (backdrop click) for non-destructive, non-form dialogs only; enhancement</td></tr>
+          <tr><td><code>autofocus</code></td><td>attribute</td><td>Initial focus target; on alert dialogs put it on Cancel</td></tr>
+          <tr><td><code>.is-preview | .is-mobile</code></td><td>docs-only class</td><td>Render an open dialog in the page flow / force the mobile layout</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="ds-demo__row"><button type="button" class="btn btn--ghost">Cancel</button><button type="button" class="btn btn--destructive">Delete work order</button></div>
+          <figcaption><strong>Do</strong> name the action and the object, and focus Cancel first in destructive confirmations.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="ds-demo__row"><button type="button" class="btn btn--ghost">No</button><button type="button" class="btn btn--primary">OK</button></div>
+          <figcaption><strong>Don't</strong> ask "Are you sure?" with Yes/No or OK: people click through without reading.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves between focusable elements inside the dialog; the page behind is inert</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes the dialog (on an alert dialog it equals Cancel)</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Activates the focused button</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> (via the invoker) is a modal dialog — top layer, inert background, Esc handling. Alert dialogs add <code>role="alertdialog"</code> (APG Alert Dialog).</li>
+        <li>Name and description: <code>aria-labelledby</code> → the title; <code>aria-describedby</code> → the main paragraph, read on open.</li>
+        <li>Focus: moves to the first focusable element or the <code>autofocus</code> one (Cancel in alert dialogs, the least destructive action). On close the browser returns focus to the invoker.</li>
+        <li>No light dismiss on alert dialogs or dialogs with forms: an accidental click must not lose input.</li>
+        <li>The scrolling body is focusable (<code>tabindex="0"</code> + <code>aria-label</code>) so keyboard users can scroll it.</li>
+        <li>Fallback: browsers without invoker commands need the shared invoker polyfill that maps <code>command</code> to <code>showModal()</code>/<code>close()</code>.</li>
+        <li>Forced colors: the dialog keeps a <code>CanvasText</code> border.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-overlay</code></td><td>Dialog surface</td></tr>
+          <tr><td><code>--overlay-radius</code>, <code>--overlay-shadow</code></td><td>Corner radius and elevation</td></tr>
+          <tr><td><code>--color-bg-overlay</code></td><td>Backdrop scrim</td></tr>
+          <tr><td><code>--size-container-sm | -md</code></td><td>Widths (sm = 0.75 × container-sm)</td></tr>
+          <tr><td><code>--color-feedback-{danger|warning|info}-{bg|icon}</code></td><td>Alert dialog icon tone</td></tr>
+          <tr><td><code>--typography-h4-*</code></td><td>Title</td></tr>
+          <tr><td><code>--motion-duration-base | -fast</code>, <code>--motion-easing-enter | -exit</code></td><td>Enter and exit</td></tr>
+          <tr><td><code>--size-touch-target</code></td><td>Full-width footer buttons on mobile</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Real dialogs, opened by the triggers above. -->
+  <dialog id="dlg-reassign" class="modal" aria-labelledby="reassign-title" aria-describedby="reassign-desc" closedby="any">
+    <div class="modal__header">
+      <h2 class="modal__title" id="reassign-title">Reassign work order WO-1042</h2>
+      <button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-reassign" command="close" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="modal__body"><p id="reassign-desc">Brake inspection on van KX-24 is assigned to Dana Ortiz, who is off shift until Thursday. Pick a mechanic at Northside Depot.</p></div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-reassign" command="close">Cancel</button>
+      <button type="button" class="btn btn--primary" commandfor="dlg-reassign" command="close">Reassign mechanic</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-sm" class="modal modal--sm" aria-labelledby="sm-title">
+    <div class="modal__header">
+      <h2 class="modal__title" id="sm-title">Rename depot</h2>
+      <button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-sm" command="close" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="modal__body"><p>Northside Depot will be renamed on every work order and report.</p></div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-sm" command="close">Cancel</button>
+      <button type="button" class="btn btn--primary" commandfor="dlg-sm" command="close">Rename depot</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-lg" class="modal modal--lg" aria-labelledby="lg-title">
+    <div class="modal__header">
+      <h2 class="modal__title" id="lg-title">Service plan for KX-24</h2>
+      <button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-lg" command="close" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="modal__body"><p>Oil change every 10,000 km, brake inspection every 20,000 km, tire rotation every 12,000 km. Next due: brake inspection at 84,000 km (1,200 km overdue).</p></div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-lg" command="close">Cancel</button>
+      <button type="button" class="btn btn--primary" commandfor="dlg-lg" command="close">Save service plan</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-scroll" class="modal modal--scroll" aria-labelledby="scroll-title">
+    <div class="modal__header">
+      <h2 class="modal__title" id="scroll-title">Service history — KX-24</h2>
+      <button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-scroll" command="close" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="modal__body" tabindex="0" aria-label="Service history entries">
+      <p>14 Sep 2026 — Oil and filter change, 82,800 km. Mechanic: Dana Ortiz.</p>
+      <p>2 Aug 2026 — Front brake pads replaced, 79,400 km. Mechanic: Lee Park.</p>
+      <p>19 Jun 2026 — Tire rotation and alignment, 75,100 km. Mechanic: Dana Ortiz.</p>
+      <p>3 May 2026 — Annual roadworthiness inspection passed, 71,600 km.</p>
+      <p>22 Mar 2026 — Coolant hose replaced after leak report, 67,900 km.</p>
+      <p>8 Feb 2026 — Oil and filter change, 64,300 km. Mechanic: Lee Park.</p>
+      <p>11 Dec 2025 — Winter tires fitted, 60,200 km. Mechanic: Dana Ortiz.</p>
+      <p>30 Oct 2025 — Battery replaced after failed cold start, 57,800 km.</p>
+      <p>9 Sep 2025 — Oil and filter change, 54,700 km. Mechanic: Lee Park.</p>
+      <p>14 Jul 2025 — Rear brake discs and pads replaced, 50,300 km.</p>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-scroll" command="close">Close</button>
+      <button type="button" class="btn btn--primary">Export service log</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-mobile" class="modal modal--fullscreen-mobile" aria-labelledby="mobile-title">
+    <div class="modal__header">
+      <h2 class="modal__title" id="mobile-title">Log inspection</h2>
+      <button type="button" class="btn btn--ghost btn--sm modal__close" commandfor="dlg-mobile" command="close" aria-label="Close">
+        <svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-x"></use></svg>
+      </button>
+    </div>
+    <div class="modal__body"><p>Below 40rem the dialog fills the screen and stacks its actions full width.</p></div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-mobile" command="close">Cancel</button>
+      <button type="button" class="btn btn--primary" commandfor="dlg-mobile" command="close">Save inspection</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-delete" class="modal modal--alert modal--danger" role="alertdialog" aria-labelledby="delete-title" aria-describedby="delete-desc">
+    <div class="modal__header">
+      <span class="modal__icon" aria-hidden="true"><svg focusable="false"><use href="#icon-trash"></use></svg></span>
+      <h2 class="modal__title" id="delete-title">Delete work order WO-1042?</h2>
+    </div>
+    <div class="modal__body"><p id="delete-desc">The brake inspection for KX-24, its 3 logged tasks and 12 photos will be deleted. This can't be undone.</p></div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" commandfor="dlg-delete" command="close" autofocus>Cancel</button>
+      <button type="button" class="btn btn--destructive" commandfor="dlg-delete" command="close">Delete work order</button>
+    </div>
+  </dialog>
+</body>
+</html>

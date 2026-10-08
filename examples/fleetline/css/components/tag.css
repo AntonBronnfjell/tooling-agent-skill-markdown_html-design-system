@@ -1,0 +1,95 @@
+/* tag.css — Tag / Chip. Block alias: .tag
+   Variants: static   <span class="tag">  (metadata, not interactive)
+             removable <span class="tag tag--removable"> + <button class="tag__remove" aria-label="Remove filter: …">
+             selectable <button type="button" class="tag tag--selectable" aria-pressed="false|true"> (filter chip)
+   Parts:    .tag__label (truncates; put the full text in title), .tag__icon, .tag__check (shown when pressed),
+             .tag__remove (24px+ hit area)
+   States:   :hover / :focus-visible (docs freeze: .is-hover, .is-focus-visible), [aria-pressed="true"] = selected,
+             disabled. Selected shows a check icon as well as the teal fill — never color alone.
+   Pattern:  private props --_bg, --_fg, --_border; states swap them. 8px radius like every control. */
+@layer components {
+  .tag {
+    --_bg: var(--color-bg-subtle);
+    --_fg: var(--color-text-default);
+    --_border: var(--color-border-default);
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1-5);
+    max-inline-size: 16rem;
+    min-block-size: var(--size-control-sm);
+    padding-block: 0;
+    padding-inline: var(--space-3);
+    border: var(--border-width-thin) solid var(--_border);
+    border-radius: var(--radius-md);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-tight);
+    white-space: nowrap;
+    vertical-align: middle;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      border-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .tag__label { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; }
+  .tag__icon, .tag__check {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    stroke-width: var(--icon-stroke);
+  }
+
+  /* Removable */
+  .tag--removable { padding-inline-end: var(--space-1); }
+  .tag__remove {
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    inline-size: var(--space-6);
+    block-size: var(--space-6);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+  .tag__remove svg { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); stroke-width: var(--icon-stroke); }
+  .tag__remove:hover, .tag__remove.is-hover { background: var(--color-action-ghost-bg-hover); color: var(--color-text-default); }
+  .tag__remove:focus-visible, .tag__remove.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 0;
+  }
+
+  /* Selectable (filter chip) */
+  .tag--selectable { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .tag--selectable .tag__check { display: none; }
+  .tag--selectable:hover:not(:disabled), .tag--selectable.is-hover { --_bg: var(--color-action-secondary-bg-hover); --_border: var(--color-border-strong); }
+  .tag--selectable[aria-pressed="true"] {
+    --_bg: var(--color-selected-bg);
+    --_fg: var(--color-selected-fg);
+    --_border: var(--color-selected-border);
+  }
+  .tag--selectable[aria-pressed="true"] .tag__check { display: block; }
+  .tag--selectable:focus-visible, .tag--selectable.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+  .tag--selectable:disabled {
+    --_bg: var(--color-bg-muted);
+    --_fg: var(--color-text-disabled);
+    --_border: transparent;
+    cursor: not-allowed;
+  }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: 0; list-style: none; }
+
+  @media (forced-colors: active) {
+    .tag { border-color: CanvasText; }
+    .tag--selectable[aria-pressed="true"] { border-color: Highlight; border-width: var(--border-width-thick); }
+    .tag--selectable:disabled { color: GrayText; border-color: GrayText; }
+  }
+}

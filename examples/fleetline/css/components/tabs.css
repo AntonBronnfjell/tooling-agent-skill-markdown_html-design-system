@@ -1,0 +1,116 @@
+/* tabs.css — Tabs (APG Tabs). Block: .tabs
+   Variants: .tabs--underline (default) | .tabs--contained (segmented pill row for compact view switches)
+   Overflow: the tablist scrolls horizontally (scroll-snap); .tabs--overflow adds edge padding + thin scrollbar.
+   Parts:    .tabs__list (role="tablist" + aria-label; or <ul> inside <nav> for URL tabs), .tabs__tab (button role="tab"
+             aria-selected aria-controls — or <a aria-current="page"> for navigation tabs), .tabs__count (number badge),
+             .tabs__icon (svg), .tabs__panel (role="tabpanel" aria-labelledby tabindex="0")
+   States:   aria-selected="true" / aria-current="page" (bar + weight + color), :hover, :focus-visible,
+             aria-disabled="true" (focusable, not selectable). Docs-only freeze: .is-hover, .is-focus-visible.
+   Behavior: js/tabs.js — roving focus (←/→, Home/End), automatic activation; data-activation="manual" waits for Enter/Space. */
+@layer components {
+  .tabs { display: grid; gap: var(--space-4); min-inline-size: 0; }
+
+  .tabs__list {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    border-block-end: var(--border-width-thin) solid var(--color-border-default);
+  }
+
+  .tabs__tab {
+    --_bar: transparent;
+    --_fg: var(--color-text-muted);
+    --_bg: transparent;
+
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--size-control-md);
+    padding-inline: var(--space-3);
+    border: 0;
+    border-block-end: var(--border-width-thick) solid var(--_bar);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: var(--_bg);
+    color: var(--_fg);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    scroll-snap-align: start;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-duration-fast) var(--motion-easing-standard),
+      color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .tabs__tab:hover:not([aria-disabled="true"]),
+  .tabs__tab.is-hover { --_bg: var(--color-action-ghost-bg-hover); --_fg: var(--color-text-default); }
+  .tabs__tab:focus-visible,
+  .tabs__tab.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+  .tabs__tab[aria-selected="true"],
+  .tabs__tab[aria-current="page"] {
+    --_bar: var(--color-selected-border);
+    --_fg: var(--color-selected-fg);
+    font-weight: var(--font-weight-semibold);
+  }
+  .tabs__tab[aria-disabled="true"] { --_fg: var(--color-text-disabled); cursor: not-allowed; }
+
+  .tabs__icon { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); stroke-width: var(--icon-stroke); }
+  .tabs__count {
+    min-inline-size: var(--space-5);
+    padding-inline: var(--space-1-5);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    color: var(--color-text-default);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  .tabs__panel { min-inline-size: 0; border-radius: var(--radius-sm); }
+  .tabs__panel:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Contained (segmented look) */
+  .tabs--contained .tabs__list {
+    display: inline-flex;
+    max-inline-size: 100%;
+    padding: var(--space-1);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    justify-self: start;
+  }
+  .tabs--contained .tabs__tab {
+    min-block-size: var(--size-control-sm);
+    border: var(--border-width-thin) solid transparent;
+    border-radius: var(--radius-sm);
+  }
+  .tabs--contained .tabs__tab[aria-selected="true"],
+  .tabs--contained .tabs__tab[aria-current="page"] {
+    --_bg: var(--color-bg-surface);
+    --_fg: var(--color-text-default);
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tabs--overflow .tabs__list { padding-block-end: var(--space-1); }
+
+  @media (forced-colors: active) {
+    .tabs__tab[aria-selected="true"], .tabs__tab[aria-current="page"] { border-block-end-color: Highlight; }
+    .tabs--contained .tabs__tab[aria-selected="true"] { border-color: Highlight; }
+    .tabs__tab[aria-disabled="true"] { color: GrayText; }
+  }
+}

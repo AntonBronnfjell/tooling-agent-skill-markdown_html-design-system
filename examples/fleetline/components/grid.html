@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline Grid and Container: 12-column, auto-fit and responsive layouts, and the page-width container.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/grid.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/box.css">
+  <link rel="stylesheet" href="../css/components/typography.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Grid</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use Grid for two-dimensional layout: dashboards, vehicle card lists, form columns. Use Container once per page to cap line length and center the content column.</p>
+      <ul>
+        <li><strong>Auto-fit</strong> is the default for repeating items (vehicle cards, depot tiles): it needs no breakpoints and adapts to its slot.</li>
+        <li><strong>12-column</strong> spans are for page regions with fixed proportions (a 9 + 3 work order view with a side panel).</li>
+        <li>Every child spans all 12 columns on small screens unless a responsive span says otherwise — mobile is the default.</li>
+        <li>Use Stack, not Grid, for a single column of items.</li>
+      </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Grid — <code>.grid</code> (12 equal tracks) or <code>.grid--auto-fit</code></li>
+        <li>Item span — <code>.col-span-N</code> and <code>.col-span-{sm|md|lg|xl}-N</code></li>
+        <li>Gap — <code>--grid-gap</code> (default <code>--space-4</code>)</li>
+        <li>Container — <code>.container</code>, max width <code>--size-container-xl</code>, growing gutters</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="grid" aria-labelledby="grid-h">
+        <h3 id="grid-h">Grid</h3>
+        <div class="stack stack--gap-4">
+          <div class="ds-demo" data-demo="variant:12-col">
+            <div class="grid" style="--grid-gap: var(--space-2)">
+              <div class="col-span-12 box box--pad-2 box--surface-subtle box--radius-md text-small">12</div>
+              <div class="col-span-6 box box--pad-2 box--surface-subtle box--radius-md text-small">6</div>
+              <div class="col-span-6 box box--pad-2 box--surface-subtle box--radius-md text-small">6</div>
+              <div class="col-span-4 box box--pad-2 box--surface-subtle box--radius-md text-small">4</div>
+              <div class="col-span-4 box box--pad-2 box--surface-subtle box--radius-md text-small">4</div>
+              <div class="col-span-4 box box--pad-2 box--surface-subtle box--radius-md text-small">4</div>
+              <div class="col-span-3 box box--pad-2 box--surface-subtle box--radius-md text-small">3</div>
+              <div class="col-span-9 box box--pad-2 box--surface-subtle box--radius-md text-small">9</div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:auto-fit">
+            <div class="grid grid--auto-fit" style="--grid-min: 12rem">
+              <div class="box box--pad-4 box--bordered box--radius-md"><p class="text-h6">Van KX-219</p><p class="text-small text-muted">In workshop · Bay 4</p></div>
+              <div class="box box--pad-4 box--bordered box--radius-md"><p class="text-h6">Truck HT-507</p><p class="text-small text-muted">On route · Riverside</p></div>
+              <div class="box box--pad-4 box--bordered box--radius-md"><p class="text-h6">Van KX-344</p><p class="text-small text-muted">Available · North Yard</p></div>
+              <div class="box box--pad-4 box--bordered box--radius-md"><p class="text-h6">Pickup PU-118</p><p class="text-small text-muted">Service due in 3 days</p></div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="variant:responsive">
+            <div class="grid">
+              <div class="col-span-md-8 col-span-lg-9 box box--pad-4 box--bordered box--radius-md"><p class="text-h6">Work order WO-4182</p><p class="text-small text-muted">Full width on phones, 8 of 12 from 48rem, 9 of 12 from 64rem.</p></div>
+              <div class="col-span-md-4 col-span-lg-3 box box--pad-4 box--surface-subtle box--radius-md"><p class="text-h6">Vehicle details</p><p class="text-small text-muted">Side panel</p></div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="grid"&gt;
+  &lt;div class="col-span-6"&gt;…&lt;/div&gt;&lt;div class="col-span-6"&gt;…&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Repeating items: no breakpoints needed --&gt;
+&lt;ul class="grid grid--auto-fit" style="--grid-min: 12rem" role="list"&gt;…&lt;/ul&gt;
+
+&lt;!-- Responsive spans: full width by default --&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="col-span-md-8 col-span-lg-9"&gt;…&lt;/div&gt;
+  &lt;div class="col-span-md-4 col-span-lg-3"&gt;…&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </section>
+
+      <section id="container" aria-labelledby="container-h">
+        <h3 id="container-h">Container</h3>
+        <div class="ds-demo" data-demo="variant:container">
+          <div class="box box--surface-sunken box--radius-md">
+            <div class="container container--md">
+              <div class="box box--pad-4 box--surface box--bordered box--radius-md">
+                <p class="text-h6">Settings</p>
+                <p class="text-small text-muted">Centered column, max 48rem (<code>.container--md</code>) with a 16px gutter that grows to 24px and 32px on wider screens.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;main class="container"&gt;…&lt;/main&gt;          &lt;!-- max 80rem --&gt;
+&lt;main class="container container--md"&gt;…&lt;/main&gt; &lt;!-- forms and settings, max 48rem --&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.grid</code></td><td>block class</td><td>12 equal columns; children span 12 by default</td></tr>
+          <tr><td><code>.col-span-{1|2|3|4|6|8|9|12}</code></td><td>class</td><td>Span at every width</td></tr>
+          <tr><td><code>.col-span-sm-{4|6|12}</code>, <code>-md-{3|4|6|8}</code>, <code>-lg-{3|4|8|9}</code>, <code>-xl-{2|3}</code></td><td>class</td><td>Span from 40 / 48 / 64 / 80rem (mirrors <code>--breakpoint-*</code>)</td></tr>
+          <tr><td><code>.grid--auto-fit</code></td><td>modifier class</td><td>As many columns as fit, each ≥ <code>--grid-min</code></td></tr>
+          <tr><td><code>--grid-gap</code>, <code>--grid-min</code></td><td>custom property</td><td>Gap token; track minimum (default 16rem)</td></tr>
+          <tr><td><code>.container</code>, <code>.container--md | --lg</code></td><td>block / modifier</td><td>Centered page column, 80 / 48 / 64rem max</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><p class="text-small">Vehicle cards in <code>.grid--auto-fit</code> with <code>--grid-min: 14rem</code>.</p>
+          <figcaption><strong>Do</strong> let repeating content fit itself; it works in any slot width.</figcaption></figure>
+        <figure class="ds-dont"><p class="text-small"><code>.col-span-3</code> on cards with no responsive span.</p>
+          <figcaption><strong>Don't</strong> use fixed small spans without a mobile default — four columns at 320px are unreadable.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <ul>
+        <li>Layout only: no roles. When grid items are a collection (vehicle cards), use <code>ul</code>/<code>li</code> with <code>role="list"</code> so the count is announced.</li>
+        <li>Don't use <code>grid-auto-flow: dense</code>, explicit placement or <code>order</code> on interactive content: focus order must follow visual order.</li>
+        <li>Reflow: every layout collapses to one column at 320px wide (WCAG 1.4.10).</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--space-4</code> (gap), <code>--space-4 | -6 | -8</code> (container gutters)</td><td>Spacing</td></tr>
+          <tr><td><code>--size-container-md | -lg | -xl</code></td><td>Container widths</td></tr>
+          <tr><td><code>--breakpoint-sm | -md | -lg | -xl</code></td><td>Mirrored as literal rem in media queries</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

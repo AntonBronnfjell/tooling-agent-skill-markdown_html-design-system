@@ -1,0 +1,99 @@
+/* search-input.css — query field inside a search landmark. Block alias: .search
+   Builds on .input--affixed (text-field.css) for border, focus ring and sizes:
+     <search class="search">
+       <form class="search__form" action="/vehicles" method="get">
+         <label class="label" for="q">Search vehicles</label>       (or .sr-only when a heading names it)
+         <div class="input input--affixed search__box">
+           <svg class="search__icon" aria-hidden="true">…</svg>
+           <input class="input__control search__control" type="search" id="q" name="q">
+           <span class="search__spinner" aria-hidden="true"></span>
+           <kbd class="search__kbd" aria-hidden="true">/</kbd>              (optional shortcut hint)
+           <button type="button" class="search__clear" aria-label="Clear search" hidden>…</button>
+         </div>
+         <p class="search__status sr-only" role="status"></p>
+       </form>
+     </search>
+   States:    empty, filled (clear button shown by js/search-input.js), loading = aria-busy="true" on
+              .search__box (spinner replaces the shortcut hint; status text announced).
+   Docs-only freeze classes on the clear button: .is-hover, .is-focus-visible. */
+@layer components {
+  .search { display: block; min-inline-size: 0; }
+  .search__form { display: grid; gap: var(--space-1-5); max-inline-size: var(--field-max, 32rem); }
+
+  .search__icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    color: var(--color-text-muted);
+    stroke-width: var(--icon-stroke);
+  }
+  .search__box { padding-inline-end: var(--space-1); }
+  /* Native clear "x" is replaced by .search__clear once the script has enhanced the field. */
+  .search[data-enhanced] .search__control::-webkit-search-cancel-button { appearance: none; }
+
+  .search__kbd {
+    flex-shrink: 0;
+    display: inline-grid;
+    place-content: center;
+    min-inline-size: var(--icon-size-lg);
+    block-size: var(--icon-size-lg);
+    margin-inline-end: var(--space-1);
+    padding-inline: var(--space-1);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-subtle);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+  }
+  /* Hint hides once there is a query or the field is focused (the shortcut is already used). */
+  .search__box:has(.search__control:focus),
+  .search__box:has(.search__control:not(:placeholder-shown)) { --_kbd-display: none; }
+  .search__kbd { display: var(--_kbd-display, inline-grid); }
+
+  .search__clear {
+    --_bg: var(--color-action-ghost-bg);
+    flex-shrink: 0;
+    display: inline-grid;
+    place-content: center;
+    inline-size: calc(var(--size-control-md) - var(--space-2));
+    block-size: calc(var(--size-control-md) - var(--space-2));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--_bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+  .search__clear .icon { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); }
+  .search__clear:hover,
+  .search__clear.is-hover { --_bg: var(--color-action-ghost-bg-hover); color: var(--color-text-default); }
+  .search__clear:focus-visible,
+  .search__clear.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 0;
+  }
+
+  /* Loading */
+  .search__spinner {
+    display: none;
+    flex-shrink: 0;
+    inline-size: var(--icon-size-sm);
+    block-size: var(--icon-size-sm);
+    margin-inline-end: var(--space-2);
+    border: var(--border-width-thick) solid var(--color-border-default);
+    border-block-start-color: var(--color-action-primary-bg);
+    border-radius: var(--radius-full);
+    animation: search-spin calc(var(--motion-duration-slower) * 1.6) linear infinite;
+  }
+  .search__box[aria-busy="true"] .search__spinner { display: block; }
+  .search__box[aria-busy="true"] .search__kbd { display: none; }
+
+  @media (forced-colors: active) {
+    .search__clear { color: ButtonText; }
+    .search__kbd { border-color: CanvasText; }
+    .search__spinner { border-color: CanvasText; border-block-start-color: Highlight; }
+  }
+}
+@keyframes search-spin { to { transform: rotate(1turn); } }

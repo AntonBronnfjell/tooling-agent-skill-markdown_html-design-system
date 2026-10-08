@@ -1,0 +1,50 @@
+/* spinner.css — Spinner (indeterminate processing) and inline spinner. Block aliases: .spinner, .inline-spinner
+   Markup:   <div class="spinner" role="status"><span class="spinner__ring" aria-hidden="true"></span>
+               <span class="sr-only">Loading service history…</span></div>
+             Visible label: .spinner--labelled + <span class="spinner__label">Loading service history…</span>
+   Sizes:    .spinner--sm (16px) | (md default, 24px) | .spinner--lg (40px)
+   Inline:   <span class="inline-spinner" aria-hidden="true"></span> — 1em, currentColor, sits next to text or
+             inside a control; the control/region carries aria-busy="true" and a role="status" says what's happening.
+   Delay:    the spinner fades in after --motion-duration-slow so quick responses never flash a loader.
+   Motion:   rotation stops under reduced motion (base.css); the ring and the text still say "loading". */
+@layer components {
+  .spinner {
+    --_size: var(--icon-size-lg);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-action-primary-bg);
+    animation: spinner-reveal var(--motion-duration-instant) step-end var(--motion-duration-slow) both;
+  }
+  .spinner--sm { --_size: var(--icon-size-sm); }
+  .spinner--lg { --_size: var(--size-control-md); }
+  .spinner--labelled { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+  .spinner--labelled .spinner__ring { color: var(--color-action-primary-bg); }
+  .spinner--stacked { flex-direction: column; }
+
+  .spinner__ring,
+  .inline-spinner {
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: var(--_size);
+    block-size: var(--_size);
+    border: var(--border-width-thick) solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: var(--radius-full);
+    animation: spinner-rotate calc(var(--motion-duration-slower) * 1.6) linear infinite;
+  }
+  .spinner--lg .spinner__ring { border-width: calc(var(--border-width-thick) * 2); }
+  .spinner__label { color: inherit; }
+
+  .inline-spinner {
+    --_size: 1em;
+    vertical-align: -0.125em;
+  }
+
+  @media (forced-colors: active) {
+    .spinner__ring, .inline-spinner { border-color: CanvasText; border-inline-end-color: transparent; }
+  }
+}
+
+@keyframes spinner-rotate { to { transform: rotate(1turn); } }
+@keyframes spinner-reveal { from { opacity: 0; } to { opacity: 1; } }

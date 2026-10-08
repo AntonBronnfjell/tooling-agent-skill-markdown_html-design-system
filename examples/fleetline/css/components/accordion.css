@@ -1,0 +1,107 @@
+/* accordion.css — Accordion and Disclosure, both native <details>/<summary>. No JavaScript.
+   Accordion: <div class="accordion"> of <details class="accordion__item" name="<group>"> (shared name = only one open;
+              omit name = several may be open)
+     Parts:   .accordion__summary (summary), .accordion__title, .accordion__meta (trailing text, e.g. a count),
+              .accordion__icon (chevron svg, aria-hidden), .accordion__panel (content)
+   Disclosure: <details class="disclosure"> with .disclosure__summary + .disclosure__panel — one show/hide, lighter look.
+   States:    [open] (real), :hover / :focus-visible on the summary (docs freeze: .is-hover, .is-focus-visible)
+   Motion:    chevron rotates; panel height animates with ::details-content where supported, instant elsewhere. */
+@layer components {
+  .accordion {
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface);
+  }
+  .accordion__item + .accordion__item { border-block-start: var(--border-width-thin) solid var(--color-border-default); }
+
+  .accordion__summary,
+  .disclosure__summary {
+    --_bg: transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    list-style: none;
+    cursor: pointer;
+    background: var(--_bg);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+  .accordion__summary::-webkit-details-marker,
+  .disclosure__summary::-webkit-details-marker { display: none; }
+
+  .accordion__summary {
+    min-block-size: var(--size-touch-target);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    font-weight: var(--font-weight-semibold);
+  }
+  .accordion__item:first-child > .accordion__summary { border-start-start-radius: inherit; border-start-end-radius: inherit; }
+  .accordion__title { flex: 1; min-inline-size: 0; }
+  .accordion__meta {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+    font-variant-numeric: tabular-nums;
+  }
+  .accordion__icon,
+  .disclosure__icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    stroke-width: var(--icon-stroke);
+    transition: transform var(--motion-duration-base) var(--motion-easing-standard);
+  }
+  [open] > .accordion__summary .accordion__icon { transform: rotate(180deg); }
+
+  .accordion__panel {
+    padding-block: 0 var(--space-4);
+    padding-inline: var(--space-4);
+    color: var(--color-text-default);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Disclosure: inline trigger that reads like a link-weight control. */
+  .disclosure__summary {
+    display: inline-flex;
+    min-block-size: var(--size-control-sm);
+    padding-inline: var(--space-1);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-link);
+    font-weight: var(--font-weight-medium);
+  }
+  .disclosure__icon { inline-size: var(--icon-size-sm); block-size: var(--icon-size-sm); }
+  .disclosure__icon:dir(rtl) { transform: scaleX(-1); }
+  [open] > .disclosure__summary .disclosure__icon { transform: rotate(90deg); }
+  .disclosure__panel { padding-block-start: var(--space-2); padding-inline-start: var(--space-6); font-size: var(--font-size-sm); }
+
+  /* States */
+  .accordion__summary:hover, .accordion__summary.is-hover,
+  .disclosure__summary:hover, .disclosure__summary.is-hover { --_bg: var(--color-action-ghost-bg-hover); }
+
+  .accordion__summary:focus-visible, .accordion__summary.is-focus-visible,
+  .disclosure__summary:focus-visible, .disclosure__summary.is-focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+  .disclosure__summary:focus-visible, .disclosure__summary.is-focus-visible { outline-offset: var(--focus-ring-offset); }
+
+  /* Height animation where ::details-content exists (needs interpolate-size from base.css). */
+  @supports selector(::details-content) {
+    .accordion__item::details-content,
+    .disclosure::details-content {
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size var(--motion-duration-base) var(--motion-easing-standard),
+        content-visibility var(--motion-duration-base) var(--motion-easing-standard) allow-discrete;
+    }
+    .accordion__item[open]::details-content,
+    .disclosure[open]::details-content { block-size: auto; }
+  }
+
+  @media (forced-colors: active) {
+    .accordion { border-color: CanvasText; }
+    .accordion__summary:focus-visible, .disclosure__summary:focus-visible { outline-color: Highlight; }
+    .disclosure__summary { color: LinkText; }
+  }
+}

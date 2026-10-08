@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page header — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline page header: title with status and meta, actions with overflow menu, breadcrumbs and section tabs.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/icon-button.css">
+  <link rel="stylesheet" href="../css/components/menu.css">
+  <link rel="stylesheet" href="../css/components/breadcrumbs.css">
+  <link rel="stylesheet" href="../css/components/tabs.css">
+  <link rel="stylesheet" href="../css/components/page-header.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/menu.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="icon-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="icon-more-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+    <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Page header</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Every Fleetline page opens with a page header: where you are (breadcrumbs), what this is (title + status), and what you can do (actions). It sits at the top of <code>&lt;main&gt;</code>, below the top nav.</p>
+      <ul><li>The title is the page's only <code>&lt;h1&gt;</code> and matches the last breadcrumb and the document <code>&lt;title&gt;</code>. (Demos below use <code>h2</code> so this docs page keeps one h1.)</li><li>Meta: status (dot + word), place, owner, last update as relative time with the exact time in <code>datetime</code>.</li><li>One primary action. Two or three visible actions at most; the rest go into "More actions".</li><li>Use tabs underneath only when the object has several sections with their own URLs.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Breadcrumbs (optional) — <code>.page-header__breadcrumbs</code></li><li>Title — <code>h1.page-header__title</code></li><li>Description (optional) — <code>.page-header__description</code></li><li>Meta — <code>ul.page-header__meta</code> with <code>.page-header__status[data-tone]</code></li><li>Actions — <code>.page-header__actions</code>: buttons + overflow menu button</li><li>Section tabs (optional) — <code>nav.tabs.page-header__tabs</code></li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>The overflow menu is live (<code>js/menu.js</code>). Narrow the window: actions wrap under the title (container query at 40rem).</p>
+
+      <section id="page-header" aria-labelledby="page-header-h">
+        <h3 id="page-header-h">Page header</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:title-only" style="grid-column: 1 / -1;">
+            <header class="page-header"><div class="page-header__main"><div class="page-header__heading"><h2 class="page-header__title">Depots</h2><p class="page-header__description">6 depots · 128 vehicles · 41 mechanics</p></div></div></header>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-actions" style="grid-column: 1 / -1;">
+            <header class="page-header"><div class="page-header__main"><div class="page-header__heading"><h2 class="page-header__title">Van KX-219</h2><ul class="page-header__meta"><li class="page-header__meta-item"><span class="page-header__status" data-tone="success">In service</span></li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg>North Yard depot</li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-clock"></use></svg>Updated <time datetime="2026-10-08T09:40">2 hours ago</time></li></ul></div><div class="page-header__actions"><button type="button" class="btn btn--secondary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="btn__label">Print job sheet</span></button><button type="button" class="btn btn--primary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg><span class="btn__label">New work order</span></button><button type="button" class="icon-btn icon-btn--outline" id="ph2-more-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="ph2-more" commandfor="ph2-more" command="toggle-popover" style="anchor-name:--ph2-more" aria-label="More actions for Van KX-219"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-horizontal"></use></svg></button><div class="menu" id="ph2-more" popover role="menu" aria-labelledby="ph2-more-btn" style="position-anchor:--ph2-more"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit details</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg><span class="menu__label">Move to depot</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Retire vehicle</span></button></div></div></div></header>
+            <p>One primary action; secondary actions in a button and the overflow menu.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-breadcrumbs" style="grid-column: 1 / -1;">
+            <header class="page-header"><nav class="breadcrumbs page-header__breadcrumbs" aria-label="Breadcrumb (ph3)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#vans">Vans</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Van KX-219</span></li></ol></nav><div class="page-header__main"><div class="page-header__heading"><h2 class="page-header__title">Van KX-219</h2><ul class="page-header__meta"><li class="page-header__meta-item"><span class="page-header__status" data-tone="success">In service</span></li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg>North Yard depot</li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-clock"></use></svg>Updated <time datetime="2026-10-08T09:40">2 hours ago</time></li></ul></div></div></header>
+          </div>
+          <div class="ds-demo" data-demo="variant:with-tabs" style="grid-column: 1 / -1;">
+            <header class="page-header"><nav class="breadcrumbs page-header__breadcrumbs" aria-label="Breadcrumb (ph4)"><ol class="breadcrumbs__list"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#fleet">Fleet</a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="#vans">Vans</a></li><li class="breadcrumbs__item"><span class="breadcrumbs__current" aria-current="page">Van KX-219</span></li></ol></nav><div class="page-header__main"><div class="page-header__heading"><h2 class="page-header__title">Van KX-219</h2><ul class="page-header__meta"><li class="page-header__meta-item"><span class="page-header__status" data-tone="success">In service</span></li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg>North Yard depot</li><li class="page-header__meta-item"><svg class="page-header__meta-icon" aria-hidden="true" focusable="false"><use href="#icon-clock"></use></svg>Updated <time datetime="2026-10-08T09:40">2 hours ago</time></li></ul></div><div class="page-header__actions"><button type="button" class="btn btn--secondary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-printer"></use></svg><span class="btn__label">Print job sheet</span></button><button type="button" class="btn btn--primary"><svg class="btn__icon" aria-hidden="true" focusable="false"><use href="#icon-wrench"></use></svg><span class="btn__label">New work order</span></button><button type="button" class="icon-btn icon-btn--outline" id="ph4-more-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="ph4-more" commandfor="ph4-more" command="toggle-popover" style="anchor-name:--ph4-more" aria-label="More actions for Van KX-219"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-horizontal"></use></svg></button><div class="menu" id="ph4-more" popover role="menu" aria-labelledby="ph4-more-btn" style="position-anchor:--ph4-more"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-pencil"></use></svg><span class="menu__label">Edit details</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-map-pin"></use></svg><span class="menu__label">Move to depot</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Retire vehicle</span></button></div></div></div><nav class="tabs tabs--underline page-header__tabs" aria-label="Van KX-219 sections"><ul class="tabs__list"><li><a class="tabs__tab" href="#overview" aria-current="page">Overview</a></li><li><a class="tabs__tab" href="#history">Service history <span class="tabs__count">12</span></a></li><li><a class="tabs__tab" href="#inspections">Inspections</a></li><li><a class="tabs__tab" href="#documents">Documents</a></li></ul></nav></header>
+            <p>Each tab is its own URL, so these are links with <code>aria-current</code>, not ARIA tabs.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;main id=&quot;main&quot; tabindex=&quot;-1&quot;&gt;
+  &lt;header class=&quot;page-header&quot;&gt;
+    &lt;nav class=&quot;breadcrumbs page-header__breadcrumbs&quot; aria-label=&quot;Breadcrumb&quot;&gt;…&lt;/nav&gt;
+    &lt;div class=&quot;page-header__main&quot;&gt;
+      &lt;div class=&quot;page-header__heading&quot;&gt;
+        &lt;h1 class=&quot;page-header__title&quot;&gt;Van KX-219&lt;/h1&gt;
+        &lt;ul class=&quot;page-header__meta&quot;&gt;
+          &lt;li class=&quot;page-header__meta-item&quot;&gt;&lt;span class=&quot;page-header__status&quot; data-tone=&quot;success&quot;&gt;In service&lt;/span&gt;&lt;/li&gt;
+          &lt;li class=&quot;page-header__meta-item&quot;&gt;…North Yard depot&lt;/li&gt;
+          &lt;li class=&quot;page-header__meta-item&quot;&gt;…Updated &lt;time datetime=&quot;2026-10-08T09:40&quot;&gt;2 hours ago&lt;/time&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;page-header__actions&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;btn btn--secondary&quot;&gt;Print job sheet&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;btn btn--primary&quot;&gt;New work order&lt;/button&gt;
+        &lt;!-- overflow: icon-btn menu button, see menu.html --&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;nav class=&quot;tabs tabs--underline page-header__tabs&quot; aria-label=&quot;Van KX-219 sections&quot;&gt;
+      &lt;ul class=&quot;tabs__list&quot;&gt;&lt;li&gt;&lt;a class=&quot;tabs__tab&quot; href=&quot;/vehicles/KX-219&quot; aria-current=&quot;page&quot;&gt;Overview&lt;/a&gt;&lt;/li&gt;…&lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+  …
+&lt;/main&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.page-header</code></td><td>block class</td><td><code>&lt;header&gt;</code> inside <code>&lt;main&gt;</code>; inline-size container</td></tr>
+          <tr><td><code>.page-header__breadcrumbs | __main | __heading | __title | __description | __meta | __meta-item | __meta-icon | __actions | __tabs</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>.page-header__status[data-tone]</code></td><td>part + attribute</td><td><code>success | warning | danger | info</code> dot next to the status word</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>Title "Van KX-219" · status "In service" · actions "Print job sheet", <strong>"New work order"</strong>, "More actions"</p>
+          <figcaption><strong>Do</strong> show one primary action and move the rest into the overflow menu.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>Title "Details" · five primary buttons</p>
+          <figcaption><strong>Don't</strong> use a generic title or several primary actions.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Breadcrumb links → actions → overflow menu → section tabs</td></tr>
+          <tr><td><kbd>↓</kbd> / <kbd>Enter</kbd> (More actions)</td><td>Opens the overflow menu (see Menu button)</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Inside <code>&lt;main&gt;</code>, <code>&lt;header&gt;</code> has no landmark role — the page's banner is the top nav.</li><li>Status is a word plus a colored dot, never the dot alone (principle: status is never color alone).</li><li><code>&lt;time datetime&gt;</code> carries the absolute time; show it in a tooltip on hover/focus where it matters.</li><li>Section tabs that change the URL are links with <code>aria-current="page"</code>.</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--typography-h1-font-family | -weight | -line-height</code>, <code>--typography-h2-font-size</code></td><td>Title</td></tr>
+          <tr><td><code>--color-text-muted</code></td><td>Description and meta</td></tr>
+          <tr><td><code>--color-feedback-{success|warning|danger|info}-icon</code></td><td>Status dot</td></tr>
+          <tr><td><code>--space-*</code></td><td>Rhythm between rows</td></tr>
+          <tr><td><code>--size-measure</code></td><td>Description line length</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

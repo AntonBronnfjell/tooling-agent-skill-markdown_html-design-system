@@ -148,6 +148,7 @@ class TestBuild(Temp):
         ok_html = ('<button type="button"><svg aria-hidden="true"></svg> Save</button>'
                    '<button type="button">Next <svg aria-hidden="true"></svg></button>')
         self.assertEqual([i for i in ds.lint_file(self._write(root, "ok.html", ok_html)) if "icon-only" in i], [])
+        self.assertEqual(ds.lint_file(self._write(root, "art.html", "<article><aside><abbr title='x'>x</abbr></aside></article>")), [])
         bad = self._write(root, "bad.html", '<button type="button"><svg></svg></button>')
         self.assertTrue(any("icon-only" in i for i in ds.lint_file(bad)))
         for needle in ("raw hex color", "raw px spacing", "outline removed", "@layer components", "img without alt",

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tabs — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline tabs (WAI-ARIA APG): underline and contained variants, automatic and manual activation, disabled and overflowing tabs.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/tabs.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/tabs.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main" tabindex="-1">
+    <h1>Tabs</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use tabs to switch between related views of the same object without leaving the page: a van's overview, service history and documents. Don't use tabs for steps in a sequence (stepper) or to compare content side by side.</p>
+      <ul><li>2–7 tabs; labels are short nouns ("Service history"), sentence case, no verbs.</li><li><strong>Underline</strong> for page sections; <strong>contained</strong> for switching how the same data is shown (Map / List / Timeline).</li><li>If each tab has its own URL, it's navigation: use links with <code>aria-current="page"</code> inside a <code>&lt;nav&gt;</code> (same classes).</li><li>Counts are context, not alerts; keep them in the label's text flow.</li></ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Tab list — <code>.tabs__list[role=tablist][aria-label]</code></li><li>Tab — <code>button.tabs__tab[role=tab]</code> with <code>aria-selected</code> and <code>aria-controls</code></li><li>Count (optional) — <code>.tabs__count</code></li><li>Selected indicator — 2px bar + semibold + color</li><li>Panel — <code>.tabs__panel[role=tabpanel][aria-labelledby][tabindex=0]</code></li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Without JavaScript all panels are visible one after another; <code>js/tabs.js</code> hides the unselected ones. States marked hover, focus-visible and active are frozen with <code>.is-hover</code>, <code>.is-focus-visible</code>, <code>.is-active</code>. Those classes share their rule with the real pseudo-class, so what you see is exactly what users get. Never use them in product code.</p>
+
+      <section id="tabs" aria-labelledby="tabs-h">
+        <h3 id="tabs-h">Tabs</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:underline state:selected" style="grid-column: 1 / -1;">
+            <div class="tabs tabs--underline"><div class="tabs__list" role="tablist" aria-label="Van KX-219"><button type="button" class="tabs__tab" role="tab" id="tb1-t0" aria-selected="true" aria-controls="tb1-p0">Overview</button><button type="button" class="tabs__tab" role="tab" id="tb1-t1" aria-selected="false" aria-controls="tb1-p1">Service history <span class="tabs__count">12</span></button><button type="button" class="tabs__tab" role="tab" id="tb1-t2" aria-selected="false" aria-controls="tb1-p2">Inspections</button><button type="button" class="tabs__tab" role="tab" id="tb1-t3" aria-selected="false" aria-controls="tb1-p3">Documents</button></div><div class="tabs__panel" role="tabpanel" id="tb1-p0" aria-labelledby="tb1-t0" tabindex="0"><p>Van KX-219 · Ford Transit · 84,210 km · North Yard depot.</p></div><div class="tabs__panel" role="tabpanel" id="tb1-p1" aria-labelledby="tb1-t1" tabindex="0"><p>12 completed work orders since March 2024.</p></div><div class="tabs__panel" role="tabpanel" id="tb1-p2" aria-labelledby="tb1-t2" tabindex="0"><p>Next brake inspection due 14 November.</p></div><div class="tabs__panel" role="tabpanel" id="tb1-p3" aria-labelledby="tb1-t3" tabindex="0"><p>Registration, insurance and the last emissions test.</p></div></div>
+            <p>Automatic activation: arrow keys select as they move (panels are already loaded).</p>
+          </div>
+          <div class="ds-demo" data-demo="state:hover state:focus-visible">
+            <div class="tabs tabs--underline"><div class="tabs__list" role="tablist" aria-label="Tab states example"><button type="button" class="tabs__tab" role="tab" id="tb2-t0" aria-selected="true" aria-controls="tb2-p0">Overview</button><button type="button" class="tabs__tab is-hover" role="tab" id="tb2-t1" aria-selected="false" aria-controls="tb2-p1">Service history</button><button type="button" class="tabs__tab is-focus-visible" role="tab" id="tb2-t2" aria-selected="false" aria-controls="tb2-p2">Inspections</button></div><div class="tabs__panel" role="tabpanel" id="tb2-p0" aria-labelledby="tb2-t0" tabindex="0"><p>Overview for van KX-219.</p></div><div class="tabs__panel" role="tabpanel" id="tb2-p1" aria-labelledby="tb2-t1" tabindex="0"><p>Hover state.</p></div><div class="tabs__panel" role="tabpanel" id="tb2-p2" aria-labelledby="tb2-t2" tabindex="0"><p>Focus-visible state.</p></div></div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="tabs tabs--underline"><div class="tabs__list" role="tablist" aria-label="Work order WO-4182"><button type="button" class="tabs__tab" role="tab" id="tb3-t0" aria-selected="true" aria-controls="tb3-p0">Tasks</button><button type="button" class="tabs__tab" role="tab" id="tb3-t1" aria-selected="false" aria-controls="tb3-p1">Parts</button><button type="button" class="tabs__tab" role="tab" id="tb3-t2" aria-selected="false" aria-controls="tb3-p2" aria-disabled="true">Invoice</button></div><div class="tabs__panel" role="tabpanel" id="tb3-p0" aria-labelledby="tb3-t0" tabindex="0"><p>3 tasks: replace front pads, check rotors, road test.</p></div><div class="tabs__panel" role="tabpanel" id="tb3-p1" aria-labelledby="tb3-t1" tabindex="0"><p>Front brake pad set ×1, rotor ×2.</p></div><div class="tabs__panel" role="tabpanel" id="tb3-p2" aria-labelledby="tb3-t2" tabindex="0"><p>Available after the work order is closed.</p></div></div>
+            <p>Disabled tabs stay focusable so people find them; explain why near the tabs: "Invoice is available after closing."</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:contained">
+            <div class="tabs tabs--contained" data-activation="manual"><div class="tabs__list" role="tablist" aria-label="Dispatch board view"><button type="button" class="tabs__tab" role="tab" id="tb4-t0" aria-selected="true" aria-controls="tb4-p0">Map</button><button type="button" class="tabs__tab" role="tab" id="tb4-t1" aria-selected="false" aria-controls="tb4-p1">List</button><button type="button" class="tabs__tab" role="tab" id="tb4-t2" aria-selected="false" aria-controls="tb4-p2">Timeline</button></div><div class="tabs__panel" role="tabpanel" id="tb4-p0" aria-labelledby="tb4-t0" tabindex="0"><p>Map of 42 vans in service.</p></div><div class="tabs__panel" role="tabpanel" id="tb4-p1" aria-labelledby="tb4-t1" tabindex="0"><p>List of 42 vans in service.</p></div><div class="tabs__panel" role="tabpanel" id="tb4-p2" aria-labelledby="tb4-t2" tabindex="0"><p>Today's jobs on a timeline.</p></div></div>
+            <p>Manual activation (<kbd>Enter</kbd>/<kbd>Space</kbd>) — the map is expensive to render.</p>
+          </div>
+          <div class="ds-demo" data-demo="variant:overflow">
+            <div class="tabs tabs--underline tabs--overflow" style="max-inline-size: 24rem;"><div class="tabs__list" role="tablist" aria-label="Depots"><button type="button" class="tabs__tab" role="tab" id="tb5-t0" aria-selected="true" aria-controls="tb5-p0">North Yard</button><button type="button" class="tabs__tab" role="tab" id="tb5-t1" aria-selected="false" aria-controls="tb5-p1">Harbor Road</button><button type="button" class="tabs__tab" role="tab" id="tb5-t2" aria-selected="false" aria-controls="tb5-p2">Eastgate</button><button type="button" class="tabs__tab" role="tab" id="tb5-t3" aria-selected="false" aria-controls="tb5-p3">Airport</button><button type="button" class="tabs__tab" role="tab" id="tb5-t4" aria-selected="false" aria-controls="tb5-p4">Riverside</button><button type="button" class="tabs__tab" role="tab" id="tb5-t5" aria-selected="false" aria-controls="tb5-p5">Old Town</button><button type="button" class="tabs__tab" role="tab" id="tb5-t6" aria-selected="false" aria-controls="tb5-p6">Southport</button><button type="button" class="tabs__tab" role="tab" id="tb5-t7" aria-selected="false" aria-controls="tb5-p7">Hill Street</button></div><div class="tabs__panel" role="tabpanel" id="tb5-p0" aria-labelledby="tb5-t0" tabindex="0"><p>North Yard depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p1" aria-labelledby="tb5-t1" tabindex="0"><p>Harbor Road depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p2" aria-labelledby="tb5-t2" tabindex="0"><p>Eastgate depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p3" aria-labelledby="tb5-t3" tabindex="0"><p>Airport depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p4" aria-labelledby="tb5-t4" tabindex="0"><p>Riverside depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p5" aria-labelledby="tb5-t5" tabindex="0"><p>Old Town depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p6" aria-labelledby="tb5-t6" tabindex="0"><p>Southport depot: vans, mechanics and open work orders.</p></div><div class="tabs__panel" role="tabpanel" id="tb5-p7" aria-labelledby="tb5-t7" tabindex="0"><p>Hill Street depot: vans, mechanics and open work orders.</p></div></div>
+            <p>Too many tabs for the width: the list scrolls with snap points. Arrow keys scroll the focused tab into view.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class=&quot;tabs tabs--underline&quot;&gt;  &lt;!-- add data-activation=&quot;manual&quot; for expensive panels --&gt;
+  &lt;div class=&quot;tabs__list&quot; role=&quot;tablist&quot; aria-label=&quot;Van KX-219&quot;&gt;
+    &lt;button type=&quot;button&quot; class=&quot;tabs__tab&quot; role=&quot;tab&quot; id=&quot;van-overview&quot; aria-selected=&quot;true&quot; aria-controls=&quot;van-overview-panel&quot;&gt;Overview&lt;/button&gt;
+    &lt;button type=&quot;button&quot; class=&quot;tabs__tab&quot; role=&quot;tab&quot; id=&quot;van-history&quot; aria-selected=&quot;false&quot; aria-controls=&quot;van-history-panel&quot;&gt;
+      Service history &lt;span class=&quot;tabs__count&quot;&gt;12&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;button type=&quot;button&quot; class=&quot;tabs__tab&quot; role=&quot;tab&quot; id=&quot;van-invoice&quot; aria-selected=&quot;false&quot; aria-controls=&quot;van-invoice-panel&quot; aria-disabled=&quot;true&quot;&gt;Invoice&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;van-overview-panel&quot; aria-labelledby=&quot;van-overview&quot; tabindex=&quot;0&quot;&gt;…&lt;/div&gt;
+  &lt;div class=&quot;tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;van-history-panel&quot; aria-labelledby=&quot;van-history&quot; tabindex=&quot;0&quot;&gt;…&lt;/div&gt;
+  &lt;div class=&quot;tabs__panel&quot; role=&quot;tabpanel&quot; id=&quot;van-invoice-panel&quot; aria-labelledby=&quot;van-invoice&quot; tabindex=&quot;0&quot;&gt;…&lt;/div&gt;
+&lt;/div&gt;
+&lt;script type=&quot;module&quot;&gt;import { init } from &quot;./js/tabs.js&quot;; init();&lt;/script&gt;
+
+&lt;!-- Tabs that change the URL are navigation: links + aria-current, no tab roles --&gt;
+&lt;nav class=&quot;tabs tabs--underline&quot; aria-label=&quot;Van KX-219 sections&quot;&gt;
+  &lt;ul class=&quot;tabs__list&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;tabs__tab&quot; href=&quot;/vehicles/KX-219&quot; aria-current=&quot;page&quot;&gt;Overview&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a class=&quot;tabs__tab&quot; href=&quot;/vehicles/KX-219/history&quot;&gt;Service history&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.tabs</code></td><td>block class</td><td>Wrapper</td></tr>
+          <tr><td><code>.tabs--underline | --contained</code></td><td>modifier</td><td>Visual variant</td></tr>
+          <tr><td><code>.tabs--overflow</code></td><td>modifier</td><td>Room for the scrollbar when tabs overflow</td></tr>
+          <tr><td><code>data-activation="manual"</code></td><td>attribute</td><td>Select on Enter/Space instead of on focus</td></tr>
+          <tr><td><code>.tabs__list | __tab | __count | __icon | __panel</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>aria-selected</code> / <code>aria-current="page"</code></td><td>attribute</td><td>Selected tab / current URL tab</td></tr>
+          <tr><td><code>aria-disabled="true"</code></td><td>attribute</td><td>Unavailable, focusable</td></tr>
+          <tr><td><code>tabs-change</code></td><td>event</td><td>Fired on the tablist: <code>detail { tab, panel }</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <div class="tabs tabs--underline"><div class="tabs__list" role="tablist" aria-label="Van KX-219 (do example)"><button type="button" class="tabs__tab" role="tab" id="tb6-t0" aria-selected="true" aria-controls="tb6-p0">Overview</button><button type="button" class="tabs__tab" role="tab" id="tb6-t1" aria-selected="false" aria-controls="tb6-p1">Service history</button><button type="button" class="tabs__tab" role="tab" id="tb6-t2" aria-selected="false" aria-controls="tb6-p2">Documents</button></div><div class="tabs__panel" role="tabpanel" id="tb6-p0" aria-labelledby="tb6-t0" tabindex="0"><p>Overview for van KX-219.</p></div><div class="tabs__panel" role="tabpanel" id="tb6-p1" aria-labelledby="tb6-t1" tabindex="0"><p>Service history for van KX-219.</p></div><div class="tabs__panel" role="tabpanel" id="tb6-p2" aria-labelledby="tb6-t2" tabindex="0"><p>Documents for van KX-219.</p></div></div>
+          <figcaption><strong>Do</strong> use short nouns for views of one object.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <div class="tabs tabs--underline"><div class="tabs__list" role="tablist" aria-label="Inspection steps (don't example)"><button type="button" class="tabs__tab" role="tab" id="tb7-t0" aria-selected="true" aria-controls="tb7-p0">1. Check brakes</button><button type="button" class="tabs__tab" role="tab" id="tb7-t1" aria-selected="false" aria-controls="tb7-p1">2. Check tires</button><button type="button" class="tabs__tab" role="tab" id="tb7-t2" aria-selected="false" aria-controls="tb7-p2">3. Sign off</button></div><div class="tabs__panel" role="tabpanel" id="tb7-p0" aria-labelledby="tb7-t0" tabindex="0"><p>1. Check brakes for van KX-219.</p></div><div class="tabs__panel" role="tabpanel" id="tb7-p1" aria-labelledby="tb7-t1" tabindex="0"><p>2. Check tires for van KX-219.</p></div><div class="tabs__panel" role="tabpanel" id="tb7-p2" aria-labelledby="tb7-t2" tabindex="0"><p>3. Sign off for van KX-219.</p></div></div>
+          <figcaption><strong>Don't</strong> use tabs for ordered steps — use a stepper.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table"><caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Moves into the tab list (to the selected tab), then to the panel</td></tr>
+          <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Previous / next tab, wrapping (mirrored in RTL); selects it with automatic activation</td></tr>
+          <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>First / last tab</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Selects the focused tab (manual activation)</td></tr>
+        </tbody>
+      </table>
+      <ul><li>Pattern: WAI-ARIA APG Tabs with roving tabindex (<code>js/lib/roving-focus.js</code>) — one Tab stop for the whole list.</li><li>Panels have <code>tabindex="0"</code> so keyboard users reach text-only panels.</li><li>Selected tab: bar, weight and color — never color alone; forced colors use <code>Highlight</code>.</li><li>Screen readers announce "Service history, tab, 2 of 4, selected".</li></ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-text-muted</code></td><td>Unselected label</td></tr>
+          <tr><td><code>--color-selected-fg | -border</code></td><td>Selected label and bar</td></tr>
+          <tr><td><code>--color-action-ghost-bg-hover</code></td><td>Hover</td></tr>
+          <tr><td><code>--color-border-default</code></td><td>List baseline</td></tr>
+          <tr><td><code>--color-bg-subtle | -surface</code>, <code>--color-border-strong</code></td><td>Contained variant</td></tr>
+          <tr><td><code>--size-control-md | -sm</code></td><td>Tab heights</td></tr>
+          <tr><td><code>--color-text-disabled</code></td><td>Disabled tab</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

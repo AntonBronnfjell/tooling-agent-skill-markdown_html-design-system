@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkbox — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline checkbox and checkbox group: every state including indeterminate and group errors.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/form-field.css">
+  <link rel="stylesheet" href="../css/components/stack.css">
+  <link rel="stylesheet" href="../css/components/checkbox.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init } from "../js/checkbox.js"; init();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-alert-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
+  </svg>
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Checkbox</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use checkboxes when people can pick any number of options (including none) — inspection items, vehicle features, which depots to include in a report — or to confirm a single statement. Use radios when only one answer is allowed, and a switch for a setting that applies immediately.</p>
+        <ul>
+          <li>Group related checkboxes in a fieldset with a legend that asks the question.</li>
+          <li>Write labels as the thing being chosen ("Tachograph calibrated"), not "Yes".</li>
+          <li>Vertical by default; horizontal only for 2–3 short options.</li>
+          <li>Indeterminate is only for a parent "select all" whose children are partly selected.</li>
+        </ul>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Box — <code>input[type=checkbox].checkbox__input</code> (native, <code>appearance: none</code>), 24px</li>
+        <li>Check / dash mark — masked <code>::before</code></li>
+        <li>Label — <code>label.checkbox__label[for]</code>, part of the hit area</li>
+        <li>Hint (optional) — <code>.checkbox__hint</code>, wired with <code>aria-describedby</code></li>
+        <li>Group — <code>fieldset.checkbox-group</code> with legend, hint, error and <code>.checkbox-group__items</code></li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Hover and focus-visible are frozen with <code>.is-hover</code> and <code>.is-focus-visible</code>, which share their rules with the real pseudo-classes.</p>
+
+      <section id="checkbox" aria-labelledby="checkbox-h">
+        <h3 id="checkbox-h">Checkbox</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:unchecked">
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-off">
+              <label class="checkbox__label" for="cb-off">Tyres checked for wear and pressure</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:checked">
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-on" checked>
+              <label class="checkbox__label" for="cb-on">Tyres checked for wear and pressure</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="stack stack--gap-3">
+            <div class="checkbox">
+              <input class="checkbox__input is-hover" type="checkbox" id="cb-hover">
+              <label class="checkbox__label" for="cb-hover">Lights and indicators working</label>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input is-hover" type="checkbox" id="cb-hover-on" checked>
+              <label class="checkbox__label" for="cb-hover-on">Mirrors adjusted</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <div class="checkbox">
+              <input class="checkbox__input is-focus-visible" type="checkbox" id="cb-focus">
+              <label class="checkbox__label" for="cb-focus">Windscreen free of chips</label>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:disabled">
+            <div class="stack stack--gap-3">
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-dis" disabled aria-describedby="cb-dis-hint">
+              <label class="checkbox__label" for="cb-dis">Brake test complete</label>
+              <p class="checkbox__hint" id="cb-dis-hint">Available after the vehicle is on the rolling road.</p>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-dis-on" checked disabled>
+              <label class="checkbox__label" for="cb-dis-on">Pre-trip check submitted</label>
+            </div>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:invalid">
+            <div class="field">
+              <div class="checkbox">
+                <input class="checkbox__input" type="checkbox" id="cb-inv" required aria-invalid="true" aria-describedby="cb-inv-err">
+                <label class="checkbox__label" for="cb-inv">I confirm KX-219 is safe to return to service</label>
+              </div>
+              <p class="field__error" id="cb-inv-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Confirm the vehicle is safe before closing the work order.</span>
+              </p>
+            </div>
+          </div>
+          <div class="ds-demo" data-demo="state:indeterminate">
+            <div class="stack stack--gap-3">
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-all" data-select-all aria-controls="cb-n1 cb-n2 cb-n3 cb-n4 cb-n5" data-indeterminate>
+              <label class="checkbox__label" for="cb-all">All North Yard vehicles (3 of 5)</label>
+            </div>
+            <div class="stack stack--gap-3" style="padding-inline-start: var(--space-8)">
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-n1" checked>
+              <label class="checkbox__label" for="cb-n1">KX-219 · Ford Transit</label>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-n2" checked>
+              <label class="checkbox__label" for="cb-n2">KX-220 · Ford Transit</label>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-n3" checked>
+              <label class="checkbox__label" for="cb-n3">LM-044 · Iveco Daily</label>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-n4">
+              <label class="checkbox__label" for="cb-n4">LM-051 · Iveco Daily</label>
+            </div>
+            <div class="checkbox">
+              <input class="checkbox__input" type="checkbox" id="cb-n5">
+              <label class="checkbox__label" for="cb-n5">PT-310 · Mercedes Sprinter</label>
+            </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;div class="checkbox"&gt;
+        &lt;input class="checkbox__input" type="checkbox" id="tyres" name="checks" value="tyres" aria-describedby="tyres-hint"&gt;
+        &lt;label class="checkbox__label" for="tyres"&gt;Tyres checked for wear and pressure&lt;/label&gt;
+        &lt;p class="checkbox__hint" id="tyres-hint"&gt;Minimum tread depth 1.6 mm.&lt;/p&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Invalid single checkbox --&gt;
+      &lt;input class="checkbox__input" type="checkbox" id="safe" required aria-invalid="true" aria-describedby="safe-error"&gt;
+
+      &lt;!-- Select all: js/checkbox.js keeps checked / indeterminate in sync --&gt;
+      &lt;input class="checkbox__input" type="checkbox" id="all" data-select-all aria-controls="v1 v2 v3"&gt;</code></pre>
+      </section>
+
+      <section id="checkbox-group" aria-labelledby="checkbox-group-h">
+        <h3 id="checkbox-group-h">Checkbox group</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:group-vertical">
+            <fieldset class="fieldset checkbox-group" aria-describedby="cg-v-hint">
+              <legend class="fieldset__legend">Which checks were done?</legend>
+              <p class="field__hint" id="cg-v-hint">Select all that apply.</p>
+              <div class="checkbox-group__items">
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-v1" name="checks" checked>
+                  <label class="checkbox__label" for="cg-v1">Oil and coolant levels</label>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-v2" name="checks" aria-describedby="cg-v2-hint">
+                  <label class="checkbox__label" for="cg-v2">Brake pads and discs</label>
+                  <p class="checkbox__hint" id="cg-v2-hint">Measure pad thickness on both axles.</p>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-v3" name="checks">
+                  <label class="checkbox__label" for="cg-v3">Wiper blades</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:group-horizontal">
+            <fieldset class="fieldset checkbox-group checkbox-group--horizontal">
+              <legend class="fieldset__legend">Fuel type</legend>
+              <div class="checkbox-group__items">
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-h1" name="fuel" checked>
+                  <label class="checkbox__label" for="cg-h1">Diesel</label>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-h2" name="fuel">
+                  <label class="checkbox__label" for="cg-h2">Electric</label>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-h3" name="fuel">
+                  <label class="checkbox__label" for="cg-h3">Hybrid</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="ds-demo" data-demo="variant:group-error">
+            <fieldset class="fieldset checkbox-group" aria-describedby="cg-e-hint cg-e-err">
+              <legend class="fieldset__legend">Which depots should the report include?</legend>
+              <p class="field__hint" id="cg-e-hint">Select all that apply.</p>
+              <p class="field__error" id="cg-e-err">
+                <svg class="field__error-icon" aria-hidden="true" focusable="false"><use href="#icon-alert-circle"></use></svg>
+                <span><span class="sr-only">Error: </span>Select at least one depot.</span>
+              </p>
+              <div class="checkbox-group__items">
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-e1" name="depots">
+                  <label class="checkbox__label" for="cg-e1">North Yard</label>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-e2" name="depots">
+                  <label class="checkbox__label" for="cg-e2">Harbour Road</label>
+                </div>
+                <div class="checkbox">
+                  <input class="checkbox__input" type="checkbox" id="cg-e3" name="depots">
+                  <label class="checkbox__label" for="cg-e3">Airport Logistics Park</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;fieldset class="fieldset checkbox-group [checkbox-group--horizontal]" aria-describedby="depots-hint depots-error"&gt;
+        &lt;legend class="fieldset__legend"&gt;Which depots should the report include?&lt;/legend&gt;
+        &lt;p class="field__hint" id="depots-hint"&gt;Select all that apply.&lt;/p&gt;
+        &lt;p class="field__error" id="depots-error"&gt;…&lt;span class="sr-only"&gt;Error: &lt;/span&gt;Select at least one depot.&lt;/p&gt;
+        &lt;div class="checkbox-group__items"&gt;
+          &lt;div class="checkbox"&gt;…North Yard…&lt;/div&gt;
+          &lt;div class="checkbox"&gt;…Harbour Road…&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/fieldset&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>.checkbox</code>, <code>.checkbox__input</code>, <code>.checkbox__label</code>, <code>.checkbox__hint</code></td><td>block / parts</td><td>One checkbox</td></tr>
+      <tr><td><code>.checkbox--sm</code></td><td>modifier class</td><td>20px box for dense tables</td></tr>
+      <tr><td><code>.checkbox-group</code> (+ <code>.fieldset</code>), <code>.checkbox-group__items</code></td><td>block / part</td><td>Group</td></tr>
+      <tr><td><code>.checkbox-group--horizontal</code></td><td>modifier class</td><td>Wrapping row of short options</td></tr>
+      <tr><td><code>checked</code>, <code>disabled</code>, <code>required</code></td><td>attribute</td><td>Native states</td></tr>
+      <tr><td><code>aria-invalid="true"</code>, <code>:user-invalid</code></td><td>attribute / pseudo-class</td><td>Single checkbox error</td></tr>
+      <tr><td><code>.field__error</code> inside the group</td><td>part</td><td>Group error (left rule + red boxes)</td></tr>
+      <tr><td><code>data-indeterminate</code>, <code>data-select-all</code> + <code>aria-controls</code></td><td>attribute (js/checkbox.js)</td><td>Indeterminate and select-all</td></tr>
+      <tr><td><code>.is-hover | .is-focus-visible</code></td><td>docs-only class</td><td>Freezes a state</td></tr>
+      </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><fieldset class="fieldset checkbox-group">
+  <legend class="fieldset__legend">Vehicle features</legend>
+  <div class="checkbox-group__items">
+    <div class="checkbox">
+      <input class="checkbox__input" type="checkbox" id="dd-cb1" name="f">
+      <label class="checkbox__label" for="dd-cb1">Tail lift</label>
+    </div>
+    <div class="checkbox">
+      <input class="checkbox__input" type="checkbox" id="dd-cb2" name="f">
+      <label class="checkbox__label" for="dd-cb2">Refrigerated body</label>
+    </div>
+  </div>
+</fieldset>
+          <figcaption><strong>Do</strong> group related options under a legend that asks the question.</figcaption></figure>
+        <figure class="ds-dont"><div class="stack stack--gap-3"><div class="checkbox">
+  <input class="checkbox__input" type="checkbox" id="dd-cb3">
+  <label class="checkbox__label" for="dd-cb3">Yes</label>
+</div><div class="checkbox">
+  <input class="checkbox__input" type="checkbox" id="dd-cb4">
+  <label class="checkbox__label" for="dd-cb4">No</label>
+</div></div>
+          <figcaption><strong>Don't</strong> use checkboxes for mutually exclusive answers — use radios.</figcaption></figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+      <caption class="sr-only">Keyboard interaction</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+      <tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Moves to the next checkbox (each is a tab stop)</td></tr>
+      <tr><td><kbd>Space</kbd></td><td>Toggles the focused checkbox</td></tr>
+      </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>checkbox</code>; the indeterminate state is announced as "mixed" / "half checked".</li>
+        <li>Name from <code>&lt;label for&gt;</code>; clicking the label toggles, so the hit area is the whole text (box is 24px).</li>
+        <li>Group: <code>fieldset</code> + <code>legend</code> gives the question; hint and error are linked to the fieldset with <code>aria-describedby</code>.</li>
+        <li>Checked uses a check mark on a filled box, indeterminate a dash — shape plus color. Boxes have a 2px border at 3:1.</li>
+        <li>Forced colors: the box uses <code>CanvasText</code>/<code>Highlight</code> and the mark stays visible.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+      <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+      <tbody>
+      <tr><td><code>--input-border</code>, <code>--input-bg</code></td><td>Unchecked box</td></tr>
+      <tr><td><code>--color-action-primary-bg | -hover</code>, <code>--color-action-primary-fg</code></td><td>Checked box and mark</td></tr>
+      <tr><td><code>--color-border-invalid</code></td><td>Invalid box, group error rule</td></tr>
+      <tr><td><code>--color-bg-muted</code>, <code>--color-text-disabled</code></td><td>Disabled</td></tr>
+      <tr><td><code>--icon-size-lg | -md</code>, <code>--radius-sm</code>, <code>--border-width-thick</code></td><td>Box size and shape</td></tr>
+      <tr><td><code>--focus-ring-*</code></td><td>Focus</td></tr>
+      </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

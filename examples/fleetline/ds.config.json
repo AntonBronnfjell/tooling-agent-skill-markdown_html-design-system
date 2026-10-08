@@ -1,0 +1,181 @@
+{
+  "name": "Fleetline",
+  "tier": "core",
+  "scopes": [
+    "product"
+  ],
+  "phase": "done",
+  "gate": "block",
+  "lang": "en",
+  "dir": "ltr",
+  "brief": {
+    "product": "Fleetline \u2014 fleet-maintenance SaaS for dispatchers and mechanics",
+    "audience": "Dispatchers (desktop, dense data) and mechanics (tablet, gloves, outdoors)",
+    "platforms": [
+      "web",
+      "tablet"
+    ],
+    "brand_inputs": "",
+    "existing_assets": "",
+    "constraints": "High readability outdoors; large touch targets on tablet; WCAG 2.2 AA",
+    "a11y_target": "WCAG 2.2 AA"
+  },
+  "direction": {
+    "mode": "new",
+    "reference_system": "",
+    "style": "Calm, functional, high-legibility. Teal brand for actions only; neutral slate surfaces; one shape language (8px radius).",
+    "palette": "Teal #0f766e via ds.py palette (OKLCH ramp, contrast-mapped)",
+    "typography": "Inter for UI; tabular numerals for data",
+    "rationale": "Work tool used for hours a day and outdoors: contrast and density over decoration. Teal reads as 'operational' and stays distinct from status colors (red/amber/green).",
+    "allocation": []
+  },
+  "principles": [
+    "Legible first: contrast and size beat decoration.",
+    "One primary action per region.",
+    "Status is never color alone.",
+    "Native HTML before JavaScript."
+  ],
+  "motion": {
+    "personality": "quick and quiet",
+    "bans": [
+      "parallax",
+      "bounce/spring easing",
+      "autoplay"
+    ],
+    "moments": [
+      "overlay enter: fade + 8px rise, motion.duration.base"
+    ]
+  },
+  "targets": [
+    "html-css"
+  ],
+  "package_name": "",
+  "version": "0.1.0",
+  "decisions": [
+    {
+      "id": "ADR-001",
+      "date": "2026-10-08",
+      "title": "New direction with teal brand",
+      "context": "No existing designs; dispatch + workshop users",
+      "decision": "mode=new; teal ramp generated from #0f766e and mapped by contrast",
+      "consequences": "Primary = teal-700 light / teal-400 dark; status colors stay red/amber/green"
+    }
+  ],
+  "contrast_pairs": [
+    [
+      "color.text.default",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.bg.subtle",
+      4.5
+    ],
+    [
+      "color.text.muted",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.subtle",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.link",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.inverse",
+      "color.bg.inverse",
+      4.5
+    ],
+    [
+      "color.action.primary.fg",
+      "color.action.primary.bg",
+      4.5
+    ],
+    [
+      "color.action.primary.fg",
+      "color.action.primary.bg-hover",
+      4.5
+    ],
+    [
+      "color.action.secondary.fg",
+      "color.action.secondary.bg",
+      4.5
+    ],
+    [
+      "color.action.danger.fg",
+      "color.action.danger.bg",
+      4.5
+    ],
+    [
+      "color.selected.fg",
+      "color.selected.bg",
+      4.5
+    ],
+    [
+      "color.border.strong",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.border.focus",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.border.invalid",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.feedback.info.fg",
+      "color.feedback.info.bg",
+      4.5
+    ],
+    [
+      "color.feedback.success.fg",
+      "color.feedback.success.bg",
+      4.5
+    ],
+    [
+      "color.feedback.warning.fg",
+      "color.feedback.warning.bg",
+      4.5
+    ],
+    [
+      "color.feedback.danger.fg",
+      "color.feedback.danger.bg",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.sunken",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.raised",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.elevation.surface.overlay",
+      4.5
+    ],
+    [
+      "color.highlight.fg",
+      "color.highlight.bg",
+      4.5
+    ],
+    [
+      "color.text.muted",
+      "color.elevation.surface.raised",
+      4.5
+    ]
+  ]
+}

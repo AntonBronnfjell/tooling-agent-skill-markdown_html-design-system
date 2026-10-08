@@ -1,0 +1,66 @@
+/* form-layout.css — Form layout (pattern). Block: .form-layout  (container: form-layout)
+   Composition only: alert (error summary) → sections (heading + description + fields) → action bar.
+     <form class="form-layout" novalidate>
+       [<div class="alert alert--danger form-layout__summary" tabindex="-1">…error summary…</div>]
+       <section class="form-layout__section" aria-labelledby="…">
+         <div class="form-layout__intro"><h2 id="…">Vehicle</h2><p class="text-muted">…</p></div>
+         <div class="form-layout__fields"> .field / fieldset.fieldset … </div>
+       </section>
+       <hr class="divider">
+       …
+       <div class="form-layout__actions [form-layout__actions--sticky]"> primary first, then secondary </div>
+     </form>
+   Parts:    .form-layout__summary, .form-layout__section, .form-layout__intro, .form-layout__fields,
+             .form-layout__row (two short related fields side by side from 28rem of form width),
+             .form-layout__actions
+   Modifier: .form-layout__actions--sticky (sticks to the bottom of the scrollport on long forms)
+   Decision: primary action at inline-start for page forms (dialogs: inline-end, see modal).
+   Width:    one column capped at --size-container-sm (fastest to complete, label above control).
+   Layout only. The sticky bar's surface + top rule are the one visual exception (no action-bar component yet). */
+@layer patterns {
+  .form-layout {
+    container: form-layout / inline-size;
+    display: grid;
+    gap: var(--space-8);
+    max-inline-size: var(--size-container-sm);
+  }
+
+  .form-layout__summary { scroll-margin-block: var(--space-16); }
+
+  .form-layout__section {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .form-layout__intro {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .form-layout__fields {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .form-layout__row {
+    display: grid;
+    gap: var(--space-5) var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @container form-layout (inline-size >= 28rem) {
+    .form-layout__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .form-layout__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .form-layout__actions--sticky {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: var(--z-sticky);
+    padding-block: var(--space-3);
+    background: var(--color-bg-surface);
+    border-block-start: var(--border-width-thin) solid var(--color-border-default);
+  }
+}

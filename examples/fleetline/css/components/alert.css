@@ -1,0 +1,72 @@
+/* alert.css — Inline alert (contextual message block). Block alias: .alert
+   Tones:    .alert--info (default) | .alert--success | .alert--warning | .alert--danger
+   Parts:    .alert__icon (svg, aria-hidden), .alert__content, .alert__title, .alert__description,
+             .alert__actions, .alert__dismiss (icon button with aria-label; behavior in js/alert.js)
+   Roles:    none for alerts present at page load; role="status" when inserted (info/success),
+             role="alert" when inserted and urgent (danger). Tone is icon + title, never color alone.
+   Pattern:  tones only set private custom properties (--_bg, --_fg, --_border, --_icon). */
+@layer components {
+  .alert {
+    --_bg: var(--color-feedback-info-bg);
+    --_fg: var(--color-feedback-info-fg);
+    --_border: var(--color-feedback-info-border);
+    --_icon: var(--color-feedback-info-icon);
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    border: var(--border-width-thin) solid var(--_border);
+    border-inline-start-width: var(--space-1);
+    border-radius: var(--radius-md);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-normal);
+  }
+  .alert--success {
+    --_bg: var(--color-feedback-success-bg);
+    --_fg: var(--color-feedback-success-fg);
+    --_border: var(--color-feedback-success-border);
+    --_icon: var(--color-feedback-success-icon);
+  }
+  .alert--warning {
+    --_bg: var(--color-feedback-warning-bg);
+    --_fg: var(--color-feedback-warning-fg);
+    --_border: var(--color-feedback-warning-border);
+    --_icon: var(--color-feedback-warning-icon);
+  }
+  .alert--danger {
+    --_bg: var(--color-feedback-danger-bg);
+    --_fg: var(--color-feedback-danger-fg);
+    --_border: var(--color-feedback-danger-border);
+    --_icon: var(--color-feedback-danger-icon);
+  }
+
+  .alert__icon {
+    flex-shrink: 0;
+    inline-size: var(--icon-size-md);
+    block-size: var(--icon-size-md);
+    margin-block-start: var(--space-px);
+    color: var(--_icon);
+    stroke-width: var(--icon-stroke);
+  }
+  .alert__content { flex: 1; min-inline-size: 0; display: grid; gap: var(--space-1); }
+  .alert :is(a, .link) { color: inherit; }   /* link color fails on tinted feedback fills (dark/HC) */
+  .alert__title { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); line-height: var(--font-line-height-snug); }
+  .alert__description { margin: 0; }
+  .alert__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block-start: var(--space-2); }
+  .alert__dismiss {
+    flex-shrink: 0;
+    margin-block: calc(-1 * var(--space-1));
+    margin-inline-end: calc(-1 * var(--space-2));
+    --_fg: var(--_icon);
+  }
+  .alert .btn--ghost { --_fg: currentColor; }
+
+  @media (forced-colors: active) {
+    .alert { border-color: CanvasText; }
+    .alert__icon { color: CanvasText; }
+  }
+}
