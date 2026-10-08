@@ -439,28 +439,92 @@
     "$description": "Color-blind-safe categorical (Okabe\u2013Ito based); pair with patterns/labels.",
     "categorical": {
       "1": {
-        "$value": "#0072b2"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.4471,
+            0.698
+          ],
+          "hex": "#0072b2"
+        }
       },
       "2": {
-        "$value": "#e69f00"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.902,
+            0.6235,
+            0.0
+          ],
+          "hex": "#e69f00"
+        }
       },
       "3": {
-        "$value": "#009e73"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.6196,
+            0.451
+          ],
+          "hex": "#009e73"
+        }
       },
       "4": {
-        "$value": "#cc79a7"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8,
+            0.4745,
+            0.6549
+          ],
+          "hex": "#cc79a7"
+        }
       },
       "5": {
-        "$value": "#56b4e9"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3373,
+            0.7059,
+            0.9137
+          ],
+          "hex": "#56b4e9"
+        }
       },
       "6": {
-        "$value": "#d55e00"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.8353,
+            0.3686,
+            0.0
+          ],
+          "hex": "#d55e00"
+        }
       },
       "7": {
-        "$value": "#8c6d00"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.549,
+            0.4275,
+            0.0
+          ],
+          "hex": "#8c6d00"
+        }
       },
       "8": {
-        "$value": "#5c5c5c"
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.3608,
+            0.3608,
+            0.3608
+          ],
+          "hex": "#5c5c5c"
+        }
       }
     },
     "sequential": {

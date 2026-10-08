@@ -17,6 +17,7 @@
   ds.py ci <dir> [--provider github|gitlab]   pipeline: check -> Storybook to Pages -> idempotent npm publish
   ds.py detect [project] [--json]    read an existing project (stack, monorepo, styles, Storybook, CI) and propose a
                                      non-conflicting location + sync targets — writes nothing
+  ds.py migrate-colors <dir>         convert legacy hex-string color tokens to DTCG 2025.10 color objects
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
   Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
@@ -164,8 +165,11 @@ def _skip(path, why):
 
 # ---------- helpers ----------
 def load_cfg(root):
+    cfgp = Path(root) / "ds.config.json"
+    if not cfgp.exists():
+        sys.exit(f"No design system at {root} (no ds.config.json). Run `ds.py detect` to find or place one, then `ds.py init`.")
     use_root(root)
-    return json.loads((Path(root) / "ds.config.json").read_text())
+    return json.loads(cfgp.read_text())
 
 
 def save_cfg(root, cfg):
@@ -250,6 +254,104 @@ def var_name(path):
     return "--" + path.replace(".", "-")
 
 
+# ---------- DTCG 2025.10 colors: {"colorSpace", "components", "alpha"?, "hex"?} ----------
+def _hex_from_rgb(rgb, alpha=1):
+    h = "#" + "".join(f"{round(max(0, min(1, c)) * 255):02x}" for c in rgb)
+    return h + (f"{round(alpha * 255):02x}" if alpha < 1 else "")
+
+
+def _num(x):
+    return f"{round(x, 4):g}"
+
+
+def color_obj_to_css(v):
+    cs, comps, alpha = v.get("colorSpace", "srgb"), v.get("components", []), v.get("alpha", 1)
+    a = f" / {_num(alpha)}" if alpha < 1 else ""
+    if cs == "srgb":
+        return _hex_from_rgb(comps, alpha) if len(comps) == 3 and all(isinstance(c, (int, float)) for c in comps) else v.get("hex", "#000000")
+    if cs in ("oklch", "oklab", "lab", "lch", "hwb"):
+        return f"{cs}({' '.join(_num(c) if isinstance(c, (int, float)) else 'none' for c in comps)}{a})"
+    if cs == "hsl":
+        h, s_, l_ = comps
+        return f"hsl({_num(h)} {_num(s_)}% {_num(l_)}%{a})"
+    return f"color({cs} {' '.join(_num(c) for c in comps)}{a})"   # display-p3, rec2020, srgb-linear, xyz-d65, ...
+
+
+def _oklch_to_srgb(l_, c, h):
+    import math
+    a_, b_ = c * math.cos(math.radians(h or 0)), c * math.sin(math.radians(h or 0))
+    l1 = (l_ + 0.3963377774 * a_ + 0.2158037573 * b_) ** 3
+    m1 = (l_ - 0.1055613458 * a_ - 0.0638541728 * b_) ** 3
+    s1 = (l_ - 0.0894841775 * a_ - 1.2914855480 * b_) ** 3
+    lin = (4.0767416621 * l1 - 3.3077115913 * m1 + 0.2309699292 * s1,
+           -1.2684380046 * l1 + 2.6097574011 * m1 - 0.3413193965 * s1,
+           -0.0041960863 * l1 - 0.7034186147 * m1 + 1.7076147010 * s1)
+    return tuple(max(0, min(1, 12.92 * x if x <= 0.0031308 else 1.055 * x ** (1 / 2.4) - 0.055)) for x in lin)
+
+
+def _p3_to_srgb(r, g, b):
+    dec = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
+    m = ((1.2249, -0.2247, 0.0), (-0.0420, 1.0419, 0.0), (-0.0197, -0.0786, 1.0979))   # linear P3 -> linear sRGB
+    lin = [sum(m[i][j] * dec[j] for j in range(3)) for i in range(3)]
+    return tuple(max(0, min(1, 12.92 * x if x <= 0.0031308 else 1.055 * x ** (1 / 2.4) - 0.055)) for x in lin)
+
+
+def color_rgb(v):
+    """sRGB 0..1 tuple for contrast checks from a DTCG color object or a legacy hex string; None if unknown."""
+    if isinstance(v, str):
+        return hex_rgb(v) if v.startswith("#") else None
+    if not isinstance(v, dict):
+        return None
+    cs, comps = v.get("colorSpace"), v.get("components") or []
+    try:
+        if cs == "srgb":
+            return tuple(float(c) for c in comps[:3])
+        if cs == "oklch":
+            return _oklch_to_srgb(*comps[:3])
+        if cs == "display-p3":
+            return _p3_to_srgb(*comps[:3])
+    except (TypeError, ValueError):
+        pass
+    return hex_rgb(v["hex"]) if v.get("hex") else None
+
+
+def resolve_raw(key, flat, depth=0):
+    """Follow a pure alias chain ("{a.b}") to the underlying $value."""
+    v = flat[key]["value"]
+    if isinstance(v, str) and depth < 20:
+        m = re.fullmatch(r"\{([^{}]+)\}", v.strip())
+        if m and m.group(1) in flat:
+            return resolve_raw(m.group(1), flat, depth + 1)
+    return v
+
+
+def hex_to_color_obj(h):
+    rgb = hex_rgb(h)
+    if rgb is None:
+        return h
+    hx = h.strip().lstrip("#").lower()
+    alpha = int(hx[6:8], 16) / 255 if len(hx) == 8 else 1
+    obj = {"colorSpace": "srgb", "components": [round(c, 4) for c in rgb], "hex": _hex_from_rgb(rgb)}
+    if alpha < 1:
+        obj["alpha"] = round(alpha, 4)
+    return obj
+
+
+def migrate_colors_tree(tree, inherited=None):
+    """Convert legacy hex-string color $values in a token tree to DTCG 2025.10 objects (in place). Returns count."""
+    n, t = 0, tree.get("$type", inherited) if isinstance(tree, dict) else inherited
+    for k, v in (tree.items() if isinstance(tree, dict) else []):
+        if k.startswith("$") or not isinstance(v, dict):
+            continue
+        if "$value" in v:
+            if v.get("$type", t) == "color" and isinstance(v["$value"], str) and v["$value"].startswith("#"):
+                v["$value"] = hex_to_color_obj(v["$value"])
+                n += 1
+        else:
+            n += migrate_colors_tree(v, t)
+    return n
+
+
 def to_css(value, typ, flat, as_var=True):
     """Render a DTCG value as CSS. References become var() (as_var) or resolved values."""
     if isinstance(value, str):
@@ -268,10 +370,15 @@ def to_css(value, typ, flat, as_var=True):
             return ", ".join(v if v in GENERIC_FONTS or v.startswith("var(") else f'"{v}"' for v in value)
         if typ == "shadow":
             return ", ".join(to_css(v, typ, flat, as_var) for v in value)
+        if typ == "gradient":   # DTCG: [{color, position 0..1}]; angle via $extensions is not portable, so 90deg default
+            stops = ", ".join(f"{to_css(st['color'], 'color', flat, as_var)} {_num(st.get('position', 0) * 100)}%" for st in value)
+            return f"linear-gradient(90deg, {stops})"
         return " ".join(to_css(v, typ, flat, as_var) for v in value)
     if isinstance(value, dict):
         if "unit" in value and "value" in value:
             return f"{value['value']}{value['unit']}"
+        if "colorSpace" in value and "components" in value:
+            return color_obj_to_css(value)
         if "hex" in value:
             return value["hex"]
         if typ == "shadow" or {"offsetX", "offsetY"} <= value.keys():
@@ -347,6 +454,7 @@ def build_tokens(root):
     out = Path(root) / "dist" / "tokens.css"
     safe_write(out, "\n\n".join(css) + "\n")
     write_token_modules(root, flat)
+    write_resolver(root, themes)
     return out, flat, themes
 
 
@@ -413,6 +521,10 @@ def check_tokens(root, cfg):
                 warns.append(f"token {k} has no $type")
     except Exception as e:  # noqa: BLE001 - report any token failure
         return [f"tokens: {e}"], warns
+    legacy = [k for k, v in flat.items() if v["type"] == "color" and isinstance(v["value"], str) and v["value"].startswith("#")]
+    if legacy:
+        warns.append(f"{len(legacy)} color tokens use hex strings — not DTCG 2025.10 (needs {{colorSpace, components}}); "
+                     f"run `ds.py migrate-colors <dir>` (e.g. {legacy[0]})")
     groups = {k.split(".")[0] for k in flat}
     need = [g for t in TIERS if in_tier(t, cfg["tier"]) for g in MANIFEST["token_groups_required"][t]]
     for g in need:
@@ -428,10 +540,10 @@ def check_tokens(root, cfg):
             if fg not in merged or bg not in merged:
                 errs.append(f"contrast pair {fg} / {bg}: token missing")
                 continue
-            a = hex_rgb(to_css(merged[fg]["value"], "color", merged, as_var=False))
-            b = hex_rgb(to_css(merged[bg]["value"], "color", merged, as_var=False))
+            a = color_rgb(resolve_raw(fg, merged))
+            b = color_rgb(resolve_raw(bg, merged))
             if not a or not b:
-                warns.append(f"[{name}] {fg} / {bg}: non-hex color, contrast not checked")
+                warns.append(f"[{name}] {fg} / {bg}: color space without a hex fallback, contrast not checked")
                 continue
             ratio = contrast(a, b)
             if ratio < minimum:
@@ -1360,6 +1472,37 @@ def detect_project(project):
     }
 
 
+def cmd_migrate_colors(a):
+    root = Path(a.dir)
+    load_cfg(root)
+    total = 0
+    for f in sorted((root / "tokens").rglob("*.json")):
+        if f.name == "resolver.json":
+            continue
+        tree = json.loads(f.read_text())
+        n = migrate_colors_tree(tree)
+        if n:
+            safe_write(f, json.dumps(tree, indent=2) + "\n")
+            total += n
+            print(f"{_rel(f)}: {n} colors → DTCG 2025.10 objects")
+    print(f"migrated {total} color tokens" if total else "all color tokens already use DTCG 2025.10 objects")
+
+
+def write_resolver(root, themes):
+    """tokens/resolver.json — DTCG Resolver Module (2025.10) description of how sets and themes combine."""
+    t = Path(root) / "tokens"
+    sources = [{"$ref": n} for n in ("primitive.json", "semantic.json", "component.json") if (t / n).exists()]
+    sources += [{"$ref": f"components/{p.name}"} for p in sorted((t / "components").glob("*.json"))] if (t / "components").exists() else []
+    contexts = {"light": []}
+    contexts.update({n: [{"$ref": f"themes/{n}.json"}] for n in themes if n != "light"})
+    doc = {"name": "Generated by ds.py build", "version": "2025-11-01",
+           "description": "Base sets, then the theme modifier. CSS: [data-theme=<context>] / .theme-<context>.",
+           "sets": {"base": {"sources": sources}},
+           "modifiers": {"theme": {"description": "Color theme", "contexts": contexts, "default": "light"}},
+           "resolutionOrder": [{"$ref": "#/sets/base"}, {"$ref": "#/modifiers/theme"}]}
+    safe_write(t / "resolver.json", json.dumps(doc, indent=2) + "\n")
+
+
 def cmd_detect(a):
     info = detect_project(a.project)
     if a.json:
@@ -1501,6 +1644,7 @@ def main():
     p = sp.add_parser("status"); p.add_argument("path", nargs="?")
     p = sp.add_parser("detect"); p.add_argument("project", nargs="?", default="."); p.add_argument("--json", action="store_true")
     p = sp.add_parser("sync"); p.add_argument("dir")
+    p = sp.add_parser("migrate-colors"); p.add_argument("dir")
     p = sp.add_parser("storybook"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p.add_argument("--renderer", choices=["html", "server"], default="html",
                    help="html: client-rendered from the pages (default). server: @storybook/server, a backend renders each story")
@@ -1520,7 +1664,7 @@ def main():
     {"init": cmd_init, "audit": cmd_audit, "build": cmd_build, "check": cmd_check,
      "coverage": cmd_coverage, "plan": cmd_plan, "phase": cmd_phase, "status": cmd_status,
      "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
-     "detect": cmd_detect, "sync": cmd_sync}[a.cmd](a)
+     "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors}[a.cmd](a)
 
 
 if __name__ == "__main__":
