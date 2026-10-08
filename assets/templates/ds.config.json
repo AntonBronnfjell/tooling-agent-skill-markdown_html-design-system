@@ -1,6 +1,9 @@
 {
   "name": "Untitled",
   "tier": "enterprise",
+  "scopes": [
+    "product"
+  ],
   "phase": "discover",
   "gate": "block",
   "lang": "en",

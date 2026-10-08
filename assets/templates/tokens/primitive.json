@@ -254,6 +254,18 @@
           "value": 3,
           "unit": "rem"
         }
+      },
+      "6xl": {
+        "$value": {
+          "value": 3.75,
+          "unit": "rem"
+        }
+      },
+      "7xl": {
+        "$value": {
+          "value": 4.5,
+          "unit": "rem"
+        }
       }
     },
     "weight": {
@@ -403,6 +415,18 @@
     "24": {
       "$value": {
         "value": 6,
+        "unit": "rem"
+      }
+    },
+    "32": {
+      "$value": {
+        "value": 8,
+        "unit": "rem"
+      }
+    },
+    "40": {
+      "$value": {
+        "value": 10,
         "unit": "rem"
       }
     }

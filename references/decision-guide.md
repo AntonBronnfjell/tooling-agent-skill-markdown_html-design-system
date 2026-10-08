@@ -71,6 +71,7 @@ Batch these into one AskUserQuestion round, max 4:
 - Product type & primary users (enterprise data tool? consumer? public service?)
 - Existing assets: repo / Figma / brand guide / none
 - Scope tier: core (MVP, 65 items) · standard (109) · enterprise (all 136) — default **enterprise** when the user asks for "complete"
+- Public website? Add the `marketing` scope: +46 sections and pages (hero, pricing, testimonials, FAQ, site footer, landing/pricing/blog/legal pages) — 16 core, 20 standard, 10 enterprise
 - Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React/Vue/Svelte/Angular wrappers, web components, backend templates (Blade, Twig, Django/Jinja, ERB/ViewComponent, Thymeleaf, Razor), Figma variables — this also picks the workbench strategy in `storybook.md` §4
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support
 

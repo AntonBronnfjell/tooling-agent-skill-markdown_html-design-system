@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """html-design-system CLI. Stdlib only.
 
-  ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--force]
+  ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing] [--force]
   ds.py audit <path>                 inventory an existing codebase's de-facto design system
   ds.py build <dir>                  tokens -> dist/tokens.css, bundle dist/ds.css, docs index.html
   ds.py check <dir> [--strict]       validate tokens + contrast, lint CSS/HTML, coverage summary
@@ -40,15 +40,26 @@ def in_tier(item_tier, cfg_tier):
     return TIERS.index(item_tier) <= TIERS.index(cfg_tier)
 
 
+PAGE_CATS = {c["id"] for c in MANIFEST["categories"] if c.get("page_dir") == "patterns"}
+
+
+def page_dir(cat_id):
+    """Full-page categories (patterns, marketing pages) live in patterns/; everything else in components/."""
+    return "patterns" if cat_id in PAGE_CATS else "components"
+
+
 def components(cfg=None, all_tiers=False):
+    scopes = set((cfg or {}).get("scopes") or ["product"])
     for cat in MANIFEST["categories"]:
+        if cfg is not None and cat.get("scope", "product") not in scopes:
+            continue  # e.g. marketing sections only when "marketing" is in ds.config.json scopes
         for c in cat["components"]:
             if all_tiers or cfg is None or in_tier(c["tier"], cfg["tier"]):
                 yield cat, c
 
 
 def page_path(root, cat, c):
-    sub = "patterns" if cat["id"] == "patterns" else "components"
+    sub = page_dir(cat["id"])
     return Path(root) / sub / f"{c['file']}.html", Path(root) / "css" / sub / f"{c['file']}.css"
 
 
@@ -393,7 +404,11 @@ def cmd_init(a):
         if a.force or not (root / dst).exists():
             shutil.copy(tpl / src, root / dst)
     cfg = json.loads((tpl / "ds.config.json").read_text())
-    cfg.update({"name": a.name or cfg["name"], "tier": a.tier})
+    cfg.update({"name": a.name or cfg["name"], "tier": a.tier,
+                "scopes": [x.strip() for x in a.scopes.split(",") if x.strip()]})
+    bad = [x for x in cfg["scopes"] if x not in MANIFEST["scopes"]]
+    if bad:
+        sys.exit(f"unknown scope(s) {bad}; known: {list(MANIFEST['scopes'])}")
     save_cfg(root, cfg)
     build_tokens(root)
     print(f"Initialized design system '{cfg['name']}' (tier {a.tier}) in {root}")
@@ -469,7 +484,7 @@ def write_index(root, cfg):
     names = {c["id"]: c["name"] for c in MANIFEST["categories"]}
     sections = []
     for cid, rows in by_cat.items():
-        sub = "patterns" if cid == "patterns" else "components"
+        sub = page_dir(cid)
         items = "\n".join(
             f'      <li class="ds-index__item" data-done="{str(r["done"]).lower()}">'
             f'<a href="{sub}/{r["file"]}.html#{r["id"]}">{r["name"]}</a>'
@@ -586,14 +601,16 @@ def cmd_status(a):
     d = cfg.get("direction", {})
     print(f"Design system '{cfg['name']}' at {root} — phase: {cfg.get('phase')}, tier: {cfg['tier']}, "
           f"direction: {d.get('mode') or 'undecided'}{' / ' + d['reference_system'] if d.get('reference_system') else ''}. "
-          f"Coverage {done}/{total}; token errors: {len(errs)}. Next files: {', '.join(nxt[:10]) or 'none'}.")
+          f"Scopes: {', '.join(cfg.get('scopes') or ['product'])}. Coverage {done}/{total}; token errors: {len(errs)}. "
+          f"Next files: {', '.join(nxt[:10]) or 'none'}.")
 
 
 # ---------- storybook & serve ----------
 from html.parser import HTMLParser
 
 CAT_TITLES = {"foundations": "Foundations", "actions": "Actions", "forms": "Forms", "navigation": "Navigation",
-              "data-display": "Data Display", "overlays": "Overlays", "feedback": "Feedback", "patterns": "Patterns"}
+              "data-display": "Data Display", "overlays": "Overlays", "feedback": "Feedback", "patterns": "Patterns",
+              "marketing": "Marketing", "marketing-pages": "Marketing Pages"}
 SB_VERSION = "^10.6.1"
 
 
@@ -669,7 +686,7 @@ def iter_pages(root, cfg):
     """Yield (sub, page_path, category_id, extractor) for every component/pattern page that has demos."""
     file_cat = {}
     for cat, c in components(cfg, all_tiers=True):
-        file_cat.setdefault((cat["id"] == "patterns", c["file"]), cat["id"])
+        file_cat.setdefault((page_dir(cat["id"]) == "patterns", c["file"]), cat["id"])
     for sub in ("components", "patterns"):
         for page in sorted((Path(root) / sub).glob("*.html")):
             ex = DemoExtractor(page.read_text(errors="ignore"))
@@ -733,7 +750,7 @@ def cmd_storybook(a):
         out.append(f"import * as behavior from '{depth}js/{page.stem}.js';" if js.exists() else "const behavior = null;")
         usage = " ".join(ex.usage)[:600]
         params = {"docs": {"description": {"component": usage}}}
-        if cat == "patterns":
+        if cat in PAGE_CATS or cat == "marketing":
             params["layout"] = "fullscreen"
         out.append(f"\nexport default {{\n  title: {json.dumps(title)},\n  parameters: {json.dumps(params, ensure_ascii=False)},\n}};\n")
         used = set()
@@ -792,7 +809,7 @@ def write_server_stories(stories, sub, page, cat, ex):
                         "args": {k.replace("-", "_"): v for k, v in args.items()}})
     params = {"server": {"id": f"{sub}/{page.stem}/0"},
               "docs": {"description": {"component": " ".join(ex.usage)[:600]}}}
-    if cat == "patterns":
+    if cat in PAGE_CATS or cat == "marketing":
         params["layout"] = "fullscreen"
     target = stories / CAT_TITLES[cat].lower().replace(" ", "-") / f"{page.stem}.stories.json"
     target.parent.mkdir(exist_ok=True)
@@ -1124,6 +1141,7 @@ def main():
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("init"); p.add_argument("dir"); p.add_argument("--name"); p.add_argument("--force", action="store_true")
     p.add_argument("--tier", choices=TIERS, default="enterprise")
+    p.add_argument("--scopes", default="product", help="comma list: product (app UI), marketing (website/landing)")
     p = sp.add_parser("audit"); p.add_argument("path")
     p = sp.add_parser("build"); p.add_argument("dir")
     p = sp.add_parser("check"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")

@@ -2,17 +2,17 @@
 name: html-design-system
 description: >
   Decides which design system to build (extend an existing design, adopt a reference
-  system like Carbon/Material/Fluent/Polaris, or create a new visual direction) and then
-  builds a COMPLETE HTML/CSS design system: DTCG design tokens with light/dark/high-contrast
-  themes, and all 136 enterprise components (primitives, buttons, every form control,
-  navigation, data tables, overlays, feedback, layout patterns) each with every state,
-  accessibility (WCAG 2.2 AA, WAI-ARIA APG), and a documentation page, plus a generated
-  Storybook, DESIGN.md contract, npm packaging and CI. Uses scripts and hooks to lint,
-  check contrast and track coverage so nothing is skipped. Use this skill
-  whenever the user wants to create, scaffold, audit, extend, finish or document a design
-  system, UI kit, component library, style guide, pattern library, Storybook or design tokens for the
-  web — even if they only say "build our components", "make a UI library", "we need
-  consistent UI", "turn our CSS into a system", or list components to build.
+  system like Carbon/Material/Fluent/Polaris, or create a new direction) and builds a
+  COMPLETE HTML/CSS design system: DTCG tokens with light/dark/high-contrast themes and up
+  to 182 components (primitives, buttons, every form control, navigation, data tables,
+  overlays, feedback, app patterns, plus landing-page sections: heroes, pricing,
+  testimonials, FAQ, footers, marketing pages), each with every state, WCAG 2.2 AA
+  accessibility and a docs page, plus Storybook, DESIGN.md, npm packaging and CI. Scripts
+  and hooks lint, check contrast and track coverage so nothing is skipped. Use whenever the
+  user wants to create, scaffold, audit, extend, finish or document a design system, UI
+  kit, component library, landing page kit, style guide, Storybook or design tokens for
+  the web, even if they only say "build our components", "we need consistent UI", "make
+  our marketing site components" or list components to build.
 argument-hint: "[new|extend <path>|adopt <system>|audit <path>|resume] [core|standard|enterprise]"
 hooks:
   PostToolUse:
@@ -37,7 +37,7 @@ Build a complete, accessible, token-driven HTML/CSS design system — and first,
 
 ## Why this skill is structured the way it is
 
-A design system fails in two ways: it looks wrong for the product (wrong *direction*), or it has holes — a missing invalid state, a modal with no focus return, a dark theme where muted text is illegible (incomplete *coverage*). The direction is a judgment call, so it gets an explicit decision phase with research companions. Coverage is mechanical, so it's enforced by a machine-readable manifest (`assets/manifest.json`, 136 components across 8 categories and 3 tiers) plus scripts and hooks that tell you exactly what's missing. Trust the tools for coverage and spend your thinking on quality.
+A design system fails in two ways: it looks wrong for the product (wrong *direction*), or it has holes — a missing invalid state, a modal with no focus return, a dark theme where muted text is illegible (incomplete *coverage*). The direction is a judgment call, so it gets an explicit decision phase with research companions. Coverage is mechanical, so it's enforced by a machine-readable manifest (`assets/manifest.json`, 182 components across 10 categories, 3 tiers and 2 scopes — `product` app UI always, `marketing` website/landing sections when the product has a public site) plus scripts and hooks that tell you exactly what's missing. Trust the tools for coverage and spend your thinking on quality.
 
 ## Toolkit
 
@@ -71,7 +71,7 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 
 ### Phase 1 — Decide (which design system?)
 Read `references/decision-guide.md`. Choose **extend**, **adopt** (name the reference system) or **new**; hybrids allowed.
-- Ask the user only what discovery couldn't answer (one AskUserQuestion round: product/users, assets, tier, extra targets). If the user asked for "complete", the tier is `enterprise`.
+- Ask the user only what discovery couldn't answer (one AskUserQuestion round: product/users, assets, tier, extra targets). If the user asked for "complete", the tier is `enterprise`. Add the `marketing` scope (`--scopes product,marketing`) when the product has a public website, landing pages, pricing or a blog — or when the user asks for heroes, landing pages or marketing components.
 - For a new or re-skinned direction, invoke **/ui-ux-pro-max** and run its `--design-system` generator with the product context; deep-dive color/typography/ux domains as needed.
 - `ds.py init <project>/design-system --name "<Name>" --tier <tier>`, then fill `ds.config.json` `brief`, `direction` and an ADR in `decisions`. `ds.py phase <dir> decide`.
 
@@ -123,6 +123,7 @@ design-system/
 - `references/tokens.md` — tiers, DTCG format, naming, direction → tokens, themes/density/RTL, contrast
 - `references/component-contract.md` — Definition of Done: markup convention, state matrix, CSS rules, native-first JS, a11y, docs
 - `references/components/{foundations,actions,forms,navigation,data-display,overlays-feedback,patterns}.md` — per-component specs
+- `references/components/marketing.md` — marketing sections & pages (hero, pricing, testimonials, FAQ, footers, landing/pricing/blog/legal pages), performance, SEO and consent rules
 - `references/builder-brief.md` — subagent prompt for parallel category builds
 - `references/companion-skills.md` — when to use /graphify, /ui-ux-pro-max, /plan, /ponytail, /ui-styling and others, with fallbacks
 - `references/motion.md` — motion vocabulary, bans, reduced-motion (media query + `data-reduced-motion`)

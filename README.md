@@ -4,10 +4,10 @@
 
 **An agent skill that turns your AI coding assistant into a design-system team.**
 
-Decides *which* design system your product needs, then builds a *complete* one: tokens, 136 components, every state, docs, Storybook, `DESIGN.md`, npm package and CI.
+Decides *which* design system your product needs, then builds a *complete* one: tokens, up to 182 components (app UI **and** landing-page sections), every state, docs, Storybook, `DESIGN.md`, npm package and CI.
 
 [![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
-[![Components](https://img.shields.io/badge/components-136-2563eb)](#component-coverage-136)
+[![Components](https://img.shields.io/badge/components-182-2563eb)](#component-coverage-182)
 [![WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG_2.2_AA-15803d)](references/component-contract.md)
 [![Design tokens](https://img.shields.io/badge/tokens-DTCG-0891b2)](references/tokens.md)
 [![Storybook 10](https://img.shields.io/badge/Storybook-10-ff4785?logo=storybook&logoColor=white)](references/storybook.md)
@@ -33,7 +33,7 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 | Failure | How the skill prevents it |
 |---|---|
 | **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds.py audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
-| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **136 components**, each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **182 components** (136 for app UI, 46 for marketing sites), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
 
 ## Quick start
 
@@ -59,14 +59,14 @@ flowchart LR
     A["🔍 Discover<br/>audit · graphify · Figma"] --> B["🧭 Decide<br/>extend · adopt · new"]
     B --> C["🎨 Tokens<br/>DTCG · themes · contrast"]
     C --> D["🗺️ Plan<br/>build queue · approval"]
-    D --> E["🧱 Build<br/>136 components · subagents"]
+    D --> E["🧱 Build<br/>up to 182 components · subagents"]
     E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
     F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
     F -. "gaps found" .-> E
 ```
 
 1. **Discover.** It finds what already exists: CSS variables, Tailwind config, duplicate modals, Figma variables. `ds.py audit` counts distinct colors, spacings, fonts and radii, so "we have a system" and "we have 212 different grays" are easy to tell apart.
-2. **Decide.** It picks extend, adopt or new (hybrids allowed), the tier (core, standard or enterprise), the motion personality, the fonts, and which surfaces each look is allowed on. Every choice is written to `ds.config.json` as a short decision record.
+2. **Decide.** It picks extend, adopt or new (hybrids allowed), the tier (core, standard or enterprise), whether a marketing site is in scope, the motion personality, the fonts, and which surfaces each look is allowed on. Every choice is written to `ds.config.json` as a short decision record.
 3. **Tokens.** It writes W3C-format design tokens in three tiers: raw values, intent-based tokens and per-component tokens. They come with light, dark and high-contrast themes, density and RTL support. Contrast is checked for every text/background pair in every theme.
 4. **Plan.** It produces an ordered build queue (`ds.py plan`) and asks for approval in `/plan` mode before writing 100+ files.
 5. **Build.** The agent builds a reference implementation first (typography, layout, button, form field, shared JS behaviors), then hands the remaining categories to parallel subagents. Each component gets CSS that uses only tokens, a docs page showing every variant and state, and, only when native HTML can't do the job, a small vanilla JS module.
@@ -83,7 +83,8 @@ design-system/
 ├── css/                  base.css (reset, focus, sr-only, reduced motion) · components/*.css · patterns/*.css
 ├── js/                   theme.js (runtime + no-flash) · lib/* shared behaviors · <component>.js (init(root))
 ├── components/*.html     one docs page per component: usage · anatomy · live examples · accessibility · tokens
-├── patterns/*.html       app shell, forms, dashboard, auth, settings, list/detail, wizard, feed, empty/error states
+├── patterns/*.html       app shell, forms, dashboard, auth, settings, list/detail, wizard, feed, empty/error states,
+│                         + landing, pricing, about, blog, article, legal, contact, waitlist pages (marketing scope)
 ├── index.html            catalog with live coverage
 ├── DESIGN.md             the one-file contract for humans and AI agents
 ├── .storybook/ stories/  standalone Storybook (generated from the pages)
@@ -91,7 +92,7 @@ design-system/
 └── tools/ds/             vendored CLI so CI and teammates don't need the skill installed
 ```
 
-### Component coverage (136)
+### Component coverage (182)
 
 | Category | Count | Examples |
 |---|---|---|
@@ -103,9 +104,13 @@ design-system/
 | Overlays | 9 | modal, alert dialog, drawer, bottom sheet, popover, tooltip, context menu, coachmark, lightbox |
 | Feedback | 10 | inline/global alerts, callout, toast, progress, meter, spinner, skeleton, notification center |
 | Patterns | 12 | app shell, form layout, dashboard, empty state, error pages, auth, settings, list/detail, detail page, wizard, onboarding, feed |
+| **Marketing sections** | 35 | announcement bar, marketing header, mega menu, hero (centered, split, email capture, video, product shot), logo cloud, feature grid/split, bento grid, stats band, steps, testimonials, press, trust badges, rating summary, pricing table, comparison table, CTA band, newsletter, waitlist, countdown, FAQ, blog cards, content section, team, contact, integrations, video, gallery, roadmap, changelog, app-store badges, cookie consent, locale switcher, sticky CTA, site footer |
+| **Marketing pages** | 11 | landing, pricing, legal (privacy/terms), about, blog index, blog article, contact, waitlist/coming soon, changelog, careers, customer stories |
 
 > [!TIP]
 > **Tiers:** **core** has 65 components (what every product needs), **standard** adds 44 for a typical product suite, and **enterprise** adds the last 27. Ask for "complete" and you get enterprise.
+>
+> **Scopes:** app UI (`product`) is always on. Add `marketing` when there's a public website (`ds.py init --scopes product,marketing`). That adds 46 sections and pages (16 core, 20 standard, 10 enterprise), with landing-page rules for LCP performance, SEO metadata and structured data, honest consent, and a single `<h1>`.
 
 ### What "done" means for each component
 
@@ -171,6 +176,7 @@ After installing, just ask:
 - "Our CSS in `./src/styles` is a mess. Turn it into a real design system, core tier, keep our teal brand."
 - "Should we adopt Carbon or Polaris for our finance admin tool? Set up the tokens and plan, but don't build yet."
 - "Finish the design system in `./design-system` and give me a Storybook and an npm package."
+- "We're launching next month. Add the marketing components: hero, pricing, testimonials, FAQ, footer, and a landing page and pricing page built from them."
 - "We're a Laravel shop. Build the system, port the components to Blade, and set up a Storybook that renders our Blade partials."
 - "Our apps use React and .NET. Make the components shareable across both and document them in one place."
 
@@ -274,7 +280,7 @@ $DS status                               # one-line state of the nearest design 
 ./  (repo root = skill root)
 ├── SKILL.md                     the workflow the agent follows, plus scoped Claude Code hooks
 ├── assets/
-│   ├── manifest.json            136 components · 8 categories · core/standard/enterprise tiers
+│   ├── manifest.json            182 components · 10 categories · 3 tiers · product/marketing scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
 │                                ci/ (GitHub Actions, GitLab CI)

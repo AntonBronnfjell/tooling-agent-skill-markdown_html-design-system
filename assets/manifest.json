@@ -12,6 +12,10 @@
   "standard": "Typical product suite",
   "enterprise": "Complete enterprise coverage"
  },
+ "scopes": {
+  "product": "Application UI: foundations, controls, navigation, data, overlays, feedback, app patterns (always on)",
+  "marketing": "Website / landing UI: hero, pricing, testimonials, FAQ, footers, marketing pages (add when the product has a public site)"
+ },
  "token_groups_required": {
   "core": [
    "color",
@@ -296,7 +300,8 @@
      "native": "overflow + tabindex",
      "desc": "Styled, keyboard-focusable overflow region."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "actions",
@@ -560,7 +565,8 @@
      "native": "div[role=toolbar]",
      "desc": "Grouped controls with roving tabindex."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "forms",
@@ -1060,7 +1066,8 @@
      "native": "div[role=alert] + links",
      "desc": "Form-level list of errors linking to fields."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "navigation",
@@ -1314,7 +1321,8 @@
      "native": "footer",
      "desc": "Site/app footer."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "data-display",
@@ -1637,7 +1645,8 @@
      "native": "button",
      "desc": "Clamp with show more."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "overlays",
@@ -1768,7 +1777,8 @@
      "native": "dialog",
      "desc": "Fullscreen media viewer."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "feedback",
@@ -1917,7 +1927,8 @@
      "native": "[popover] + ul",
      "desc": "Inbox of notifications."
     }
-   ]
+   ],
+   "scope": "product"
   },
   {
    "id": "patterns",
@@ -2093,6 +2104,683 @@
      "aria": null,
      "native": "section",
      "desc": "First-use guidance."
+    }
+   ],
+   "scope": "product",
+   "page_dir": "patterns"
+  },
+  {
+   "id": "marketing",
+   "name": "Marketing Sections",
+   "scope": "marketing",
+   "components": [
+    {
+     "id": "announcement-bar",
+     "name": "Announcement Bar",
+     "tier": "core",
+     "file": "announcement-bar",
+     "demos": [
+      "variant:with-link",
+      "variant:dismissible",
+      "state:dismissed"
+     ],
+     "aria": "region",
+     "native": "div[role=region] + a",
+     "desc": "Top-of-page promo/notice strip; dismissal persisted."
+    },
+    {
+     "id": "marketing-header",
+     "name": "Marketing Header",
+     "tier": "core",
+     "file": "marketing-header",
+     "demos": [
+      "variant:transparent-over-hero",
+      "variant:sticky-solid",
+      "variant:with-cta",
+      "variant:mobile-open",
+      "state:current"
+     ],
+     "aria": "banner + navigation",
+     "native": "header + nav",
+     "desc": "Site header with logo, nav, sign-in and primary CTA; condenses on scroll."
+    },
+    {
+     "id": "mega-menu",
+     "name": "Mega Menu",
+     "tier": "standard",
+     "file": "mega-menu",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:with-featured",
+      "variant:mobile"
+     ],
+     "aria": "disclosure navigation",
+     "native": "nav + button[aria-expanded]",
+     "desc": "Multi-column navigation panel; disclosure pattern, not role=menu."
+    },
+    {
+     "id": "hero",
+     "name": "Hero",
+     "tier": "core",
+     "file": "hero",
+     "demos": [
+      "variant:centered",
+      "variant:split-media",
+      "variant:with-email-capture",
+      "variant:with-video",
+      "variant:with-product-shot",
+      "variant:with-social-proof",
+      "variant:inverse"
+     ],
+     "aria": null,
+     "native": "section + h1",
+     "desc": "Above-the-fold value proposition: headline, subhead, primary/secondary CTA, media."
+    },
+    {
+     "id": "logo-cloud",
+     "name": "Logo Cloud",
+     "tier": "core",
+     "file": "logo-cloud",
+     "demos": [
+      "variant:grid",
+      "variant:marquee",
+      "variant:grayscale"
+     ],
+     "aria": "list",
+     "native": "ul + img[alt]",
+     "desc": "Customer/partner logos as social proof; marquee pausable."
+    },
+    {
+     "id": "feature-grid",
+     "name": "Feature Grid",
+     "tier": "core",
+     "file": "feature-grid",
+     "demos": [
+      "variant:3-col-icons",
+      "variant:2-col",
+      "variant:with-links"
+     ],
+     "aria": "list",
+     "native": "ul + h3",
+     "desc": "Icon + title + text features in a responsive grid."
+    },
+    {
+     "id": "feature-split",
+     "name": "Feature Split (alternating)",
+     "tier": "core",
+     "file": "feature-split",
+     "demos": [
+      "variant:media-start",
+      "variant:media-end",
+      "variant:alternating",
+      "variant:with-checklist"
+     ],
+     "aria": null,
+     "native": "section",
+     "desc": "Media beside copy; alternates sides down the page."
+    },
+    {
+     "id": "bento-grid",
+     "name": "Bento Grid",
+     "tier": "standard",
+     "file": "bento-grid",
+     "demos": [
+      "variant:mixed-spans",
+      "variant:with-media",
+      "state:hover"
+     ],
+     "aria": "list",
+     "native": "ul + grid",
+     "desc": "Asymmetric tile layout for feature highlights."
+    },
+    {
+     "id": "stats-band",
+     "name": "Stats Band",
+     "tier": "standard",
+     "file": "stats-band",
+     "demos": [
+      "variant:inline",
+      "variant:cards",
+      "variant:count-up"
+     ],
+     "aria": null,
+     "native": "dl",
+     "desc": "Large-number proof points (customers, uptime, savings)."
+    },
+    {
+     "id": "steps",
+     "name": "Steps / How It Works",
+     "tier": "standard",
+     "file": "steps",
+     "demos": [
+      "variant:numbered",
+      "variant:timeline",
+      "variant:with-media"
+     ],
+     "aria": "list",
+     "native": "ol",
+     "desc": "Ordered explanation of the process in 3\u20135 steps."
+    },
+    {
+     "id": "testimonials",
+     "name": "Testimonials",
+     "tier": "core",
+     "file": "testimonials",
+     "demos": [
+      "variant:single-quote",
+      "variant:grid",
+      "variant:carousel",
+      "variant:with-rating",
+      "variant:with-logo"
+     ],
+     "aria": null,
+     "native": "figure + blockquote + figcaption",
+     "desc": "Customer quotes with name, role, company and avatar."
+    },
+    {
+     "id": "press-mentions",
+     "name": "Press Mentions",
+     "tier": "enterprise",
+     "file": "press-mentions",
+     "demos": [
+      "variant:logos",
+      "variant:quotes"
+     ],
+     "aria": null,
+     "native": "figure + blockquote",
+     "desc": "As-seen-in strip with outlet logos or pull quotes."
+    },
+    {
+     "id": "trust-badges",
+     "name": "Trust & Compliance Badges",
+     "tier": "enterprise",
+     "file": "trust-badges",
+     "demos": [
+      "variant:security",
+      "variant:compliance",
+      "variant:awards"
+     ],
+     "aria": "list",
+     "native": "ul + img[alt]",
+     "desc": "SOC 2, ISO, GDPR, award badges with accessible names."
+    },
+    {
+     "id": "pricing-table",
+     "name": "Pricing Table",
+     "tier": "core",
+     "file": "pricing-table",
+     "demos": [
+      "variant:3-tiers",
+      "variant:billing-toggle",
+      "state:annual",
+      "state:monthly",
+      "variant:highlighted-plan",
+      "variant:feature-list",
+      "variant:enterprise-contact"
+     ],
+     "aria": "radio group (billing toggle)",
+     "native": "section + fieldset + ul",
+     "desc": "Plan cards with price, billing toggle, features and CTA."
+    },
+    {
+     "id": "comparison-table",
+     "name": "Comparison Table",
+     "tier": "standard",
+     "file": "comparison-table",
+     "demos": [
+      "variant:plans",
+      "variant:vs-competitors",
+      "variant:sticky-header",
+      "variant:grouped-rows"
+     ],
+     "aria": "table",
+     "native": "table",
+     "desc": "Feature matrix across plans or vs. alternatives; check/cross with text."
+    },
+    {
+     "id": "faq",
+     "name": "FAQ",
+     "tier": "core",
+     "file": "faq",
+     "demos": [
+      "variant:accordion",
+      "variant:two-column",
+      "variant:with-contact-cta"
+     ],
+     "aria": "accordion",
+     "native": "details + summary",
+     "desc": "Frequently asked questions; also emits FAQPage structured data."
+    },
+    {
+     "id": "cta-band",
+     "name": "CTA Band",
+     "tier": "core",
+     "file": "cta-band",
+     "demos": [
+      "variant:centered",
+      "variant:split",
+      "variant:inverse"
+     ],
+     "aria": null,
+     "native": "section + h2",
+     "desc": "Closing call to action between sections or before the footer."
+    },
+    {
+     "id": "newsletter-signup",
+     "name": "Newsletter Signup",
+     "tier": "core",
+     "file": "newsletter-signup",
+     "demos": [
+      "state:default",
+      "state:submitting",
+      "state:success",
+      "state:invalid",
+      "variant:inline",
+      "variant:card"
+     ],
+     "aria": "form",
+     "native": "form + input[type=email]",
+     "desc": "Email capture with consent text and success state."
+    },
+    {
+     "id": "team-grid",
+     "name": "Team Grid",
+     "tier": "standard",
+     "file": "team-grid",
+     "demos": [
+      "variant:cards",
+      "variant:with-bio",
+      "variant:with-social"
+     ],
+     "aria": "list",
+     "native": "ul + figure",
+     "desc": "People with photo, name, role and links."
+    },
+    {
+     "id": "blog-card-grid",
+     "name": "Blog / Resource Cards",
+     "tier": "standard",
+     "file": "blog-card-grid",
+     "demos": [
+      "variant:grid",
+      "variant:featured",
+      "variant:list",
+      "state:loading",
+      "state:empty"
+     ],
+     "aria": "list",
+     "native": "ul + article",
+     "desc": "Article teasers with image, category, title, excerpt, author, date."
+    },
+    {
+     "id": "integrations-grid",
+     "name": "Integrations Grid",
+     "tier": "standard",
+     "file": "integrations-grid",
+     "demos": [
+      "variant:logos",
+      "variant:with-categories",
+      "variant:filterable",
+      "state:no-results"
+     ],
+     "aria": "list",
+     "native": "ul + a",
+     "desc": "Partner/integration directory with filter chips."
+    },
+    {
+     "id": "video-section",
+     "name": "Video Section",
+     "tier": "standard",
+     "file": "video-section",
+     "demos": [
+      "variant:poster-play",
+      "variant:embedded",
+      "variant:with-transcript"
+     ],
+     "aria": null,
+     "native": "figure + video[controls]",
+     "desc": "Product video with poster, captions and transcript; no autoplay with sound."
+    },
+    {
+     "id": "gallery",
+     "name": "Gallery",
+     "tier": "standard",
+     "file": "gallery",
+     "demos": [
+      "variant:grid",
+      "variant:masonry",
+      "variant:with-lightbox"
+     ],
+     "aria": "list",
+     "native": "ul + figure",
+     "desc": "Image showcase; opens lightbox."
+    },
+    {
+     "id": "contact-section",
+     "name": "Contact Section",
+     "tier": "standard",
+     "file": "contact-section",
+     "demos": [
+      "variant:form",
+      "variant:with-details",
+      "variant:with-map",
+      "state:success"
+     ],
+     "aria": "form",
+     "native": "form + address",
+     "desc": "Contact form plus address/phone/email and optional map."
+    },
+    {
+     "id": "content-section",
+     "name": "Content Section (long-form)",
+     "tier": "standard",
+     "file": "content-section",
+     "demos": [
+      "variant:prose",
+      "variant:with-toc",
+      "variant:with-aside"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Long-form rich text (about, legal, docs) with readable measure."
+    },
+    {
+     "id": "roadmap",
+     "name": "Public Roadmap",
+     "tier": "enterprise",
+     "file": "roadmap",
+     "demos": [
+      "variant:columns",
+      "variant:timeline",
+      "state:empty"
+     ],
+     "aria": "list",
+     "native": "section + ol",
+     "desc": "Now/next/later columns or timeline of upcoming work."
+    },
+    {
+     "id": "changelog-feed",
+     "name": "Changelog Feed",
+     "tier": "enterprise",
+     "file": "changelog-feed",
+     "demos": [
+      "variant:entries",
+      "variant:with-tags",
+      "variant:with-media"
+     ],
+     "aria": "feed",
+     "native": "ol + article + time",
+     "desc": "Dated release notes with tags (new, improved, fixed)."
+    },
+    {
+     "id": "app-store-badges",
+     "name": "App Store Badges",
+     "tier": "enterprise",
+     "file": "app-store-badges",
+     "demos": [
+      "variant:ios-android",
+      "variant:with-qr"
+     ],
+     "aria": "list",
+     "native": "a + img[alt]",
+     "desc": "Official store badges with correct alt text and links."
+    },
+    {
+     "id": "cookie-consent",
+     "name": "Cookie Consent",
+     "tier": "core",
+     "file": "cookie-consent",
+     "demos": [
+      "variant:banner",
+      "variant:preferences-dialog",
+      "state:dismissed",
+      "variant:categories"
+     ],
+     "aria": "dialog / region",
+     "native": "dialog + fieldset",
+     "desc": "Consent banner and preferences; reject as easy as accept, nothing pre-ticked."
+    },
+    {
+     "id": "locale-switcher",
+     "name": "Language / Region Switcher",
+     "tier": "standard",
+     "file": "locale-switcher",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:region-language"
+     ],
+     "aria": "listbox / disclosure",
+     "native": "select or button + list",
+     "desc": "Language and region picker with names in their own language."
+    },
+    {
+     "id": "site-footer",
+     "name": "Site Footer (marketing)",
+     "tier": "core",
+     "file": "site-footer",
+     "demos": [
+      "variant:fat",
+      "variant:with-newsletter",
+      "variant:minimal",
+      "variant:legal-bar"
+     ],
+     "aria": "contentinfo",
+     "native": "footer",
+     "desc": "Large footer: link columns, newsletter, social, locale, legal links."
+    },
+    {
+     "id": "social-proof-rating",
+     "name": "Rating Summary / Review Badges",
+     "tier": "enterprise",
+     "file": "social-proof-rating",
+     "demos": [
+      "variant:stars",
+      "variant:review-platforms"
+     ],
+     "aria": "img (aria-label)",
+     "native": "figure",
+     "desc": "Aggregate rating ('4.8 from 1,200 reviews') with platform badges."
+    },
+    {
+     "id": "waitlist-form",
+     "name": "Waitlist / Early Access Form",
+     "tier": "standard",
+     "file": "waitlist-form",
+     "demos": [
+      "state:default",
+      "state:success",
+      "state:invalid",
+      "variant:with-position"
+     ],
+     "aria": "form",
+     "native": "form",
+     "desc": "Email + optional role; shows position in queue on success."
+    },
+    {
+     "id": "countdown",
+     "name": "Countdown / Launch Timer",
+     "tier": "enterprise",
+     "file": "countdown",
+     "demos": [
+      "state:running",
+      "state:ended",
+      "variant:compact"
+     ],
+     "aria": "timer",
+     "native": "time + div[role=timer]",
+     "desc": "Event/launch countdown; not announced every second, static fallback."
+    },
+    {
+     "id": "sticky-cta",
+     "name": "Sticky CTA Bar",
+     "tier": "standard",
+     "file": "sticky-cta",
+     "demos": [
+      "state:hidden",
+      "state:visible",
+      "variant:mobile"
+     ],
+     "aria": "region",
+     "native": "div",
+     "desc": "Persistent CTA after scrolling past the hero; never covers content or focus."
+    }
+   ]
+  },
+  {
+   "id": "marketing-pages",
+   "name": "Marketing Pages",
+   "scope": "marketing",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "landing-page",
+     "name": "Landing Page",
+     "tier": "core",
+     "file": "landing-page",
+     "demos": [
+      "variant:saas",
+      "variant:product",
+      "variant:minimal"
+     ],
+     "aria": "landmarks",
+     "native": "header/main/footer",
+     "desc": "Full page: header, hero, logos, features, testimonials, pricing teaser, FAQ, CTA, footer."
+    },
+    {
+     "id": "pricing-page",
+     "name": "Pricing Page",
+     "tier": "core",
+     "file": "pricing-page",
+     "demos": [
+      "variant:with-faq",
+      "variant:with-comparison"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Plans, billing toggle, comparison table, FAQ, enterprise contact."
+    },
+    {
+     "id": "legal-page",
+     "name": "Legal Page (privacy, terms)",
+     "tier": "core",
+     "file": "legal-page",
+     "demos": [
+      "variant:privacy",
+      "variant:terms",
+      "variant:with-toc"
+     ],
+     "aria": "landmarks",
+     "native": "main + article",
+     "desc": "Long-form legal text with TOC, last-updated date and anchors."
+    },
+    {
+     "id": "about-page",
+     "name": "About Page",
+     "tier": "standard",
+     "file": "about-page",
+     "demos": [
+      "variant:story",
+      "variant:with-team"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Mission, story, values, team, press."
+    },
+    {
+     "id": "blog-index",
+     "name": "Blog Index",
+     "tier": "standard",
+     "file": "blog-index",
+     "demos": [
+      "variant:featured",
+      "variant:with-filters",
+      "state:empty"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Featured post, category filters, card grid, pagination."
+    },
+    {
+     "id": "blog-article",
+     "name": "Blog Article",
+     "tier": "standard",
+     "file": "blog-article",
+     "demos": [
+      "variant:with-toc",
+      "variant:with-author",
+      "variant:related-posts"
+     ],
+     "aria": "landmarks",
+     "native": "main + article",
+     "desc": "Article layout: title, meta, cover, prose, author box, share, related."
+    },
+    {
+     "id": "contact-page",
+     "name": "Contact Page",
+     "tier": "standard",
+     "file": "contact-page",
+     "demos": [
+      "variant:form",
+      "state:success"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Contact options, form, offices."
+    },
+    {
+     "id": "waitlist-page",
+     "name": "Waitlist / Coming Soon",
+     "tier": "standard",
+     "file": "waitlist-page",
+     "demos": [
+      "state:default",
+      "state:success"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Single-purpose launch page with waitlist form."
+    },
+    {
+     "id": "changelog-page",
+     "name": "Changelog Page",
+     "tier": "enterprise",
+     "file": "changelog-page",
+     "demos": [
+      "variant:entries",
+      "variant:filtered"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Full changelog with filters and subscribe."
+    },
+    {
+     "id": "careers-page",
+     "name": "Careers Page",
+     "tier": "enterprise",
+     "file": "careers-page",
+     "demos": [
+      "variant:job-list",
+      "variant:job-detail",
+      "state:no-openings"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Culture, benefits, job list with filters and job detail."
+    },
+    {
+     "id": "customer-stories",
+     "name": "Customer Stories",
+     "tier": "enterprise",
+     "file": "customer-stories",
+     "demos": [
+      "variant:index",
+      "variant:story"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Case-study index and single story layout with metrics."
     }
    ]
   }

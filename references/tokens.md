@@ -62,7 +62,9 @@ Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, 
 - **standard:** + opacity, density, icon
 - **enterprise:** + dataviz — themes: + high-contrast
 
-Also expected (not machine-checked): `typography` composites for display, h1–h6, lead, body, small, caption, code.
+Also expected (not machine-checked): `typography` composites for display, display-lg, h1–h6, lead, body, small, caption, code.
+
+Marketing scope: `section.padding-block.{sm,md,lg}`, `section.gap`, `section.max-inline` define landing-page rhythm. String values such as `clamp(3.5rem, 9vw, 6rem)` are allowed for fluid sizes (DTCG has no clamp type; the build passes strings through).
 
 ## 6. Themes, density, RTL
 
