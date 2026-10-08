@@ -15,10 +15,15 @@
   ds.py design-md <dir>              write DESIGN.md: the one-file contract (themes, type, scales, rules, inventory)
   ds.py package <dir>                npm-ready package.json (exports css/tokens/js, files, sideEffects)
   ds.py ci <dir> [--provider github|gitlab]   pipeline: check -> Storybook to Pages -> idempotent npm publish
+  ds.py detect [project] [--json]    read an existing project (stack, monorepo, styles, Storybook, CI) and propose a
+                                     non-conflicting location + sync targets — writes nothing
+  ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
+  Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
+  Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
   ds.py status [path]                one-paragraph state of the nearest design system (for context injection)
   ds.py hook-post-edit | hook-stop   Claude Code hook entry points (read JSON on stdin)
 """
-import argparse, json, os, re, shutil, sys
+import argparse, atexit, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parent.parent
@@ -27,13 +32,145 @@ TIERS = ["core", "standard", "enterprise"]
 SKIP_DIRS = {"node_modules", ".git", "dist", "build", ".next", "vendor", "graphify-out", "__pycache__", "storybook-static"}
 
 
+# ---------- safe writes: never clobber files ds.py didn't create ----------
+# Every file ds.py writes is recorded in <ds root>/.ds-owned.json with its hash. A path that already exists
+# and is not in the ledger belongs to the user/project and is never overwritten (unless --force). Files that
+# ds.py *owns* but the user edited are also kept for "owned" writes (templates, config, CI); "generated"
+# outputs (dist/, stories/, index.html) are rebuilt. --dry-run prints every planned write instead.
+STATE = {"dry_run": False, "force": False, "root": None, "ledger": None, "dirty": False, "skipped": []}
+LEDGER = ".ds-owned.json"
+LEDGER_SKIP = {"node_modules", ".git", "storybook-static", "__pycache__"}
+
+
+def _sha(data):
+    return hashlib.sha256(data if isinstance(data, bytes) else data.encode()).hexdigest()[:16]
+
+
+def use_root(root):
+    """Bind writes to a design-system root and load (or bootstrap) its ownership ledger."""
+    root = Path(root).resolve()
+    if STATE["root"] == root:
+        return root
+    STATE.update(root=root, ledger=None, dirty=False)
+    lp = root / LEDGER
+    if lp.exists():
+        STATE["ledger"] = json.loads(lp.read_text()).get("files", {})
+    else:
+        STATE["ledger"] = {}
+        if (root / "ds.config.json").exists():
+            # Systems created before the ledger existed: everything inside the ds root was made by the skill.
+            for dp, dns, fns in os.walk(root):
+                dns[:] = [d for d in dns if d not in LEDGER_SKIP]
+                for fn in fns:
+                    f = Path(dp) / fn
+                    if fn != LEDGER:
+                        STATE["ledger"][os.path.relpath(f, root)] = _sha(f.read_bytes())
+            STATE["dirty"] = True
+    return root
+
+
+def _save_ledger():
+    if STATE["root"] is not None and STATE["dirty"] and not STATE["dry_run"] and STATE["root"].exists():
+        (STATE["root"] / LEDGER).write_text(json.dumps({"version": 1, "note": "Files created by ds.py (html-design-system). "
+                                                        "ds.py never overwrites files missing from this list.",
+                                                        "files": dict(sorted(STATE["ledger"].items()))}, indent=1) + "\n")
+
+
+atexit.register(_save_ledger)
+
+
+def _rel(path):
+    return os.path.relpath(Path(path).resolve(), STATE["root"]) if STATE["root"] else str(path)
+
+
+def safe_write(path, data, kind="generated"):
+    """Write text/bytes to path unless that would clobber a file ds.py doesn't own. Returns True if written."""
+    path = Path(path)
+    key, new = _rel(path), _sha(data)
+    if path.exists():
+        cur = _sha(path.read_bytes())
+        if cur == new:
+            STATE["ledger"][key] = new
+            return False
+        known = STATE["ledger"].get(key) if STATE["ledger"] is not None else None
+        if not STATE["force"]:
+            if known is None:
+                return _skip(path, "exists and was not created by ds.py")
+            if kind == "owned" and known != cur:
+                return _skip(path, "was edited after ds.py created it")
+    if STATE["dry_run"]:
+        print(f"[dry-run] {'update' if path.exists() else 'create'} {key}")
+        return True
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data) if isinstance(data, bytes) else path.write_text(data)
+    if STATE["ledger"] is not None:
+        STATE["ledger"][key] = new
+        STATE["dirty"] = True
+    return True
+
+
+def safe_copy(src, dst, kind="generated"):
+    return safe_write(dst, Path(src).read_bytes(), kind)
+
+
+def safe_remove_owned(directory):
+    """Delete only ledger-owned files under directory (used to regenerate stories/)."""
+    directory = Path(directory)
+    if not directory.exists():
+        return
+    for f in sorted(directory.rglob("*"), reverse=True):
+        if f.is_file() and _rel(f) in (STATE["ledger"] or {}):
+            if STATE["dry_run"]:
+                print(f"[dry-run] remove {_rel(f)}")
+            else:
+                f.unlink()
+                STATE["ledger"].pop(_rel(f), None)
+                STATE["dirty"] = True
+        elif f.is_dir() and not any(f.iterdir()) and not STATE["dry_run"]:
+            f.rmdir()
+
+
+def merge_json(path, update, describe):
+    """Additive merge into a JSON file. Files ds.py doesn't own are left alone; the snippet is printed instead."""
+    path = Path(path)
+    data = json.loads(path.read_text()) if path.exists() else {}
+    before = json.dumps(data, sort_keys=True)
+    update(data)
+    if path.exists() and _rel(path) not in (STATE["ledger"] or {}) and not STATE["force"]:
+        if json.dumps(data, sort_keys=True) != before:
+            _skip(path, "belongs to your project — merge this yourself")
+            print(f"  suggested {describe} for {_rel(path)}:\n" + json.dumps(data, indent=2)[:1500], file=sys.stderr)
+        return False
+    return safe_write(path, json.dumps(data, indent=2) + "\n", kind="generated")
+
+
+def append_lines(path, lines):
+    """Append missing lines (e.g. .gitignore). Never edits a file ds.py doesn't own; prints the lines instead."""
+    path = Path(path)
+    cur = path.read_text().splitlines() if path.exists() else []
+    missing = [x for x in lines if x not in cur]
+    if not missing:
+        return False
+    if path.exists() and _rel(path) not in (STATE["ledger"] or {}) and not STATE["force"]:
+        return _skip(path, "belongs to your project — add these lines yourself: " + ", ".join(missing))
+    return safe_write(path, "\n".join(cur + missing) + "\n")
+
+
+def _skip(path, why):
+    STATE["skipped"].append(f"{_rel(path)}: {why}")
+    print(f"skip {_rel(path)} — {why} (kept yours; --force-all overwrites)", file=sys.stderr)
+    return False
+
+
 # ---------- helpers ----------
 def load_cfg(root):
+    use_root(root)
     return json.loads((Path(root) / "ds.config.json").read_text())
 
 
 def save_cfg(root, cfg):
-    (Path(root) / "ds.config.json").write_text(json.dumps(cfg, indent=2) + "\n")
+    use_root(root)
+    safe_write(Path(root) / "ds.config.json", json.dumps(cfg, indent=2) + "\n", kind="generated")
 
 
 def in_tier(item_tier, cfg_tier):
@@ -208,8 +345,7 @@ def build_tokens(root):
     if aliases:
         css.append("/* Deprecated aliases — removed in the next major version. */\n:root {\n" + aliases + "\n}")
     out = Path(root) / "dist" / "tokens.css"
-    out.parent.mkdir(exist_ok=True)
-    out.write_text("\n\n".join(css) + "\n")
+    safe_write(out, "\n\n".join(css) + "\n")
     write_token_modules(root, flat)
     return out, flat, themes
 
@@ -234,7 +370,7 @@ def write_token_modules(root, flat):
         except ValueError:
             continue
     dist = Path(root) / "dist"
-    (dist / "tokens.json").write_text(json.dumps(resolved, indent=1) + "\n")
+    safe_write(dist / "tokens.json", json.dumps(resolved, indent=1) + "\n")
     scss = ["// Generated by ds.py build — static values (default theme). Use CSS vars at runtime; these are for",
             "// media queries and build-time math only."]
     scss += [f"${k.replace('.', '-')}: {v};" for k, v in resolved.items()]
@@ -243,7 +379,7 @@ def write_token_modules(root, flat):
         scss.append("$breakpoints: (" + ", ".join(f'"{n}": {v}' for n, v in bps.items()) + ");")
         scss.append("@mixin up($bp) { @media (min-width: map-get($breakpoints, $bp)) { @content; } }")
         scss.append("@mixin down($bp) { @media (max-width: calc(map-get($breakpoints, $bp) - 0.02px)) { @content; } }")
-    (dist / "tokens.scss").write_text("\n".join(scss) + "\n")
+    safe_write(dist / "tokens.scss", "\n".join(scss) + "\n")
 
 
 def hex_rgb(h):
@@ -391,27 +527,46 @@ def summarize(report):
 def cmd_init(a):
     root = Path(a.dir)
     if (root / "ds.config.json").exists() and not a.force:
-        sys.exit(f"{root}/ds.config.json exists (use --force to overwrite templates)")
+        sys.exit(f"{root}/ds.config.json exists. --force re-runs init: missing templates are restored, files you "
+                 "edited are kept (only the global --force-all overwrites them).")
+    if root.exists() and any(root.iterdir()) and not (root / "ds.config.json").exists() and not a.adopt:
+        sys.exit(f"{root} already has files that aren't a design system. Pick another folder (`ds.py detect` suggests one) "
+                 "or pass --adopt to add the system alongside them — existing files are never overwritten.")
+    use_root(root)
     tpl = SKILL / "assets" / "templates"
     for sub in ("tokens/themes", "tokens/components", "css/components", "css/patterns", "components", "patterns", "docs", "dist", "js"):
-        (root / sub).mkdir(parents=True, exist_ok=True)
+        if not STATE["dry_run"]:
+            (root / sub).mkdir(parents=True, exist_ok=True)
     for src, dst in [("tokens/primitive.json", "tokens/primitive.json"), ("tokens/semantic.json", "tokens/semantic.json"),
                      ("tokens/component.json", "tokens/component.json"), ("tokens/themes/dark.json", "tokens/themes/dark.json"),
                      ("tokens/themes/high-contrast.json", "tokens/themes/high-contrast.json"),
                      ("base.css", "css/base.css"), ("docs.css", "docs/docs.css"), ("docs.js", "docs/docs.js"),
                      ("component.html", "docs/_component-template.html"),
                      ("theme.js", "js/theme.js")]:
-        if a.force or not (root / dst).exists():
-            shutil.copy(tpl / src, root / dst)
+        safe_copy(tpl / src, root / dst, kind="owned")
     cfg = json.loads((tpl / "ds.config.json").read_text())
-    cfg.update({"name": a.name or cfg["name"], "tier": a.tier,
-                "scopes": [x.strip() for x in a.scopes.split(",") if x.strip()]})
+    if (root / "ds.config.json").exists():   # re-init: keep every decision already recorded
+        cfg.update(json.loads((root / "ds.config.json").read_text()))
+    if a.name:
+        cfg["name"] = a.name
+    if a.tier:
+        cfg["tier"] = a.tier
+    if a.scopes:
+        cfg["scopes"] = [x.strip() for x in a.scopes.split(",") if x.strip()]
     bad = [x for x in cfg["scopes"] if x not in MANIFEST["scopes"]]
     if bad:
         sys.exit(f"unknown scope(s) {bad}; known: {list(MANIFEST['scopes'])}")
+    if a.project:
+        info = detect_project(a.project)
+        cfg["project"] = {"root": os.path.relpath(Path(a.project).resolve(), root.resolve()),
+                          "stacks": info["stacks"], "sync": info["recommended"]["sync"],
+                          "storybook": info["recommended"]["storybook"], "ci": info["recommended"]["ci"]}
     save_cfg(root, cfg)
+    if STATE["dry_run"]:
+        print(f"[dry-run] would initialize '{cfg['name']}' in {root}; nothing written")
+        return
     build_tokens(root)
-    print(f"Initialized design system '{cfg['name']}' (tier {a.tier}) in {root}")
+    print(f"Initialized design system '{cfg['name']}' (tier {cfg['tier']}) in {root}")
     print("Next: fill ds.config.json brief/direction, edit tokens/*.json, then `ds.py build` and `ds.py plan`.")
 
 
@@ -470,8 +625,10 @@ def cmd_build(a):
     parts = [out, root / "css" / "base.css"]
     parts += sorted((root / "css" / "components").glob("*.css")) + sorted((root / "css" / "patterns").glob("*.css"))
     bundle = "\n".join(f"/* ---- {p.relative_to(root)} ---- */\n{p.read_text()}" for p in parts if p.exists())
-    (root / "dist" / "ds.css").write_text(bundle)
+    safe_write(root / "dist" / "ds.css", bundle)
     write_index(root, cfg)
+    if cfg.get("project", {}).get("sync"):
+        cmd_sync(argparse.Namespace(dir=str(root)))
     print(f"built {out.relative_to(root)}, dist/ds.css ({len(parts)} sources), index.html")
 
 
@@ -520,7 +677,7 @@ def write_index(root, cfg):
 </body>
 </html>
 """
-    (Path(root) / "index.html").write_text(html)
+    safe_write(Path(root) / "index.html", html)
 
 
 def cmd_check(a):
@@ -675,11 +832,10 @@ def js_ident(text, used):
 
 
 def write_if_missing(path, text, force):
-    if force or not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
-        return True
-    return False
+    """Config the user is expected to edit: create once; later runs keep their version (--force regenerates)."""
+    if path.exists() and not force:
+        return False
+    return safe_write(path, text, kind="owned")
 
 
 def iter_pages(root, cfg):
@@ -710,32 +866,29 @@ def cmd_storybook(a):
                                **({"@storybook/server-webpack5": SB_VERSION} if a.renderer == "server"
                                   else {"@storybook/html-vite": SB_VERSION, "vite": "^8.0.0"})}}
     pkg["scripts"]["stories"] += f" --renderer {a.renderer}" if a.renderer != "html" else ""
-    if (root / "package.json").exists() and not a.force:
-        existing = json.loads((root / "package.json").read_text())
-        for k in ("scripts", "devDependencies"):
-            existing.setdefault(k, {})
-            for kk, vv in pkg[k].items():
-                existing[k].setdefault(kk, vv)
-        pkg = existing
-    (root / "package.json").write_text(json.dumps(pkg, indent=2) + "\n")
+    def merge(existing):
+        for k, v in pkg.items():
+            if isinstance(v, dict):
+                existing.setdefault(k, {})
+                for kk, vv in v.items():
+                    existing[k].setdefault(kk, vv)
+            else:
+                existing.setdefault(k, v)
+    merge_json(root / "package.json", merge, "scripts/devDependencies")
     server = a.renderer == "server"
     write_if_missing(root / ".storybook" / "main.js", (tpl / ("main.server.js" if server else "main.js")).read_text(), a.force)
     write_if_missing(root / ".storybook" / "preview.js", (tpl / ("preview.server.js" if server else "preview.js")).read_text()
                      .replace("__SERVER_URL__", a.server_url), a.force)
     if server:
         write_if_missing(root / ".storybook" / "preview-head.html", (tpl / "preview-head.server.html").read_text(), a.force)
-    gi = root / ".gitignore"
-    lines = gi.read_text().splitlines() if gi.exists() else []
-    gi.write_text("\n".join(lines + [x for x in ("node_modules/", "storybook-static/") if x not in lines]) + "\n")
+    append_lines(root / ".gitignore", ["node_modules/", "storybook-static/"])
 
     stories = root / "stories"
-    if stories.exists():
-        shutil.rmtree(stories)  # fully generated: the pages are the source of truth
-    stories.mkdir()
-    shutil.copy(tpl / "render.js", stories / "_render.js")
+    safe_remove_owned(stories)  # stories are fully generated from the pages; files you added there are kept
+    safe_copy(tpl / "render.js", stories / "_render.js")
     _, themes = load_tokens(root)
-    (stories / "_meta.js").write_text("// GENERATED by ds.py storybook — do not edit.\nexport const themes = "
-                                      + json.dumps(["light", *[t for t in themes if t != "light"]]) + ";\n")
+    safe_write(stories / "_meta.js", "// GENERATED by ds.py storybook — do not edit.\nexport const themes = "
+               + json.dumps(["light", *[t for t in themes if t != "light"]]) + ";\n")
 
     total = 0
     for sub, page, cat, ex in iter_pages(root, cfg):
@@ -762,20 +915,18 @@ def cmd_storybook(a):
                        f"  parameters: {{ docs: {{ source: {{ code: {json.dumps(html, ensure_ascii=False)}, language: 'html' }} }} }},\n}};\n")
             total += 1
         target = stories / CAT_TITLES[cat].lower().replace(" ", "-") / f"{page.stem}.stories.js"
-        target.parent.mkdir(exist_ok=True)
-        target.write_text("\n".join(out))
+        safe_write(target, "\n".join(out))
 
     # Foundations: a live token catalog rendered from the same flattened tokens used for tokens.css.
     base, _ = load_tokens(root)
     flat = flatten(base)
     rows = [{"var": var_name(k), "type": v["type"] or "", "path": k} for k, v in flat.items() if v["type"] != "typography"]
-    (stories / "foundations").mkdir(exist_ok=True)
     if server:
-        (stories / "foundations" / "tokens.stories.json").write_text(json.dumps(
+        safe_write(stories / "foundations" / "tokens.stories.json", json.dumps(
             {"title": "Foundations/Tokens", "parameters": {"server": {"id": "foundations/tokens"}},
              "stories": [{"name": "All tokens"}]}, indent=1) + "\n")
     else:
-        (stories / "foundations" / "tokens.stories.js").write_text(
+        safe_write(stories / "foundations" / "tokens.stories.js",
         "// GENERATED by ds.py storybook — token catalog. Values are read live from CSS, so themes apply.\n"
         f"const tokens = {json.dumps(rows)};\n" + TOKENS_STORY)
     reports = coverage(root, cfg)
@@ -786,9 +937,14 @@ def cmd_storybook(a):
              f"- Tier **{cfg['tier']}**, coverage **{done}/{tot}** components\n"
              f"- Use the toolbar to switch **theme**, **density** and **direction**; the **Accessibility** panel runs axe on every story.\n"
              f"- Stories are generated from the component pages (`components/*.html`). Edit a page, then run `npm run stories`.\n")
-    (stories / "Introduction.mdx").write_text(intro)
+    safe_write(stories / "Introduction.mdx", intro)
     print(f"Storybook ({a.renderer}) ready in {root}: {total} demo stories + token catalog.\n"
           f"  cd {root} && npm install && npm run storybook      (static site: npm run build-storybook)")
+    if cfg.get("project", {}).get("storybook") == "compose":
+        print("  Your project already has a Storybook — compose this one into it instead of merging configs.\n"
+              "  Add to your .storybook/main.* (ds.py does not edit it):\n"
+              "    refs: { 'design-system': { title: 'Design System', url: 'http://localhost:6006' } },\n"
+              "  (in production point url at the deployed design-system Storybook, e.g. its GitHub Pages URL)")
     if server:
         port = re.search(r":(\d+)", a.server_url.split("//", 1)[-1])
         print(f"  Backend: stories fetch {a.server_url}/<id>. Reference backend: `ds.py serve {root} --port {port.group(1) if port else 80}`.\n"
@@ -812,8 +968,7 @@ def write_server_stories(stories, sub, page, cat, ex):
     if cat in PAGE_CATS or cat == "marketing":
         params["layout"] = "fullscreen"
     target = stories / CAT_TITLES[cat].lower().replace(" ", "-") / f"{page.stem}.stories.json"
-    target.parent.mkdir(exist_ok=True)
-    target.write_text(json.dumps({"title": story_title(cat, page), "parameters": params, "stories": entries},
+    safe_write(target, json.dumps({"title": story_title(cat, page), "parameters": params, "stories": entries},
                                  indent=1, ensure_ascii=False) + "\n")
     return len(entries)
 
@@ -996,72 +1151,261 @@ def cmd_design_md(a):
         md += ["", "## 12. Decisions", ""] + [f"- **{x.get('id', '')} {x.get('title', '')}** — {x.get('decision', '')}. {x.get('consequences', '')}" for x in cfg["decisions"]]
     if cfg.get("design_notes"):
         md += ["", "## Notes", "", cfg["design_notes"]]
-    (root / "DESIGN.md").write_text("\n".join(md) + "\n")
+    safe_write(root / "DESIGN.md", "\n".join(md) + "\n")
     print(f"wrote {root / 'DESIGN.md'}")
 
 
 def cmd_package(a):
     root = Path(a.dir)
     cfg = load_cfg(root)
-    pj = root / "package.json"
-    pkg = json.loads(pj.read_text()) if pj.exists() else {}
     slug = re.sub(r"[^a-z0-9]+", "-", cfg["name"].lower()).strip("-") or "design-system"
-    pkg.setdefault("name", cfg.get("package_name") or f"{slug}-design-system")
-    if pkg["name"].endswith("-design-system") and cfg.get("package_name"):
-        pkg["name"] = cfg["package_name"]
-    pkg.setdefault("version", cfg.get("version", "0.1.0"))
-    pkg.setdefault("description", f"{cfg['name']} design system — tokens, CSS components and docs")
-    pkg.pop("private", None)
-    pkg["type"] = "module"
-    pkg["style"] = "dist/ds.css"
-    pkg["exports"] = {".": "./dist/ds.css", "./ds.css": "./dist/ds.css", "./tokens.css": "./dist/tokens.css",
-                      "./tokens.json": "./dist/tokens.json", "./tokens.scss": "./dist/tokens.scss",
-                      "./css/*": "./css/*", "./js/*": "./js/*", "./tokens/*": "./tokens/*", "./fonts/*": "./fonts/*",
-                      "./DESIGN.md": "./DESIGN.md", "./package.json": "./package.json"}
-    pkg["files"] = [f for f in ("dist/ds.css", "dist/tokens.css", "dist/tokens.json", "dist/tokens.scss", "css", "js", "tokens", "fonts", "DESIGN.md")
-                    if (root / f.split("/")[0]).exists() or f == "DESIGN.md"]
-    pkg["sideEffects"] = ["*.css"]
-    pkg.setdefault("publishConfig", {"access": "public"})
-    pkg.setdefault("scripts", {})["prepack"] = "python3 tools/ds/scripts/ds.py build . && python3 tools/ds/scripts/ds.py design-md ." \
-        if (root / "tools" / "ds").exists() else "echo 'run ds.py build + design-md before packing'"
-    pj.write_text(json.dumps(pkg, indent=2) + "\n")
+    files = [f for f in ("dist/ds.css", "dist/tokens.css", "dist/tokens.json", "dist/tokens.scss", "css", "js", "tokens", "fonts", "DESIGN.md")
+             if (root / f.split("/")[0]).exists() or f == "DESIGN.md"]
+    vendored = (root / "tools" / "ds").exists()
+
+    def update(pkg):
+        if cfg.get("package_name"):
+            pkg["name"] = cfg["package_name"]
+        pkg.setdefault("name", f"{slug}-design-system")
+        pkg.setdefault("version", cfg.get("version", "0.1.0"))
+        pkg.setdefault("description", f"{cfg['name']} design system — tokens, CSS components and docs")
+        pkg.pop("private", None)
+        pkg["type"] = "module"
+        pkg["style"] = "dist/ds.css"
+        pkg["exports"] = {".": "./dist/ds.css", "./ds.css": "./dist/ds.css", "./tokens.css": "./dist/tokens.css",
+                          "./tokens.json": "./dist/tokens.json", "./tokens.scss": "./dist/tokens.scss",
+                          "./css/*": "./css/*", "./js/*": "./js/*", "./tokens/*": "./tokens/*", "./fonts/*": "./fonts/*",
+                          "./DESIGN.md": "./DESIGN.md", "./llms.txt": "./llms.txt", "./package.json": "./package.json"}
+        pkg["files"] = files + ["llms.txt", "llms"]
+        pkg["sideEffects"] = ["*.css"]
+        pkg.setdefault("publishConfig", {"access": "public"})
+        pkg.setdefault("scripts", {})["prepack"] = ("python3 tools/ds/scripts/ds.py build . && python3 tools/ds/scripts/ds.py design-md ."
+                                                   if vendored else "echo 'run ds.py build + design-md before packing'")
+        update.result = pkg
+
+    merge_json(root / "package.json", update, "npm package fields")
     cmd_design_md(a)
-    print(f"package.json ready: {pkg['name']}@{pkg['version']} — exports dist/ds.css, tokens (css/json/scss), css/*, js/*")
+    pkg = getattr(update, "result", {})
+    print(f"package.json ready: {pkg.get('name')}@{pkg.get('version')} — exports dist/ds.css, tokens (css/json/scss), css/*, js/*")
 
 
 def vendor_tools(root):
     """Copy ds.py + manifest + templates into <root>/tools/ds so CI and teammates don't need the skill installed."""
     dst = Path(root) / "tools" / "ds"
-    if dst.exists():
-        shutil.rmtree(dst)
-    shutil.copytree(SKILL / "scripts", dst / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
-    shutil.copytree(SKILL / "assets", dst / "assets")
+    for base in ("scripts", "assets"):
+        for f in sorted((SKILL / base).rglob("*")):
+            if f.is_file() and "__pycache__" not in f.parts:
+                safe_copy(f, dst / base / f.relative_to(SKILL / base))
     return dst
+
+
+def git_root(path):
+    try:
+        return Path(subprocess.check_output(["git", "-C", str(path), "rev-parse", "--show-toplevel"], text=True,
+                                            stderr=subprocess.DEVNULL).strip())
+    except Exception:  # noqa: BLE001 - not a git repo / git missing
+        return None
 
 
 def cmd_ci(a):
     root = Path(a.dir).resolve()
     load_cfg(root)
+    repo = git_root(root) or root
+    provider = a.provider or ("gitlab" if (repo / ".gitlab-ci.yml").exists() else "github")
     vendor_tools(root)
-    try:
-        import subprocess
-        repo = Path(subprocess.check_output(["git", "-C", str(root), "rev-parse", "--show-toplevel"], text=True).strip())
-    except Exception:  # noqa: BLE001 - not a git repo
-        repo = root
     rel = os.path.relpath(root, repo)
-    tpl = (SKILL / "assets" / "templates" / "ci" / ("github-actions.yml" if a.provider == "github" else "gitlab-ci.yml")).read_text()
-    out = repo / (".github/workflows/design-system.yml" if a.provider == "github" else ".gitlab-ci.yml")
-    if out.exists() and not a.force:
-        sys.exit(f"{out} exists — merge manually or pass --force")
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(tpl.replace("__DIR__", rel))
-    pj = root / "package.json"
-    if pj.exists():
-        pkg = json.loads(pj.read_text())
-        pkg.setdefault("scripts", {})["stories"] = "python3 tools/ds/scripts/ds.py storybook ."
-        pj.write_text(json.dumps(pkg, indent=2) + "\n")
-    print(f"wrote {out} and vendored tools to {root / 'tools/ds'}.\n"
-          "Commit package-lock.json (run npm install once). Secrets: NPM_TOKEN to publish; GitHub: enable Pages → 'GitHub Actions'.")
+    tpl = (SKILL / "assets" / "templates" / "ci" / ("github-actions.yml" if provider == "github" else "gitlab-ci.yml")).read_text()
+    body = tpl.replace("__DIR__", rel)
+    if provider == "github":
+        out = repo / ".github" / "workflows" / "design-system.yml"   # its own file: never touches your workflows
+        safe_write(out, body, kind="owned")
+        note = f"wrote {_rel(out)}"
+    elif (repo / ".gitlab-ci.yml").exists():
+        out = root / "ci" / "design-system.gitlab-ci.yml"              # your pipeline stays yours: include this file
+        safe_write(out, body, kind="owned")
+        note = (f"wrote {_rel(out)}. Add to your .gitlab-ci.yml:\n  include:\n    - local: '{os.path.relpath(out, repo)}'\n"
+                "  (and make sure its stages — check, build, publish — exist in your `stages:` list)")
+    else:
+        out = repo / ".gitlab-ci.yml"
+        safe_write(out, body, kind="owned")
+        note = f"wrote {_rel(out)}"
+    merge_json(root / "package.json", lambda pkg: pkg.setdefault("scripts", {}).__setitem__(
+        "stories", "python3 tools/ds/scripts/ds.py storybook ."), "stories script")
+    print(f"{note}\nVendored tools to {_rel(root / 'tools/ds')}. Commit package-lock.json (run npm install once). "
+          "Secrets: NPM_TOKEN to publish; GitHub: enable Pages → 'GitHub Actions'.")
+
+
+# ---------- existing projects: detect, place, sync ----------
+STACKS = [
+    # (name, test(project) -> bool, styles target, js target, preferred ds location)
+    ("laravel", lambda p: (p / "artisan").exists() and "laravel/framework" in _read(p / "composer.json"),
+     "resources/css/design-system", "resources/js/design-system", "resources/design-system"),
+    ("symfony", lambda p: "symfony/framework-bundle" in _read(p / "composer.json"),
+     "assets/styles/design-system", "assets/design-system", "design-system"),
+    ("wordpress", lambda p: (p / "wp-config.php").exists() or (p / "style.css").exists() and "Theme Name:" in _read(p / "style.css"),
+     "assets/css/design-system", "assets/js/design-system", "design-system"),
+    ("django", lambda p: (p / "manage.py").exists(), "static/design-system", "static/design-system", "design_system"),
+    ("flask/fastapi", lambda p: any(k in _read(p / "requirements.txt") + _read(p / "pyproject.toml") for k in ("flask", "fastapi", "Flask", "FastAPI")),
+     "static/design-system", "static/design-system", "design-system"),
+    ("rails", lambda p: "rails" in _read(p / "Gemfile"), "app/assets/stylesheets/design-system", "app/javascript/design-system", "design-system"),
+    ("phoenix", lambda p: (p / "mix.exs").exists() and "phoenix" in _read(p / "mix.exs"), "assets/css/design-system", "assets/js/design-system", "design-system"),
+    ("aspnet", lambda p: any(p.glob("*.csproj")) or any(p.glob("*/*.csproj")), "wwwroot/css/design-system", "wwwroot/js/design-system", "design-system"),
+    ("spring", lambda p: (p / "pom.xml").exists() or (p / "build.gradle").exists() or (p / "build.gradle.kts").exists(),
+     "src/main/resources/static/design-system", "src/main/resources/static/design-system", "design-system"),
+    ("go", lambda p: (p / "go.mod").exists(), "static/design-system", "static/design-system", "design-system"),
+    ("next", lambda p: "\"next\"" in _read(p / "package.json"), "src/styles/design-system", "src/design-system", "design-system"),
+    ("nuxt", lambda p: "\"nuxt\"" in _read(p / "package.json"), "assets/css/design-system", "assets/design-system", "design-system"),
+    ("astro", lambda p: "\"astro\"" in _read(p / "package.json"), "src/styles/design-system", "src/design-system", "design-system"),
+    ("sveltekit", lambda p: "\"@sveltejs/kit\"" in _read(p / "package.json"), "src/lib/design-system", "src/lib/design-system", "design-system"),
+    ("angular", lambda p: (p / "angular.json").exists(), "src/styles/design-system", "src/design-system", "design-system"),
+    ("vite/react/vue/svelte", lambda p: any(f'"{k}"' in _read(p / "package.json") for k in ("react", "vue", "svelte", "vite", "lit")),
+     "src/styles/design-system", "src/design-system", "design-system"),
+    ("hugo", lambda p: (p / "hugo.toml").exists() or (p / "config.toml").exists() and (p / "layouts").exists(),
+     "assets/css/design-system", "assets/js/design-system", "design-system"),
+    ("jekyll", lambda p: (p / "_config.yml").exists(), "assets/css/design-system", "assets/js/design-system", "design-system"),
+]
+STYLE_HINTS = ["src/styles", "styles", "src/css", "css", "assets/css", "assets/styles", "resources/css", "static/css",
+               "public/css", "app/assets/stylesheets", "wwwroot/css", "src/main/resources/static"]
+TOKEN_HINTS = ["tokens", "src/tokens", "design-tokens", "tokens.json", "theme.json", "src/theme", "tailwind.config.js",
+               "tailwind.config.ts", "tailwind.config.cjs", "components.json", "src/app/globals.css", "app/globals.css"]
+
+
+def _read(path):
+    try:
+        return Path(path).read_text(errors="ignore")
+    except OSError:
+        return ""
+
+
+def detect_project(project):
+    """Read the host project and propose where the design system goes and how it plugs in — without writing."""
+    p = Path(project).resolve()
+    pkg = {}
+    try:
+        pkg = json.loads(_read(p / "package.json") or "{}")
+    except json.JSONDecodeError:
+        pass
+    deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+    workspaces = pkg.get("workspaces", [])
+    if isinstance(workspaces, dict):
+        workspaces = workspaces.get("packages", [])
+    if (p / "pnpm-workspace.yaml").exists():
+        workspaces += re.findall(r"-\s*['\"]?([^'\"\n]+)", _read(p / "pnpm-workspace.yaml"))
+    stacks = [name for name, test, *_ in STACKS if test(p)]
+    primary = next((x for x in STACKS if x[0] in stacks), None)
+    # Monorepos: the apps live in workspace packages — report their stacks too (e.g. "next (apps/web)").
+    for glob_ in workspaces:
+        for d in sorted(p.glob(glob_.rstrip("/"))):
+            if d.is_dir() and "node_modules" not in d.parts:
+                stacks += [f"{name} ({os.path.relpath(d, p)})" for name, test, *_ in STACKS if test(d)]
+    pm = next((m for f, m in (("pnpm-lock.yaml", "pnpm"), ("yarn.lock", "yarn"), ("bun.lockb", "bun"), ("bun.lock", "bun"),
+                              ("package-lock.json", "npm")) if (p / f).exists()), "npm" if pkg else None)
+    storybook = None
+    for d in [p, *[x for x in p.glob("*/") if x.name not in SKIP_DIRS], *[x for x in p.glob("*/*/") if "node_modules" not in x.parts]]:
+        if (d / ".storybook").is_dir():
+            main = next(iter(sorted((d / ".storybook").glob("main.*"))), None)
+            fw = re.search(r"@storybook/([\w-]+)", _read(main)) if main else None
+            storybook = {"dir": os.path.relpath(d / ".storybook", p), "framework": fw.group(1) if fw else "unknown"}
+            break
+    existing_ds = [os.path.relpath(c.parent, p) for c in p.glob("**/ds.config.json") if "node_modules" not in c.parts][:5]
+    # Where the system should live: the stack's convention, a workspace folder in monorepos, never an occupied folder.
+    candidates = []
+    bases = [g.rstrip("/*").rstrip("/") for g in workspaces]
+    for base in sorted((b for b in bases if b and "*" not in b), key=lambda b: (b not in ("packages", "libs", "shared"), b)):
+        candidates.append(f"{base}/design-system")  # a design system is a package, not an app
+    if primary:
+        candidates.append(primary[4])
+    candidates += ["design-system", "ds", "packages/design-system"]
+    location = next((c for c in candidates if not (p / c).exists() or (p / c / "ds.config.json").exists()
+                     or not any((p / c).iterdir())), "design-system-ds")
+    monorepo = bool(workspaces)
+    styles = None if monorepo else primary[2] if primary else next((f"{h}/design-system" for h in STYLE_HINTS if (p / h).is_dir()), None)
+    js = primary[3] if primary else None
+    sync = {}
+    if styles:
+        sync = {"dist/ds.css": f"{styles}/ds.css", "dist/tokens.css": f"{styles}/tokens.css"}
+        if any(s_ in stacks for s_ in ("laravel", "symfony", "next", "nuxt", "astro", "sveltekit", "angular", "vite/react/vue/svelte")):
+            sync["dist/tokens.scss"] = f"{styles}/_tokens.scss"
+        if js:
+            sync["js/theme.js"] = f"{js}/theme.js"
+    css_approach = [name for name, hit in (
+        ("tailwind", "tailwindcss" in deps or any((p / f).exists() for f in ("tailwind.config.js", "tailwind.config.ts", "tailwind.config.cjs"))),
+        ("shadcn", (p / "components.json").exists() and "shadcn" in _read(p / "components.json")),
+        ("sass", "sass" in deps or any(p.glob("src/**/*.scss"))),
+        ("css-modules", any(p.glob("src/**/*.module.css")) or any(p.glob("src/**/*.module.scss"))),
+        ("styled-components/emotion", "styled-components" in deps or "@emotion/react" in deps),
+        ("vanilla-extract", "@vanilla-extract/css" in deps)) if hit]
+    dirty = None
+    if git_root(p):
+        try:
+            dirty = bool(subprocess.check_output(["git", "-C", str(p), "status", "--porcelain"], text=True).strip())
+        except Exception:  # noqa: BLE001
+            pass
+    ci = "gitlab" if (p / ".gitlab-ci.yml").exists() else "github" if (p / ".github" / "workflows").is_dir() else None
+    return {
+        "project": str(p), "stacks": stacks or ["unknown"], "package_manager": pm, "workspaces": workspaces,
+        "css": css_approach, "storybook": storybook, "ci": ci, "git_dirty": dirty,
+        "existing_design_systems": existing_ds,
+        "existing_styles": [h for h in STYLE_HINTS if (p / h).is_dir()],
+        "existing_tokens_or_themes": [h for h in TOKEN_HINTS if (p / h).exists()],
+        "recommended": {
+            "location": existing_ds[0] if existing_ds else location,
+            "sync": sync,
+            "storybook": ("compose" if storybook and storybook["framework"] not in ("html-vite", "server-webpack5") else "own"),
+            "consume": ("workspace dependency: add the design-system package to each app's dependencies "
+                        "(\"workspace:*\" with pnpm/yarn/bun, \"*\" with npm) and import its CSS" if monorepo
+                        else "sync" if sync else "link dist/ds.css directly"),
+            "ci": ci or "github",
+        },
+    }
+
+
+def cmd_detect(a):
+    info = detect_project(a.project)
+    if a.json:
+        print(json.dumps(info, indent=2))
+        return
+    r = info["recommended"]
+    print(f"# Project: {info['project']}\n")
+    print(f"- Stack: {', '.join(info['stacks'])} · package manager: {info['package_manager'] or '—'} · CSS: {', '.join(info['css']) or 'plain'}")
+    print(f"- Monorepo workspaces: {', '.join(info['workspaces']) or 'none'}")
+    print(f"- Existing styles: {', '.join(info['existing_styles']) or 'none'} · tokens/themes: {', '.join(info['existing_tokens_or_themes']) or 'none'}")
+    print(f"- Storybook: {info['storybook'] or 'none'} · CI: {info['ci'] or 'none'} · uncommitted changes: {info['git_dirty']}")
+    if info["existing_design_systems"]:
+        print(f"- Existing design system(s): {', '.join(info['existing_design_systems'])} → resume it, don't create a second one")
+    print(f"\n## Recommended plan (nothing has been written)\n")
+    print(f"- Design system folder: `{r['location']}` (self-contained; never mixed into your source folders)")
+    if r["sync"]:
+        print("- After each build, `ds.py sync` copies outputs into your app's own folders:")
+        for src, dst in r["sync"].items():
+            print(f"    {src} → {dst}")
+    print(f"- Apps consume it via: {r['consume']}")
+    print(f"- Storybook: {'compose into your existing Storybook via `refs` (your config is not edited)' if r['storybook'] == 'compose' else 'its own Storybook inside the design-system folder'}")
+    print(f"- CI: {r['ci']} ({'separate include file; your .gitlab-ci.yml is not edited' if r['ci'] == 'gitlab' else 'its own workflow file'})")
+    if "tailwind" in info["css"] or "shadcn" in info["css"]:
+        print("- Tailwind/shadcn found: extend mode — map their theme into tokens (`ds.py audit`), then emit a Tailwind adapter via /ui-styling")
+    if info["git_dirty"]:
+        print("- ⚠ Uncommitted changes: commit or stash first so every ds.py change is easy to review and revert")
+    print(f"\nNext: ds.py init {r['location']} --project {info['project']} --dry-run   (preview), then without --dry-run")
+
+
+def cmd_sync(a):
+    """Copy build outputs into the host project's conventional folders (only files ds.py owns there)."""
+    root = Path(a.dir).resolve()
+    cfg = load_cfg(root)
+    proj = (root / cfg.get("project", {}).get("root", "..")).resolve()
+    mapping = cfg.get("project", {}).get("sync") or {}
+    if not mapping:
+        print("No sync targets in ds.config.json → project.sync (run `ds.py detect` for suggestions).")
+        return
+    n = 0
+    for src, dst in mapping.items():
+        s_ = root / src
+        if not s_.exists():
+            print(f"skip {src} — not built yet (run ds.py build)", file=sys.stderr)
+            continue
+        n += bool(safe_copy(s_, proj / dst, kind="owned"))  # inside your app: once you edit it, it's yours
+    print(f"synced {n} file(s) into {proj}" + (f"; skipped {len(STATE['skipped'])}" if STATE["skipped"] else ""))
 
 
 # ---------- hooks ----------
@@ -1137,11 +1481,17 @@ def hook_stop():
 
 
 def main():
+    for flag, key in (("--dry-run", "dry_run"), ("--force-all", "force")):
+        if flag in sys.argv:
+            sys.argv.remove(flag)
+            STATE[key] = True
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("init"); p.add_argument("dir"); p.add_argument("--name"); p.add_argument("--force", action="store_true")
-    p.add_argument("--tier", choices=TIERS, default="enterprise")
-    p.add_argument("--scopes", default="product", help="comma list: product (app UI), marketing (website/landing)")
+    p.add_argument("--tier", choices=TIERS, help="default: enterprise (or the existing system's tier)")
+    p.add_argument("--scopes", help="comma list, default product: product (app UI), marketing, ai, commerce, email")
+    p.add_argument("--project", help="host project root: records stack + sync targets from `ds.py detect`")
+    p.add_argument("--adopt", action="store_true", help="allow a non-empty folder; existing files are never overwritten")
     p = sp.add_parser("audit"); p.add_argument("path")
     p = sp.add_parser("build"); p.add_argument("dir")
     p = sp.add_parser("check"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")
@@ -1149,6 +1499,8 @@ def main():
     p = sp.add_parser("plan"); p.add_argument("dir")
     p = sp.add_parser("phase"); p.add_argument("dir"); p.add_argument("phase", choices=["discover", "decide", "plan", "build", "done"])
     p = sp.add_parser("status"); p.add_argument("path", nargs="?")
+    p = sp.add_parser("detect"); p.add_argument("project", nargs="?", default="."); p.add_argument("--json", action="store_true")
+    p = sp.add_parser("sync"); p.add_argument("dir")
     p = sp.add_parser("storybook"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p.add_argument("--renderer", choices=["html", "server"], default="html",
                    help="html: client-rendered from the pages (default). server: @storybook/server, a backend renders each story")
@@ -1156,7 +1508,8 @@ def main():
     p = sp.add_parser("serve"); p.add_argument("dir"); p.add_argument("--port", type=int, default=8000)
     p = sp.add_parser("design-md"); p.add_argument("dir")
     p = sp.add_parser("package"); p.add_argument("dir")
-    p = sp.add_parser("ci"); p.add_argument("dir"); p.add_argument("--provider", choices=["github", "gitlab"], default="github")
+    p = sp.add_parser("ci"); p.add_argument("dir"); p.add_argument("--provider", choices=["github", "gitlab"],
+                                                                     help="default: gitlab if the repo has .gitlab-ci.yml, else github")
     p.add_argument("--force", action="store_true")
     sp.add_parser("hook-post-edit"); sp.add_parser("hook-stop")
     a = ap.parse_args()
@@ -1166,7 +1519,8 @@ def main():
         return hook_stop()
     {"init": cmd_init, "audit": cmd_audit, "build": cmd_build, "check": cmd_check,
      "coverage": cmd_coverage, "plan": cmd_plan, "phase": cmd_phase, "status": cmd_status,
-     "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci}[a.cmd](a)
+     "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
+     "detect": cmd_detect, "sync": cmd_sync}[a.cmd](a)
 
 
 if __name__ == "__main__":
