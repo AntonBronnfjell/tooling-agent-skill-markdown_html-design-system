@@ -2,6 +2,8 @@
 
 An agent skill that turns an AI coding assistant into a design-system team. It first decides **which** design system your product needs, then builds a **complete** one: every token, every component, every state. It also writes the documentation, a Storybook, a `DESIGN.md` contract, an npm package and a CI pipeline. Scripts and hooks check the work, so nothing is quietly skipped.
 
+The output is plain HTML, CSS and design tokens, so it works in any stack: React, Vue, Svelte or Angular, server templates in PHP, Python, Ruby, Java, .NET or Elixir, or static sites. Each stack gets its own way to view the components (see [Use it with your stack](#use-it-with-your-stack)).
+
 It works with Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf/Devin, Cline, Kiro, Roo Code, OpenCode, Amp, Goose, Junie and Continue (see [Install](#install-any-agent)).
 
 ## Why it exists
@@ -12,6 +14,20 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 |---|---|
 | **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds.py audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
 | **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **136 components**, each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+
+## Quick start
+
+```bash
+# 1. Install into every agent on this machine
+curl -fsSL https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/main/install.sh | sh -s -- --tools all
+
+# 2. In your project, ask your agent:
+#    "Build a complete design system for <your product> in ./design-system"
+
+# 3. Look at the result without touching your app
+python3 ~/.agents/skills/html-design-system/scripts/ds.py serve ./design-system      # docs site
+python3 ~/.agents/skills/html-design-system/scripts/ds.py storybook ./design-system  # then: cd design-system && npm i && npm run storybook
+```
 
 ## What it does, step by step
 
@@ -77,6 +93,25 @@ Tiers: **core** has 65 components (what every product needs), **standard** adds 
 
 `ds.py ci --provider github` deploys the Storybook to GitHub Pages on every merge. GitLab gets the equivalent through `--provider gitlab`.
 
+## Use it with your stack
+
+The system itself is stack-neutral: `dist/ds.css`, tokens, and HTML markup conventions. What changes per stack is how the components get into your app and how you view them in isolation.
+
+| Your stack | How components reach your app | How to view them in isolation |
+|---|---|---|
+| Static HTML / any site | `<link href="dist/ds.css">` + the documented markup | Docs site (`ds.py serve`) or generated Storybook (`ds.py storybook`) |
+| React, Vue, Svelte, Angular | Thin wrappers emitting the same markup and classes; layers, API conventions and test → component → story order are in `references/component-contract.md` §7 | That framework's Storybook (`@storybook/react-vite`, `vue3-vite`, …) using the same toolbar and categories |
+| Several stacks share one system | Web components (Lit or vanilla) for behavior, `ds.css` for styling, one bundle via npm or a CDN | `@storybook/web-components-vite` |
+| Laravel, Symfony (Blade, Twig) | Blade/Twig partials that emit the reference markup | Blast (Laravel), or `ds.py storybook --renderer server` with a dev-only route |
+| Django, Flask, FastAPI (templates, Jinja2) | Template partials or django-components | django-pattern-library + storybook-django, or `--renderer server` |
+| Rails (ViewComponent, Phlex, partials) | Components that emit the reference markup | Lookbook, or `view_component_storybook` → `--renderer server` |
+| Spring Boot (Thymeleaf) | Thymeleaf fragments | `--renderer server` with a `@Profile("dev")` controller |
+| ASP.NET Core (Razor, Blazor) | Razor partials or Blazor components | Blazing Story (Blazor), or `--renderer server` (Razor Pages/MVC) |
+| Phoenix, Go templates | Function components / templates | `--renderer server` |
+| Rust (Leptos, Yew, Dioxus) | WASM exposed as custom elements | Web Components Storybook |
+
+**How server mode works.** `ds.py storybook --renderer server` builds a Storybook in which every story asks a backend for its HTML (`GET <url>/<components|patterns>/<file>/<n>?variant=…&state=…`). Out of the box, `ds.py serve` answers those requests with the reference markup from the component pages, so you can use it immediately. Then you point `STORYBOOK_SERVER_URL` at your app's dev-only route, and your real templates render in the same Storybook. The theme, density, direction and motion toggles and the accessibility checks still work. The reference HTML is the contract your templates must match. Route sketches for each framework are in `references/storybook.md` §4.
+
 ## Using it
 
 After installing, just ask:
@@ -85,6 +120,8 @@ After installing, just ask:
 - "Our CSS in `./src/styles` is a mess. Turn it into a real design system, core tier, keep our teal brand."
 - "Should we adopt Carbon or Polaris for our finance admin tool? Set up the tokens and plan, but don't build yet."
 - "Finish the design system in `./design-system` and give me a Storybook and an npm package."
+- "We're a Laravel shop. Build the system, port the components to Blade, and set up a Storybook that renders our Blade partials."
+- "Our apps use React and .NET. Make the components shareable across both and document them in one place."
 
 In Claude Code you can also call it directly: `/html-design-system new enterprise`, `/html-design-system extend ./src`, `/html-design-system resume`.
 
@@ -167,7 +204,8 @@ $DS status                               # one-line state of the nearest design 
 ├── assets/
 │   ├── manifest.json            136 components · 8 categories · core/standard/enterprise tiers
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
-│                                storybook/ (main, preview, render), ci/ (GitHub Actions, GitLab CI)
+│                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
+│                                ci/ (GitHub Actions, GitLab CI)
 ├── scripts/ds.py                the CLI above + hook entry points
 ├── references/                  decision guide · tokens · component contract · per-category specs · motion ·
 │                                storybook · testing · packaging · governance · companion skills · builder brief
@@ -175,3 +213,11 @@ $DS status                               # one-line state of the nearest design 
 ├── evals/                       test prompts + fixture for evaluating the skill
 └── install.py / .sh / .ps1      cross-agent installer
 ```
+
+## Known limits
+
+- Framework Storybooks (React, Vue and others) are documented with conventions and examples, but not generated. Only the HTML system's Storybook is generated, in client or server mode.
+- The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
+- Playwright + axe tests are provided as a template (`references/testing.md`), not as a command.
+- The generated CI files are valid YAML templates but haven't been run on GitHub or GitLab.
+- Hooks are installed for Claude Code only. Other agents run `ds.py check` and `ds.py coverage` manually, as `SKILL.md` instructs.
