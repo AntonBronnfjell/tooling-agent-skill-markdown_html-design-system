@@ -1,6 +1,6 @@
 # Install html-design-system into Claude Code, Codex, Cursor, Copilot, Gemini CLI, Windsurf, Cline, Kiro, Roo, OpenCode, ...
 #   .\install.ps1 [install.py options]                    from a clone (e.g. .\install.ps1 --tools all)
-#   $env:HDS_REPO="<git-url>"; irm <raw-url>/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/main/install.ps1 | iex
 # Note: without Windows Developer Mode, symlinks fall back to copies (re-run to update).
 $ErrorActionPreference = "Stop"
 
@@ -17,7 +17,7 @@ if (-not $py) { throw "Python 3.8+ is required (the skill's scripts need it too)
 $dir = if ($PSScriptRoot) { $PSScriptRoot } else { "" }
 $tmp = $null
 if (-not $dir -or -not (Test-Path (Join-Path $dir "install.py"))) {
-  if (-not $env:HDS_REPO) { throw "Not run from a clone: set `$env:HDS_REPO to the git url of html-design-system." }
+  if (-not $env:HDS_REPO) { $env:HDS_REPO = "https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system.git" }
   $tmp = Join-Path ([IO.Path]::GetTempPath()) ("hds-" + [guid]::NewGuid())
   git clone -q --depth 1 $env:HDS_REPO $tmp 2>$null | Out-Null
   $dir = $tmp

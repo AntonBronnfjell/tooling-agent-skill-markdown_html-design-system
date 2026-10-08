@@ -20,7 +20,7 @@ Completeness is enforced by tooling, not memory: a machine-readable manifest, a 
 
 ## Install (any agent)
 
-Requires Python 3.8+ (the skill's own scripts use it too). From a clone:
+Requires Python 3.8+ (the skill's own scripts use it too). From a clone (`git clone https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system.git`):
 
 ```bash
 ./install.sh                    # macOS / Linux — auto-detects installed agents
@@ -37,7 +37,15 @@ python3 install.py --list       # see every supported agent, its path and status
 | `--uninstall` | remove everything the installer created (only its own files and hooks) |
 | `--dry-run` | preview |
 
-Remote one-liner once the repo is published: `curl -fsSL <raw-url>/install.sh | HDS_REPO=<git-url> sh -s -- --tools all` (PowerShell: `$env:HDS_REPO="<git-url>"; irm <raw-url>/install.ps1 | iex`).
+Without cloning:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/main/install.sh | sh -s -- --tools all
+```
+
+```powershell
+irm https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/main/install.ps1 | iex
+```
 
 ### Where it goes
 
