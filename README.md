@@ -4,17 +4,18 @@
 
 **An agent skill that turns your AI coding assistant into a design-system team.**
 
-Decides *which* design system your product needs, then builds a *complete* one: tokens, up to 182 components (app UI **and** landing-page sections), every state, docs, Storybook, `DESIGN.md`, npm package and CI.
+Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 306 components (app UI plus opt-in **marketing**, **AI chat**, **commerce** and **email**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project.
 
 [![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
-[![Components](https://img.shields.io/badge/components-182-2563eb)](#component-coverage-182)
+[![Components](https://img.shields.io/badge/components-306-2563eb)](#component-coverage-306)
 [![WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG_2.2_AA-15803d)](references/component-contract.md)
-[![Design tokens](https://img.shields.io/badge/tokens-DTCG-0891b2)](references/tokens.md)
+[![Design tokens](https://img.shields.io/badge/tokens-DTCG_2025.10-0891b2)](references/tokens.md)
+[![MCP](https://img.shields.io/badge/MCP-server-111827)](#agents-can-query-your-system)
 [![Storybook 10](https://img.shields.io/badge/Storybook-10-ff4785?logo=storybook&logoColor=white)](references/storybook.md)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-3776ab?logo=python&logoColor=white)](scripts/ds.py)
 [![Last commit](https://img.shields.io/github/last-commit/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/commits/main)
 
-[Quick start](#quick-start) · [How it works](#what-it-does-step-by-step) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
+[Quick start](#quick-start) · [How it works](#what-it-does-step-by-step) · [Existing projects](#safe-in-existing-projects) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
 
 </div>
 
@@ -33,7 +34,7 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 | Failure | How the skill prevents it |
 |---|---|
 | **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds.py audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
-| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **182 components** (136 for app UI, 46 for marketing sites), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **306 components** (180 for app UI, plus 46 marketing, 29 AI, 31 commerce and 20 email), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
 
 ## Quick start
 
@@ -59,7 +60,7 @@ flowchart LR
     A["🔍 Discover<br/>audit · graphify · Figma"] --> B["🧭 Decide<br/>extend · adopt · new"]
     B --> C["🎨 Tokens<br/>DTCG · themes · contrast"]
     C --> D["🗺️ Plan<br/>build queue · approval"]
-    D --> E["🧱 Build<br/>up to 182 components · subagents"]
+    D --> E["🧱 Build<br/>up to 306 components · subagents"]
     E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
     F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
     F -. "gaps found" .-> E
@@ -78,7 +79,7 @@ flowchart LR
 ```
 design-system/
 ├── ds.config.json        brief, direction, tier, motion, principles, decision records, contrast pairs
-├── tokens/               DTCG: primitive · semantic · component · themes/{dark,high-contrast} · components/*
+├── tokens/               DTCG 2025.10: primitive · semantic · component · themes/ · scopes/ · resolver.json
 ├── dist/                 tokens.css · ds.css (bundle) · tokens.json · tokens.scss (media-query mixins)
 ├── css/                  base.css (reset, focus, sr-only, reduced motion) · components/*.css · patterns/*.css
 ├── js/                   theme.js (runtime + no-flash) · lib/* shared behaviors · <component>.js (init(root))
@@ -86,31 +87,45 @@ design-system/
 ├── patterns/*.html       app shell, forms, dashboard, auth, settings, list/detail, wizard, feed, empty/error states,
 │                         + landing, pricing, about, blog, article, legal, contact, waitlist pages (marketing scope)
 ├── index.html            catalog with live coverage
-├── DESIGN.md             the one-file contract for humans and AI agents
+├── DESIGN.md             the contract in Google's DESIGN.md format (lints clean with npx @google/design.md)
+├── ACCESSIBILITY.md      conformance statement template (EAA / EN 301 549, ADA Title II)
+├── llms.txt, llms/       agent-readable docs: one Markdown page per component
+├── mcp/server.py         MCP server: agents query components, tokens and rules
+├── email/src → dist/email  email templates rendered with literal token values (email scope)
 ├── .storybook/ stories/  standalone Storybook (generated from the pages)
 ├── package.json          npm exports for CSS, tokens and JS
-└── tools/ds/             vendored CLI so CI and teammates don't need the skill installed
+├── tools/ds/             vendored CLI so CI and teammates don't need the skill installed
+└── .ds-owned.json        ownership ledger: what ds.py created (it never overwrites anything else)
 ```
 
-### Component coverage (182)
+### Component coverage (306)
+
+**App UI (`product` scope, always on) — 180**
 
 | Category | Count | Examples |
 |---|---|---|
-| Foundations & primitives | 18 | box, stack, cluster, grid, container, icon, type scale, code, kbd, prose, divider, image, scroll area |
-| Actions | 17 | primary/secondary/ghost/destructive buttons, icon button, link, toggle, segmented control, split button, menu, FAB, theme toggle, copy, toolbar |
-| Forms | 32 | field wrapper, text/password/search/number inputs, checkbox, radio, switch, select, combobox, listbox, transfer list, upload, slider, date/time/range pickers, color picker, OTP, tag input, rating, rich-text shell, inline edit, composer, error summary |
-| Navigation | 17 | top nav, side nav, app rail, bottom nav, breadcrumbs, tabs, pagination, stepper, command palette, skip link, tree view, TOC, page/section headers, footer |
-| Data display | 21 | table, data table (sort/filter/select/bulk), tree table, card, post card, accordion, avatar, badge, tag, lists, timeline, carousel, media stage, stat, chart container, hover card |
-| Overlays | 9 | modal, alert dialog, drawer, bottom sheet, popover, tooltip, context menu, coachmark, lightbox |
-| Feedback | 10 | inline/global alerts, callout, toast, progress, meter, spinner, skeleton, notification center |
-| Patterns | 12 | app shell, form layout, dashboard, empty state, error pages, auth, settings, list/detail, detail page, wizard, onboarding, feed |
-| **Marketing sections** | 35 | announcement bar, marketing header, mega menu, hero (centered, split, email capture, video, product shot), logo cloud, feature grid/split, bento grid, stats band, steps, testimonials, press, trust badges, rating summary, pricing table, comparison table, CTA band, newsletter, waitlist, countdown, FAQ, blog cards, content section, team, contact, integrations, video, gallery, roadmap, changelog, app-store badges, cookie consent, locale switcher, sticky CTA, site footer |
-| **Marketing pages** | 11 | landing, pricing, legal (privacy/terms), about, blog index, blog article, contact, waitlist/coming soon, changelog, careers, customer stories |
+| Foundations & primitives | 20 | box, stack, cluster, grid, container, splitter, icon, type scale, highlight, code, kbd, prose, divider, image, scroll area |
+| Actions | 19 | primary/secondary/ghost/destructive buttons, icon button, link, toggle, segmented control, split button, menu, overflow menu, selection action bar, FAB, theme toggle, copy, toolbar |
+| Forms | 38 | field wrapper, text/password/search/number inputs, input mask, date field (memorable date), checkbox, radio, choice cards, switch, select, combobox, listbox, tree select, transfer list, upload, slider, date/time/range pickers, color picker, OTP, tag input, rating, attribute editor, code editor, rich-text shell, inline edit, composer, error summary |
+| Navigation | 19 | top nav, side nav, app rail, app switcher, menubar, bottom nav, breadcrumbs, tabs, pagination, stepper, command palette, skip link, tree view, TOC, page/section headers, footer |
+| Data display | 32 | table, data table, tree table, card, card collection, post card, sortable list, board, accordion, avatar, badge, tag, lists, comment thread, timeline, carousel, media stage, stat, formatters, QR code, chart container, legend, tooltip, axis, sparkline |
+| Overlays | 12 | modal, alert dialog, drawer, side panel, floating panel, bottom sheet, popover, tooltip, toggletip, context menu, coachmark, lightbox |
+| Feedback | 11 | alerts, callout, toast, progress, meter, spinner, skeleton, result panel, notification center |
+| Patterns | 29 | app shell, form layout, dashboard, empty/error pages, auth, settings, list/detail, wizard, onboarding, feed, start page, question page, check answers, confirmation, task list, step-by-step, service unavailable, session timeout, exit quickly, address/name/phone/card entry, unsaved changes, create resource, delete with confirmation, saved filters |
+
+**Opt-in scopes — 126**
+
+| Scope | Count | Examples |
+|---|---|---|
+| `marketing` | 46 | hero (7 variants), marketing header, mega menu, logo cloud, feature grid/split, bento, stats, testimonials, pricing table, comparison table, FAQ, CTA band, newsletter, cookie consent, site footer · landing, pricing, legal, about, blog, article, contact, waitlist, changelog, careers, customer stories pages |
+| `ai` | 29 | conversation, chat message, streaming response, reasoning, task steps, tool-call card, approval card, sources and citations, prompt input with model picker, suggestions, message actions, feedback, AI label and disclaimer, artifact panel, conversation history, context meter, MCP App widget shell · chat app, copilot panel, agent run pages |
+| `commerce` | 31 | product card and gallery, price, variant picker, quantity stepper, stock and delivery, add to cart, mini cart, cart line, order summary, promo code, shipping and payment methods, address form, checkout steps, reviews, facets and sort · product list, product detail, cart, checkout, order confirmation, account orders pages |
+| `email` | 20 | email shell, header, hero, bulletproof button, text, image, columns, product row, receipt, social, footer with unsubscribe, OTP · verify, password reset, receipt, invite, newsletter, digest templates |
 
 > [!TIP]
-> **Tiers:** **core** has 65 components (what every product needs), **standard** adds 44 for a typical product suite, and **enterprise** adds the last 27. Ask for "complete" and you get enterprise.
+> **Tiers:** across app UI, **core** has 67 components (what every product needs), **standard** adds 71 and **enterprise** adds 42. Ask for "complete" and you get enterprise.
 >
-> **Scopes:** app UI (`product`) is always on. Add `marketing` when there's a public website (`ds.py init --scopes product,marketing`). That adds 46 sections and pages (16 core, 20 standard, 10 enterprise), with landing-page rules for LCP performance, SEO metadata and structured data, honest consent, and a single `<h1>`.
+> **Scopes:** add them with `ds.py init --scopes product,marketing,ai,commerce,email` (any subset). Each brings its own specs and rules: landing-page performance, SEO and honest consent for `marketing`; streaming accessibility, AI labelling and human-in-the-loop approvals for `ai`; Baymard checkout rules for `commerce`; table layouts, dark-mode quirks and client checks for `email`.
 
 ### What "done" means for each component
 
@@ -119,6 +134,34 @@ design-system/
 - Native HTML first: `<dialog>`, the `popover` attribute, `<details>` and native inputs. JS is added only where the platform falls short, and follows the WAI-ARIA keyboard patterns.
 - Accessibility to WCAG 2.2 AA. Every page documents the roles, keyboard table, focus management and screen-reader announcements.
 - A framework version, when you ask for React/Vue/Svelte/Angular/Web Components. It renders the same markup, follows the component layers and API conventions, and is built test → component → story.
+
+## Safe in existing projects
+
+Point it at a project that already has code and it adapts instead of taking over:
+
+```bash
+ds.py detect .                                          # reads the stack, monorepo, styles, Storybook, CI — writes nothing
+ds.py init design-system --project . --dry-run          # shows every file it would create
+ds.py init design-system --project .                    # then for real
+```
+
+- **Detects the stack:** Laravel, Symfony, WordPress, Django, Flask/FastAPI, Rails, Phoenix, ASP.NET, Spring, Go, Next, Nuxt, Astro, SvelteKit, Angular, Vite (React/Vue/Svelte), Hugo and Jekyll, plus monorepo workspaces (npm, yarn, pnpm, bun). It reports existing Tailwind/shadcn/Sass setups, token or theme files, Storybook and CI.
+- **One self-contained folder** at a location that fits the project (`packages/design-system` in a monorepo, `resources/design-system` in Laravel, …), never inside your source folders. An occupied folder is refused unless you pass `--adopt`.
+- **Never overwrites your files.** An ownership ledger (`.ds-owned.json`) records what `ds.py` created. Anything else, or anything you edited afterwards, is kept; the only override is `--force-all`. Every command accepts `--dry-run`.
+- **Doesn't edit project files.** For your `package.json`, `.gitignore`, `.gitlab-ci.yml` or an existing `.storybook/`, it prints the exact snippet to merge instead: workspace dependency, GitLab `include:`, Storybook `refs`.
+- **Plugs into your conventions.** `ds.py sync` copies the built CSS, tokens and `theme.js` into the folders your framework expects (`resources/css`, `static/`, `wwwroot/css`, `src/styles`, …), automatically after each build.
+
+## Agents can query your system
+
+Every system it builds is readable by other AI tools, not just people:
+
+- **`DESIGN.md`** follows Google's [DESIGN.md format](https://github.com/google-labs-code/design.md). The token front matter plus ordered sections lint clean with `npx @google/design.md lint`.
+- **`ds.py llms`** writes `llms.txt`, `llms-full.txt` and one Markdown page per component (usage, anatomy, every state as HTML, accessibility, tokens).
+- **`ds.py mcp`** generates an MCP server with no dependencies. Claude, Cursor, VS Code, Codex or any MCP client can list and search components, read their docs, and fetch tokens per theme:
+
+  ```bash
+  claude mcp add design-system -- python3 design-system/mcp/server.py
+  ```
 
 ## See it independently of your app
 
@@ -254,8 +297,11 @@ When these skills are installed, it uses them. All are optional, with fallbacks 
 
 ```bash
 DS="python3 scripts/ds.py"
+$DS detect .                             # read an existing project; propose location + sync targets (writes nothing)
 $DS audit ./src                          # inventory an existing codebase's de-facto design system
-$DS init ./design-system --name Acme --tier enterprise
+$DS init ./design-system --name Acme --tier enterprise --scopes product,marketing --project .
+$DS sync ./design-system                 # copy outputs into the app's own folders (also runs after build)
+$DS migrate-colors ./design-system       # legacy hex tokens → DTCG 2025.10 color objects
 $DS build ./design-system                # tokens.css/json/scss, ds.css bundle, index.html
 $DS check ./design-system --strict       # token validity, contrast in every theme, lint, coverage
 $DS coverage ./design-system             # per component: which demos/doc sections/CSS are missing
@@ -263,10 +309,14 @@ $DS plan ./design-system                 # ordered build queue grouped by file
 $DS phase ./design-system build          # discover | decide | plan | build | done (drives the Stop gate)
 $DS serve ./design-system                # preview at http://127.0.0.1:8000
 $DS storybook ./design-system            # generate the standalone Storybook (--renderer server for backend templates)
-$DS design-md ./design-system            # write DESIGN.md
+$DS design-md ./design-system            # DESIGN.md (Google format) + ACCESSIBILITY.md
+$DS llms ./design-system                 # llms.txt + Markdown per component + dist/ds-index.json
+$DS mcp ./design-system                  # MCP server for agents
+$DS email ./design-system                # render + check email templates (email scope)
 $DS package ./design-system              # npm-ready package.json
 $DS ci ./design-system --provider github # pipeline + vendored tools
 $DS status                               # one-line state of the nearest design system
+# global: --dry-run (preview every write) · --force-all (overwrite even files you edited)
 ```
 
 </details>
@@ -280,13 +330,14 @@ $DS status                               # one-line state of the nearest design 
 ./  (repo root = skill root)
 ├── SKILL.md                     the workflow the agent follows, plus scoped Claude Code hooks
 ├── assets/
-│   ├── manifest.json            182 components · 10 categories · 3 tiers · product/marketing scopes
+│   ├── manifest.json            306 components · 16 categories · 3 tiers · 5 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
-│                                ci/ (GitHub Actions, GitLab CI)
+│                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai tokens, email starter), mcp_server.py
 ├── scripts/ds.py                the CLI above + hook entry points
 ├── references/                  decision guide · tokens · component contract · per-category specs · motion ·
-│                                storybook · testing · packaging · governance · companion skills · builder brief
+│                                css-architecture · conventions · performance · storybook · testing · packaging ·
+│                                governance · email-build · companion skills · builder brief
 ├── hooks/settings.example.json  manual Claude hook snippet (install.py --claude-hooks does this for you)
 ├── evals/                       test prompts + fixture for evaluating the skill
 └── install.py / .sh / .ps1      cross-agent installer
@@ -301,6 +352,8 @@ $DS status                               # one-line state of the nearest design 
 > - The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
 > - Playwright + axe tests are provided as a template (`references/testing.md`), not as a command.
 > - The generated CI files are valid YAML templates but haven't been run on GitHub or GitLab.
+> - Scope content (AI, commerce, email, new product components) is researched and specified, with a spec for every component, but no reference implementation has been built yet. `ds.py email` ships one starter template.
+> - Stack detection uses file conventions (e.g. `artisan`, `manage.py`, `angular.json`). Unusual layouts may need the `project.sync` targets in `ds.config.json` adjusted by hand.
 > - Hooks are installed for Claude Code only. Other agents run `ds.py check` and `ds.py coverage` manually, as `SKILL.md` instructs.
 
 <div align="right"><a href="#html-design-system">↑ Back to top</a></div>

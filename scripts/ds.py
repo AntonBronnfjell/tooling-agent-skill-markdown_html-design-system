@@ -578,6 +578,8 @@ HTML_RULES = [
     (re.compile(r"<button(?![^>]*\btype=)[^>]*>", re.I), "button without explicit type"),
     (re.compile(r"<a(?![^>]*\bhref=)[^>]*>", re.I), "<a> without href — use <button> for actions"),
     (re.compile(r"user-scalable\s*=\s*no|maximum-scale\s*=\s*1", re.I), "zoom disabled in viewport meta"),
+    (re.compile(r"on\w+=\"[^\"]*\.(showModal|show|close|showPopover|hidePopover|togglePopover)\(", re.I),
+     "inline JS opening/closing a dialog or popover — use invoker commands: commandfor=\"id\" command=\"show-modal|close|toggle-popover\""),
 ]
 ICON_BTN = re.compile(r"<button(?![^>]*aria-label)[^>]*>\s*<svg[^>]*>.*?</svg>\s*</button>", re.I | re.S)
 
@@ -601,6 +603,11 @@ def lint_file(path):
                     issues.append(f"{path.name}:{i}: {msg}")
         if ":focus" in text and ":focus-visible" not in text:
             issues.append(f"{path.name}: uses :focus without :focus-visible")
+        base_css = next((pp / "css" / "base.css" for pp in path.parents if (pp / "ds.config.json").exists()), None)
+        layered = base_css is not None and "@layer" in _read(base_css)
+        want = "patterns" if "patterns" in path.parts else "components"
+        if layered and path.parent.name in ("components", "patterns") and not re.search(rf"@layer\s+{want}\b", text):
+            issues.append(f"{path.name}: wrap rules in `@layer {want} {{ … }}` (cascade layers; see references/css-architecture.md)")
     elif path.suffix == ".html":
         for rx, msg in HTML_RULES:
             for m in rx.finditer(text):
@@ -760,7 +767,11 @@ def cmd_build(a):
     out, _, _ = build_tokens(root)
     parts = [out, root / "css" / "base.css"]
     parts += sorted((root / "css" / "components").glob("*.css")) + sorted((root / "css" / "patterns").glob("*.css"))
-    bundle = "\n".join(f"/* ---- {p.relative_to(root)} ---- */\n{p.read_text()}" for p in parts if p.exists())
+    def section(p_):
+        body = p_.read_text()
+        return f"@layer tokens {{\n{body}\n}}" if p_ == out else body   # tokens are layered so app CSS can override them
+    bundle = "@layer reset, tokens, base, components, patterns, utilities;\n\n" + "\n".join(
+        f"/* ---- {p_.relative_to(root)} ---- */\n{section(p_)}" for p_ in parts if p_.exists())
     safe_write(root / "dist" / "ds.css", bundle)
     write_index(root, cfg)
     if cfg.get("project", {}).get("sync"):
@@ -1712,7 +1723,8 @@ def cmd_sync(a):
             print(f"skip {src} — not built yet (run ds.py build)", file=sys.stderr)
             continue
         n += bool(safe_copy(s_, proj / dst, kind="owned"))  # inside your app: once you edit it, it's yours
-    print(f"synced {n} file(s) into {proj}" + (f"; skipped {len(STATE['skipped'])}" if STATE["skipped"] else ""))
+    skipped = f"; kept {len(STATE['skipped'])} file(s) you edited" if STATE["skipped"] else ""
+    print((f"synced {n} file(s) into {proj}" if n else f"project copies up to date ({proj})") + skipped)
 
 
 # ---------- email ----------

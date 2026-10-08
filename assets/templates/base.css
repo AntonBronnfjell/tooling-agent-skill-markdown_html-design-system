@@ -1,79 +1,91 @@
 /* base.css — reset + global accessibility baseline. Loaded after dist/tokens.css.
-   Utilities here may use !important (they must win); component CSS may not. */
+   Cascade layers (order declared at the top of dist/ds.css): reset, tokens, base, components, patterns, utilities.
+   Component CSS goes in `@layer components { … }`, pattern CSS in `@layer patterns { … }` — so specificity
+   never decides between layers and component CSS never needs !important. App CSS that isn't layered
+   overrides the whole system, which is what consuming apps expect.
+   The few !important declarations below are accessibility guarantees (hidden, sr-only, reduced motion)
+   that must win even over unlayered app CSS. */
 
-*, *::before, *::after { box-sizing: border-box; }
-* { margin: 0; }
+/* Shared fallbacks for anchor-positioned surfaces (menus, popovers, tooltips, toggletips).
+   Usage: position-try-fallbacks: --flip-block, --flip-inline; */
+@position-try --flip-block { position-area: block-start; }
+@position-try --flip-inline { position-area: inline-start; }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  hanging-punctuation: first last;
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; hanging-punctuation: first last; }
+  img, picture, video, canvas, svg { display: block; max-width: 100%; }
+  input, button, textarea, select { font: inherit; color: inherit; }
+  p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
 }
 
-body {
-  min-height: 100dvh;
-  background: var(--color-bg-canvas);
-  color: var(--color-text-default);
-  font-family: var(--typography-body-font-family);
-  font-size: var(--typography-body-font-size);
-  line-height: var(--typography-body-line-height);
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  html { interpolate-size: allow-keywords; }
+  body {
+    min-height: 100dvh;
+    background: var(--color-bg-canvas);
+    color: var(--color-text-default);
+    font-family: var(--typography-body-font-family);
+    font-size: var(--typography-body-font-size);
+    line-height: var(--typography-body-line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  /* One focus treatment for the whole system. Components may refine, never remove. */
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  /* Windows High Contrast / forced colors: keep boundaries visible. */
+  @media (forced-colors: active) {
+    :focus-visible { outline-color: Highlight; }
+  }
 }
 
-img, picture, video, canvas, svg { display: block; max-width: 100%; }
-input, button, textarea, select { font: inherit; color: inherit; }
-p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
-h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
-p { text-wrap: pretty; }
-[hidden] { display: none !important; }
+@layer utilities {
+  [hidden] { display: none !important; }
 
-/* One focus treatment for the whole system. Components may refine, never remove. */
-:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
+  /* Visually hidden but available to assistive tech. */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  .sr-only--focusable:focus-visible,
+  .sr-only--focusable:active {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip-path: none !important;
+    white-space: normal !important;
+  }
 
-/* Visually hidden but available to assistive tech. */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-.sr-only--focusable:focus-visible,
-.sr-only--focusable:active {
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-  overflow: visible !important;
-  clip-path: none !important;
-  white-space: normal !important;
-}
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  /* Explicit reduced-motion switch (docs toggle, Storybook global, user setting). Mirrors the media query. */
+  [data-reduced-motion], [data-reduced-motion] *, [data-reduced-motion] *::before, [data-reduced-motion] *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* Windows High Contrast / forced colors: keep boundaries visible. */
-@media (forced-colors: active) {
-  :focus-visible { outline-color: Highlight; }
-}
-
-/* Explicit reduced-motion switch (docs toggle, Storybook global, user setting). Mirrors the media query. */
-[data-reduced-motion], [data-reduced-motion] *, [data-reduced-motion] *::before, [data-reduced-motion] *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
 }

@@ -34,8 +34,11 @@ Per component: `Name.test.tsx` next to the component, Testing Library + `jest-ax
 - Shared setup shims for jsdom: `matchMedia`, `ResizeObserver`, `IntersectionObserver`, `HTMLDialogElement.showModal`, `offsetParent`; mock animation libraries so animations resolve instantly.
 - Order of work per component: test → component → story. The test encodes the contract from `component-contract.md`; the story documents it.
 
-## 4. Visual regression (optional)
+## 4. Performance budgets
+Interaction to Next Paint (INP) ≤ 200 ms on mid-range mobile, no long tasks (> 50 ms) in `js/` modules, `content-visibility: auto` for long lists and docs pages, metric-matched font fallbacks. Measurement recipes (Playwright traces, Lighthouse CI): `references/performance.md`.
+
+## 5. Visual regression (optional)
 Chromatic, Playwright `toHaveScreenshot()`, or Storybook's visual tests across themes and viewports. Gate only on reviewed baselines; skip shimmer/animated stories or force reduced motion.
 
-## 5. What CI runs (`ds.py ci` generates the first two)
+## 6. What CI runs (`ds.py ci` generates the first two)
 1. `ds.py check . --strict` 2. Storybook build (+ Vitest a11y if configured) 3. Playwright/axe or unit tests 4. publish.

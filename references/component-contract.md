@@ -45,6 +45,8 @@ Sizes: if the manifest lists `size:*`, sizes must align to `--size-control-*` so
 
 ## 3. CSS rules (the PostToolUse hook lints these)
 
+- **Cascade layers:** component CSS lives in `@layer components { … }`, pattern CSS in `@layer patterns { … }`. The bundle declares `@layer reset, tokens, base, components, patterns, utilities;`, so layer order — not specificity — decides conflicts, and app CSS (unlayered) overrides the system without `!important`. Details, `@scope`, and the progressive-enhancement matrix: `references/css-architecture.md`.
+
 - Only `var(--…)` for color, space, radius, shadow, z-index, duration/easing. Fallbacks inside `var()` are allowed.
 - No `!important`, no IDs in selectors, specificity ≤ one class + one pseudo/attribute where possible. Use `:where()` to keep defaults overridable.
 - Logical properties only (`padding-inline`, `margin-block-start`, `inset-inline-end`) — RTL for free.
@@ -61,8 +63,8 @@ Reach for the platform before writing JS (this is where `/ponytail` thinking pay
 
 | Need | Native first | JS only for |
 |---|---|---|
-| Modal / alert dialog | `<dialog>` + `showModal()` (focus trap, Esc, inert background, top layer) | Opening, returning focus to trigger, preventing close on alert dialogs |
-| Popover, menu surface, tooltip, toast host | `popover` attribute (`auto`/`manual`/`hint`), `popovertarget`, CSS anchor positioning with a fallback | Menu roving focus & typeahead, tooltip delay |
+| Modal / alert dialog | `<dialog>` opened by an **invoker**: `<button commandfor="dlg" command="show-modal">` and `command="close"` (Baseline 2025) — focus trap, Esc, inert background, top layer, no JS | Older browsers: a 5-line fallback that wires `[commandfor]` clicks to `showModal()`; preventing close on alert dialogs |
+| Popover, menu surface, tooltip, toast host | `popover` attribute (`auto`/`manual`; `hint` where supported), `commandfor` + `command="toggle-popover"` (or `popovertarget`), **CSS anchor positioning as the primary placement** with `position-try-fallbacks: --flip-block, --flip-inline` from base.css | Menu roving focus & typeahead, tooltip delay; JS positioning only as a legacy fallback |
 | Accordion / disclosure | `<details>`/`<summary>` (`name=""` for exclusive accordions) | Nothing |
 | Select | `<select>` (and customizable select `appearance: base-select` where supported) | Combobox filtering |
 | Date / time / color / range / number | `input[type=date|time|color|range|number]` as baseline | Custom calendar grid (enterprise) |
