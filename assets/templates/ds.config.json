@@ -1,0 +1,123 @@
+{
+  "name": "Untitled",
+  "tier": "enterprise",
+  "phase": "discover",
+  "gate": "block",
+  "lang": "en",
+  "dir": "ltr",
+  "brief": {
+    "product": "",
+    "audience": "",
+    "platforms": [
+      "web"
+    ],
+    "brand_inputs": "",
+    "existing_assets": "",
+    "constraints": "",
+    "a11y_target": "WCAG 2.2 AA"
+  },
+  "direction": {
+    "mode": "",
+    "reference_system": "",
+    "style": "",
+    "palette": "",
+    "typography": "",
+    "rationale": ""
+  },
+  "targets": [
+    "html-css"
+  ],
+  "decisions": [],
+  "contrast_pairs": [
+    [
+      "color.text.default",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.default",
+      "color.bg.subtle",
+      4.5
+    ],
+    [
+      "color.text.muted",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.subtle",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.link",
+      "color.bg.canvas",
+      4.5
+    ],
+    [
+      "color.text.inverse",
+      "color.bg.inverse",
+      4.5
+    ],
+    [
+      "color.action.primary.fg",
+      "color.action.primary.bg",
+      4.5
+    ],
+    [
+      "color.action.primary.fg",
+      "color.action.primary.bg-hover",
+      4.5
+    ],
+    [
+      "color.action.secondary.fg",
+      "color.action.secondary.bg",
+      4.5
+    ],
+    [
+      "color.action.danger.fg",
+      "color.action.danger.bg",
+      4.5
+    ],
+    [
+      "color.selected.fg",
+      "color.selected.bg",
+      4.5
+    ],
+    [
+      "color.border.strong",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.border.focus",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.border.invalid",
+      "color.bg.canvas",
+      3
+    ],
+    [
+      "color.feedback.info.fg",
+      "color.feedback.info.bg",
+      4.5
+    ],
+    [
+      "color.feedback.success.fg",
+      "color.feedback.success.bg",
+      4.5
+    ],
+    [
+      "color.feedback.warning.fg",
+      "color.feedback.warning.bg",
+      4.5
+    ],
+    [
+      "color.feedback.danger.fg",
+      "color.feedback.danger.bg",
+      4.5
+    ]
+  ]
+}

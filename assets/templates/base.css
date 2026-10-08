@@ -1,0 +1,71 @@
+/* base.css — reset + global accessibility baseline. Loaded after dist/tokens.css.
+   Utilities here may use !important (they must win); component CSS may not. */
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  hanging-punctuation: first last;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--color-bg-canvas);
+  color: var(--color-text-default);
+  font-family: var(--typography-body-font-family);
+  font-size: var(--typography-body-font-size);
+  line-height: var(--typography-body-line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+p { text-wrap: pretty; }
+[hidden] { display: none !important; }
+
+/* One focus treatment for the whole system. Components may refine, never remove. */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Visually hidden but available to assistive tech. */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.sr-only--focusable:focus-visible,
+.sr-only--focusable:active {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  white-space: normal !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Windows High Contrast / forced colors: keep boundaries visible. */
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight; }
+}

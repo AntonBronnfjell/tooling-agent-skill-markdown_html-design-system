@@ -1,0 +1,83 @@
+<!doctype html>
+<!--
+  Component documentation page template. Copy to components/<file>.html (or patterns/<file>.html).
+  Contract checked by `ds.py coverage`:
+    1. One <section id="<component-id>"> per manifest component that lives in this file.
+    2. Inside it, every manifest demo marker appears as data-demo="..." (space-separate several on one element).
+       Demos must show the REAL state — e.g. state:hover is forced with a class (.is-hover) that shares the :hover rule.
+    3. Every page has data-doc="usage|anatomy|examples|accessibility|tokens" blocks.
+  Delete this comment when done.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Button — Design System</title>
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Design System</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Button</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>When to use, when not to use (and what to use instead), content guidelines (verb-first labels, sentence case).</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol><li>Container</li><li>Label</li><li>Leading icon (optional)</li><li>Trailing icon (optional)</li></ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+
+      <section id="button-primary" aria-labelledby="button-primary-h">
+        <h3 id="button-primary-h">Primary</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="variant:primary state:default">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary">Save changes</button></div>
+          </div>
+          <div class="ds-demo" data-demo="state:hover">
+            <div class="ds-demo__row"><button type="button" class="btn btn--primary is-hover">Save changes</button></div>
+          </div>
+          <!-- …one .ds-demo per remaining marker… -->
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="btn btn--primary"&gt;Save changes&lt;/button&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody><tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Activates the button</td></tr></tbody>
+      </table>
+      <p>Role, accessible name source, ARIA states, focus management, contrast notes, WAI-ARIA APG pattern link.</p>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody><tr><td><code>--button-radius</code></td><td>Corner radius</td></tr></tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "$description": "Tier 3 \u2014 per-component decisions aliasing semantic tokens. Add a group per component as you build it.",
+  "button": {
+    "radius": {
+      "$value": "{radius.md}",
+      "$type": "dimension"
+    },
+    "height": {
+      "$type": "dimension",
+      "sm": {
+        "$value": "{size.control.sm}"
+      },
+      "md": {
+        "$value": "{size.control.md}"
+      },
+      "lg": {
+        "$value": "{size.control.lg}"
+      }
+    },
+    "font-weight": {
+      "$value": "{font.weight.semibold}",
+      "$type": "fontWeight"
+    }
+  },
+  "input": {
+    "radius": {
+      "$value": "{radius.md}",
+      "$type": "dimension"
+    },
+    "border": {
+      "$value": "{color.border.strong}",
+      "$type": "color"
+    },
+    "bg": {
+      "$value": "{color.bg.surface}",
+      "$type": "color"
+    }
+  },
+  "card": {
+    "radius": {
+      "$value": "{radius.lg}",
+      "$type": "dimension"
+    },
+    "shadow": {
+      "$value": "{shadow.sm}",
+      "$type": "shadow"
+    },
+    "padding": {
+      "$value": "{space.6}",
+      "$type": "dimension"
+    }
+  },
+  "overlay": {
+    "radius": {
+      "$value": "{radius.lg}",
+      "$type": "dimension"
+    },
+    "shadow": {
+      "$value": "{shadow.xl}",
+      "$type": "shadow"
+    }
+  }
+}

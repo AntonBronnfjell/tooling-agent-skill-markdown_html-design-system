@@ -1,0 +1,196 @@
+{
+  "$description": "Dark theme: overrides semantic tokens only.",
+  "color": {
+    "$type": "color",
+    "bg": {
+      "canvas": {
+        "$value": "{color.gray.950}"
+      },
+      "surface": {
+        "$value": "{color.gray.900}"
+      },
+      "subtle": {
+        "$value": "{color.gray.800}"
+      },
+      "muted": {
+        "$value": "{color.gray.800}"
+      },
+      "raised": {
+        "$value": "{color.gray.800}"
+      },
+      "inverse": {
+        "$value": "{color.gray.50}"
+      },
+      "overlay": {
+        "$value": "{color.alpha.scrim-dark}"
+      }
+    },
+    "text": {
+      "default": {
+        "$value": "{color.gray.50}"
+      },
+      "muted": {
+        "$value": "{color.gray.300}"
+      },
+      "subtle": {
+        "$value": "{color.gray.400}"
+      },
+      "disabled": {
+        "$value": "{color.gray.600}"
+      },
+      "inverse": {
+        "$value": "{color.gray.900}"
+      },
+      "link": {
+        "$value": "{color.blue.300}"
+      },
+      "link-visited": {
+        "$value": "{color.blue.200}"
+      }
+    },
+    "border": {
+      "subtle": {
+        "$value": "{color.gray.800}"
+      },
+      "default": {
+        "$value": "{color.gray.700}"
+      },
+      "strong": {
+        "$value": "{color.gray.500}"
+      },
+      "focus": {
+        "$value": "{color.blue.400}"
+      },
+      "invalid": {
+        "$value": "{color.red.400}"
+      }
+    },
+    "action": {
+      "primary": {
+        "bg": {
+          "$value": "{color.blue.500}"
+        },
+        "bg-hover": {
+          "$value": "{color.blue.400}"
+        },
+        "bg-active": {
+          "$value": "{color.blue.300}"
+        },
+        "fg": {
+          "$value": "{color.gray.950}"
+        }
+      },
+      "secondary": {
+        "bg": {
+          "$value": "{color.gray.900}"
+        },
+        "bg-hover": {
+          "$value": "{color.gray.800}"
+        },
+        "bg-active": {
+          "$value": "{color.gray.700}"
+        },
+        "fg": {
+          "$value": "{color.gray.50}"
+        },
+        "border": {
+          "$value": "{color.gray.600}"
+        }
+      },
+      "ghost": {
+        "bg-hover": {
+          "$value": "{color.gray.800}"
+        },
+        "bg-active": {
+          "$value": "{color.gray.700}"
+        },
+        "fg": {
+          "$value": "{color.gray.50}"
+        }
+      },
+      "danger": {
+        "bg": {
+          "$value": "{color.red.500}"
+        },
+        "bg-hover": {
+          "$value": "{color.red.400}"
+        },
+        "bg-active": {
+          "$value": "{color.red.200}"
+        },
+        "fg": {
+          "$value": "{color.gray.950}"
+        }
+      }
+    },
+    "selected": {
+      "bg": {
+        "$value": "{color.blue.900}"
+      },
+      "fg": {
+        "$value": "{color.blue.100}"
+      },
+      "border": {
+        "$value": "{color.blue.400}"
+      }
+    },
+    "feedback": {
+      "info": {
+        "bg": {
+          "$value": "{color.blue.900}"
+        },
+        "fg": {
+          "$value": "{color.blue.100}"
+        },
+        "border": {
+          "$value": "{color.blue.700}"
+        },
+        "icon": {
+          "$value": "{color.blue.400}"
+        }
+      },
+      "success": {
+        "bg": {
+          "$value": "{color.green.900}"
+        },
+        "fg": {
+          "$value": "{color.green.100}"
+        },
+        "border": {
+          "$value": "{color.green.700}"
+        },
+        "icon": {
+          "$value": "{color.green.400}"
+        }
+      },
+      "warning": {
+        "bg": {
+          "$value": "{color.amber.900}"
+        },
+        "fg": {
+          "$value": "{color.amber.100}"
+        },
+        "border": {
+          "$value": "{color.amber.700}"
+        },
+        "icon": {
+          "$value": "{color.amber.400}"
+        }
+      },
+      "danger": {
+        "bg": {
+          "$value": "{color.red.900}"
+        },
+        "fg": {
+          "$value": "{color.red.100}"
+        },
+        "border": {
+          "$value": "{color.red.700}"
+        },
+        "icon": {
+          "$value": "{color.red.400}"
+        }
+      }
+    }
+  }
+}

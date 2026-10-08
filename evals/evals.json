@@ -1,0 +1,23 @@
+{
+  "skill_name": "html-design-system",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "our logistics app has grown messy — the css is in evals/files/legacy-app. turn what we have into a real design system (keep our teal brand + IBM Plex), core tier is enough for now. put it in ./design-system",
+      "expected_output": "Extend-mode system: audit of legacy CSS, tokens mapped from existing values (teal brand, IBM Plex), dark theme, ADR recorded, all core-tier components built with docs pages, ds.py check passing.",
+      "files": ["evals/files/legacy-app/styles.css", "evals/files/legacy-app/index.html"]
+    },
+    {
+      "id": 2,
+      "prompt": "We're starting a B2B fleet-maintenance SaaS (dispatchers + mechanics, desktop and tablet). No designs yet. Build us the design system from scratch — standard tier — with a distinct visual direction, light and dark mode. Output to ./design-system.",
+      "expected_output": "New-mode system: direction researched (ui-ux-pro-max or documented rationale), tokens replaced from neutral starter, standard-tier coverage complete, contrast checks pass in all themes, docs index generated.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Internal admin tool for our finance team, Tailwind codebase, no design system. Should we adopt something like Carbon or Polaris or roll our own? Give me a recommendation and set up the foundations (tokens + plan) but don't build the components yet.",
+      "expected_output": "Decision-focused: compares reference systems, recommends one with rationale + ADR in ds.config.json, initialized design-system with customized tokens passing check, a build plan from ds.py plan, Tailwind adapter noted as a target; phase not 'build'.",
+      "files": []
+    }
+  ]
+}

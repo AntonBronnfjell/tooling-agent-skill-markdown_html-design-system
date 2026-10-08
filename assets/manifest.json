@@ -1,0 +1,2006 @@
+{
+ "version": 1,
+ "doc_sections": [
+  "usage",
+  "anatomy",
+  "examples",
+  "accessibility",
+  "tokens"
+ ],
+ "tiers": {
+  "core": "MVP every product needs",
+  "standard": "Typical product suite",
+  "enterprise": "Complete enterprise coverage"
+ },
+ "token_groups_required": {
+  "core": [
+   "color",
+   "font",
+   "space",
+   "radius",
+   "shadow",
+   "border",
+   "motion",
+   "z",
+   "breakpoint",
+   "size",
+   "focus"
+  ],
+  "standard": [
+   "opacity",
+   "density",
+   "icon"
+  ],
+  "enterprise": [
+   "dataviz"
+  ]
+ },
+ "themes_required": {
+  "core": [
+   "light",
+   "dark"
+  ],
+  "standard": [],
+  "enterprise": [
+   "high-contrast"
+  ]
+ },
+ "categories": [
+  {
+   "id": "foundations",
+   "name": "Foundations & Primitives",
+   "components": [
+    {
+     "id": "box",
+     "name": "Box",
+     "tier": "core",
+     "file": "box",
+     "demos": [
+      "state:default"
+     ],
+     "aria": null,
+     "native": "div",
+     "desc": "Generic block container mapped to spacing/surface tokens."
+    },
+    {
+     "id": "stack",
+     "name": "Stack (vertical & horizontal)",
+     "tier": "core",
+     "file": "stack",
+     "demos": [
+      "variant:vertical",
+      "variant:horizontal",
+      "variant:gap-scale"
+     ],
+     "aria": null,
+     "native": "div + flex",
+     "desc": "One-dimensional layout with token-enforced gap."
+    },
+    {
+     "id": "cluster",
+     "name": "Cluster / Wrap",
+     "tier": "standard",
+     "file": "stack",
+     "demos": [
+      "variant:cluster"
+     ],
+     "aria": null,
+     "native": "div + flex-wrap",
+     "desc": "Inline items that wrap (tag lists, toolbars)."
+    },
+    {
+     "id": "grid",
+     "name": "Grid (container, row, column)",
+     "tier": "core",
+     "file": "grid",
+     "demos": [
+      "variant:12-col",
+      "variant:auto-fit",
+      "variant:responsive"
+     ],
+     "aria": null,
+     "native": "div + CSS grid",
+     "desc": "Two-dimensional responsive layout."
+    },
+    {
+     "id": "container",
+     "name": "Container / Page width",
+     "tier": "core",
+     "file": "grid",
+     "demos": [
+      "variant:container"
+     ],
+     "aria": null,
+     "native": "div",
+     "desc": "Max-width, centered, gutter-padded page column."
+    },
+    {
+     "id": "aspect-ratio",
+     "name": "Aspect Ratio Box",
+     "tier": "standard",
+     "file": "aspect-ratio",
+     "demos": [
+      "variant:16x9",
+      "variant:1x1",
+      "variant:4x3"
+     ],
+     "aria": null,
+     "native": "aspect-ratio CSS",
+     "desc": "Fixed proportion media container."
+    },
+    {
+     "id": "icon",
+     "name": "Icon Wrapper",
+     "tier": "core",
+     "file": "icon",
+     "demos": [
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "variant:decorative",
+      "variant:labelled"
+     ],
+     "aria": "img role",
+     "native": "svg",
+     "desc": "Scales/colors inline SVG via currentColor; decorative vs labelled."
+    },
+    {
+     "id": "headings",
+     "name": "Typography: Headings H1\u2013H6",
+     "tier": "core",
+     "file": "typography",
+     "demos": [
+      "variant:h1",
+      "variant:h2",
+      "variant:h3",
+      "variant:h4",
+      "variant:h5",
+      "variant:h6",
+      "variant:display"
+     ],
+     "aria": null,
+     "native": "h1-h6",
+     "desc": "Type scale bound to tokens; visual level decoupled from semantic level."
+    },
+    {
+     "id": "body-text",
+     "name": "Typography: Body text",
+     "tier": "core",
+     "file": "typography",
+     "demos": [
+      "variant:lead",
+      "variant:body",
+      "variant:small",
+      "variant:caption",
+      "variant:overline"
+     ],
+     "aria": null,
+     "native": "p, small",
+     "desc": "Paragraph, lead, subtext, caption."
+    },
+    {
+     "id": "code",
+     "name": "Typography: Code",
+     "tier": "core",
+     "file": "typography",
+     "demos": [
+      "variant:inline-code",
+      "variant:code-block"
+     ],
+     "aria": null,
+     "native": "code, pre",
+     "desc": "Inline snippets and multi-line blocks."
+    },
+    {
+     "id": "kbd",
+     "name": "Keyboard key (Kbd)",
+     "tier": "standard",
+     "file": "typography",
+     "demos": [
+      "variant:kbd"
+     ],
+     "aria": null,
+     "native": "kbd",
+     "desc": "Keyboard shortcut rendering."
+    },
+    {
+     "id": "blockquote",
+     "name": "Blockquote",
+     "tier": "standard",
+     "file": "typography",
+     "demos": [
+      "variant:blockquote"
+     ],
+     "aria": null,
+     "native": "blockquote + figcaption",
+     "desc": "Quoted content with attribution."
+    },
+    {
+     "id": "list",
+     "name": "Lists (ordered, unordered, unstyled)",
+     "tier": "core",
+     "file": "typography",
+     "demos": [
+      "variant:ul",
+      "variant:ol",
+      "variant:unstyled"
+     ],
+     "aria": null,
+     "native": "ul, ol",
+     "desc": "Prose lists."
+    },
+    {
+     "id": "prose",
+     "name": "Prose / Rich content wrapper",
+     "tier": "standard",
+     "file": "typography",
+     "demos": [
+      "variant:prose"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Styles arbitrary CMS/markdown HTML with readable measure."
+    },
+    {
+     "id": "divider",
+     "name": "Divider / Separator",
+     "tier": "core",
+     "file": "divider",
+     "demos": [
+      "variant:horizontal",
+      "variant:vertical",
+      "variant:with-label"
+     ],
+     "aria": "separator",
+     "native": "hr",
+     "desc": "Semantic or decorative boundary."
+    },
+    {
+     "id": "visually-hidden",
+     "name": "Visually Hidden / SR only",
+     "tier": "core",
+     "file": "visually-hidden",
+     "demos": [
+      "variant:sr-only",
+      "variant:focusable"
+     ],
+     "aria": null,
+     "native": ".sr-only",
+     "desc": "Hidden visually, available to assistive tech."
+    },
+    {
+     "id": "image",
+     "name": "Image / Figure",
+     "tier": "standard",
+     "file": "image",
+     "demos": [
+      "variant:figure",
+      "variant:rounded",
+      "state:loading",
+      "state:error"
+     ],
+     "aria": null,
+     "native": "img, figure",
+     "desc": "Responsive image with caption and fallback."
+    },
+    {
+     "id": "scroll-area",
+     "name": "Scroll Area",
+     "tier": "enterprise",
+     "file": "scroll-area",
+     "demos": [
+      "variant:vertical",
+      "variant:horizontal"
+     ],
+     "aria": null,
+     "native": "overflow + tabindex",
+     "desc": "Styled, keyboard-focusable overflow region."
+    }
+   ]
+  },
+  {
+   "id": "actions",
+   "name": "Actions & CTAs",
+   "components": [
+    {
+     "id": "button-primary",
+     "name": "Primary Button",
+     "tier": "core",
+     "file": "button",
+     "demos": [
+      "variant:primary",
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:active",
+      "state:disabled",
+      "state:loading",
+      "size:sm",
+      "size:md",
+      "size:lg"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Main call-to-action; one per view region."
+    },
+    {
+     "id": "button-secondary",
+     "name": "Secondary Button",
+     "tier": "core",
+     "file": "button",
+     "demos": [
+      "variant:secondary"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Outline/auxiliary action."
+    },
+    {
+     "id": "button-tertiary",
+     "name": "Tertiary / Ghost Button",
+     "tier": "core",
+     "file": "button",
+     "demos": [
+      "variant:ghost"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Low-emphasis, no border or fill."
+    },
+    {
+     "id": "button-destructive",
+     "name": "Destructive Button",
+     "tier": "core",
+     "file": "button",
+     "demos": [
+      "variant:destructive"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Delete/irreversible actions; pair with confirmation."
+    },
+    {
+     "id": "button-with-icon",
+     "name": "Button with leading/trailing icon",
+     "tier": "core",
+     "file": "button",
+     "demos": [
+      "variant:icon-leading",
+      "variant:icon-trailing",
+      "variant:full-width"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Icon + text composition."
+    },
+    {
+     "id": "icon-button",
+     "name": "IconButton",
+     "tier": "core",
+     "file": "icon-button",
+     "demos": [
+      "variant:square",
+      "variant:circle",
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:active",
+      "state:disabled"
+     ],
+     "aria": "button",
+     "native": "button[aria-label]",
+     "desc": "Icon-only button; requires accessible name + tooltip."
+    },
+    {
+     "id": "link",
+     "name": "Link / Anchor",
+     "tier": "core",
+     "file": "link",
+     "demos": [
+      "variant:inline",
+      "variant:standalone",
+      "variant:external",
+      "state:visited",
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:active"
+     ],
+     "aria": "link",
+     "native": "a",
+     "desc": "Navigation; never a button substitute."
+    },
+    {
+     "id": "button-group",
+     "name": "Button Group",
+     "tier": "standard",
+     "file": "button-group",
+     "demos": [
+      "variant:attached",
+      "variant:spaced"
+     ],
+     "aria": "group",
+     "native": "div[role=group]",
+     "desc": "Unified inline cluster."
+    },
+    {
+     "id": "toggle-button",
+     "name": "Toggle Button",
+     "tier": "standard",
+     "file": "toggle-button",
+     "demos": [
+      "state:pressed",
+      "state:unpressed",
+      "state:disabled"
+     ],
+     "aria": "button (aria-pressed)",
+     "native": "button[aria-pressed]",
+     "desc": "Two-state button (bold, mute)."
+    },
+    {
+     "id": "segmented-control",
+     "name": "Segmented Control",
+     "tier": "standard",
+     "file": "segmented-control",
+     "demos": [
+      "state:selected",
+      "state:focus-visible",
+      "state:disabled"
+     ],
+     "aria": "radio group",
+     "native": "fieldset + input[type=radio]",
+     "desc": "Mutually exclusive view switch."
+    },
+    {
+     "id": "split-button",
+     "name": "Split Button",
+     "tier": "standard",
+     "file": "split-button",
+     "demos": [
+      "state:default",
+      "state:open"
+     ],
+     "aria": "menu-button",
+     "native": "button + popover",
+     "desc": "Primary action plus dropdown of alternatives."
+    },
+    {
+     "id": "menu-button",
+     "name": "Menu Button / Dropdown Menu",
+     "tier": "core",
+     "file": "menu",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:with-icons",
+      "variant:with-shortcuts",
+      "variant:checkable",
+      "variant:submenu",
+      "state:disabled-item"
+     ],
+     "aria": "menu-button + menu",
+     "native": "button + [popover]",
+     "desc": "Action list anchored to trigger."
+    },
+    {
+     "id": "fab",
+     "name": "Floating Action Button",
+     "tier": "enterprise",
+     "file": "fab",
+     "demos": [
+      "variant:regular",
+      "variant:extended",
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:active",
+      "state:disabled"
+     ],
+     "aria": "button",
+     "native": "button",
+     "desc": "Viewport-pinned focal action."
+    },
+    {
+     "id": "close-button",
+     "name": "Close Button",
+     "tier": "core",
+     "file": "close-button",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:active",
+      "state:disabled"
+     ],
+     "aria": "button",
+     "native": "button[aria-label=Close]",
+     "desc": "Standard dismiss control for overlays."
+    },
+    {
+     "id": "copy-button",
+     "name": "Copy to Clipboard",
+     "tier": "standard",
+     "file": "copy-button",
+     "demos": [
+      "state:default",
+      "state:copied"
+     ],
+     "aria": "button + live region",
+     "native": "button",
+     "desc": "Copies text, announces success."
+    },
+    {
+     "id": "toolbar",
+     "name": "Toolbar",
+     "tier": "standard",
+     "file": "toolbar",
+     "demos": [
+      "variant:horizontal",
+      "variant:with-groups"
+     ],
+     "aria": "toolbar",
+     "native": "div[role=toolbar]",
+     "desc": "Grouped controls with roving tabindex."
+    }
+   ]
+  },
+  {
+   "id": "forms",
+   "name": "Form Controls & Inputs",
+   "components": [
+    {
+     "id": "label",
+     "name": "Label",
+     "tier": "core",
+     "file": "form-field",
+     "demos": [
+      "variant:label",
+      "variant:required",
+      "variant:optional"
+     ],
+     "aria": null,
+     "native": "label",
+     "desc": "Visible label tied to control."
+    },
+    {
+     "id": "form-field",
+     "name": "Form Field Wrapper",
+     "tier": "core",
+     "file": "form-field",
+     "demos": [
+      "variant:with-helper",
+      "variant:with-error",
+      "variant:with-counter",
+      "variant:horizontal"
+     ],
+     "aria": null,
+     "native": "div + label + aria-describedby",
+     "desc": "Groups label, control, helper and error."
+    },
+    {
+     "id": "fieldset",
+     "name": "Fieldset / Legend",
+     "tier": "core",
+     "file": "form-field",
+     "demos": [
+      "variant:fieldset"
+     ],
+     "aria": "group",
+     "native": "fieldset + legend",
+     "desc": "Groups related controls."
+    },
+    {
+     "id": "text-field",
+     "name": "Text Field",
+     "tier": "core",
+     "file": "text-field",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:filled",
+      "state:disabled",
+      "state:read-only",
+      "state:invalid",
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "variant:with-prefix",
+      "variant:with-suffix"
+     ],
+     "aria": null,
+     "native": "input[type=text|email|tel|url]",
+     "desc": "Single-line input."
+    },
+    {
+     "id": "input-group",
+     "name": "Input Group / Addons",
+     "tier": "standard",
+     "file": "text-field",
+     "demos": [
+      "variant:addon-start",
+      "variant:addon-end",
+      "variant:with-button"
+     ],
+     "aria": null,
+     "native": "div + input",
+     "desc": "Input with attached text/buttons."
+    },
+    {
+     "id": "textarea",
+     "name": "Textarea",
+     "tier": "core",
+     "file": "textarea",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:filled",
+      "state:disabled",
+      "state:read-only",
+      "state:invalid",
+      "variant:auto-grow",
+      "variant:with-counter"
+     ],
+     "aria": null,
+     "native": "textarea",
+     "desc": "Multi-line input."
+    },
+    {
+     "id": "password-input",
+     "name": "Password Input",
+     "tier": "core",
+     "file": "password-input",
+     "demos": [
+      "state:hidden",
+      "state:visible",
+      "state:invalid",
+      "variant:strength-meter"
+     ],
+     "aria": null,
+     "native": "input[type=password] + button",
+     "desc": "Obscured input with reveal toggle."
+    },
+    {
+     "id": "search-input",
+     "name": "Search Input",
+     "tier": "core",
+     "file": "search-input",
+     "demos": [
+      "state:empty",
+      "state:filled",
+      "state:loading",
+      "variant:with-shortcut"
+     ],
+     "aria": "search landmark",
+     "native": "search + input[type=search]",
+     "desc": "Query field with clear action."
+    },
+    {
+     "id": "number-input",
+     "name": "Number Input / Stepper",
+     "tier": "standard",
+     "file": "number-input",
+     "demos": [
+      "state:default",
+      "state:min",
+      "state:max",
+      "state:invalid",
+      "state:disabled"
+     ],
+     "aria": "spinbutton",
+     "native": "input[type=number]",
+     "desc": "Digit input with increment/decrement."
+    },
+    {
+     "id": "checkbox",
+     "name": "Checkbox",
+     "tier": "core",
+     "file": "checkbox",
+     "demos": [
+      "state:unchecked",
+      "state:checked",
+      "state:hover",
+      "state:focus-visible",
+      "state:disabled",
+      "state:invalid",
+      "state:indeterminate"
+     ],
+     "aria": "checkbox",
+     "native": "input[type=checkbox]",
+     "desc": "Binary / multi-select."
+    },
+    {
+     "id": "checkbox-group",
+     "name": "Checkbox Group",
+     "tier": "core",
+     "file": "checkbox",
+     "demos": [
+      "variant:group-vertical",
+      "variant:group-horizontal",
+      "variant:group-error"
+     ],
+     "aria": "group",
+     "native": "fieldset",
+     "desc": "Related checkboxes."
+    },
+    {
+     "id": "radio",
+     "name": "Radio",
+     "tier": "core",
+     "file": "radio",
+     "demos": [
+      "state:unchecked",
+      "state:checked",
+      "state:hover",
+      "state:focus-visible",
+      "state:disabled",
+      "state:invalid"
+     ],
+     "aria": "radio",
+     "native": "input[type=radio]",
+     "desc": "Single choice."
+    },
+    {
+     "id": "radio-group",
+     "name": "Radio Group",
+     "tier": "core",
+     "file": "radio",
+     "demos": [
+      "variant:group-vertical",
+      "variant:group-horizontal",
+      "variant:cards"
+     ],
+     "aria": "radio group",
+     "native": "fieldset",
+     "desc": "Mutually exclusive options."
+    },
+    {
+     "id": "switch",
+     "name": "Switch / Toggle",
+     "tier": "core",
+     "file": "switch",
+     "demos": [
+      "state:off",
+      "state:on",
+      "state:focus-visible",
+      "state:disabled",
+      "variant:with-label"
+     ],
+     "aria": "switch",
+     "native": "input[type=checkbox][role=switch]",
+     "desc": "Immediate binary setting."
+    },
+    {
+     "id": "select",
+     "name": "Select",
+     "tier": "core",
+     "file": "select",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:filled",
+      "state:disabled",
+      "state:read-only",
+      "state:invalid",
+      "variant:with-groups"
+     ],
+     "aria": "listbox (native)",
+     "native": "select",
+     "desc": "Native picker; prefer before custom."
+    },
+    {
+     "id": "combobox",
+     "name": "Combobox / Autocomplete",
+     "tier": "standard",
+     "file": "combobox",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "state:filtered",
+      "state:no-results",
+      "state:loading",
+      "variant:multi"
+     ],
+     "aria": "combobox",
+     "native": "input + datalist / listbox",
+     "desc": "Filterable large lists."
+    },
+    {
+     "id": "listbox",
+     "name": "Listbox / Multi-select list",
+     "tier": "enterprise",
+     "file": "listbox",
+     "demos": [
+      "variant:single",
+      "variant:multi",
+      "state:focus-visible"
+     ],
+     "aria": "listbox",
+     "native": "ul[role=listbox]",
+     "desc": "Inline selectable list."
+    },
+    {
+     "id": "transfer-list",
+     "name": "Transfer List (Dual list)",
+     "tier": "enterprise",
+     "file": "transfer-list",
+     "demos": [
+      "state:default",
+      "state:selected"
+     ],
+     "aria": "listbox",
+     "native": "two listboxes",
+     "desc": "Move items between sets."
+    },
+    {
+     "id": "file-upload",
+     "name": "File Uploader / Dropzone",
+     "tier": "standard",
+     "file": "file-upload",
+     "demos": [
+      "state:idle",
+      "state:drag-over",
+      "state:uploading",
+      "state:complete",
+      "state:error"
+     ],
+     "aria": null,
+     "native": "input[type=file]",
+     "desc": "Drag-and-drop or click upload with progress."
+    },
+    {
+     "id": "slider",
+     "name": "Slider / Range",
+     "tier": "standard",
+     "file": "slider",
+     "demos": [
+      "state:default",
+      "state:focus-visible",
+      "state:disabled",
+      "variant:range",
+      "variant:with-ticks"
+     ],
+     "aria": "slider / slider-multithumb",
+     "native": "input[type=range]",
+     "desc": "Thumb track control."
+    },
+    {
+     "id": "date-picker",
+     "name": "Date Picker",
+     "tier": "standard",
+     "file": "date-picker",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "state:today",
+      "state:selected",
+      "state:disabled-date",
+      "state:invalid"
+     ],
+     "aria": "dialog + grid",
+     "native": "input[type=date]",
+     "desc": "Calendar dropdown; native fallback."
+    },
+    {
+     "id": "calendar",
+     "name": "Calendar (standalone)",
+     "tier": "enterprise",
+     "file": "date-picker",
+     "demos": [
+      "variant:month",
+      "variant:range-selected"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Month grid outside an input."
+    },
+    {
+     "id": "time-picker",
+     "name": "Time Picker",
+     "tier": "standard",
+     "file": "time-picker",
+     "demos": [
+      "state:default",
+      "state:open",
+      "variant:12h",
+      "variant:24h"
+     ],
+     "aria": "listbox/spinbutton",
+     "native": "input[type=time]",
+     "desc": "Hour/minute selection."
+    },
+    {
+     "id": "date-range-picker",
+     "name": "Date-Time Range Picker",
+     "tier": "enterprise",
+     "file": "date-picker",
+     "demos": [
+      "variant:range",
+      "variant:presets"
+     ],
+     "aria": "dialog + grid",
+     "native": "two inputs",
+     "desc": "Start/end bounds with presets."
+    },
+    {
+     "id": "color-picker",
+     "name": "Color Picker",
+     "tier": "enterprise",
+     "file": "color-picker",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:swatches",
+      "variant:hex-input"
+     ],
+     "aria": "dialog",
+     "native": "input[type=color]",
+     "desc": "Swatch grid + hex entry."
+    },
+    {
+     "id": "otp-input",
+     "name": "PIN / OTP Input",
+     "tier": "standard",
+     "file": "otp-input",
+     "demos": [
+      "state:empty",
+      "state:partial",
+      "state:complete",
+      "state:invalid"
+     ],
+     "aria": "group",
+     "native": "input[autocomplete=one-time-code]",
+     "desc": "Partitioned code entry; paste-friendly."
+    },
+    {
+     "id": "tag-input",
+     "name": "Tag / Token Input",
+     "tier": "enterprise",
+     "file": "tag-input",
+     "demos": [
+      "state:empty",
+      "state:with-tags",
+      "state:focus-visible",
+      "state:invalid"
+     ],
+     "aria": "combobox",
+     "native": "input + chips",
+     "desc": "Converts entries into removable chips."
+    },
+    {
+     "id": "rating",
+     "name": "Rating",
+     "tier": "enterprise",
+     "file": "rating",
+     "demos": [
+      "state:empty",
+      "state:partial",
+      "state:readonly",
+      "state:focus-visible"
+     ],
+     "aria": "radio group",
+     "native": "fieldset + radios",
+     "desc": "Star/score input."
+    },
+    {
+     "id": "rich-text-editor",
+     "name": "Rich Text Editor (WYSIWYG)",
+     "tier": "enterprise",
+     "file": "rich-text-editor",
+     "demos": [
+      "state:default",
+      "state:focus-visible",
+      "variant:toolbar",
+      "state:disabled"
+     ],
+     "aria": "toolbar + textbox",
+     "native": "div[contenteditable]",
+     "desc": "Formatting canvas; shell + toolbar spec."
+    },
+    {
+     "id": "inline-edit",
+     "name": "Inline Edit",
+     "tier": "enterprise",
+     "file": "inline-edit",
+     "demos": [
+      "state:read",
+      "state:editing",
+      "state:saving",
+      "state:error"
+     ],
+     "aria": null,
+     "native": "button -> input",
+     "desc": "Click-to-edit value."
+    },
+    {
+     "id": "error-summary",
+     "name": "Error Summary",
+     "tier": "standard",
+     "file": "error-summary",
+     "demos": [
+      "state:with-errors"
+     ],
+     "aria": "alert",
+     "native": "div[role=alert] + links",
+     "desc": "Form-level list of errors linking to fields."
+    }
+   ]
+  },
+  {
+   "id": "navigation",
+   "name": "Navigation & Orientation",
+   "components": [
+    {
+     "id": "top-nav",
+     "name": "Global Navigation Bar",
+     "tier": "core",
+     "file": "top-nav",
+     "demos": [
+      "state:default",
+      "variant:mobile-collapsed",
+      "variant:mobile-open",
+      "state:current"
+     ],
+     "aria": "landmarks (banner/navigation)",
+     "native": "header + nav",
+     "desc": "App header: logo, nav, search, profile."
+    },
+    {
+     "id": "side-nav",
+     "name": "Sidebar Navigation",
+     "tier": "core",
+     "file": "side-nav",
+     "demos": [
+      "state:expanded",
+      "state:collapsed",
+      "variant:nested",
+      "state:current"
+     ],
+     "aria": "navigation + disclosure",
+     "native": "nav + details",
+     "desc": "Dense multi-module vertical nav."
+    },
+    {
+     "id": "app-rail",
+     "name": "App Rail",
+     "tier": "enterprise",
+     "file": "app-rail",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:current",
+      "variant:with-badges"
+     ],
+     "aria": "navigation",
+     "native": "nav",
+     "desc": "Slim top-level switcher."
+    },
+    {
+     "id": "bottom-nav",
+     "name": "Bottom Navigation (mobile)",
+     "tier": "enterprise",
+     "file": "bottom-nav",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:current"
+     ],
+     "aria": "navigation",
+     "native": "nav",
+     "desc": "Mobile primary nav, 3\u20135 items."
+    },
+    {
+     "id": "breadcrumbs",
+     "name": "Breadcrumbs",
+     "tier": "core",
+     "file": "breadcrumbs",
+     "demos": [
+      "state:default",
+      "variant:collapsed",
+      "state:current"
+     ],
+     "aria": "breadcrumb",
+     "native": "nav + ol",
+     "desc": "Hierarchy trail."
+    },
+    {
+     "id": "tabs",
+     "name": "Tabs",
+     "tier": "core",
+     "file": "tabs",
+     "demos": [
+      "state:selected",
+      "state:hover",
+      "state:focus-visible",
+      "state:disabled",
+      "variant:underline",
+      "variant:contained",
+      "variant:overflow"
+     ],
+     "aria": "tabs",
+     "native": "div[role=tablist]",
+     "desc": "Switch views within a shell."
+    },
+    {
+     "id": "pagination",
+     "name": "Pagination",
+     "tier": "core",
+     "file": "pagination",
+     "demos": [
+      "state:first",
+      "state:middle",
+      "state:last",
+      "variant:compact",
+      "variant:page-size"
+     ],
+     "aria": "navigation",
+     "native": "nav + a",
+     "desc": "Page index navigation."
+    },
+    {
+     "id": "stepper",
+     "name": "Stepper",
+     "tier": "standard",
+     "file": "stepper",
+     "demos": [
+      "state:complete",
+      "state:current",
+      "state:upcoming",
+      "state:error",
+      "variant:vertical"
+     ],
+     "aria": "list",
+     "native": "ol",
+     "desc": "Linear multi-stage progress."
+    },
+    {
+     "id": "command-palette",
+     "name": "Command Palette",
+     "tier": "enterprise",
+     "file": "command-palette",
+     "demos": [
+      "state:open",
+      "state:filtered",
+      "state:no-results",
+      "variant:grouped"
+     ],
+     "aria": "dialog + combobox",
+     "native": "dialog + input",
+     "desc": "Global keyword action search (Cmd/Ctrl+K)."
+    },
+    {
+     "id": "skip-link",
+     "name": "Skip Link",
+     "tier": "core",
+     "file": "skip-link",
+     "demos": [
+      "state:hidden",
+      "state:focus-visible"
+     ],
+     "aria": null,
+     "native": "a[href=#main]",
+     "desc": "Jump to main content."
+    },
+    {
+     "id": "tree-view",
+     "name": "Tree View",
+     "tier": "enterprise",
+     "file": "tree-view",
+     "demos": [
+      "state:expanded",
+      "state:collapsed",
+      "state:selected",
+      "state:focus-visible"
+     ],
+     "aria": "treeview",
+     "native": "ul[role=tree]",
+     "desc": "Nested explorer."
+    },
+    {
+     "id": "dot-indicator",
+     "name": "Pagination Dots",
+     "tier": "standard",
+     "file": "carousel",
+     "demos": [
+      "state:current"
+     ],
+     "aria": "tabs",
+     "native": "button",
+     "desc": "Carousel position indicator."
+    },
+    {
+     "id": "back-to-top",
+     "name": "Back to Top",
+     "tier": "standard",
+     "file": "back-to-top",
+     "demos": [
+      "state:hidden",
+      "state:visible"
+     ],
+     "aria": null,
+     "native": "a[href=#top]",
+     "desc": "Scrolls to page start."
+    },
+    {
+     "id": "toc",
+     "name": "Table of Contents / In-page nav",
+     "tier": "standard",
+     "file": "toc",
+     "demos": [
+      "state:current"
+     ],
+     "aria": "navigation",
+     "native": "nav + ol",
+     "desc": "Section anchors with scroll-spy."
+    },
+    {
+     "id": "page-header",
+     "name": "Page Header",
+     "tier": "core",
+     "file": "page-header",
+     "demos": [
+      "variant:title-only",
+      "variant:with-actions",
+      "variant:with-breadcrumbs",
+      "variant:with-tabs"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Title, meta, actions for a page."
+    },
+    {
+     "id": "footer",
+     "name": "Footer",
+     "tier": "standard",
+     "file": "footer",
+     "demos": [
+      "variant:simple",
+      "variant:columns"
+     ],
+     "aria": "contentinfo",
+     "native": "footer",
+     "desc": "Site/app footer."
+    }
+   ]
+  },
+  {
+   "id": "data-display",
+   "name": "Data Display & Content",
+   "components": [
+    {
+     "id": "table",
+     "name": "Table (basic)",
+     "tier": "core",
+     "file": "table",
+     "demos": [
+      "variant:default",
+      "variant:striped",
+      "variant:compact",
+      "variant:with-caption"
+     ],
+     "aria": "table",
+     "native": "table",
+     "desc": "Semantic tabular data."
+    },
+    {
+     "id": "data-table",
+     "name": "Data Table",
+     "tier": "standard",
+     "file": "data-table",
+     "demos": [
+      "state:sorted",
+      "state:row-selected",
+      "state:loading",
+      "state:empty",
+      "variant:sticky-header",
+      "variant:bulk-actions",
+      "variant:filters",
+      "variant:pagination"
+     ],
+     "aria": "grid / table",
+     "native": "table",
+     "desc": "Sort, filter, select, paginate."
+    },
+    {
+     "id": "tree-table",
+     "name": "Tree Data Table",
+     "tier": "enterprise",
+     "file": "data-table",
+     "demos": [
+      "state:row-expanded",
+      "state:row-collapsed"
+     ],
+     "aria": "treegrid",
+     "native": "table[role=treegrid]",
+     "desc": "Expandable child rows."
+    },
+    {
+     "id": "card",
+     "name": "Card",
+     "tier": "core",
+     "file": "card",
+     "demos": [
+      "variant:basic",
+      "variant:media",
+      "variant:interactive",
+      "variant:with-actions",
+      "state:selected",
+      "state:hover"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Containment block."
+    },
+    {
+     "id": "accordion",
+     "name": "Accordion",
+     "tier": "core",
+     "file": "accordion",
+     "demos": [
+      "state:collapsed",
+      "state:expanded",
+      "state:focus-visible",
+      "variant:single",
+      "variant:multiple"
+     ],
+     "aria": "accordion",
+     "native": "details + summary",
+     "desc": "Collapsible sections."
+    },
+    {
+     "id": "disclosure",
+     "name": "Disclosure / Collapsible",
+     "tier": "core",
+     "file": "accordion",
+     "demos": [
+      "variant:disclosure"
+     ],
+     "aria": "disclosure",
+     "native": "details",
+     "desc": "Single show/hide."
+    },
+    {
+     "id": "avatar",
+     "name": "Avatar",
+     "tier": "core",
+     "file": "avatar",
+     "demos": [
+      "variant:image",
+      "variant:initials",
+      "variant:fallback-icon",
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "variant:with-status"
+     ],
+     "aria": null,
+     "native": "img / span",
+     "desc": "Person representation."
+    },
+    {
+     "id": "avatar-group",
+     "name": "Avatar Group",
+     "tier": "standard",
+     "file": "avatar",
+     "demos": [
+      "variant:stack",
+      "variant:overflow-count"
+     ],
+     "aria": "group",
+     "native": "div",
+     "desc": "Overlapping avatars with +N."
+    },
+    {
+     "id": "badge",
+     "name": "Badge",
+     "tier": "core",
+     "file": "badge",
+     "demos": [
+      "variant:count",
+      "variant:dot",
+      "variant:neutral",
+      "variant:info",
+      "variant:success",
+      "variant:warning",
+      "variant:danger"
+     ],
+     "aria": null,
+     "native": "span",
+     "desc": "Status or count pill."
+    },
+    {
+     "id": "tag",
+     "name": "Tag / Chip",
+     "tier": "core",
+     "file": "tag",
+     "demos": [
+      "variant:static",
+      "variant:removable",
+      "variant:selectable",
+      "state:selected",
+      "state:focus-visible"
+     ],
+     "aria": null,
+     "native": "span / button",
+     "desc": "Categorical metadata."
+    },
+    {
+     "id": "status-indicator",
+     "name": "Status Indicator",
+     "tier": "standard",
+     "file": "badge",
+     "demos": [
+      "variant:status-online",
+      "variant:status-busy",
+      "variant:status-offline"
+     ],
+     "aria": null,
+     "native": "span + text",
+     "desc": "Dot + label (never color alone)."
+    },
+    {
+     "id": "list-group",
+     "name": "List Group",
+     "tier": "core",
+     "file": "list-group",
+     "demos": [
+      "variant:simple",
+      "variant:with-meta",
+      "variant:interactive",
+      "variant:with-actions"
+     ],
+     "aria": "list",
+     "native": "ul",
+     "desc": "Multi-row list items."
+    },
+    {
+     "id": "description-list",
+     "name": "Description List",
+     "tier": "core",
+     "file": "description-list",
+     "demos": [
+      "variant:stacked",
+      "variant:horizontal"
+     ],
+     "aria": null,
+     "native": "dl",
+     "desc": "Key/value pairs."
+    },
+    {
+     "id": "timeline",
+     "name": "Timeline",
+     "tier": "standard",
+     "file": "timeline",
+     "demos": [
+      "variant:vertical",
+      "variant:with-icons",
+      "state:current"
+     ],
+     "aria": "list",
+     "native": "ol",
+     "desc": "Chronological events."
+    },
+    {
+     "id": "carousel",
+     "name": "Carousel",
+     "tier": "enterprise",
+     "file": "carousel",
+     "demos": [
+      "state:default",
+      "state:paused",
+      "variant:with-controls"
+     ],
+     "aria": "carousel",
+     "native": "section + ul",
+     "desc": "Swipeable panels; pausable, no autoplay by default."
+    },
+    {
+     "id": "stat",
+     "name": "Metric / Statistic",
+     "tier": "core",
+     "file": "stat",
+     "demos": [
+      "variant:basic",
+      "variant:with-trend-up",
+      "variant:with-trend-down",
+      "variant:with-sparkline",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "dl / div",
+     "desc": "KPI number display."
+    },
+    {
+     "id": "chart-container",
+     "name": "Chart Container & Data-viz palette",
+     "tier": "enterprise",
+     "file": "chart",
+     "demos": [
+      "variant:categorical",
+      "variant:sequential",
+      "variant:diverging",
+      "state:empty",
+      "state:loading"
+     ],
+     "aria": "img/figure",
+     "native": "figure + svg",
+     "desc": "Chart frame, legend, palette tokens."
+    },
+    {
+     "id": "hover-card",
+     "name": "Hover Card",
+     "tier": "enterprise",
+     "file": "hover-card",
+     "demos": [
+      "state:open"
+     ],
+     "aria": "dialog (non-modal)",
+     "native": "[popover]",
+     "desc": "Preview on hover/focus."
+    },
+    {
+     "id": "truncate",
+     "name": "Truncated / Expandable Text",
+     "tier": "standard",
+     "file": "truncate",
+     "demos": [
+      "variant:line-clamp",
+      "state:expanded"
+     ],
+     "aria": "disclosure",
+     "native": "button",
+     "desc": "Clamp with show more."
+    }
+   ]
+  },
+  {
+   "id": "overlays",
+   "name": "Overlays & Transient",
+   "components": [
+    {
+     "id": "modal",
+     "name": "Modal Dialog",
+     "tier": "core",
+     "file": "modal",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "variant:fullscreen-mobile",
+      "variant:scrolling-body"
+     ],
+     "aria": "dialog (modal)",
+     "native": "dialog.showModal()",
+     "desc": "Focus-trapped, high priority."
+    },
+    {
+     "id": "alert-dialog",
+     "name": "Alert / Confirm Dialog",
+     "tier": "core",
+     "file": "modal",
+     "demos": [
+      "variant:confirm-destructive"
+     ],
+     "aria": "alertdialog",
+     "native": "dialog[role=alertdialog]",
+     "desc": "Confirmation requiring a response."
+    },
+    {
+     "id": "drawer",
+     "name": "Drawer / Side Sheet",
+     "tier": "standard",
+     "file": "drawer",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:start",
+      "variant:end",
+      "variant:modal",
+      "variant:non-modal"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Slide-out panel."
+    },
+    {
+     "id": "bottom-sheet",
+     "name": "Bottom Sheet",
+     "tier": "enterprise",
+     "file": "drawer",
+     "demos": [
+      "variant:bottom"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Mobile slide-up panel."
+    },
+    {
+     "id": "popover",
+     "name": "Popover",
+     "tier": "core",
+     "file": "popover",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "variant:with-arrow",
+      "variant:placements"
+     ],
+     "aria": "dialog (non-modal)",
+     "native": "[popover] + anchor positioning",
+     "desc": "Floating, not trapped."
+    },
+    {
+     "id": "tooltip",
+     "name": "Tooltip",
+     "tier": "core",
+     "file": "tooltip",
+     "demos": [
+      "state:hidden",
+      "state:visible",
+      "variant:placements"
+     ],
+     "aria": "tooltip",
+     "native": "[popover=hint] / aria-describedby",
+     "desc": "Non-interactive hint on hover/focus."
+    },
+    {
+     "id": "context-menu",
+     "name": "Context Menu",
+     "tier": "enterprise",
+     "file": "menu",
+     "demos": [
+      "variant:context"
+     ],
+     "aria": "menu",
+     "native": "[popover]",
+     "desc": "Right-click action menu with keyboard equivalent."
+    },
+    {
+     "id": "coachmark",
+     "name": "Tour Tip / Coachmark",
+     "tier": "enterprise",
+     "file": "coachmark",
+     "demos": [
+      "state:step-1",
+      "state:last-step"
+     ],
+     "aria": "dialog (non-modal)",
+     "native": "[popover]",
+     "desc": "Multi-step onboarding hints."
+    },
+    {
+     "id": "lightbox",
+     "name": "Lightbox",
+     "tier": "enterprise",
+     "file": "lightbox",
+     "demos": [
+      "state:open"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Fullscreen media viewer."
+    }
+   ]
+  },
+  {
+   "id": "feedback",
+   "name": "Feedback & Status",
+   "components": [
+    {
+     "id": "alert",
+     "name": "Alert Banner (inline)",
+     "tier": "core",
+     "file": "alert",
+     "demos": [
+      "variant:info",
+      "variant:success",
+      "variant:warning",
+      "variant:danger",
+      "variant:dismissible",
+      "variant:with-actions"
+     ],
+     "aria": "alert / status",
+     "native": "div[role=status|alert]",
+     "desc": "Contextual message block."
+    },
+    {
+     "id": "callout",
+     "name": "Callout / Inline message",
+     "tier": "standard",
+     "file": "alert",
+     "demos": [
+      "variant:callout"
+     ],
+     "aria": null,
+     "native": "aside",
+     "desc": "Static emphasized note."
+    },
+    {
+     "id": "global-banner",
+     "name": "Global / System Banner",
+     "tier": "standard",
+     "file": "alert",
+     "demos": [
+      "variant:global"
+     ],
+     "aria": "region",
+     "native": "div",
+     "desc": "Page-wide notice above header."
+    },
+    {
+     "id": "toast",
+     "name": "Toast",
+     "tier": "core",
+     "file": "toast",
+     "demos": [
+      "variant:info",
+      "variant:success",
+      "variant:warning",
+      "variant:danger",
+      "variant:with-action",
+      "state:stacked"
+     ],
+     "aria": "status (live region)",
+     "native": "output / [popover=manual]",
+     "desc": "Transient global notice; pause on hover/focus."
+    },
+    {
+     "id": "progress-bar",
+     "name": "Progress Bar",
+     "tier": "core",
+     "file": "progress",
+     "demos": [
+      "state:determinate",
+      "state:indeterminate",
+      "state:complete",
+      "state:error"
+     ],
+     "aria": "progressbar",
+     "native": "progress",
+     "desc": "Percentage completion."
+    },
+    {
+     "id": "meter",
+     "name": "Meter / Gauge",
+     "tier": "standard",
+     "file": "progress",
+     "demos": [
+      "variant:meter-low",
+      "variant:meter-optimum",
+      "variant:meter-high"
+     ],
+     "aria": "meter",
+     "native": "meter",
+     "desc": "Measurement within a known range (not progress)."
+    },
+    {
+     "id": "spinner",
+     "name": "Spinner / Loader",
+     "tier": "core",
+     "file": "spinner",
+     "demos": [
+      "size:sm",
+      "size:md",
+      "size:lg",
+      "variant:with-label"
+     ],
+     "aria": "status",
+     "native": "div[role=status]",
+     "desc": "Indeterminate processing."
+    },
+    {
+     "id": "inline-spinner",
+     "name": "Inline Spinner",
+     "tier": "core",
+     "file": "spinner",
+     "demos": [
+      "variant:in-button"
+     ],
+     "aria": "status",
+     "native": "span",
+     "desc": "Loader inside controls."
+    },
+    {
+     "id": "skeleton",
+     "name": "Skeleton",
+     "tier": "core",
+     "file": "skeleton",
+     "demos": [
+      "variant:text",
+      "variant:avatar",
+      "variant:card",
+      "variant:table"
+     ],
+     "aria": null,
+     "native": "div[aria-hidden]",
+     "desc": "Placeholder geometry; respects reduced motion."
+    },
+    {
+     "id": "notification-center",
+     "name": "Notification Center",
+     "tier": "enterprise",
+     "file": "notification-center",
+     "demos": [
+      "state:unread",
+      "state:empty",
+      "state:open"
+     ],
+     "aria": "dialog + feed",
+     "native": "[popover] + ul",
+     "desc": "Inbox of notifications."
+    }
+   ]
+  },
+  {
+   "id": "patterns",
+   "name": "Layout Patterns (macro)",
+   "components": [
+    {
+     "id": "app-shell",
+     "name": "Application Shell",
+     "tier": "core",
+     "file": "app-shell",
+     "demos": [
+      "variant:sidebar",
+      "variant:top-nav-only",
+      "variant:mobile"
+     ],
+     "aria": "landmarks",
+     "native": "header/nav/main/aside/footer",
+     "desc": "Header + sidebar + canvas."
+    },
+    {
+     "id": "form-layout",
+     "name": "Form Layout",
+     "tier": "core",
+     "file": "form-layout",
+     "demos": [
+      "variant:single-column",
+      "variant:two-column",
+      "variant:sections",
+      "variant:sticky-actions",
+      "state:invalid"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Columns, groups, action placement."
+    },
+    {
+     "id": "dashboard",
+     "name": "Dashboard Grid",
+     "tier": "standard",
+     "file": "dashboard",
+     "demos": [
+      "variant:kpi-row",
+      "variant:mixed-tiles",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main + grid",
+     "desc": "Tiles of metrics, charts, tables."
+    },
+    {
+     "id": "empty-state",
+     "name": "Empty State",
+     "tier": "core",
+     "file": "empty-state",
+     "demos": [
+      "variant:first-use",
+      "variant:no-results",
+      "variant:cleared"
+     ],
+     "aria": null,
+     "native": "section",
+     "desc": "Illustration + message + one action."
+    },
+    {
+     "id": "error-page",
+     "name": "Error Pages (404/500)",
+     "tier": "core",
+     "file": "error-page",
+     "demos": [
+      "variant:404",
+      "variant:500",
+      "variant:offline",
+      "variant:403"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "System failures with recovery paths."
+    },
+    {
+     "id": "auth",
+     "name": "Authentication (sign in/up, reset)",
+     "tier": "standard",
+     "file": "auth",
+     "demos": [
+      "variant:sign-in",
+      "variant:sign-up",
+      "variant:forgot-password",
+      "state:invalid"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Credential flows."
+    },
+    {
+     "id": "settings",
+     "name": "Settings Page",
+     "tier": "standard",
+     "file": "settings",
+     "demos": [
+      "variant:sectioned",
+      "variant:with-side-nav"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Grouped preferences, save model."
+    },
+    {
+     "id": "list-detail",
+     "name": "List / Search Results + Filters",
+     "tier": "standard",
+     "file": "list-detail",
+     "demos": [
+      "variant:filter-bar",
+      "variant:faceted",
+      "state:no-results",
+      "variant:bulk-actions"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Collection browsing pattern."
+    },
+    {
+     "id": "detail-page",
+     "name": "Detail / Record Page",
+     "tier": "standard",
+     "file": "detail-page",
+     "demos": [
+      "variant:header-tabs",
+      "variant:side-panel"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Single entity view."
+    },
+    {
+     "id": "wizard",
+     "name": "Multi-step Wizard",
+     "tier": "enterprise",
+     "file": "wizard",
+     "demos": [
+      "state:step",
+      "state:review",
+      "state:complete"
+     ],
+     "aria": null,
+     "native": "form + stepper",
+     "desc": "Linear workflow with review."
+    },
+    {
+     "id": "onboarding",
+     "name": "Onboarding / First run",
+     "tier": "enterprise",
+     "file": "onboarding",
+     "demos": [
+      "variant:checklist",
+      "variant:welcome"
+     ],
+     "aria": null,
+     "native": "section",
+     "desc": "First-use guidance."
+    }
+   ]
+  }
+ ]
+}

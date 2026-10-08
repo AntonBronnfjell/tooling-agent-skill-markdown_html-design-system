@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [{ "type": "command", "command": "python3 \"$HOME/.claude/skills/html-design-system/scripts/ds.py\" hook-post-edit" }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "python3 \"$HOME/.claude/skills/html-design-system/scripts/ds.py\" hook-stop" }]
+      }
+    ]
+  }
+}

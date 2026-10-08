@@ -1,0 +1,57 @@
+/* docs.css — chrome for the documentation pages only (not part of the shipped system). */
+.ds-docs { background: var(--color-bg-canvas); }
+.ds-docs__header {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-bg-surface);
+  border-bottom: var(--border-width-thin) solid var(--color-border-default);
+}
+.ds-docs__header > :last-child { margin-inline-start: auto; }
+.ds-docs__main {
+  max-width: var(--size-container-xl);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-6);
+  display: grid; gap: var(--space-10);
+}
+.ds-docs__main > section { display: grid; gap: var(--space-4); }
+.ds-docs__nav { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+
+/* A demo frame: renders the example, labelled with its data-demo marker. */
+.ds-demo {
+  display: grid; gap: var(--space-2);
+  padding: var(--space-6);
+  border: var(--border-width-thin) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+.ds-demo__label { font-size: var(--font-size-xs); color: var(--color-text-muted); font-family: var(--font-family-mono); }
+.ds-demo__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.ds-demos { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
+
+.ds-code {
+  overflow-x: auto;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+.ds-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+.ds-table th, .ds-table td {
+  text-align: start; padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width-thin) solid var(--color-border-default);
+}
+
+.ds-index { list-style: none; padding: 0; display: grid; gap: var(--space-2);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); }
+.ds-index__item {
+  display: flex; gap: var(--space-2); align-items: baseline;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-thin) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.ds-index__item a { flex: 1; }
+.ds-index__tier, .ds-index__status { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.ds-index__item[data-done="false"] { border-style: dashed; }
+.ds-index__item[data-done="true"] .ds-index__status { color: var(--color-feedback-success-icon); }
