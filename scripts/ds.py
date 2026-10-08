@@ -20,6 +20,8 @@
   ds.py migrate-colors <dir>         convert legacy hex-string color tokens to DTCG 2025.10 color objects
   ds.py email <dir> [--strict]       render email/src templates with literal token values (light + dark) into dist/email
                                      and check client safety (tables, no var()/flex/rem, alt, lang, size, plain text)
+  ds.py llms <dir>                   llms.txt, llms-full.txt, llms/<file>.md per component, dist/ds-index.json (for agents)
+  ds.py mcp <dir>                    MCP server (stdio, stdlib) so any agent can query components, tokens and DESIGN.md
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
   Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
@@ -1217,8 +1219,101 @@ def resolved_in(theme_flat, key):
         return "—"
 
 
+def _yaml_scalar(v):
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return _num(v)
+    return json.dumps(str(v), ensure_ascii=False)   # JSON strings are valid YAML double-quoted scalars
+
+
+def _yaml(obj, indent=0):
+    pad, out = "  " * indent, []
+    for k, v in obj.items():
+        key = k if re.fullmatch(r"[A-Za-z0-9_-]+", str(k)) else json.dumps(k)
+        if isinstance(v, dict):
+            out.append(f"{pad}{key}:")
+            out.append(_yaml(v, indent + 1))
+        elif isinstance(v, list):
+            out.append(f"{pad}{key}: [" + ", ".join(_yaml_scalar(x) for x in v) + "]")
+        else:
+            out.append(f"{pad}{key}: {_yaml_scalar(v)}")
+    return "\n".join(x for x in out if x)
+
+
+def design_md_frontmatter(root, cfg, flat):
+    """Google DESIGN.md (alpha) front matter: literal values from the default theme + component token groups."""
+    def lit(key):
+        if key not in flat:
+            return None
+        raw = resolve_raw(key, flat)
+        if flat[key]["type"] == "color":
+            if isinstance(raw, dict) and raw.get("colorSpace") not in (None, "srgb"):
+                return color_obj_to_css(raw)
+            rgb = color_rgb(raw)
+            return _hex_from_rgb(rgb) if rgb else None
+        try:
+            return to_css(raw, flat[key]["type"], flat, as_var=False)
+        except (ValueError, TypeError, KeyError):
+            return None
+    colors = {}
+    for name, key in (("primary", "color.action.primary.bg"), ("on-primary", "color.action.primary.fg"),
+                      ("secondary", "color.action.secondary.bg"), ("on-secondary", "color.action.secondary.fg"),
+                      ("background", "color.bg.canvas"), ("surface", "color.bg.surface"), ("surface-subtle", "color.bg.subtle"),
+                      ("on-surface", "color.text.default"), ("muted", "color.text.muted"), ("link", "color.text.link"),
+                      ("outline", "color.border.default"), ("outline-strong", "color.border.strong"), ("focus", "color.border.focus"),
+                      ("error", "color.feedback.danger.icon"), ("error-container", "color.feedback.danger.bg"),
+                      ("on-error-container", "color.feedback.danger.fg"),
+                      ("success", "color.feedback.success.icon"), ("warning", "color.feedback.warning.icon"),
+                      ("info", "color.feedback.info.icon"), ("selected", "color.selected.bg"), ("danger", "color.action.danger.bg"),
+                      ("on-danger", "color.action.danger.fg")):
+        v = lit(key)
+        if v:
+            colors[name] = v
+    typography = {}
+    for k, v in flat.items():
+        if v["type"] == "typography" and isinstance(v["value"], dict):
+            t = {}
+            for prop in ("fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing"):
+                if prop in v["value"]:
+                    val = to_css(v["value"][prop], None, flat, as_var=False)
+                    if prop == "fontFamily":
+                        val = val.split(",")[0].strip().strip('"')
+                    t[prop] = int(val) if prop == "fontWeight" and val.isdigit() else val
+            typography[k.split(".", 1)[1]] = t
+    rounded = {k.split(".", 1)[1]: lit(k) for k in flat if k.startswith("radius.")}
+    spacing = {k.split(".", 1)[1]: lit(k) for k in flat if k.startswith("space.") and k != "space.px"}
+    comps = {
+        "button-primary": {"backgroundColor": "{colors.primary}", "textColor": "{colors.on-primary}", "rounded": "{rounded.md}",
+                           "height": lit("size.control.md") or "40px", "padding": "0 16px"},
+        "button-secondary": {"backgroundColor": "{colors.secondary}", "textColor": "{colors.on-secondary}", "rounded": "{rounded.md}"},
+        "button-destructive": {"backgroundColor": "{colors.danger}", "textColor": "{colors.on-danger}", "rounded": "{rounded.md}"},
+        "input": {"backgroundColor": "{colors.surface}", "textColor": "{colors.on-surface}", "rounded": "{rounded.md}",
+                  "height": lit("size.control.md") or "40px"},
+        "card": {"backgroundColor": "{colors.surface}", "textColor": "{colors.on-surface}", "rounded": "{rounded.lg}",
+                 "padding": lit("card.padding") or "24px"},
+        "well": {"backgroundColor": "{colors.surface-subtle}", "textColor": "{colors.on-surface}", "rounded": "{rounded.md}"},
+        "link": {"textColor": "{colors.link}"},
+        "caption": {"textColor": "{colors.muted}", "typography": "{typography.caption}"},
+        "alert-error": {"backgroundColor": "{colors.error-container}", "textColor": "{colors.on-error-container}", "rounded": "{rounded.md}"},
+        "error-text": {"textColor": "{colors.error}"},
+        "alert-success": {"textColor": "{colors.success}"},
+        "alert-warning": {"textColor": "{colors.warning}"},
+        "alert-info": {"textColor": "{colors.info}"},
+        "list-item-selected": {"backgroundColor": "{colors.selected}", "textColor": "{colors.on-surface}"},
+        "divider-strong": {"backgroundColor": "{colors.outline-strong}", "height": "1px"},
+        "focus-ring": {"backgroundColor": "{colors.focus}", "width": lit("focus.ring.width") or "2px"},
+    }
+    if "button-primary" in comps and lit("color.action.primary.bg-hover"):
+        colors["primary-hover"] = lit("color.action.primary.bg-hover")
+        comps["button-primary-hover"] = {"backgroundColor": "{colors.primary-hover}"}
+    d = cfg.get("direction", {})
+    fm = {"version": "alpha", "name": cfg["name"],
+          "description": d.get("rationale") or d.get("style") or f"{cfg['name']} design system (tier {cfg['tier']})",
+          "colors": colors, "typography": typography, "rounded": rounded, "spacing": spacing, "components": comps}
+    return "---\n" + _yaml(fm) + "\n---\n"
+
+
 def cmd_design_md(a):
-    """One file a human or agent can read instead of 100 pages: the system's contract."""
+    """DESIGN.md in Google's format (front matter tokens + ordered prose sections), plus this system's contract."""
     root = Path(a.dir)
     cfg = load_cfg(root)
     build_tokens(root)
@@ -1226,68 +1321,114 @@ def cmd_design_md(a):
     flat = flatten(base)
     theme_flats = {"light": flat, **{n: {**flat, **flatten(t)} for n, t in themes.items()}}
     d, brief = cfg.get("direction", {}), cfg.get("brief", {})
-    md = [f"# {cfg['name']} — DESIGN.md", "",
-          "> Generated by `ds.py design-md` from `ds.config.json` and `tokens/`. Edit those, then regenerate.",
-          "> This is the contract: product code and AI agents should follow it without opening the component pages.", "",
-          "## 1. Direction", "",
-          f"- **Mode:** {d.get('mode') or '—'}{' · reference: ' + d['reference_system'] if d.get('reference_system') else ''}",
-          f"- **Style:** {d.get('style') or '—'}", f"- **Product / audience:** {brief.get('product') or '—'} / {brief.get('audience') or '—'}",
-          f"- **Accessibility target:** {brief.get('a11y_target', 'WCAG 2.2 AA')}", f"- **Rationale:** {d.get('rationale') or '—'}"]
+    md = [design_md_frontmatter(root, cfg, flat),
+          f"<!-- Generated by `ds.py design-md` from ds.config.json and tokens/ — edit those, then regenerate. "
+          f"Validate with `npx @google/design.md lint DESIGN.md`. -->", "",
+          "## Overview", "",
+          f"{d.get('style') or 'Token-driven, accessible HTML/CSS design system.'} "
+          f"Mode: {d.get('mode') or 'new'}{' (reference: ' + d['reference_system'] + ')' if d.get('reference_system') else ''}. "
+          f"Product: {brief.get('product') or '—'}; audience: {brief.get('audience') or '—'}.", "",
+          f"{d.get('rationale') or ''}".strip()]
     if d.get("allocation"):
         md += ["", "| Style direction | Owns | Never used for |", "|---|---|---|"]
         md += [f"| {x.get('name', '')} | {x.get('owns', '')} | {x.get('never', '')} |" for x in d["allocation"]]
     if cfg.get("principles"):
-        md += ["", "**Principles**", ""] + [f"{i}. {p}" for i, p in enumerate(cfg["principles"], 1)]
+        md += ["", "Principles:", ""] + [f"{i}. {p_}" for i, p_ in enumerate(cfg["principles"], 1)]
     keys = ["color.bg.canvas", "color.bg.surface", "color.text.default", "color.text.muted", "color.action.primary.bg",
             "color.action.primary.fg", "color.border.default", "color.border.focus", "color.feedback.danger.fg"]
-    md += ["", "## 2. Themes", "", "Apply with `data-theme` on `<html>` (or `.theme-<name>` on a subtree). Default follows the OS.", "",
+    md += ["", "## Colors", "",
+           "Semantic tokens only — never primitives (`--color-blue-600`) or raw values in components. Every theme is "
+           "contrast-checked (text 4.5:1, UI boundaries and focus 3:1). Apply a theme with `data-theme` on `<html>`, or "
+           "`.theme-<name>` on a subtree.", "",
            "| Token | " + " | ".join(theme_flats) + " |", "|---|" + "---|" * len(theme_flats)]
     md += [f"| `{var_name(k)}` | " + " | ".join(f"`{resolved_in(tf, k)}`" for tf in theme_flats.values()) + " |" for k in keys if k in flat]
-    md += ["", "## 3. Typography", "", "| Role | Family | Size | Weight | Line height |", "|---|---|---|---|---|"]
+    md += ["", "## Typography", "", "| Role | Family | Size | Weight | Line height |", "|---|---|---|---|---|"]
     for k, v in flat.items():
         if v["type"] == "typography" and isinstance(v["value"], dict):
             val = v["value"]
             res = lambda x: to_css(val.get(x, ""), None, flat, as_var=False) if val.get(x) else "—"
             md.append(f"| `{k.split('.', 1)[1]}` | {res('fontFamily')} | {res('fontSize')} | {res('fontWeight')} | {res('lineHeight')} |")
 
-    def scale(prefix, title, note=""):
-        rows = [(k, resolved_in(flat, k)) for k in flat if k.startswith(prefix)]
-        if rows:
-            md.extend(["", f"## {title}", ""] + ([note, ""] if note else []) + [f"- `{var_name(k)}` = `{v}`" for k, v in rows])
-    scale("space.", "4. Spacing", "Components never set outer margins; parents own spacing with gap.")
-    scale("radius.", "5. Radius")
-    scale("z.", "6. Layers (z-index)", "Native `dialog`/`popover` use the top layer; these order fixed and JS-positioned layers. "
-          "Anything that opens from a dialog (dropdown, popover, tooltip) sits above `modal`.")
-    scale("breakpoint.", "7. Breakpoints", "CSS variables can't be used in @media: use `dist/tokens.scss` (`@include up(md)`) or the literal values.")
-    scale("motion.", "8. Motion")
+    def scale(prefix):
+        return [f"- `{var_name(k)}` = `{resolved_in(flat, k)}`" for k in flat if k.startswith(prefix)]
+    md += ["", "## Layout", "", "Components never set outer margins; parents own spacing with `gap`. Logical properties only "
+           "(RTL works). Breakpoints can't use CSS variables in `@media`: use `dist/tokens.scss` (`@include up(md)`) or the literals.", ""]
+    md += scale("space.") + [""] + scale("breakpoint.") + [""] + scale("size.container.")
+    md += ["", "## Elevation & Depth", "",
+           "Elevation pairs a surface with a shadow; dark themes lift surfaces instead of relying on shadows. Native `dialog`/`popover` "
+           "use the top layer; z-index orders fixed and JS-positioned layers, and anything opened from a dialog sits above `modal`.", ""]
+    md += scale("color.elevation.") + scale("elevation.") + scale("shadow.") + [""] + scale("z.")
+    md += ["", "## Shapes", ""] + scale("radius.") + scale("border.")
+    md += ["", "## Motion", ""] + scale("motion.")
     motion = cfg.get("motion", {})
-    if motion.get("bans") or motion.get("moments"):
-        md += [""] + [f"- **Banned:** {b}" for b in motion.get("bans", [])] + [f"- **Moment:** {m}" for m in motion.get("moments", [])]
+    md += [f"- **Banned:** {b_}" for b_ in motion.get("bans", [])] + [f"- **Moment:** {m}" for m in motion.get("moments", [])]
     md += ["", "Reduced motion: `prefers-reduced-motion` or `[data-reduced-motion]` on `<html>` neutralizes transitions and animations."]
     report = coverage(root, cfg)
     done, total = summarize(report)
-    md += ["", f"## 9. Components ({done}/{total} ready, tier {cfg['tier']})", ""]
+    md += ["", "## Components", "", f"{done}/{total} ready (tier {cfg['tier']}, scopes: {', '.join(cfg.get('scopes') or ['product'])}). "
+           "Each has a docs page with every variant and state, an accessibility section and its tokens.", ""]
     names = {c["id"]: c["name"] for c in MANIFEST["categories"]}
     for cid in names:
         rows = [r for r in report if r["category"] == cid]
         if rows:
             md.append(f"- **{names[cid]}:** " + ", ".join(f"{r['name']}{'' if r['done'] else ' (missing)'}" for r in rows))
-    md += ["", "## 10. Rules every consumer follows", "",
-           "- Use semantic tokens (`--color-*`, `--space-*`, …), never primitives (`--color-blue-600`) or raw values.",
-           "- Use native elements first (`button`, `a[href]`, `dialog`, `details`, `input` types); ARIA only to fill gaps.",
-           "- Every control has a visible label; icon-only controls have an accessible name and a tooltip.",
-           "- Focus is always visible; overlays return focus to their trigger; nothing is conveyed by color alone.",
-           "- Logical properties only (`margin-inline-start`), so RTL works; hit targets ≥ 24px.",
-           "- Forms validate on submit/blur with an error summary + inline messages; never disable paste.",
-           "", "## 11. Consuming", "",
+    md += ["", "## Do's and Don'ts", "",
+           "- Do use semantic tokens (`--color-*`, `--space-*`, …); don't use primitives or raw values.",
+           "- Do use native elements first (`button`, `a[href]`, `dialog`, `details`, `input` types); ARIA only fills gaps.",
+           "- Do give every control a visible label; icon-only controls get an accessible name and a tooltip.",
+           "- Do keep focus visible and return it to the trigger when overlays close; don't convey anything by color alone.",
+           "- Do keep hit targets ≥ 24px and use logical properties; don't remove outlines without a :focus-visible replacement.",
+           "- Do validate forms on submit/blur with an error summary and inline messages; don't disable paste.",
+           "- Don't stack more than one primary action per region; don't animate layout properties.",
+           "", "## Accessibility", "",
+           f"Target: {brief.get('a11y_target', 'WCAG 2.2 AA')}. That satisfies EN 301 549 v4.1.1 (EU Accessibility Act) and exceeds "
+           "ADA Title II (WCAG 2.1 AA). See ACCESSIBILITY.md for the conformance statement.",
+           "", "## Consuming", "",
            "```html", '<link rel="stylesheet" href="dist/ds.css">', '<script type="module">import { initTheme } from "./js/theme.js"; initTheme();</script>', "```",
-           "", "Build-time tokens: `dist/tokens.scss`, `dist/tokens.json`. Source tokens (DTCG): `tokens/`."]
+           "", "Agents: `llms.txt` indexes every component page as Markdown. Build-time tokens: `dist/tokens.scss`, `dist/tokens.json`; "
+           "source tokens (DTCG 2025.10): `tokens/` with `tokens/resolver.json`."]
     if cfg.get("decisions"):
-        md += ["", "## 12. Decisions", ""] + [f"- **{x.get('id', '')} {x.get('title', '')}** — {x.get('decision', '')}. {x.get('consequences', '')}" for x in cfg["decisions"]]
+        md += ["", "## Decisions", ""] + [f"- **{x.get('id', '')} {x.get('title', '')}** — {x.get('decision', '')}. {x.get('consequences', '')}" for x in cfg["decisions"]]
     if cfg.get("design_notes"):
         md += ["", "## Notes", "", cfg["design_notes"]]
     safe_write(root / "DESIGN.md", "\n".join(md) + "\n")
-    print(f"wrote {root / 'DESIGN.md'}")
+    write_a11y_statement(root, cfg)
+    print(f"wrote {_rel(root / 'DESIGN.md')} (Google DESIGN.md format) and ACCESSIBILITY.md")
+
+
+def write_a11y_statement(root, cfg):
+    """Accessibility conformance statement template (EAA / EN 301 549 / ADA Title II), kept once you edit it."""
+    brief = cfg.get("brief", {})
+    text = f"""# Accessibility statement — {cfg['name']}
+
+> Template generated by `ds.py design-md`. Fill the bracketed parts, have it reviewed, then publish it with the product.
+> Once you edit this file, ds.py will not overwrite it.
+
+## Commitment
+[Organization] wants [product] to be usable by everyone. The {cfg['name']} design system targets **{brief.get('a11y_target', 'WCAG 2.2 AA')}**.
+
+## Standards
+- **WCAG 2.2 Level AA** — design-system target and test basis.
+- **EN 301 549 v4.1.1** (references WCAG 2.2) — the harmonised standard for the **European Accessibility Act** (in force since 28 June 2025).
+- **ADA Title II** (US public entities) requires WCAG 2.1 AA — covered by the WCAG 2.2 AA target.
+- Section 508 (US federal) — references WCAG 2.0 AA via EN 301 549 alignment.
+
+## Conformance status
+[Fully | Partially] conformant with WCAG 2.2 AA. Known exceptions:
+- [Component/page] — [issue] — [workaround] — [planned fix date]
+
+## How it's tested
+- Automated: axe on every Storybook story and every docs page in light, dark and high-contrast themes; contrast pairs for every token combination (`ds.py check`).
+- Manual: keyboard-only walkthrough, screen readers ([NVDA + Firefox], [VoiceOver + Safari], [TalkBack + Chrome]), 200% zoom and 320px reflow, reduced motion, forced colors.
+- Last full audit: [date] by [auditor].
+
+## Feedback and contact
+Report a barrier: [email / form]. We reply within [N] business days. [EU: enforcement body / complaints procedure for your member state.]
+
+## Date
+Prepared [date]; last reviewed [date].
+"""
+    safe_write(Path(root) / "ACCESSIBILITY.md", text, kind="owned")
 
 
 def cmd_package(a):
@@ -1653,6 +1794,143 @@ def cmd_email(a):
         sys.exit(1)
 
 
+# ---------- agent-readable outputs: llms.txt, per-component markdown, MCP server ----------
+class DocToMarkdown(HTMLParser):
+    """Turn a component page's data-doc sections (except examples) into compact markdown."""
+    BLOCK = {"p", "li", "tr", "h2", "h3", "h4", "dt", "dd", "pre", "table", "ul", "ol", "section"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.sections, self.cur, self.depth, self.sec_depth, self.line, self.skip = {}, None, 0, None, [], 0
+
+    def flush(self, prefix=""):
+        t = " ".join(" ".join(self.line).split())
+        if t and self.cur:
+            self.sections.setdefault(self.cur, []).append(prefix + t)
+        self.line = []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        self.depth += 1
+        if a.get("data-doc") and a["data-doc"] != "examples" and self.cur is None:
+            self.cur, self.sec_depth = a["data-doc"], self.depth
+        elif a.get("data-doc") == "examples":
+            self.skip = self.depth
+        if tag in self.BLOCK:
+            self.flush()
+        if tag in ("th", "td") and self.line:
+            self.line.append("|")
+        if tag in ("br", "hr", "img", "input", "meta", "link", "source", "wbr", "col"):
+            self.depth -= 1
+
+    def handle_endtag(self, tag):
+        if tag in self.BLOCK:
+            self.flush("- " if tag == "li" else "")
+        if self.skip == self.depth:
+            self.skip = 0
+        if self.sec_depth == self.depth:
+            self.flush()
+            self.cur, self.sec_depth = None, None
+        self.depth -= 1
+
+    def handle_data(self, data):
+        if self.cur and not self.skip and data.strip():
+            self.line.append(data.strip())
+
+
+def component_markdown(root, sub, page, cat, ex, rows):
+    conv = DocToMarkdown()
+    conv.feed(page.read_text(errors="ignore"))
+    sec = conv.sections
+    md = [f"# {story_title(cat, page).split('/')[-1]}", "",
+          f"Category: {CAT_TITLES.get(cat, cat)} · page `{sub}/{page.name}` · CSS `css/{sub}/{page.stem}.css`"
+          + (f" · JS `js/{page.stem}.js` (export `init(root)`)" if (Path(root) / "js" / f"{page.stem}.js").exists() else ""), "",
+          "| Component | Tier | Status | Required demos |", "|---|---|---|---|"]
+    md += [f"| `{r['id']}` — {r['name']} | {r['tier']} | {'ready' if r['done'] else 'missing'} | {' '.join(r['demos'])} |" for r in rows]
+    for key, title in (("usage", "Usage"), ("anatomy", "Anatomy")):
+        if sec.get(key):
+            md += ["", f"## {title}", ""] + [x for x in sec[key] if x.lower() != title.lower()]
+    md += ["", "## Examples", ""]
+    for section, markers, html in ex.demos:
+        md += [f"### {section + ' · ' if section else ''}{markers}", "", "```html", html.strip(), "```", ""]
+    for key, title in (("accessibility", "Accessibility"), ("tokens", "Tokens")):
+        if sec.get(key):
+            md += [f"## {title}", ""] + [x for x in sec[key] if x.lower() != title.lower()] + [""]
+    return "\n".join(md).rstrip() + "\n"
+
+
+def cmd_llms(a):
+    """llms.txt + llms-full.txt + llms/<file>.md + dist/ds-index.json (what the MCP server and agents read)."""
+    root = Path(a.dir)
+    cfg = load_cfg(root)
+    build_tokens(root)
+    report = {r["id"]: r for r in coverage(root, cfg)}
+    by_file, pages = {}, {}
+    for cat, c in components(cfg):
+        by_file.setdefault((page_dir(cat["id"]), c["file"]), []).append({**c, **report.get(c["id"], {}), "category": cat["id"],
+                                                                        "scope": cat.get("scope", "product")})
+    for sub, page, cat, ex in iter_pages(root, cfg):
+        rows = by_file.get((sub, page.stem), [])
+        if rows:
+            pages[(sub, page.stem)] = component_markdown(root, sub, page, cat, ex, rows)
+            safe_write(root / "llms" / f"{page.stem}.md", pages[(sub, page.stem)])
+    index_rows = []
+    for (sub, f), rows in by_file.items():
+        for r in rows:
+            index_rows.append({"id": r["id"], "name": r["name"], "category": r["category"], "scope": r["scope"], "tier": r["tier"],
+                               "file": f, "desc": r["desc"], "demos": r["demos"], "aria": r.get("aria"), "native": r.get("native"),
+                               "done": bool(r.get("done")), "doc": f"llms/{f}.md"})
+    base, themes = load_tokens(root)
+    flat = flatten(base)
+    tokens = {}
+    for name, tf in {"light": flat, **{n: {**flat, **flatten(t)} for n, t in themes.items()}}.items():
+        tokens[name] = {var_name(k): resolved_in(tf, k) for k in tf if tf[k]["type"] != "typography"}
+    safe_write(root / "dist" / "ds-index.json", json.dumps({"name": cfg["name"], "tier": cfg["tier"],
+                                                            "scopes": cfg.get("scopes", ["product"]),
+                                                            "components": index_rows, "tokens": tokens}, indent=1) + "\n")
+    done = sum(r["done"] for r in index_rows)
+    lines = [f"# {cfg['name']} design system", "",
+             f"> {cfg.get('direction', {}).get('style') or 'Token-driven, accessible HTML/CSS design system'}. "
+             f"{done}/{len(index_rows)} components ready. Use semantic CSS custom properties and the documented markup; "
+             "never invent styles.", "",
+             "## Contract", "",
+             "- [DESIGN.md](DESIGN.md): tokens (front matter), rules, do's and don'ts",
+             "- [Tokens (resolved, per theme)](dist/ds-index.json): machine index of components and token values",
+             "- [Tokens CSS](dist/tokens.css) · [Bundle](dist/ds.css) · [DTCG sources](tokens/resolver.json)", ""]
+    names = {c["id"]: c["name"] for c in MANIFEST["categories"]}
+    for cid, cname in names.items():
+        rows = [r for r in index_rows if r["category"] == cid and (page_dir(cid), r["file"]) in pages]
+        if rows:
+            lines += [f"## {cname}", ""]
+            seen = set()
+            for r in rows:
+                if r["file"] not in seen:
+                    seen.add(r["file"])
+                    same = [x["name"] for x in rows if x["file"] == r["file"]]
+                    lines.append(f"- [{', '.join(same)}](llms/{r['file']}.md): {r['desc']}")
+            lines.append("")
+    missing = [r["id"] for r in index_rows if not r["done"]]
+    if missing:
+        lines += ["## Not built yet", "", ", ".join(missing), ""]
+    safe_write(root / "llms.txt", "\n".join(lines))
+    design = (root / "DESIGN.md").read_text() if (root / "DESIGN.md").exists() else ""
+    safe_write(root / "llms-full.txt", "\n\n".join([design, *pages.values()]))
+    print(f"wrote llms.txt, llms-full.txt, {len(pages)} pages in llms/, dist/ds-index.json")
+
+
+def cmd_mcp(a):
+    root = Path(a.dir).resolve()
+    load_cfg(root)
+    cmd_llms(argparse.Namespace(dir=str(root)))
+    server = root / "mcp" / "server.py"
+    safe_copy(SKILL / "assets" / "templates" / "mcp_server.py", server, kind="owned")
+    print(f"""MCP server: {_rel(server)} (stdio, no dependencies). Connect it:
+  Claude Code:  claude mcp add design-system -- python3 {server}
+  Cursor / VS Code / others (mcp.json):
+    {{"mcpServers": {{"design-system": {{"command": "python3", "args": ["{server}"]}}}}}}
+Tools: list_components, get_component, search, get_tokens, get_design_md. Re-run `ds.py llms` after changes.""")
+
+
 # ---------- hooks ----------
 def read_hook_input():
     try:
@@ -1748,6 +2026,8 @@ def main():
     p = sp.add_parser("sync"); p.add_argument("dir")
     p = sp.add_parser("migrate-colors"); p.add_argument("dir")
     p = sp.add_parser("email"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")
+    p = sp.add_parser("llms"); p.add_argument("dir")
+    p = sp.add_parser("mcp"); p.add_argument("dir")
     p = sp.add_parser("storybook"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p.add_argument("--renderer", choices=["html", "server"], default="html",
                    help="html: client-rendered from the pages (default). server: @storybook/server, a backend renders each story")
@@ -1767,7 +2047,8 @@ def main():
     {"init": cmd_init, "audit": cmd_audit, "build": cmd_build, "check": cmd_check,
      "coverage": cmd_coverage, "plan": cmd_plan, "phase": cmd_phase, "status": cmd_status,
      "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
-     "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email}[a.cmd](a)
+     "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email,
+     "llms": cmd_llms, "mcp": cmd_mcp}[a.cmd](a)
 
 
 if __name__ == "__main__":
