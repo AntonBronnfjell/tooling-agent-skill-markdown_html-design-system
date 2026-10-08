@@ -101,8 +101,8 @@ def copy_tree(dst, portable):
     shutil.copytree(SRC, dst, ignore=ignore)
     if portable:
         p = dst / "SKILL.md"
-        p.write_text(strip_frontmatter(p.read_text()))
-    (dst / MARKER).write_text(json.dumps({"source": str(SRC), "portable": portable}) + "\n")
+        p.write_text(strip_frontmatter(p.read_text(encoding="utf-8")))
+    (dst / MARKER).write_text(json.dumps({"source": str(SRC), "portable": portable}) + "\n", encoding="utf-8")
 
 
 def is_ours(path):
@@ -148,7 +148,7 @@ def claude_hooks(ctx, settings_path, skill_dir, remove=False):
     ds = f'python3 "{skill_dir}/scripts/ds.py"'
     entries = {"PostToolUse": {"matcher": "Write|Edit|MultiEdit", "hooks": [{"type": "command", "command": f"{ds} hook-post-edit"}]},
                "Stop": {"hooks": [{"type": "command", "command": f"{ds} hook-stop"}]}}
-    data = json.loads(settings_path.read_text()) if settings_path.exists() else {}
+    data = json.loads(settings_path.read_text(encoding="utf-8")) if settings_path.exists() else {}
     hooks = data.setdefault("hooks", {})
     for event, entry in entries.items():
         lst = [e for e in hooks.get(event, []) if not our_hook(e)]
@@ -165,7 +165,7 @@ def claude_hooks(ctx, settings_path, skill_dir, remove=False):
         settings_path.parent.mkdir(parents=True, exist_ok=True)
         if settings_path.exists():
             shutil.copy(settings_path, settings_path.with_suffix(".json.bak"))
-        settings_path.write_text(json.dumps(data, indent=2) + "\n")
+        settings_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     ctx.do(f"{'remove' if remove else 'add'} design-system hooks in {settings_path} (backup: .json.bak)", write)
 
 
@@ -222,7 +222,7 @@ def install(a):
             link_or_copy(ctx, target, dst)
         elif spec["kind"] == "rule":
             skill_dir = portable_dir if not a.project else Path(AGENTS["agents"]["project"]) / NAME
-            ctx.do(f"  write {dst}", lambda d=dst, s=skill_dir: (d.parent.mkdir(parents=True, exist_ok=True), d.write_text(rule_text(s))))
+            ctx.do(f"  write {dst}", lambda d=dst, s=skill_dir: (d.parent.mkdir(parents=True, exist_ok=True), d.write_text(rule_text(s), encoding="utf-8")))
     if a.claude_hooks:
         settings = (Path(a.project).resolve() / ".claude/settings.json") if a.project else HOME / ".claude/settings.json"
         skill_dir = base_for(a, "claude") / NAME
@@ -238,7 +238,7 @@ def uninstall(a):
         if dst.is_symlink() or (dst.is_file() and spec["kind"] == "rule") or (dst.exists() and is_ours(dst)):
             clear(ctx, dst)
     settings = (Path(a.project).resolve() / ".claude/settings.json") if a.project else HOME / ".claude/settings.json"
-    if settings.exists() and any(our_hook(e) for v in json.loads(settings.read_text()).get("hooks", {}).values() for e in v):
+    if settings.exists() and any(our_hook(e) for v in json.loads(settings.read_text(encoding="utf-8")).get("hooks", {}).values() for e in v):
         claude_hooks(ctx, settings, "", remove=True)
     print("Uninstalled.")
 

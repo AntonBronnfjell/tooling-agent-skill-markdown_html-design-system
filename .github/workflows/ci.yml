@@ -1,0 +1,53 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions: { contents: read }
+
+jobs:
+  test:
+    name: tests · py${{ matrix.python }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.14"]
+        include:
+          - { os: ubuntu-22.04, python: "3.8" }   # oldest supported (stdlib-only promise)
+    env: { PYTHONIOENCODING: utf-8 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - run: python -m unittest discover -s tests -v
+      - name: Smoke test on the sample legacy app
+        shell: bash
+        run: |
+          python scripts/ds.py audit evals/files/legacy-app > /dev/null
+          python scripts/ds.py init "$RUNNER_TEMP/ds" --tier core --scopes product,marketing,ai,commerce,email
+          python scripts/ds.py build "$RUNNER_TEMP/ds"
+          python scripts/ds.py check "$RUNNER_TEMP/ds"
+          python scripts/ds.py email "$RUNNER_TEMP/ds" --strict
+
+  plugin:
+    name: plugin manifests + DESIGN.md spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: claude plugin validate (strict)
+        run: |
+          npx -y @anthropic-ai/claude-code plugin validate --strict .claude-plugin/plugin.json
+          npx -y @anthropic-ai/claude-code plugin validate --strict .claude-plugin/marketplace.json
+      - name: agentskills.io name rule (folder name must equal `name`)
+        run: |
+          mkdir -p /tmp/skill && cp -r . /tmp/skill/html-design-system
+          grep -q '^name: html-design-system$' /tmp/skill/html-design-system/SKILL.md
+      - name: Generated DESIGN.md passes Google's linter
+        run: |
+          python3 scripts/ds.py init /tmp/ds --tier core
+          python3 scripts/ds.py design-md /tmp/ds
+          npx -y @google/design.md lint /tmp/ds/DESIGN.md | tee /tmp/lint.json
+          python3 -c "import json;s=json.load(open('/tmp/lint.json'))['summary'];assert s['errors']==0 and s['warnings']==0, s"

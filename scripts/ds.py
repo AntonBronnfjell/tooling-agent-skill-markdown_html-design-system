@@ -32,7 +32,7 @@ import argparse, atexit, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parent.parent
-MANIFEST = json.loads((SKILL / "assets" / "manifest.json").read_text())
+MANIFEST = json.loads((SKILL / "assets" / "manifest.json").read_text(encoding="utf-8"))
 TIERS = ["core", "standard", "enterprise"]
 SKIP_DIRS = {"node_modules", ".git", "dist", "build", ".next", "vendor", "graphify-out", "__pycache__", "storybook-static"}
 
@@ -59,7 +59,7 @@ def use_root(root):
     STATE.update(root=root, ledger=None, dirty=False)
     lp = root / LEDGER
     if lp.exists():
-        STATE["ledger"] = json.loads(lp.read_text()).get("files", {})
+        STATE["ledger"] = json.loads(lp.read_text(encoding="utf-8")).get("files", {})
     else:
         STATE["ledger"] = {}
         if (root / "ds.config.json").exists():
@@ -78,7 +78,7 @@ def _save_ledger():
     if STATE["root"] is not None and STATE["dirty"] and not STATE["dry_run"] and STATE["root"].exists():
         (STATE["root"] / LEDGER).write_text(json.dumps({"version": 1, "note": "Files created by ds.py (html-design-system). "
                                                         "ds.py never overwrites files missing from this list.",
-                                                        "files": dict(sorted(STATE["ledger"].items()))}, indent=1) + "\n")
+                                                        "files": dict(sorted(STATE["ledger"].items()))}, indent=1) + "\n", encoding="utf-8")
 
 
 atexit.register(_save_ledger)
@@ -107,7 +107,8 @@ def safe_write(path, data, kind="generated"):
         print(f"[dry-run] {'update' if path.exists() else 'create'} {key}")
         return True
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data) if isinstance(data, bytes) else path.write_text(data)
+    # Bytes, not write_text: no \r\n translation on Windows, so the ledger hash matches the file exactly.
+    path.write_bytes(data if isinstance(data, bytes) else data.encode("utf-8"))
     if STATE["ledger"] is not None:
         STATE["ledger"][key] = new
         STATE["dirty"] = True
@@ -138,7 +139,7 @@ def safe_remove_owned(directory):
 def merge_json(path, update, describe):
     """Additive merge into a JSON file. Files ds.py doesn't own are left alone; the snippet is printed instead."""
     path = Path(path)
-    data = json.loads(path.read_text()) if path.exists() else {}
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     before = json.dumps(data, sort_keys=True)
     update(data)
     if path.exists() and _rel(path) not in (STATE["ledger"] or {}) and not STATE["force"]:
@@ -152,7 +153,7 @@ def merge_json(path, update, describe):
 def append_lines(path, lines):
     """Append missing lines (e.g. .gitignore). Never edits a file ds.py doesn't own; prints the lines instead."""
     path = Path(path)
-    cur = path.read_text().splitlines() if path.exists() else []
+    cur = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
     missing = [x for x in lines if x not in cur]
     if not missing:
         return False
@@ -173,7 +174,7 @@ def load_cfg(root):
     if not cfgp.exists():
         sys.exit(f"No design system at {root} (no ds.config.json). Run `ds.py detect` to find or place one, then `ds.py init`.")
     use_root(root)
-    return json.loads(cfgp.read_text())
+    return json.loads(cfgp.read_text(encoding="utf-8"))
 
 
 def save_cfg(root, cfg):
@@ -412,14 +413,14 @@ def load_tokens(root):
     for f in files:
         if f.exists():
             try:
-                base = deep_merge(base, json.loads(f.read_text()))
+                base = deep_merge(base, json.loads(f.read_text(encoding="utf-8")))
             except json.JSONDecodeError as e:
                 raise ValueError(f"{f.relative_to(root)}: invalid JSON ({e})")
     themes = {}
     # themes/dark.json is the theme; themes/dark.<scope>.json files are add-ons merged into it.
     for p in sorted((t / "themes").glob("*.json"), key=lambda p: (p.name.count("."), p.name)) if (t / "themes").exists() else []:
         name = p.name.split(".")[0]
-        themes[name] = deep_merge(themes.get(name, {}), json.loads(p.read_text()))
+        themes[name] = deep_merge(themes.get(name, {}), json.loads(p.read_text(encoding="utf-8")))
     return base, themes
 
 
@@ -588,7 +589,7 @@ def lint_file(path):
     path = Path(path)
     issues = []
     try:
-        text = path.read_text(errors="ignore")
+        text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return issues
     if path.suffix == ".css" and "email" in path.stem:
@@ -627,7 +628,7 @@ def coverage(root, cfg, all_tiers=False):
     for cat, c in components(cfg, all_tiers):
         page, css = page_path(root, cat, c)
         if page not in cache:
-            cache[page] = page.read_text(errors="ignore") if page.exists() else None
+            cache[page] = page.read_text(encoding="utf-8", errors="ignore") if page.exists() else None
         html = cache[page]
         missing = []
         if html is None:
@@ -674,9 +675,9 @@ def cmd_init(a):
                      ("component.html", "docs/_component-template.html"),
                      ("theme.js", "js/theme.js")]:
         safe_copy(tpl / src, root / dst, kind="owned")
-    cfg = json.loads((tpl / "ds.config.json").read_text())
+    cfg = json.loads((tpl / "ds.config.json").read_text(encoding="utf-8"))
     if (root / "ds.config.json").exists():   # re-init: keep every decision already recorded
-        cfg.update(json.loads((root / "ds.config.json").read_text()))
+        cfg.update(json.loads((root / "ds.config.json").read_text(encoding="utf-8")))
     if a.name:
         cfg["name"] = a.name
     if a.tier:
@@ -698,7 +699,7 @@ def cmd_init(a):
             safe_copy(th, root / "tokens" / "themes" / f"{th.stem}.{scope}.json", kind="owned")
         if (sdir / "contrast_pairs.json").exists():
             pairs = cfg.setdefault("contrast_pairs", [])
-            pairs += [x for x in json.loads((sdir / "contrast_pairs.json").read_text()) if x not in pairs]
+            pairs += [x for x in json.loads((sdir / "contrast_pairs.json").read_text(encoding="utf-8")) if x not in pairs]
     if a.project:
         info = detect_project(a.project)
         cfg["project"] = {"root": os.path.relpath(Path(a.project).resolve(), root.resolve()),
@@ -738,7 +739,7 @@ def cmd_audit(a):
             if p.suffix not in exts:
                 continue
             nfiles += 1
-            text = p.read_text(errors="ignore")
+            text = p.read_text(encoding="utf-8", errors="ignore")
             for k, rx in pats.items():
                 for m in rx.finditer(text):
                     v = (m.group(1) if rx.groups else m.group(0)).strip()[:80]
@@ -768,7 +769,7 @@ def cmd_build(a):
     parts = [out, root / "css" / "base.css"]
     parts += sorted((root / "css" / "components").glob("*.css")) + sorted((root / "css" / "patterns").glob("*.css"))
     def section(p_):
-        body = p_.read_text()
+        body = p_.read_text(encoding="utf-8")
         return f"@layer tokens {{\n{body}\n}}" if p_ == out else body   # tokens are layered so app CSS can override them
     bundle = "@layer reset, tokens, base, components, patterns, utilities;\n\n" + "\n".join(
         f"/* ---- {p_.relative_to(root)} ---- */\n{section(p_)}" for p_ in parts if p_.exists())
@@ -993,7 +994,7 @@ def iter_pages(root, cfg):
         file_cat.setdefault((page_dir(cat["id"]) == "patterns", c["file"]), cat["id"])
     for sub in ("components", "patterns"):
         for page in sorted((Path(root) / sub).glob("*.html")):
-            ex = DemoExtractor(page.read_text(errors="ignore"))
+            ex = DemoExtractor(page.read_text(encoding="utf-8", errors="ignore"))
             ex.feed(ex.src)
             if ex.demos:
                 yield sub, page, file_cat.get((sub == "patterns", page.stem), "patterns" if sub == "patterns" else "foundations"), ex
@@ -1024,11 +1025,11 @@ def cmd_storybook(a):
                 existing.setdefault(k, v)
     merge_json(root / "package.json", merge, "scripts/devDependencies")
     server = a.renderer == "server"
-    write_if_missing(root / ".storybook" / "main.js", (tpl / ("main.server.js" if server else "main.js")).read_text(), a.force)
-    write_if_missing(root / ".storybook" / "preview.js", (tpl / ("preview.server.js" if server else "preview.js")).read_text()
+    write_if_missing(root / ".storybook" / "main.js", (tpl / ("main.server.js" if server else "main.js")).read_text(encoding="utf-8"), a.force)
+    write_if_missing(root / ".storybook" / "preview.js", (tpl / ("preview.server.js" if server else "preview.js")).read_text(encoding="utf-8")
                      .replace("__SERVER_URL__", a.server_url), a.force)
     if server:
-        write_if_missing(root / ".storybook" / "preview-head.html", (tpl / "preview-head.server.html").read_text(), a.force)
+        write_if_missing(root / ".storybook" / "preview-head.html", (tpl / "preview-head.server.html").read_text(encoding="utf-8"), a.force)
     append_lines(root / ".gitignore", ["node_modules/", "storybook-static/"])
 
     stories = root / "stories"
@@ -1501,7 +1502,7 @@ def cmd_ci(a):
     provider = a.provider or ("gitlab" if (repo / ".gitlab-ci.yml").exists() else "github")
     vendor_tools(root)
     rel = os.path.relpath(root, repo)
-    tpl = (SKILL / "assets" / "templates" / "ci" / ("github-actions.yml" if provider == "github" else "gitlab-ci.yml")).read_text()
+    tpl = (SKILL / "assets" / "templates" / "ci" / ("github-actions.yml" if provider == "github" else "gitlab-ci.yml")).read_text(encoding="utf-8")
     body = tpl.replace("__DIR__", rel)
     if provider == "github":
         out = repo / ".github" / "workflows" / "design-system.yml"   # its own file: never touches your workflows
@@ -1559,7 +1560,7 @@ TOKEN_HINTS = ["tokens", "src/tokens", "design-tokens", "tokens.json", "theme.js
 
 def _read(path):
     try:
-        return Path(path).read_text(errors="ignore")
+        return Path(path).read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return ""
 
@@ -1654,7 +1655,7 @@ def cmd_migrate_colors(a):
     for f in sorted((root / "tokens").rglob("*.json")):
         if f.name == "resolver.json":
             continue
-        tree = json.loads(f.read_text())
+        tree = json.loads(f.read_text(encoding="utf-8"))
         n = migrate_colors_tree(tree)
         if n:
             safe_write(f, json.dumps(tree, indent=2) + "\n")
@@ -1781,7 +1782,7 @@ def cmd_email(a):
     problems = 0
     for f in sorted(src.glob("*.html")) + sorted(src.glob("*.txt")):
         try:
-            rendered = Template(f.read_text()).substitute(values)
+            rendered = Template(f.read_text(encoding="utf-8")).substitute(values)
         except KeyError as e:
             print(f"✗ {f.name}: unknown token ${e.args[0]}")
             problems += 1
@@ -1852,7 +1853,7 @@ class DocToMarkdown(HTMLParser):
 
 def component_markdown(root, sub, page, cat, ex, rows):
     conv = DocToMarkdown()
-    conv.feed(page.read_text(errors="ignore"))
+    conv.feed(page.read_text(encoding="utf-8", errors="ignore"))
     sec = conv.sections
     md = [f"# {story_title(cat, page).split('/')[-1]}", "",
           f"Category: {CAT_TITLES.get(cat, cat)} · page `{sub}/{page.name}` · CSS `css/{sub}/{page.stem}.css`"
@@ -1925,7 +1926,7 @@ def cmd_llms(a):
     if missing:
         lines += ["## Not built yet", "", ", ".join(missing), ""]
     safe_write(root / "llms.txt", "\n".join(lines))
-    design = (root / "DESIGN.md").read_text() if (root / "DESIGN.md").exists() else ""
+    design = (root / "DESIGN.md").read_text(encoding="utf-8") if (root / "DESIGN.md").exists() else ""
     safe_write(root / "llms-full.txt", "\n\n".join([design, *pages.values()]))
     print(f"wrote llms.txt, llms-full.txt, {len(pages)} pages in llms/, dist/ds-index.json")
 
@@ -2016,6 +2017,11 @@ def hook_stop():
 
 
 def main():
+    for stream in (sys.stdout, sys.stderr):   # Windows consoles (cp1252) must not crash on → ✓ —
+        try:
+            stream.reconfigure(errors="backslashreplace")
+        except (AttributeError, ValueError):
+            pass
     for flag, key in (("--dry-run", "dry_run"), ("--force-all", "force")):
         if flag in sys.argv:
             sys.argv.remove(flag)

@@ -17,7 +17,7 @@ def index():
     p = ROOT / "dist" / "ds-index.json"
     if not p.exists():
         raise RuntimeError("dist/ds-index.json missing — run `ds.py llms <design-system dir>` first")
-    return json.loads(p.read_text())
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 def text(s):
@@ -41,7 +41,7 @@ def get_component(args):
     if not row:
         return text(f"No component '{cid}'. Use list_components or search.")
     doc = ROOT / row["doc"]
-    body = doc.read_text() if doc.exists() else "(no docs page yet — component not built)"
+    body = doc.read_text(encoding="utf-8") if doc.exists() else "(no docs page yet — component not built)"
     return text(f"{json.dumps(row, indent=1)}\n\n{body}")
 
 
@@ -69,7 +69,7 @@ def get_tokens(args):
 
 def get_design_md(_args):
     p = ROOT / "DESIGN.md"
-    return text(p.read_text() if p.exists() else "DESIGN.md missing — run `ds.py design-md`.")
+    return text(p.read_text(encoding="utf-8") if p.exists() else "DESIGN.md missing — run `ds.py design-md`.")
 
 
 TOOLS = {
