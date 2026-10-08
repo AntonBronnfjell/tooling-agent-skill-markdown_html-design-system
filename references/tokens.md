@@ -67,7 +67,9 @@ Also expected (not machine-checked): `typography` composites for display, h1–h
 ## 6. Themes, density, RTL
 
 - **Themes** override semantic tokens only; never redefine primitives in a theme file.
-- Apply `data-theme` on `<html>`: tokens alias each other at `:root`, so subtree theming needs the semantic vars redeclared on that subtree.
+- Apply `data-theme` on `<html>` for the page. For a **subtree** (an always-dark media stage, an inverted promo band) use `class="theme-dark"` (or `data-theme` on the element): `ds.py build` emits every theme as `[data-theme=x], .theme-x` and redeclares the themed semantic tokens there, so they resolve against that subtree's theme. A `.theme-light` block is generated too, for light islands inside dark pages.
+- Each theme sets `color-scheme`, so native controls and scrollbars match. Mark a custom dark theme with `"$extensions": {"color-scheme": "dark"}`.
+- Runtime switching, persistence and no-flash first paint: `js/theme.js` (copied by `ds.py init`).
 - **Density:** `[data-density="compact"]` swaps `--size-control-*` / padding vars in component CSS (`.btn { padding-inline: var(--density-comfortable-control-padding-x) }` and a compact override).
 - **RTL:** use logical properties everywhere (`margin-inline-start`, `inset-inline-end`, `padding-block`); mirror directional icons with `:dir(rtl) .icon--directional { transform: scaleX(-1) }`. Docs pages have an RTL toggle — check every component in it.
 
@@ -77,7 +79,9 @@ Also expected (not machine-checked): `typography` composites for display, h1–h
 
 ## 8. Gotchas
 
-- CSS custom properties cannot be used in `@media` queries — breakpoint tokens are documentation; mirror literals in media queries (or use container queries).
+- CSS custom properties cannot be used in `@media` queries — `ds.py build` also writes `dist/tokens.scss` (`$breakpoints`, `@include up(md)` / `down(md)`) and `dist/tokens.json` (resolved values for JS, charts, animations). Plain CSS: mirror the literal values or use container queries.
+- Renaming a token: add `"$deprecated": {"old.path": "new.path"}` to the token file; the build emits an alias var with a deprecation comment for one major version.
+- Fonts are part of the foundations: decide self-hosting and subsets in Phase 2 (see `packaging.md`).
 - Don't put `!important` or raw values in components to "fix" a token; fix the token.
 - Keep primitives exhaustive but semantic tokens *few*: if two semantic tokens always share a value and a meaning, merge them.
 - After editing any `tokens/*.json`, the PostToolUse hook rebuilds `dist/tokens.css` and reports errors; if hooks aren't active, run `ds.py build`.

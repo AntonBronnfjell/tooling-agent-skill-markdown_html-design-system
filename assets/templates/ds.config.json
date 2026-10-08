@@ -22,11 +22,20 @@
     "style": "",
     "palette": "",
     "typography": "",
-    "rationale": ""
+    "rationale": "",
+    "allocation": []
+  },
+  "principles": [],
+  "motion": {
+    "personality": "",
+    "bans": [],
+    "moments": []
   },
   "targets": [
     "html-css"
   ],
+  "package_name": "",
+  "version": "0.1.0",
   "decisions": [],
   "contrast_pairs": [
     [

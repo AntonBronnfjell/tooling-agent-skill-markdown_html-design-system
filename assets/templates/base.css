@@ -69,3 +69,11 @@ p { text-wrap: pretty; }
 @media (forced-colors: active) {
   :focus-visible { outline-color: Highlight; }
 }
+
+/* Explicit reduced-motion switch (docs toggle, Storybook global, user setting). Mirrors the media query. */
+[data-reduced-motion], [data-reduced-motion] *, [data-reduced-motion] *::before, [data-reduced-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

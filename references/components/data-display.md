@@ -51,3 +51,12 @@ Files: `table`, `data-table` (data-table, tree-table), `card`, `accordion` (acco
 
 ## truncate
 - `line-clamp` (`-webkit-line-clamp` + `display:-webkit-box`) with a "Show more" `<button aria-expanded>`; single-line ellipsis utility with full text in `title`/tooltip only when focusable.
+
+## post-card
+- `<article aria-labelledby>` in a feed: author row (avatar, name link, `<time datetime>` relative + absolute in `title`), body (`.prose`, truncate long text), optional media (media-stage or image grid), action bar (like/comment/share as toggle buttons with counts in the accessible name: "Like, 12 likes"). Loading skeleton matches the geometry. Whole-card link follows the card pattern (one stretched primary link).
+
+## media-stage
+- Hero media surface: `<figure>` that renders on an always-dark subtree (`class="theme-dark"`) regardless of page theme, so overlays and captions keep contrast over imagery. Variants: image, video (native `<video controls>` with captions `<track>`), audio, live (red "Live" badge with text, never color only). Scrim gradient from tokens behind overlaid text; duration badge (`<time>` with `datetime="PT3M20S"`); caption via `figcaption`. No autoplay with sound; `prefers-reduced-motion` disables autoplaying video previews.
+
+## stat (addition)
+- Optional count-up on first reveal: animate only under full motion, render the final value in the DOM from the start (screen readers and no-JS see the real number), never re-run on re-render.

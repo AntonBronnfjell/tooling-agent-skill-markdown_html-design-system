@@ -643,14 +643,12 @@
   },
   "z": {
     "$type": "number",
+    "$description": "Layers that open FROM dialogs (dropdown, popover, tooltip) sit above modal. Native top-layer (dialog/popover) ignores z-index; these matter for JS-positioned and fixed elements.",
     "base": {
       "$value": 0
     },
     "raised": {
       "$value": 10
-    },
-    "dropdown": {
-      "$value": 1000
     },
     "sticky": {
       "$value": 1100
@@ -663,6 +661,9 @@
     },
     "modal": {
       "$value": 1400
+    },
+    "dropdown": {
+      "$value": 1500
     },
     "popover": {
       "$value": 1500

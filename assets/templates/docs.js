@@ -10,7 +10,7 @@
   apply(theme);
 
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-theme-toggle], [data-density-toggle], [data-dir-toggle]");
+    const btn = e.target.closest("[data-theme-toggle], [data-density-toggle], [data-dir-toggle], [data-motion-toggle]");
     if (!btn) return;
     if (btn.hasAttribute("data-theme-toggle")) {
       theme = themes[(themes.indexOf(theme) + 1) % themes.length];
@@ -20,6 +20,9 @@
       const compact = root.getAttribute("data-density") !== "compact";
       compact ? root.setAttribute("data-density", "compact") : root.removeAttribute("data-density");
       btn.setAttribute("aria-pressed", String(compact));
+    } else if (btn.hasAttribute("data-motion-toggle")) {
+      const reduced = root.toggleAttribute("data-reduced-motion");
+      btn.setAttribute("aria-pressed", String(reduced));
     } else {
       root.dir = root.dir === "rtl" ? "ltr" : "rtl";
       btn.setAttribute("aria-pressed", String(root.dir === "rtl"));

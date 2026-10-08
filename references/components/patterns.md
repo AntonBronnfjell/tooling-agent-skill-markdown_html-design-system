@@ -36,3 +36,9 @@ Patterns are **compositions of existing components only** — if a pattern needs
 
 ## onboarding (enterprise)
 - Welcome screen + setup checklist (progress, items linking to tasks, dismiss when done) and optional coachmarks for key UI. Skippable; resumable.
+
+## feed (enterprise)
+- APG feed pattern: container `role="feed" aria-busy` while loading, each item `<article aria-posinset aria-setsize="-1" aria-labelledby>` (post-card). Page Down/Up move between articles. Load more via a visible "Load more" button (infinite scroll may trigger it, but the button stays for keyboard users). "New posts" notice is a button at the top that inserts items and moves focus — never shift content under the reader. Empty and loading states.
+
+## Real-screen demos
+- Besides per-pattern demos, add at least one full screen per product surface (e.g. "Dashboard — populated", "Settings — dirty form") composed only from system components. They're the integration test that reveals missing tokens and spacing gaps; Storybook renders patterns full-screen.

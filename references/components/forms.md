@@ -83,3 +83,6 @@ Build `form-field` first — every control below is rendered inside it.
 
 ## error-summary
 - On submit with errors: `role="alert"` (or focus the summary with `tabindex="-1"`) at the top of the form, heading "There is a problem", list of links to each invalid field (`href="#field-id"`). Prefix the page `<title>` with "Error: ". From GOV.UK — the single most impactful form pattern.
+
+## composer (enterprise)
+- `<form>` with a labelled auto-growing `<textarea>` (`field-sizing: content`, max height then scroll), attachment button (real `input[type=file]`) with removable previews, character counter (polite), send button (`type=submit`, disabled only while sending — show `aria-busy` + inline spinner). Enter inserts newline; Ctrl/Cmd+Enter sends (document it). Failed send keeps the text and shows an inline error with retry.

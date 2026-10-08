@@ -1,0 +1,41 @@
+# Testing & accessibility automation
+
+`ds.py check --strict` guarantees structure (tokens, contrast, lint, coverage). Behavior and real accessibility need tests in a browser. Pick the layer that matches the project's targets.
+
+## 1. Storybook (all targets) — cheapest wide net
+`ds.py storybook` configures `@storybook/addon-a11y` with `parameters.a11y.test = 'error'`: axe runs on every story (every state of every component) in the Accessibility panel. To fail CI, add Storybook's Vitest integration (`npx storybook add @storybook/addon-vitest`, then `npx vitest --project=storybook`) — stories become tests and a11y violations fail them. Run it in the four combinations that matter: light, dark, high-contrast, RTL (globals per test or per story `globals`).
+
+## 2. Static HTML system — Playwright + axe
+For each `components/*.html` and `patterns/*.html` page, in each theme:
+
+```js
+// tests/a11y.spec.js  (npm i -D @playwright/test @axe-core/playwright)
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { readdirSync } from 'node:fs';
+const pages = ['components', 'patterns'].flatMap((d) => readdirSync(d).filter((f) => f.endsWith('.html')).map((f) => `${d}/${f}`));
+for (const theme of ['light', 'dark', 'high-contrast']) for (const page of pages) {
+  test(`${page} [${theme}]`, async ({ page: p }) => {
+    await p.goto(`http://127.0.0.1:8000/${page}`);           // `ds.py serve .` in webServer config
+    await p.evaluate((t) => (document.documentElement.dataset.theme = t), theme);
+    const { violations } = await new AxeBuilder({ page: p }).disableRules(['region']).analyze();
+    expect(violations).toEqual([]);
+  });
+}
+```
+
+Add keyboard tests for composite widgets straight from each page's accessibility keyboard table (Tab reaches it once, arrows move, Esc closes and returns focus).
+
+## 3. Framework adapters (React/Vue/Svelte/Angular) — unit + a11y
+Per component: `Name.test.tsx` next to the component, Testing Library + `jest-axe`/`vitest-axe`:
+- Assert **roles and names** (`getByRole('button', { name: 'Save' })`), not classes.
+- Assert **states** through ARIA (`aria-pressed`, `aria-expanded`, `aria-busy`, `aria-invalid`) and **keyboard** (`user.keyboard('{ArrowDown}')`).
+- `expect(await axe(container)).toHaveNoViolations()` per variant (disable `region` for isolated components).
+- Shared setup shims for jsdom: `matchMedia`, `ResizeObserver`, `IntersectionObserver`, `HTMLDialogElement.showModal`, `offsetParent`; mock animation libraries so animations resolve instantly.
+- Order of work per component: test → component → story. The test encodes the contract from `component-contract.md`; the story documents it.
+
+## 4. Visual regression (optional)
+Chromatic, Playwright `toHaveScreenshot()`, or Storybook's visual tests across themes and viewports. Gate only on reviewed baselines; skip shimmer/animated stories or force reduced motion.
+
+## 5. What CI runs (`ds.py ci` generates the first two)
+1. `ds.py check . --strict` 2. Storybook build (+ Vitest a11y if configured) 3. Playwright/axe or unit tests 4. publish.

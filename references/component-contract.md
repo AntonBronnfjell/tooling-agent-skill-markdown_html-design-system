@@ -72,6 +72,10 @@ Reach for the platform before writing JS (this is where `/ponytail` thinking pay
 
 When JS is needed: one small vanilla ES module per file in `js/`, progressive enhancement (page still usable without it), no dependencies, follows the WAI-ARIA APG keyboard model for its pattern.
 
+**Module contract:** export `init(root = document)` that enhances every matching element inside `root` and is safe to call twice (mark enhanced elements with `data-enhanced`). Storybook and the docs pages call `init(storyRoot)`; apps call it after rendering. No side effects on import.
+
+**Shared behaviors first:** before overlays and composite widgets, build `js/lib/` once — `roving-focus.js` (toolbar, tabs, menu, radio-like groups), `dismiss.js` (Esc + outside click + focus return), `position.js` (anchor positioning fallback with flip), `hotkey.js` (⌘K, `/`), `live-region.js` (polite/assertive announcer). Every component module imports these instead of re-implementing them — that's what keeps 40 widgets behaving identically.
+
 ## 5. Accessibility checklist (WCAG 2.2 AA)
 
 - Correct role from native element first; ARIA only to fill gaps. Manifest `aria` field names the APG pattern.
@@ -93,7 +97,22 @@ Every page contains `data-doc="usage"`, `"anatomy"`, `"examples"`, `"accessibili
 - **accessibility** — role, keyboard table, ARIA attributes, focus behavior, screen-reader announcement.
 - **tokens** — component tokens and the semantic tokens it consumes.
 
-## 7. Review checklist before marking done
+## 7. Framework adapters (when `targets` includes React/Vue/Svelte/Angular/Web Components)
+
+The HTML/CSS system stays the source of truth; adapters render **the same markup and classes** and reuse the same CSS and `js/lib` behaviors.
+
+- **Folder per component:** `Button/Button.tsx` · `Button.module.css` (or plain classes from the system CSS) · `Button.stories.tsx` · `Button.test.tsx` · `index.ts`. One public barrel `src/index.ts`.
+- **Layers, imports only point downward:** `ui` (foundations + simple actions/display) → `base` (stateful controls, overlays, forms) → `layout` (navigation, app shell) → `sections` (patterns). Map from manifest categories: foundations/actions/most data-display → ui; forms/overlays/feedback → base; navigation → layout; patterns → sections.
+- **API conventions:**
+  - `variant`/`size` props use the manifest's names; state props mirror ARIA (`pressed`, `expanded`, `invalid`, `loading`).
+  - Controlled **and** uncontrolled (`value`/`defaultValue`/`onValueChange`) via one `useControllableState` helper.
+  - Router-agnostic links: `renderLink`/`asChild`/`as` prop so apps plug in their router's `<Link>`; export class helpers (`buttonClassName({ variant })`) for non-component use.
+  - Field composition: `<Field label hint error>{(props) => <Combobox {...props} />}</Field>` so ids/`aria-describedby` are wired once.
+  - Imperative APIs only where it's the natural model (`toast()`, `confirm()`), backed by a provider/host component.
+  - Forward refs / expose the root element; spread remaining props onto the root; never swallow `className`/`style`.
+- **Order of work per component:** test (role, keyboard, axe) → component → story. See `testing.md` and `storybook.md`.
+
+## 8. Review checklist before marking done
 
 1. `ds.py coverage <dir>` shows the file's components as `[x]`.
 2. `ds.py check <dir>` has no token errors and no lint issues for this file.

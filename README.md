@@ -1,22 +1,90 @@
 # html-design-system
 
-Agent skill (Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf, Cline, Kiro, Roo, OpenCode, …) that decides **which** design system a product needs (extend what exists, adopt a reference system such as Carbon / Material 3 / Fluent 2 / Polaris, or create a new direction) and then builds a **complete** HTML/CSS design system: DTCG tokens with light / dark / high-contrast themes and all 130 components of the enterprise taxonomy, each with every state, WCAG 2.2 AA accessibility and a docs page.
+An agent skill that turns an AI coding assistant into a design-system team. It first decides **which** design system your product needs, then builds a **complete** one: every token, every component, every state. It also writes the documentation, a Storybook, a `DESIGN.md` contract, an npm package and a CI pipeline. Scripts and hooks check the work, so nothing is quietly skipped.
 
-Completeness is enforced by tooling, not memory: a machine-readable manifest, a stdlib-only CLI, and hooks that lint every edit and refuse to stop while the build is incomplete.
+It works with Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf/Devin, Cline, Kiro, Roo Code, OpenCode, Amp, Goose, Junie and Continue (see [Install](#install-any-agent)).
 
-## Layout
+## Why it exists
+
+Ask an AI to "build a design system" and you usually get a dozen pretty components. The look is generic. Half the states are missing. Focus styles are broken. The dark mode is unreadable, and there's no way to tell what's missing. This skill fixes the two things that go wrong:
+
+| Failure | How the skill prevents it |
+|---|---|
+| **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds.py audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
+| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **136 components**, each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+
+## What it does, step by step
+
+1. **Discover.** It finds what already exists: CSS variables, Tailwind config, duplicate modals, Figma variables. `ds.py audit` counts distinct colors, spacings, fonts and radii, so "we have a system" and "we have 212 different grays" are easy to tell apart.
+2. **Decide.** It picks extend, adopt or new (hybrids allowed), the tier (core, standard or enterprise), the motion personality, the fonts, and which surfaces each look is allowed on. Every choice is written to `ds.config.json` as a short decision record.
+3. **Tokens.** It writes W3C-format design tokens in three tiers: raw values, intent-based tokens and per-component tokens. They come with light, dark and high-contrast themes, density and RTL support. Contrast is checked for every text/background pair in every theme.
+4. **Plan.** It produces an ordered build queue (`ds.py plan`) and asks for approval in `/plan` mode before writing 100+ files.
+5. **Build.** The agent builds a reference implementation first (typography, layout, button, form field, shared JS behaviors), then hands the remaining categories to parallel subagents. Each component gets CSS that uses only tokens, a docs page showing every variant and state, and, only when native HTML can't do the job, a small vanilla JS module.
+6. **Verify.** `ds.py check --strict` must pass. Storybook runs axe on every story. Optional Playwright + axe tests cover every page in every theme. It also checks keyboard walkthroughs, RTL, 320px width and reduced motion.
+7. **Ship.** It generates the `DESIGN.md` contract, a standalone Storybook, an npm package, a CI pipeline, a changelog with migration notes, and governance docs.
+
+## What you get
 
 ```
-./  (repo root = skill root)
-├── SKILL.md                     workflow (discover → decide → tokens → plan → build → verify → ship) + hooks
-├── assets/
-│   ├── manifest.json            130 components · 8 categories · tiers core/standard/enterprise
-│   └── templates/               DTCG tokens, themes, config, base.css, docs chrome, page template
-├── scripts/ds.py                init · audit · build · check · coverage · plan · phase · status · hook entry points
-├── hooks/settings.example.json  manual Claude hook snippet (the installer's --claude-hooks does this for you)
-├── install.py / .sh / .ps1      cross-agent installer
-└── references/                  decision guide, tokens, component contract, per-category specs, companions, governance
+design-system/
+├── ds.config.json        brief, direction, tier, motion, principles, decision records, contrast pairs
+├── tokens/               DTCG: primitive · semantic · component · themes/{dark,high-contrast} · components/*
+├── dist/                 tokens.css · ds.css (bundle) · tokens.json · tokens.scss (media-query mixins)
+├── css/                  base.css (reset, focus, sr-only, reduced motion) · components/*.css · patterns/*.css
+├── js/                   theme.js (runtime + no-flash) · lib/* shared behaviors · <component>.js (init(root))
+├── components/*.html     one docs page per component: usage · anatomy · live examples · accessibility · tokens
+├── patterns/*.html       app shell, forms, dashboard, auth, settings, list/detail, wizard, feed, empty/error states
+├── index.html            catalog with live coverage
+├── DESIGN.md             the one-file contract for humans and AI agents
+├── .storybook/ stories/  standalone Storybook (generated from the pages)
+├── package.json          npm exports for CSS, tokens and JS
+└── tools/ds/             vendored CLI so CI and teammates don't need the skill installed
 ```
+
+### Component coverage (136)
+
+| Category | Count | Examples |
+|---|---|---|
+| Foundations & primitives | 18 | box, stack, cluster, grid, container, icon, type scale, code, kbd, prose, divider, image, scroll area |
+| Actions | 17 | primary/secondary/ghost/destructive buttons, icon button, link, toggle, segmented control, split button, menu, FAB, theme toggle, copy, toolbar |
+| Forms | 32 | field wrapper, text/password/search/number inputs, checkbox, radio, switch, select, combobox, listbox, transfer list, upload, slider, date/time/range pickers, color picker, OTP, tag input, rating, rich-text shell, inline edit, composer, error summary |
+| Navigation | 17 | top nav, side nav, app rail, bottom nav, breadcrumbs, tabs, pagination, stepper, command palette, skip link, tree view, TOC, page/section headers, footer |
+| Data display | 21 | table, data table (sort/filter/select/bulk), tree table, card, post card, accordion, avatar, badge, tag, lists, timeline, carousel, media stage, stat, chart container, hover card |
+| Overlays | 9 | modal, alert dialog, drawer, bottom sheet, popover, tooltip, context menu, coachmark, lightbox |
+| Feedback | 10 | inline/global alerts, callout, toast, progress, meter, spinner, skeleton, notification center |
+| Patterns | 12 | app shell, form layout, dashboard, empty state, error pages, auth, settings, list/detail, detail page, wizard, onboarding, feed |
+
+Tiers: **core** has 65 components (what every product needs), **standard** adds 44 for a typical product suite, and **enterprise** adds the last 27. Ask for "complete" and you get enterprise.
+
+### What "done" means for each component
+
+- A docs page that shows **every** variant, size and state in the manifest: hover, focus-visible, active, disabled, loading, invalid, read-only, selected, open/closed, empty, error. The CLI checks every one.
+- CSS that uses only tokens. It uses logical properties (so RTL works), supports forced colors, respects reduced motion, has hit targets of at least 24px, and never removes focus outlines.
+- Native HTML first: `<dialog>`, the `popover` attribute, `<details>` and native inputs. JS is added only where the platform falls short, and follows the WAI-ARIA keyboard patterns.
+- Accessibility to WCAG 2.2 AA. Every page documents the roles, keyboard table, focus management and screen-reader announcements.
+- A framework version, when you ask for React/Vue/Svelte/Angular/Web Components. It renders the same markup, follows the component layers and API conventions, and is built test → component → story.
+
+## See it independently of your app
+
+| Option | Command | Best for |
+|---|---|---|
+| Docs site | `ds.py serve design-system` → http://127.0.0.1:8000 | Zero dependencies. Theme, density, RTL and motion toggles on every page |
+| Storybook (HTML) | `ds.py storybook design-system && cd design-system && npm i && npm run storybook` | One story per demo state, a live token catalog, the same toolbar, axe on every story, a static build you can deploy |
+| Storybook (frameworks) | see `references/storybook.md` | React, Vue, Svelte, Angular and Web Components adapters, with the same categories, toolbar and a11y gate |
+| Alternatives | see `references/storybook.md` | Histoire, Ladle, Lookbook, Pattern Lab, Fractal |
+
+`ds.py ci --provider github` deploys the Storybook to GitHub Pages on every merge. GitLab gets the equivalent through `--provider gitlab`.
+
+## Using it
+
+After installing, just ask:
+
+- "Build a complete design system for our fleet-maintenance SaaS: dispatchers and mechanics, desktop and tablet."
+- "Our CSS in `./src/styles` is a mess. Turn it into a real design system, core tier, keep our teal brand."
+- "Should we adopt Carbon or Polaris for our finance admin tool? Set up the tokens and plan, but don't build yet."
+- "Finish the design system in `./design-system` and give me a Storybook and an npm package."
+
+In Claude Code you can also call it directly: `/html-design-system new enterprise`, `/html-design-system extend ./src`, `/html-design-system resume`.
 
 ## Install (any agent)
 
@@ -68,15 +136,40 @@ Agents that read `~/.agents/skills` don't get a second copy in their own folder 
 
 ## Companion skills
 
-Uses `/graphify` (existing-code discovery, final component↔token map), `/ui-ux-pro-max` (style, palette, fonts, UX rules), `/plan` (approval before building), `/ponytail` (native-first, minimal implementation), `/ui-styling` (Tailwind / shadcn adapters). All optional with documented fallbacks — see `references/companion-skills.md`.
+When installed, it uses `/graphify` (existing-code discovery, final component↔token map), `/ui-ux-pro-max` (style, palette, fonts, UX rules), `/plan` (approval before building), `/ponytail` (native-first, minimal implementation), `/ui-styling` (Tailwind / shadcn adapters). All optional with documented fallbacks — see `references/companion-skills.md`.
 
-## CLI quick reference
+## CLI reference (`scripts/ds.py`, Python 3.8+, no dependencies)
 
 ```bash
 DS="python3 scripts/ds.py"
-$DS audit ./src                         # what de-facto design system exists?
+$DS audit ./src                          # inventory an existing codebase's de-facto design system
 $DS init ./design-system --name Acme --tier enterprise
-$DS build ./design-system               # tokens.css, ds.css, index.html
-$DS check ./design-system --strict      # tokens, contrast (all themes), lint, coverage
-$DS plan ./design-system                # what's left, grouped by file
+$DS build ./design-system                # tokens.css/json/scss, ds.css bundle, index.html
+$DS check ./design-system --strict       # token validity, contrast in every theme, lint, coverage
+$DS coverage ./design-system             # per component: which demos/doc sections/CSS are missing
+$DS plan ./design-system                 # ordered build queue grouped by file
+$DS phase ./design-system build          # discover | decide | plan | build | done (drives the Stop gate)
+$DS serve ./design-system                # preview at http://127.0.0.1:8000
+$DS storybook ./design-system            # generate the standalone Storybook
+$DS design-md ./design-system            # write DESIGN.md
+$DS package ./design-system              # npm-ready package.json
+$DS ci ./design-system --provider github # pipeline + vendored tools
+$DS status                               # one-line state of the nearest design system
+```
+
+## Repository layout
+
+```
+./  (repo root = skill root)
+├── SKILL.md                     the workflow the agent follows, plus scoped Claude Code hooks
+├── assets/
+│   ├── manifest.json            136 components · 8 categories · core/standard/enterprise tiers
+│   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
+│                                storybook/ (main, preview, render), ci/ (GitHub Actions, GitLab CI)
+├── scripts/ds.py                the CLI above + hook entry points
+├── references/                  decision guide · tokens · component contract · per-category specs · motion ·
+│                                storybook · testing · packaging · governance · companion skills · builder brief
+├── hooks/settings.example.json  manual Claude hook snippet (install.py --claude-hooks does this for you)
+├── evals/                       test prompts + fixture for evaluating the skill
+└── install.py / .sh / .ps1      cross-agent installer
 ```

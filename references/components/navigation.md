@@ -53,3 +53,9 @@ Common rule: the current location uses `aria-current="page"` (or `"step"`, `"loc
 
 ## footer
 - `<footer>` (contentinfo at page level): link columns with headings, legal, language selector, social links (icon-only need labels). Simple and multi-column variants.
+
+## section-header
+- Heading block that opens a page section: optional overline (small caps label, `text-overline`), heading at the right semantic level, description (≤ 2 lines, `--size-measure`), trailing action (link or button). Centered variant for marketing/landing sections. The overline is not part of the heading's accessible name unless intended — place it before the heading as a `<p>`.
+
+## bottom-nav (now standard tier)
+- Core for mobile-first products: show it below the `lg` breakpoint and swap to side-nav/top-nav above it inside the app shell (one nav visible at a time, same destinations, same `aria-current`).

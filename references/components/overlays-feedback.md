@@ -50,3 +50,6 @@ All overlays use the browser **top layer** (`dialog.showModal()` / `popover`) so
 
 ## notification-center (enterprise)
 - Bell icon button with unread count in its name → popover/drawer listing notifications (`<ul>` feed), unread indicator (dot + "Unread" text), mark-as-read / mark-all, filters (All/Unread), empty state, links to settings.
+
+## Layer order (z-index)
+Native `dialog`/`popover` live in the top layer and ignore z-index. For fixed or JS-positioned layers the token order is: sticky < fixed < overlay < **modal < dropdown/popover** < toast < tooltip — anything that can open *from* a dialog must sit above it.

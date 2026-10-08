@@ -520,6 +520,21 @@
      "desc": "Standard dismiss control for overlays."
     },
     {
+     "id": "theme-toggle",
+     "name": "Theme Toggle",
+     "tier": "core",
+     "file": "theme-toggle",
+     "demos": [
+      "state:system",
+      "state:light",
+      "state:dark",
+      "state:focus-visible"
+     ],
+     "aria": "button (aria-pressed) / radio group",
+     "native": "button / fieldset + radios",
+     "desc": "Switches data-theme via js/theme.js; persists and follows the OS by default."
+    },
+    {
      "id": "copy-button",
      "name": "Copy to Clipboard",
      "tier": "standard",
@@ -1018,6 +1033,22 @@
      "desc": "Click-to-edit value."
     },
     {
+     "id": "composer",
+     "name": "Composer / Message Input",
+     "tier": "enterprise",
+     "file": "composer",
+     "demos": [
+      "state:empty",
+      "state:filled",
+      "state:sending",
+      "variant:with-attachments",
+      "state:invalid"
+     ],
+     "aria": "form",
+     "native": "form + textarea",
+     "desc": "Auto-growing message box with attachments, character limit and send action."
+    },
+    {
      "id": "error-summary",
      "name": "Error Summary",
      "tier": "standard",
@@ -1084,7 +1115,7 @@
     {
      "id": "bottom-nav",
      "name": "Bottom Navigation (mobile)",
-     "tier": "enterprise",
+     "tier": "standard",
      "file": "bottom-nav",
      "demos": [
       "state:default",
@@ -1256,6 +1287,21 @@
      "desc": "Title, meta, actions for a page."
     },
     {
+     "id": "section-header",
+     "name": "Section Header",
+     "tier": "standard",
+     "file": "section-header",
+     "demos": [
+      "variant:with-overline",
+      "variant:with-action",
+      "variant:centered",
+      "variant:with-description"
+     ],
+     "aria": null,
+     "native": "header + h2",
+     "desc": "Heading block for a page section: overline, title, description, trailing action."
+    },
+    {
      "id": "footer",
      "name": "Footer",
      "tier": "standard",
@@ -1337,6 +1383,22 @@
      "aria": null,
      "native": "article",
      "desc": "Containment block."
+    },
+    {
+     "id": "post-card",
+     "name": "Post / Content Card",
+     "tier": "standard",
+     "file": "post-card",
+     "demos": [
+      "variant:text",
+      "variant:media",
+      "variant:with-actions",
+      "state:loading",
+      "state:hover"
+     ],
+     "aria": "article",
+     "native": "article",
+     "desc": "Feed item: author, timestamp, body, media, reactions/actions."
     },
     {
      "id": "accordion",
@@ -1500,6 +1562,23 @@
      "aria": "carousel",
      "native": "section + ul",
      "desc": "Swipeable panels; pausable, no autoplay by default."
+    },
+    {
+     "id": "media-stage",
+     "name": "Media Stage",
+     "tier": "standard",
+     "file": "media-stage",
+     "demos": [
+      "variant:image",
+      "variant:video",
+      "variant:audio",
+      "variant:live",
+      "state:loading",
+      "variant:with-caption"
+     ],
+     "aria": "figure",
+     "native": "figure + video/audio controls",
+     "desc": "Hero media surface on an always-dark subtree (.theme-dark) with scrim, duration/live badge and caption."
     },
     {
      "id": "stat",
@@ -1959,6 +2038,21 @@
      "aria": null,
      "native": "main",
      "desc": "Collection browsing pattern."
+    },
+    {
+     "id": "feed",
+     "name": "Feed",
+     "tier": "enterprise",
+     "file": "feed",
+     "demos": [
+      "variant:infinite",
+      "state:loading",
+      "state:empty",
+      "variant:new-items"
+     ],
+     "aria": "feed",
+     "native": "main + article[aria-posinset]",
+     "desc": "Scrolling stream of post cards with load-more and 'new items' notice."
     },
     {
      "id": "detail-page",

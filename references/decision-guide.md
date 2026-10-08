@@ -56,13 +56,21 @@ Borrow **structure and behavior** (inventory, states, ARIA, token tiers, naming)
 2. Deep-dive any uncertain dimension with `--domain color|typography|style|ux`.
 3. Translate the output into tokens (see `tokens.md` §4): palette → primitives, roles → semantic, fonts → `font.family`, style keywords → radius/shadow/motion choices.
 4. Sanity-check distinctiveness with `/frontend-design` guidance if the result reads as a generic template.
+5. **Allocate the style** when the direction mixes looks (e.g. editorial serif + brutalist accents + calm UI): record in `direction.allocation` which surfaces each look *owns* and what it is *never used for*, plus a budget ("one expressive moment per screen"). Without this, the loudest style leaks into every form and table.
+   ```json
+   "allocation": [
+     { "name": "Editorial", "owns": "page titles, empty states, marketing sections", "never": "data tables, forms" },
+     { "name": "Functional", "owns": "all controls, navigation, data", "never": "hero moments" }
+   ]
+   ```
+6. Decide motion personality, bans and signature moments (`motion.md`) and record them in `ds.config.json → motion`.
 
 ## 5. Brief questions (ask only what Phase 0 couldn't answer)
 
 Batch these into one AskUserQuestion round, max 4:
 - Product type & primary users (enterprise data tool? consumer? public service?)
 - Existing assets: repo / Figma / brand guide / none
-- Scope tier: core (MVP ~64 items) · standard (~104) · enterprise (all 130) — default **enterprise** when the user asks for "complete"
+- Scope tier: core (MVP, 65 items) · standard (109) · enterprise (all 136) — default **enterprise** when the user asks for "complete"
 - Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React wrappers, Figma variables
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support
 

@@ -19,7 +19,8 @@ Your files (build every one; each file covers several manifest components):
 For each file:
 - Write css/<components|patterns>/<file>.css and <components|patterns>/<file>.html (from docs/_component-template.html).
 - Put component tokens in tokens/components/<file>.json (your own file — never edit shared token files).
-- JS only when native HTML can't do it: js/<file>.js, vanilla ES module, progressive enhancement.
+- JS only when native HTML can't do it: js/<file>.js, vanilla ES module exporting init(root), progressive enhancement; reuse js/lib/* behaviors (roving focus, dismiss, position, hotkey, live region) — never re-implement them.
+- Framework targets: per component write the test first, then the component, then the story (references/testing.md, references/storybook.md).
 - Run `python3 <SKILL_DIR>/scripts/ds.py coverage <ABS_DIR>` and fix until your files' components are [x].
 - Run `python3 <SKILL_DIR>/scripts/ds.py check <ABS_DIR>` and fix lint issues in your files.
 

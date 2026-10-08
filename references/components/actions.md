@@ -47,3 +47,7 @@ Files: `button`, `icon-button`, `link`, `button-group`, `toggle-button`, `segmen
 
 ## toolbar
 - `role="toolbar"` + `aria-label`; roving tabindex — one Tab stop, arrows move between controls; groups separated by `role="separator"`. Overflow → "More" menu.
+
+## theme-toggle
+- Ships with `js/theme.js` (`initTheme`, `setTheme`, `getTheme`, `onThemeChange`, `init` for `[data-theme-cycle]`). Two forms: a cycling `<button>` labelled "Theme: dark" (name updates with the state), or a radio group (System / Light / Dark) in settings. "System" is the default and follows `prefers-color-scheme`.
+- The page `<head>` carries the no-flash inline snippet from `theme.js` so the first paint already uses the saved theme. Storage access is wrapped in try/catch (private mode), and tabs stay in sync via the `storage` event.
