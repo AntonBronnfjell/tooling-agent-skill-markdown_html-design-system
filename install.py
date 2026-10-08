@@ -227,7 +227,7 @@ def install(a):
         settings = (Path(a.project).resolve() / ".claude/settings.json") if a.project else HOME / ".claude/settings.json"
         skill_dir = base_for(a, "claude") / NAME
         claude_hooks(ctx, settings, "$CLAUDE_PROJECT_DIR/.claude/skills/" + NAME if a.project else skill_dir)
-    print("\nAider (no skill support): add to .aider.conf.yml →  read: [" + str(portable_dir / "SKILL.md") + "]")
+    print("\nAider (no skill support): add to .aider.conf.yml ->  read: [" + str(portable_dir / "SKILL.md") + "]")
     print("Done. Restart running agents so they pick up the skill. Try: \"build a design system for <your product>\".")
 
 
@@ -248,10 +248,15 @@ def list_agents(a):
         det = "optional" if spec.get("optional") else ("detected" if spec["detect"]() else "not found")
         path = base_for(a, name) / (f"{NAME}.md" if spec["kind"] == "rule" else NAME)
         state = "installed" if path.exists() or path.is_symlink() else "-"
-        print(f"{name:9} {det:10} {state:9} {path}  — {spec['note']}")
+        print(f"{name:9} {det:10} {state:9} {path}  - {spec['note']}")
 
 
 def main():
+    for stream in (sys.stdout, sys.stderr):   # Windows consoles/pipes (cp1252) must never crash on output
+        try:
+            stream.reconfigure(errors="backslashreplace")
+        except (AttributeError, ValueError):
+            pass
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tools", default="auto", help="auto (default) | all | comma list: " + ",".join(AGENTS))
     ap.add_argument("--project", metavar="DIR", help="install into a project instead of your user profile")

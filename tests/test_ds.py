@@ -175,7 +175,7 @@ class TestSafety(Temp):
         root = self.tmp / "ds"
         run("init", root, "--tier", "core")
         base = root / "css" / "base.css"
-        base.write_text(base.read_text(encoding="utf-8") + "/* mine */\n")
+        base.write_text(base.read_text(encoding="utf-8") + "/* mine */\n", encoding="utf-8")
         run("init", root, "--force")
         self.assertTrue(base.read_text(encoding="utf-8").endswith("/* mine */\n"))
         run("init", root, "--force", "--force-all")
@@ -237,8 +237,9 @@ class TestInstaller(Temp):
         home = self.tmp / "home"
         (home / ".claude").mkdir(parents=True)
         env = {"HOME": str(home), "USERPROFILE": str(home)}
-        subprocess.run([sys.executable, str(REPO / "install.py"), "--tools", "all"], env={**os.environ, **env},
-                       capture_output=True, text=True, check=True)
+        p = subprocess.run([sys.executable, str(REPO / "install.py"), "--tools", "all"], env={**os.environ, **env},
+                           capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, f"install.py failed:\n{p.stdout}\n{p.stderr}")
         portable = home / ".agents" / "skills" / "html-design-system" / "SKILL.md"
         self.assertTrue(portable.exists())
         fm = portable.read_text(encoding="utf-8").split("---")[1]
