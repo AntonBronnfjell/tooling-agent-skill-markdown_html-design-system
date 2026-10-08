@@ -88,4 +88,13 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Print: light, ink-friendly, no interactive chrome, URLs visible. */
+  @media print {
+    :root { color-scheme: light; --color-bg-canvas: #fff; --color-bg-surface: #fff; --color-text-default: #000; }
+    nav, dialog, [popover], .ds-no-print, [data-print="hide"] { display: none !important; }
+    a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; }
+    article, figure, table, pre, blockquote, .card { break-inside: avoid; }
+    h1, h2, h3 { break-after: avoid; }
+  }
 }

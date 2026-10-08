@@ -6,6 +6,15 @@
 `ds.py storybook` configures `@storybook/addon-a11y` with `parameters.a11y.test = 'error'`: axe runs on every story (every state of every component) in the Accessibility panel. To fail CI, add Storybook's Vitest integration (`npx storybook add @storybook/addon-vitest`, then `npx vitest --project=storybook`) — stories become tests and a11y violations fail them. Run it in the four combinations that matter: light, dark, high-contrast, RTL (globals per test or per story `globals`).
 
 ## 2. Static HTML system — Playwright + axe
+
+**Generate it:** `ds.py playwright <dir>` writes `playwright.config.mjs` and `tests/design-system.spec.mjs` (yours to edit; only `--force` regenerates). It covers every docs page × every theme × desktop and mobile, plus RTL, with:
+- visual regression via `toHaveScreenshot()`, baselines committed in `tests/__screenshots__`;
+- axe accessibility, failing with the element and measured contrast;
+- a keyboard check that every Tab stop shows a visible focus indicator.
+
+The web server is `ds.py serve`, so there's no app to run. It's free and local: create baselines on the same OS as CI (the Playwright Docker image), because font rendering differs per OS. Lost Pixel's open-source mode and BackstopJS are no longer actively maintained; Argos is an open-source alternative if you want hosted review.
+
+The hand-written equivalent, for reference:
 For each `components/*.html` and `patterns/*.html` page, in each theme:
 
 ```js

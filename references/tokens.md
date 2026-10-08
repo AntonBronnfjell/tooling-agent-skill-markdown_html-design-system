@@ -41,9 +41,16 @@ W3C Design Tokens Community Group format (DTCG 2025.10): every token is an objec
 
 Composite `typography` tokens become sub-properties: `--typography-h1-font-size`, `--typography-h1-line-height`, …
 
-Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier, shadow (single or list), border, transition, gradient (`[{color, position}]` → `linear-gradient(90deg, …)`), typography. Plain strings (e.g. `clamp(…)`) pass through unchanged.
+Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier, shadow (single or list), border, transition, gradient (`[{color, position}]` → `linear-gradient(90deg, …)`), typography. Plain strings (e.g. `clamp(…)`) pass through unchanged. Load order: primitive, semantic, component, `components/*`, `scopes/*`, `scales/*`, `palettes/*` (later files win), then brands, then themes.
 
 **Opt-in scopes** add token files during `ds.py init --scopes …`. Example: `ai` adds a violet accent ramp, AI surfaces and shimmer tokens, plus dark and high-contrast add-ons and contrast pairs. They're separate files, so your own token files are never edited.
+
+**Generators** (write separate files, so your own token files are never edited):
+- `ds.py palette '#0f766e' --name teal --dir <ds> --primary` → `tokens/palettes/teal.json`: an 11-step OKLCH ramp (50–950) built from one color. The seed lands exactly on the nearest step; chroma is reduced (never clipped) to fit sRGB. `--mode contrast` places steps by WCAG contrast against white (Leonardo-style). `--primary` also maps primary, link, focus and selected in light, dark and high-contrast to the steps that measurably pass, and adds `themes/<theme>.palette-teal.json`.
+- `ds.py scale type|space --dir <ds>` → `tokens/scales/*.json`: Utopia fluid scales (`font.size.step-n2 … step-5`, `space.fluid-3xs … 3xl` plus one-up pairs) as `clamp()` with a `rem` term so text still zooms (WCAG 1.4.4). Map typography roles and spacing to them in `semantic.json` when ready.
+- `ds.py audit --url <site>` suggests primitive colors extracted from a live site (extend mode).
+
+**Multi-brand.** `tokens/brands/<brand>.json` overrides primitives (ramps, fonts, radius) for one brand — create it with `ds.py palette <hex> --name <ramp> --dir <ds> --brand <brand>` or by hand. The build emits `[data-brand="<brand>"], .brand-<brand>` blocks that redeclare the overridden primitives **and every token that depends on them**, so set `data-brand` on `<html>` (the same element as `data-theme`). `ds.py check` runs every contrast pair for each brand × theme, and `resolver.json` gains a `brand` modifier (order: base → brand → theme).
 
 ## 3. Naming
 

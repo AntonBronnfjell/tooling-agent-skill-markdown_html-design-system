@@ -317,5 +317,24 @@ class TestGenerators(Temp):
         self.assertIn("extracted", data["suggested_tokens"]["color"])
 
 
+class TestDocsTooling(Temp):
+    def test_playwright_suite_and_status(self):
+        root = self.tmp / "ds"
+        run("init", root, "--tier", "core")
+        shutil.copy(REPO / "assets" / "templates" / "component.html", root / "components" / "button.html")
+        run("playwright", root)
+        spec = (root / "tests" / "design-system.spec.mjs").read_text(encoding="utf-8")
+        self.assertIn('"dark"', spec)
+        self.assertIn("requestAnimationFrame", spec)
+        pkg = json.loads((root / "package.json").read_text(encoding="utf-8"))
+        self.assertIn("@playwright/test", pkg["devDependencies"])
+        run("build", root)
+        self.assertIn('data-status="beta"', (root / "index.html").read_text(encoding="utf-8"))
+        run("llms", root)
+        md = (root / "llms" / "button.md").read_text(encoding="utf-8")
+        self.assertIn("## API", md)
+        self.assertIn("beta", md)
+
+
 if __name__ == "__main__":
     unittest.main()

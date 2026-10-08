@@ -55,3 +55,17 @@
 .ds-index__tier, .ds-index__status { font-size: var(--font-size-xs); color: var(--color-text-muted); }
 .ds-index__item[data-done="false"] { border-style: dashed; }
 .ds-index__item[data-done="true"] .ds-index__status { color: var(--color-feedback-success-icon); }
+
+/* Do / don't pairs */
+.ds-dodont { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); }
+.ds-do, .ds-dont { margin: 0; padding: var(--space-4); border-radius: var(--radius-md); border: var(--border-width-thin) solid var(--color-border-default); border-block-start-width: 4px; }
+.ds-do { border-block-start-color: var(--color-feedback-success-icon); }
+.ds-dont { border-block-start-color: var(--color-feedback-danger-icon); }
+.ds-do figcaption, .ds-dont figcaption { margin-block-start: var(--space-3); font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+/* Status badges in the index */
+.ds-status { font-size: var(--font-size-xs); padding: 0 var(--space-1-5); border-radius: var(--radius-full); border: var(--border-width-thin) solid var(--color-border-default); }
+.ds-status[data-status="stable"] { color: var(--color-feedback-success-fg); background: var(--color-feedback-success-bg); }
+.ds-status[data-status="beta"] { color: var(--color-feedback-info-fg); background: var(--color-feedback-info-bg); }
+.ds-status[data-status="experimental"] { color: var(--color-feedback-warning-fg); background: var(--color-feedback-warning-bg); }
+.ds-status[data-status="deprecated"] { color: var(--color-feedback-danger-fg); background: var(--color-feedback-danger-bg); }

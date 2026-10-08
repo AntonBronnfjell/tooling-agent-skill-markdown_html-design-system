@@ -29,6 +29,7 @@
   ds.py export <dir> [--target tailwind,shadcn,figma,ios,android,compose,flutter|all]
                                      framework/platform outputs in dist/exports (no dependencies)
   ds.py icons <svg-dir> <dir>        optimized SVG sprite (currentColor) + icon gallery page
+  ds.py playwright <dir>             free visual regression + axe + keyboard-focus suite (Playwright) for every page
   ds.py taste [path] [--strict]      lint for the generic "AI look" (purple gradients, glass, buzzwords, emoji UI, …)
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
@@ -685,8 +686,10 @@ def coverage(root, cfg, all_tiers=False):
                     missing.append(f"doc section {s}")
         if not css.exists():
             missing.append(f"css {css.relative_to(root)}")
+        status = re.search(r'<meta\s+name="ds-status"\s+content="([\w-]+)"', html or "")
         report.append({"id": c["id"], "name": c["name"], "category": cat["id"], "tier": c["tier"],
-                       "file": c["file"], "done": not missing, "missing": missing})
+                       "file": c["file"], "done": not missing, "missing": missing,
+                       "status": status.group(1) if status else ("missing" if html is None else "unspecified")})
     return report
 
 
@@ -897,7 +900,8 @@ def write_index(root, cfg):
             f'      <li class="ds-index__item" data-done="{str(r["done"]).lower()}">'
             f'<a href="{sub}/{r["file"]}.html#{r["id"]}">{r["name"]}</a>'
             f'<span class="ds-index__tier">{r["tier"]}</span>'
-            f'<span class="ds-index__status">{"Ready" if r["done"] else "Missing " + str(len(r["missing"]))}</span></li>'
+            + (f'<span class="ds-status" data-status="{r["status"]}">{r["status"]}</span>' if r["status"] in ("experimental", "beta", "stable", "deprecated") else "")
+            + f'<span class="ds-index__status">{"Ready" if r["done"] else "Missing " + str(len(r["missing"]))}</span></li>'
             for r in rows)
         sections.append(f'    <section aria-labelledby="cat-{cid}">\n      <h2 id="cat-{cid}">{names[cid]}</h2>\n'
                         f'      <ul class="ds-index" role="list">\n{items}\n      </ul>\n    </section>')
@@ -1318,6 +1322,7 @@ def cmd_serve(a):
             self.wfile.write(body)
 
     handler = functools.partial(Handler, directory=str(root))
+    socketserver.TCPServer.allow_reuse_address = True   # quick restarts (tests, watch loops) without "address in use"
     with socketserver.TCPServer(("127.0.0.1", a.port), handler) as httpd:
         print(f"Serving {root} at http://127.0.0.1:{a.port}/index.html — story fragments at /__stories/<sub>/<file>/<n>  (Ctrl+C to stop)")
         try:
@@ -1968,17 +1973,32 @@ def component_markdown(root, sub, page, cat, ex, rows):
           f"Category: {CAT_TITLES.get(cat, cat)} · page `{sub}/{page.name}` · CSS `css/{sub}/{page.stem}.css`"
           + (f" · JS `js/{page.stem}.js` (export `init(root)`)" if (Path(root) / "js" / f"{page.stem}.js").exists() else ""), "",
           "| Component | Tier | Status | Required demos |", "|---|---|---|---|"]
-    md += [f"| `{r['id']}` — {r['name']} | {r['tier']} | {'ready' if r['done'] else 'missing'} | {' '.join(r['demos'])} |" for r in rows]
+    md += [f"| `{r['id']}` — {r['name']} | {r['tier']} | {'ready' if r['done'] else 'missing'}"
+           f"{' · ' + r['status'] if r.get('status') in ('experimental', 'beta', 'stable', 'deprecated') else ''} | {' '.join(r['demos'])} |"
+           for r in rows]
     for key, title in (("usage", "Usage"), ("anatomy", "Anatomy")):
         if sec.get(key):
             md += ["", f"## {title}", ""] + [x for x in sec[key] if x.lower() != title.lower()]
     md += ["", "## Examples", ""]
     for section, markers, html in ex.demos:
         md += [f"### {section + ' · ' if section else ''}{markers}", "", "```html", html.strip(), "```", ""]
-    for key, title in (("accessibility", "Accessibility"), ("tokens", "Tokens")):
+    for key, title in (("api", "API"), ("dodont", "Do and don't"), ("accessibility", "Accessibility"), ("tokens", "Tokens")):
         if sec.get(key):
             md += [f"## {title}", ""] + [x for x in sec[key] if x.lower() != title.lower()] + [""]
+    log = git_log(page)
+    if log:
+        md += ["## Changes", ""] + [f"- {x}" for x in log] + [""]
     return "\n".join(md).rstrip() + "\n"
+
+
+def git_log(path, limit=8):
+    """Recent commits touching a file (date · subject) — the per-component changelog. Empty outside git."""
+    try:
+        out = subprocess.check_output(["git", "-C", str(Path(path).parent), "log", f"-{limit}", "--format=%ad · %s",
+                                       "--date=short", "--", Path(path).name], text=True, stderr=subprocess.DEVNULL)
+        return [line for line in out.splitlines() if line.strip()]
+    except Exception:  # noqa: BLE001 - not a repo / git missing
+        return []
 
 
 def cmd_llms(a):
@@ -2001,7 +2021,7 @@ def cmd_llms(a):
         for r in rows:
             index_rows.append({"id": r["id"], "name": r["name"], "category": r["category"], "scope": r["scope"], "tier": r["tier"],
                                "file": f, "desc": r["desc"], "demos": r["demos"], "aria": r.get("aria"), "native": r.get("native"),
-                               "done": bool(r.get("done")), "doc": f"llms/{f}.md"})
+                               "done": bool(r.get("done")), "status": r.get("status"), "doc": f"llms/{f}.md"})
     base, themes = load_tokens(root)
     flat = flatten(base)
     tokens = {}
@@ -2558,6 +2578,98 @@ def cmd_taste(a):
         sys.exit(1)
 
 
+# ---------- playwright: visual regression + axe, free and local ----------
+PLAYWRIGHT_CONFIG = """// Generated by ds.py playwright — free visual regression + accessibility for every docs page.
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
+  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled' } },
+  use: { baseURL: 'http://127.0.0.1:4173', reducedMotion: 'reduce', colorScheme: 'light' },
+  projects: [{ name: 'chromium', use: { browserName: 'chromium', viewport: { width: 1280, height: 900 } } },
+             { name: 'mobile', use: { browserName: 'chromium', viewport: { width: 390, height: 844 }, isMobile: true } }],
+  webServer: { command: '__SERVE__', url: 'http://127.0.0.1:4173/index.html', reuseExistingServer: true },
+});
+"""
+
+PLAYWRIGHT_SPEC = """// Generated by ds.py playwright. Baselines: npx playwright test --update-snapshots (commit tests/__screenshots__).
+// Run baselines and checks on the same OS (use the Playwright Docker image in CI) — fonts render differently per OS.
+import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import { readdirSync, existsSync } from 'node:fs';
+
+const pages = ['components', 'patterns'].filter((d) => existsSync(d))
+  .flatMap((d) => readdirSync(d).filter((f) => f.endsWith('.html')).map((f) => `${d}/${f}`));
+const themes = __THEMES__;
+
+async function open(page, url, theme, dir = 'ltr') {
+  await page.goto(`/${url}`);
+  await page.evaluate(([t, d]) => {
+    t === 'light' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.dir = d;
+  }, [theme, dir]);
+  await page.evaluate(() => document.fonts.ready);
+  // Let style recalculation settle after the theme switch; without it axe can read a half-applied theme.
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+}
+
+for (const url of pages) {
+  for (const theme of themes) {
+    test(`visual ${url} [${theme}]`, async ({ page }) => {
+      await open(page, url, theme);
+      await expect(page).toHaveScreenshot(`${url.replace(/[\\\\/]/g, '__')}--${theme}.png`, { fullPage: true });
+    });
+    test(`a11y ${url} [${theme}]`, async ({ page }) => {
+      await open(page, url, theme);
+      const { violations } = await new AxeBuilder({ page }).disableRules(['region']).analyze();
+      expect(violations.flatMap((v) => v.nodes.map((n) => `${v.id}: ${n.target} ${(n.any[0] || {}).message || ''}`))).toEqual([]);
+    });
+  }
+  test(`visual ${url} [rtl]`, async ({ page }) => {
+    await open(page, url, 'light', 'rtl');
+    await expect(page).toHaveScreenshot(`${url.replace(/[\\\\/]/g, '__')}--rtl.png`, { fullPage: true });
+  });
+  test(`keyboard ${url}: focus is always visible`, async ({ page }) => {
+    await open(page, url, 'light');
+    for (let i = 0; i < 15; i++) {
+      await page.keyboard.press('Tab');
+      const ok = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el || el === document.body) return true;
+        const cs = getComputedStyle(el);
+        return cs.outlineStyle !== 'none' || cs.boxShadow !== 'none';
+      });
+      expect(ok, `focused element ${i + 1} has no visible focus indicator`).toBe(true);
+    }
+  });
+}
+"""
+
+
+def cmd_playwright(a):
+    root = Path(a.dir)
+    load_cfg(root)
+    _, themes = load_tokens(root)
+    serve = ("python3 tools/ds/scripts/ds.py serve . --port 4173" if (root / "tools" / "ds").exists()
+             else f"python3 {json.dumps(str(SKILL / 'scripts' / 'ds.py'))[1:-1]} serve . --port 4173")
+    write_if_missing(root / "playwright.config.mjs", PLAYWRIGHT_CONFIG.replace("__SERVE__", serve), a.force)
+    write_if_missing(root / "tests" / "design-system.spec.mjs",
+                     PLAYWRIGHT_SPEC.replace("__THEMES__", json.dumps(["light", *[t for t in themes if t != "light"]])), a.force)
+
+    def update(pkg):
+        pkg.setdefault("devDependencies", {}).setdefault("@playwright/test", "^1.56.0")
+        pkg["devDependencies"].setdefault("@axe-core/playwright", "^4.11.0")
+        pkg.setdefault("scripts", {}).setdefault("test:ui", "playwright test")
+        pkg["scripts"].setdefault("test:ui:update", "playwright test --update-snapshots")
+    merge_json(root / "package.json", update, "Playwright devDependencies/scripts")
+    append_lines(root / ".gitignore", ["test-results/", "playwright-report/"])
+    print("Playwright suite ready: visual (every page × theme + RTL, desktop + mobile), axe a11y, keyboard focus.\n"
+          f"  cd {root} && npm install && npx playwright install chromium && npm run test:ui:update   # first baselines\n"
+          "  npm run test:ui                                                                              # then on every change\n"
+          "Commit tests/__screenshots__. Create baselines on the same OS as CI (Playwright Docker image).")
+
+
 # ---------- hooks ----------
 def read_hook_input():
     try:
@@ -2675,6 +2787,7 @@ def main():
     p.add_argument("--target", default="all", help=f"comma list or all: {', '.join(EXPORT_TARGETS)}")
     p = sp.add_parser("icons"); p.add_argument("src", help="folder of .svg files"); p.add_argument("dir")
     p.add_argument("--license", help="icon set license to record, e.g. 'Lucide (ISC)'")
+    p = sp.add_parser("playwright"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p = sp.add_parser("taste"); p.add_argument("path", nargs="?", default=".")
     p.add_argument("--json", action="store_true"); p.add_argument("--strict", action="store_true")
     p.add_argument("--min-score", type=int, default=80)
@@ -2700,7 +2813,8 @@ def main():
      "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
      "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email,
      "llms": cmd_llms, "mcp": cmd_mcp,
-     "palette": cmd_palette, "scale": cmd_scale, "export": cmd_export, "icons": cmd_icons, "taste": cmd_taste}[a.cmd](a)
+     "palette": cmd_palette, "scale": cmd_scale, "export": cmd_export, "icons": cmd_icons, "taste": cmd_taste,
+     "playwright": cmd_playwright}[a.cmd](a)
 
 
 if __name__ == "__main__":
