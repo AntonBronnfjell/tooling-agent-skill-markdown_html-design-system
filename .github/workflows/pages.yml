@@ -1,0 +1,43 @@
+name: example-site
+# Publishes examples/fleetline (docs site + Storybook) to GitHub Pages — the live proof of what the skill builds.
+on:
+  push:
+    branches: [main]
+    paths: ["examples/**", "scripts/**", "assets/templates/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: true }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: { PYTHONIOENCODING: utf-8 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Build the example design system
+        run: |
+          python scripts/ds.py build examples/fleetline
+          python scripts/ds.py check examples/fleetline
+          python scripts/ds.py storybook examples/fleetline
+      - name: Build Storybook
+        working-directory: examples/fleetline
+        run: npm install --no-audit --no-fund && npx storybook build -o storybook-static --quiet
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cd examples/fleetline
+          cp -r index.html components patterns docs dist css js DESIGN.md llms.txt llms ../../_site/ 2>/dev/null || true
+          cp -r storybook-static ../../_site/storybook
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

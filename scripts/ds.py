@@ -624,7 +624,8 @@ HTML_RULES = [
     (re.compile(r"on\w+=\"[^\"]*\.(showModal|show|close|showPopover|hidePopover|togglePopover)\(", re.I),
      "inline JS opening/closing a dialog or popover — use invoker commands: commandfor=\"id\" command=\"show-modal|close|toggle-popover\""),
 ]
-ICON_BTN = re.compile(r"<button(?![^>]*aria-label)[^>]*>\s*<svg[^>]*>.*?</svg>\s*</button>", re.I | re.S)
+# Stay inside one <button>: "(?:(?!</button>).)*?" stops a leading-icon button from matching up to a later button's end.
+ICON_BTN = re.compile(r"<button(?![^>]*aria-label)[^>]*>\s*<svg[^>]*>(?:(?!</button>).)*?</svg>\s*</button>", re.I | re.S)
 
 
 def lint_file(path):

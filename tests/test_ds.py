@@ -97,6 +97,11 @@ class TestColorsAndTokens(unittest.TestCase):
 
 
 class TestBuild(Temp):
+    def _write(self, root, name, text):
+        p_ = root / "components" / name
+        p_.write_text(text, encoding="utf-8")
+        return p_
+
     def init(self, *extra, name="Golden"):
         root = self.tmp / "ds"
         run("init", root, "--name", name, "--tier", "core", *extra)
@@ -140,6 +145,11 @@ class TestBuild(Temp):
         (root / "css" / "components" / "x.css").write_text(".x{color:#fff;margin:12px}\n.x:focus{outline:none;}\n", encoding="utf-8")
         (root / "components" / "x.html").write_text('<div onclick="d.showModal()"><img src=a.png></div>', encoding="utf-8")
         out = run("check", root).stdout
+        ok_html = ('<button type="button"><svg aria-hidden="true"></svg> Save</button>'
+                   '<button type="button">Next <svg aria-hidden="true"></svg></button>')
+        self.assertEqual([i for i in ds.lint_file(self._write(root, "ok.html", ok_html)) if "icon-only" in i], [])
+        bad = self._write(root, "bad.html", '<button type="button"><svg></svg></button>')
+        self.assertTrue(any("icon-only" in i for i in ds.lint_file(bad)))
         for needle in ("raw hex color", "raw px spacing", "outline removed", "@layer components", "img without alt",
                        "invoker commands"):
             self.assertIn(needle, out)

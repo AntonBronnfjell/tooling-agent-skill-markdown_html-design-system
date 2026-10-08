@@ -46,10 +46,14 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 | Command | Does |
 |---|---|
 | `ds.py detect [project]` | Read an existing project (stack, monorepo, styles, tokens, Storybook, CI, git state) and propose a safe location + sync targets. Writes nothing |
-| `ds.py audit <repo>` | Inventory existing colors, spacing, fonts, radii, shadows, custom properties, Tailwind usage, component files |
+| `ds.py audit [repo] [--url URL] [--json]` | Inventory colors, spacing, fonts, radii, shadows, custom properties, Tailwind usage and component files of a codebase **or a live site**; suggests DTCG primitives |
 | `ds.py init <dir> --name N --tier T --scopes product,… [--project P] [--adopt]` | Scaffold the system (tokens, themes, base CSS, docs chrome, page template, config, scope tokens) |
 | `ds.py sync <dir>` | Copy built CSS/tokens/js into the host project's own folders (runs after every build when configured) |
 | `ds.py migrate-colors <dir>` | Convert legacy hex-string color tokens to DTCG 2025.10 color objects |
+| `ds.py palette <hex> [--primary] [--brand B] --dir D` | OKLCH ramp (50–950) from one color; maps primary/link/focus/selected per theme by measured contrast; `--brand` writes a white-label override |
+| `ds.py scale type\|space --dir D` | Utopia fluid type and space scales as `clamp()` tokens |
+| `ds.py export <dir> --target …` | Tailwind v4, shadcn, Figma Variables (with aliases), iOS, Android, Compose, Flutter — `references/adapters.md` |
+| `ds.py icons <svg-dir> <dir>` | Optimized SVG sprite (`currentColor`) + icon gallery |
 | `ds.py build <dir>` | Tokens → `dist/tokens.css`; bundle `dist/ds.css`; regenerate `index.html` with coverage |
 | `ds.py check <dir> [--strict]` | Token validity, required groups/themes, contrast pairs in every theme, CSS/HTML lint |
 | `ds.py coverage <dir>` / `plan <dir>` | What's missing per component / ordered build queue grouped by file |
@@ -59,6 +63,8 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 | `ds.py design-md <dir>` | `DESIGN.md` in Google's format (YAML token front matter + ordered sections; `npx @google/design.md lint`) + `ACCESSIBILITY.md` statement |
 | `ds.py llms <dir>` / `mcp <dir>` | `llms.txt` + Markdown per component + `dist/ds-index.json`; a stdlib MCP server so any agent can query components, tokens and DESIGN.md |
 | `ds.py email <dir>` | Render email templates with literal token values (light + dark) and check client safety |
+| `ds.py playwright <dir>` | Visual regression + axe + keyboard-focus suite for every page × theme (free, local) |
+| `ds.py taste [path] [--strict]` | Lint for the generic "AI look": purple gradients, glass, buzzwords, emoji UI, placeholder copy, vague CTAs (`references/taste.md`) |
 | `ds.py package <dir>` / `ci <dir> --provider github\|gitlab` | npm exports for CSS/tokens/js; pipeline: check → Storybook to Pages → idempotent publish |
 
 **Hooks (active while this skill is loaded):** after every Write/Edit of a file inside a design system, `hook-post-edit` lints it, rebuilds tokens when token JSON changes, and tells you which demos/doc sections that page still lacks. When phase is `build`, `hook-stop` blocks ending the turn while components are incomplete (once per turn — if you genuinely need the user, set phase to `plan` first). To keep hooks on outside this skill, see the README's project-hook snippet.
@@ -79,7 +85,7 @@ Every write goes through an ownership ledger (`<ds>/.ds-owned.json`): ds.py **ne
 ### Phase 0 — Discover (what exists?)
 1. Read the status line above. If a system exists, `resume`: run `ds.py plan <dir>` and jump to the matching phase. In an existing project, run `ds.py detect` (section above) before anything else.
 2. Look for design sources: existing CSS/Tailwind/theme files, a component folder, Figma URLs, brand guides.
-   - Run `ds.py audit <repo>` on any existing UI code.
+   - Run `ds.py audit <repo>` on any existing UI code, or `ds.py audit --url <site>` when the brand lives on a live website.
    - For a sizable codebase, run **/graphify** on the UI directory to find shared theme/component hubs and duplicates.
    - Figma link → Figma MCP `get_variable_defs` / `get_design_context`.
 3. Summarize findings in 5–10 lines: what exists, how consistent it is, what's duplicated.
@@ -91,7 +97,7 @@ Read `references/decision-guide.md`. Choose **extend**, **adopt** (name the refe
 - `ds.py init <project>/design-system --name "<Name>" --tier <tier>`, then fill `ds.config.json` `brief`, `direction` and an ADR in `decisions`. `ds.py phase <dir> decide`.
 
 ### Phase 2 — Foundations (tokens)
-Read `references/tokens.md`. Colors are DTCG 2025.10 objects (`{colorSpace, components, hex}`; OKLCH and display-p3 render natively — legacy hex strings: `ds.py migrate-colors`). Replace the neutral starter values in `tokens/primitive.json`, `semantic.json`, `themes/*.json` with the chosen direction (extend mode: map existing values; keep their old names in `$description`). Add contrast pairs for any new fg/bg combinations. Run `ds.py build` and `ds.py check` until there are no token errors. Also decide here: fonts (self-hosted, subsets — `references/packaging.md`), motion personality/bans/moments (`references/motion.md` → `ds.config.json → motion`), and the style allocation if the direction mixes looks. Wire the theme runtime (`js/theme.js`, no-flash snippet).
+Read `references/tokens.md`. Colors are DTCG 2025.10 objects (`{colorSpace, components, hex}`; OKLCH and display-p3 render natively — legacy hex strings: `ds.py migrate-colors`). Generate the brand ramp with `ds.py palette <hex> --name <name> --dir <ds> --primary` (it maps primary/link/focus/selected per theme by measured contrast; repeat with `--brand` for white-label brands) and fluid scales with `ds.py scale type|space`. Replace the remaining neutral starter values in `tokens/primitive.json`, `semantic.json`, `themes/*.json` with the chosen direction (extend mode: map existing values; keep their old names in `$description`). Add contrast pairs for any new fg/bg combinations. Run `ds.py build` and `ds.py check` until there are no token errors. Also decide here: fonts (self-hosted, subsets — `references/packaging.md`), motion personality/bans/moments (`references/motion.md` → `ds.config.json → motion`), and the style allocation if the direction mixes looks. Wire the theme runtime (`js/theme.js`, no-flash snippet). Write the voice and tone decisions (`references/content.md`) into `principles`.
 
 ### Phase 3 — Plan
 Run `ds.py plan <dir>` and present the plan with **/plan** (plan mode) for approval: direction summary, token highlights, tier and component count, build order, which categories go to subagents, extra targets (Tailwind/shadcn via /ui-styling, Figma). Building 100+ files without sign-off on direction is the expensive mistake to avoid. After approval: `ds.py phase <dir> build`.
@@ -108,11 +114,11 @@ Keep going until `ds.py coverage` is complete — hook messages tell you what's 
 - `ds.py check <dir> --strict` passes (no token errors, no lint, full coverage).
 - Accessibility: run /accesslint `audit_html` on pages when available; otherwise walk the contract §5 checklist for each category.
 - Visual: if a browser tool exists, screenshot representative pages in light/dark/high-contrast, compact density, RTL, and 320px width.
-- Optional: /ponytail-review over `css/` and `js/`.
-- Automated tests per `references/testing.md`: Storybook a11y (every story), Playwright + axe over every page × theme, unit tests for framework adapters.
+- `ds.py taste <dir> --strict` (no generic AI look) and /ponytail-review over `css/` and `js/`.
+- Automated tests: `ds.py playwright <dir>` (visual regression + axe + keyboard focus for every page × theme), Storybook a11y on every story, unit tests for framework adapters (`references/testing.md`).
 
 ### Phase 6 — Document & ship
-`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract + `ACCESSIBILITY.md`), `ds.py llms` / `ds.py mcp` (so other agents can use the system), `ds.py storybook` (the independent workbench — `references/storybook.md`; for backend stacks pick strategy A server bridge, B web components, or C native tool such as Lookbook/Blast/Blazing Story per §4), and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
+`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract + `ACCESSIBILITY.md`), `ds.py llms` / `ds.py mcp` (so other agents can use the system), `ds.py storybook` (the independent workbench — `references/storybook.md`; for backend stacks pick strategy A server bridge, B web components, or C native tool such as Lookbook/Blast/Blazing Story per §4), `ds.py export` for Tailwind/shadcn/Figma/native targets (`references/adapters.md`), `ds.py icons` for the icon sprite, and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
 
 ## Output layout
 
@@ -150,4 +156,9 @@ design-system/
 - `references/testing.md` — Storybook a11y, Playwright + axe per page/theme, unit tests for adapters
 - `references/packaging.md` — npm exports, fonts, framework library builds, release/versioning
 - `references/governance.md` — DESIGN.md, accessibility law (EAA/EN 301 549, ADA Title II), versioning, migration guides, deprecation, adapters
+- `references/adapters.md` — Tailwind, shadcn, Figma, iOS/Android/Compose/Flutter exports, multi-brand
+- `references/content.md` — voice and tone, errors, empty states, CTAs, inclusive language, i18n, Intl formatting
+- `references/imagery.md` — images, dark-mode images, illustration, icons, dataviz colors, print
+- `references/taste.md` — the generic-AI-look rules and what to do instead
+- `examples/fleetline/` (repository only) — a complete core-tier system built with this skill, to copy conventions from
 - `assets/manifest.json` — the full component taxonomy (id, tier, file, required demos, ARIA pattern, native element)

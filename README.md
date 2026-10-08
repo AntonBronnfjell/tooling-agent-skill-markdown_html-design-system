@@ -13,9 +13,12 @@ Decides *which* design system your product needs, then builds a *complete* one: 
 [![MCP](https://img.shields.io/badge/MCP-server-111827)](#agents-can-query-your-system)
 [![Storybook 10](https://img.shields.io/badge/Storybook-10-ff4785?logo=storybook&logoColor=white)](references/storybook.md)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-3776ab?logo=python&logoColor=white)](scripts/ds.py)
+[![CI](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/actions/workflows/ci.yml/badge.svg)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
+[![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97706)](#install-as-a-plugin)
 [![Last commit](https://img.shields.io/github/last-commit/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/commits/main)
 
-[Quick start](#quick-start) · [How it works](#what-it-does-step-by-step) · [Existing projects](#safe-in-existing-projects) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
+[Quick start](#quick-start) · [Example](#example-fleetline) · [How it works](#what-it-does-step-by-step) · [Existing projects](#safe-in-existing-projects) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
 
 </div>
 
@@ -39,7 +42,7 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 ## Quick start
 
 > [!TIP]
-> No clone needed. The installer detects which agents you have and puts the skill where each one looks for it.
+> In Claude Code, the fastest route is the plugin: `/plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` then `/plugin install html-design-system@anton-design`. For every other agent, the installer below detects what you have and puts the skill where each one looks for it.
 
 ```bash
 # 1. Install into every agent on this machine
@@ -163,6 +166,18 @@ Every system it builds is readable by other AI tools, not just people:
   claude mcp add design-system -- python3 design-system/mcp/server.py
   ```
 
+## Generate, export and check
+
+| Command | What you get |
+|---|---|
+| `ds.py palette '#0f766e' --name teal --dir ds --primary` | An 11-step OKLCH ramp from one brand color. Primary, link, focus and selected are mapped to the steps that measurably pass contrast in light, dark and high-contrast. Add `--brand acme` for white-label brands; every brand × theme is contrast-checked |
+| `ds.py scale type --dir ds` · `scale space` | Fluid type and space scales (Utopia formulas) as `clamp()` tokens that still respect browser zoom |
+| `ds.py export ds --target all` | Tailwind v4 `@theme`, shadcn/ui variables, Figma Variables (API body with real aliases + DTCG per mode), SwiftUI/UIKit, Android XML, Jetpack Compose and Flutter — no Style Dictionary needed ([adapters](references/adapters.md)) |
+| `ds.py icons ./svg ds` | An optimized SVG sprite (`currentColor`) and an icon gallery page |
+| `ds.py audit --url https://your-site.com` | The de-facto design system of a live site, with suggested primitive tokens |
+| `ds.py taste ds --strict` | Fails on the generic "AI look": purple gradients, glassmorphism, buzzwords, emoji UI, placeholder copy, vague CTAs ([rules](references/taste.md)) |
+| `ds.py playwright ds` | A free visual-regression + axe + keyboard-focus suite for every page × theme × desktop/mobile + RTL |
+
 ## See it independently of your app
 
 | Option | Command | Best for |
@@ -224,6 +239,17 @@ After installing, just ask:
 - "Our apps use React and .NET. Make the components shareable across both and document them in one place."
 
 In Claude Code you can also call it directly: `/html-design-system new enterprise`, `/html-design-system extend ./src`, `/html-design-system resume`.
+
+## Install as a plugin
+
+| Agent | How |
+|---|---|
+| **Claude Code** | `/plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` → `/plugin install html-design-system@anton-design`. Adds the skill, its scoped hooks and five commands: `/html-design-system:new`, `:extend`, `:adopt`, `:audit`, `:resume` |
+| **Codex** | `codex plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` (reads `.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`) |
+| **Cursor** | The repo carries `.cursor-plugin/plugin.json` and a root `SKILL.md`, so it can be added as a plugin from its Git URL, or submitted to the Cursor marketplace |
+| **Anything else** | The installer below (shared `~/.agents/skills` standard + agent-specific folders) |
+
+Plugins update when the version in `.claude-plugin/plugin.json` changes; see [CHANGELOG.md](CHANGELOG.md).
 
 ## Install (any agent)
 
@@ -299,9 +325,15 @@ When these skills are installed, it uses them. All are optional, with fallbacks 
 DS="python3 scripts/ds.py"
 $DS detect .                             # read an existing project; propose location + sync targets (writes nothing)
 $DS audit ./src                          # inventory an existing codebase's de-facto design system
+$DS audit --url https://example.com      # …or a live site (page + stylesheets), with suggested tokens
 $DS init ./design-system --name Acme --tier enterprise --scopes product,marketing --project .
 $DS sync ./design-system                 # copy outputs into the app's own folders (also runs after build)
 $DS migrate-colors ./design-system       # legacy hex tokens → DTCG 2025.10 color objects
+$DS palette '#0f766e' --name teal --dir ./design-system --primary   # OKLCH ramp + contrast-checked mapping
+$DS palette '#c2410c' --name blue --dir ./design-system --brand ember  # white-label brand override
+$DS scale type --dir ./design-system     # fluid type scale (also: scale space)
+$DS export ./design-system --target all  # tailwind, shadcn, figma, ios, android, compose, flutter
+$DS icons ./svg ./design-system          # SVG sprite + icon gallery
 $DS build ./design-system                # tokens.css/json/scss, ds.css bundle, index.html
 $DS check ./design-system --strict       # token validity, contrast in every theme, lint, coverage
 $DS coverage ./design-system             # per component: which demos/doc sections/CSS are missing
@@ -313,6 +345,8 @@ $DS design-md ./design-system            # DESIGN.md (Google format) + ACCESSIBI
 $DS llms ./design-system                 # llms.txt + Markdown per component + dist/ds-index.json
 $DS mcp ./design-system                  # MCP server for agents
 $DS email ./design-system                # render + check email templates (email scope)
+$DS playwright ./design-system           # visual regression + axe + keyboard focus suite
+$DS taste ./design-system --strict       # generic-AI-look linter
 $DS package ./design-system              # npm-ready package.json
 $DS ci ./design-system --provider github # pipeline + vendored tools
 $DS status                               # one-line state of the nearest design system
@@ -329,6 +363,8 @@ $DS status                               # one-line state of the nearest design 
 ```
 ./  (repo root = skill root)
 ├── SKILL.md                     the workflow the agent follows, plus scoped Claude Code hooks
+├── .claude-plugin/              plugin.json (5 commands, evals dir) + marketplace.json — Claude Code plugin
+├── .cursor-plugin/ .codex-plugin/ .agents/plugins/   Cursor and Codex plugin manifests
 ├── assets/
 │   ├── manifest.json            306 components · 16 categories · 3 tiers · 5 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
@@ -337,9 +373,16 @@ $DS status                               # one-line state of the nearest design 
 ├── scripts/ds.py                the CLI above + hook entry points
 ├── references/                  decision guide · tokens · component contract · per-category specs · motion ·
 │                                css-architecture · conventions · performance · storybook · testing · packaging ·
-│                                governance · email-build · companion skills · builder brief
+│                                governance · email-build · adapters · content · imagery · taste · companion skills ·
+│                                builder brief
 ├── hooks/settings.example.json  manual Claude hook snippet (install.py --claude-hooks does this for you)
-├── evals/                       test prompts + fixture for evaluating the skill
+├── examples/fleetline/          a complete core-tier design system built with this skill (live on GitHub Pages)
+├── tests/                       stdlib unit tests + golden outputs (python3 -m unittest discover -s tests)
+├── plugin-evals/                `claude plugin eval` cases (trigger, safety, negatives)
+├── evals/                       skill-creator test prompts + fixture
+├── .github/workflows/           ci.yml (tests on 3.8–3.14 × Linux/macOS/Windows, plugin validation, DESIGN.md lint),
+│                                pages.yml (publishes the example)
+├── LICENSE · CHANGELOG.md · SECURITY.md · CONTRIBUTING.md
 └── install.py / .sh / .ps1      cross-agent installer
 ```
 
@@ -350,9 +393,11 @@ $DS status                               # one-line state of the nearest design 
 > [!WARNING]
 > - Framework Storybooks (React, Vue and others) are documented with conventions and examples, but not generated. Only the HTML system's Storybook is generated, in client or server mode.
 > - The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
-> - Playwright + axe tests are provided as a template (`references/testing.md`), not as a command.
-> - The generated CI files are valid YAML templates but haven't been run on GitHub or GitLab.
-> - Scope content (AI, commerce, email, new product components) is researched and specified, with a spec for every component, but no reference implementation has been built yet. `ds.py email` ships one starter template.
+> - The generated CI files for *your* design system (`ds.py ci`) are templates that haven't been run on every provider; this repo's own CI runs on every push.
+> - Plugin eval cases that need Bash or Write must run where Claude Code's sandbox works (CI, Linux with bubblewrap, macOS without symlinks in `~/.docker`). The negative cases pass locally.
+> - `ds.py icons` does light optimization (metadata, editor attributes, precision, `currentColor`); it isn't a full SVGO.
+> - Figma Variables export targets the REST API body; posting it needs an Enterprise full seat, and re-posting creates duplicates.
+> - The example system implements the **core tier** of app UI. The other tiers and the AI, commerce, marketing and email scopes are specified (a spec for every component) but have no reference implementation yet; `ds.py email` ships one starter template.
 > - Stack detection uses file conventions (e.g. `artisan`, `manage.py`, `angular.json`). Unusual layouts may need the `project.sync` targets in `ds.config.json` adjusted by hand.
 > - Hooks are installed for Claude Code only. Other agents run `ds.py check` and `ds.py coverage` manually, as `SKILL.md` instructs.
 

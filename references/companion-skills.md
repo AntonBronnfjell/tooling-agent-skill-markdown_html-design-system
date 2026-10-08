@@ -11,11 +11,13 @@ This skill owns the **structure and completeness** of the system. Other installe
 | 1 Decide | /frontend-design, /brand | Distinctive direction, avoid generic look; brand voice — essential for the marketing scope, where heroes and landing pages carry the brand | — |
 | 2 Plan | **/plan** (plan mode) | Present the build plan (direction, tier, token decisions, file queue from `ds.py plan`, delegation strategy) for approval before writing 100+ files. Use EnterPlanMode/ExitPlanMode; the `writing-plans` skill if plan mode isn't available | Write the plan to `design-system/PLAN.md` and ask for approval |
 | 3–4 Build | **/ponytail** | Native-first, no-dependency implementation: `<dialog>`, `popover`, `<details>`, native inputs, CSS over JS, one small module instead of a framework. Apply its YAGNI lens to *implementation*, never to *coverage* — the component list is the requirement | `component-contract.md` §4 |
+| 3–4 Build | `ds.py export` (built in) | Tailwind v4, shadcn, Figma Variables, iOS/Android/Compose/Flutter outputs from the tokens (`adapters.md`) | — |
 | 3–4 Build | **/ui-styling** | When `targets` includes Tailwind or shadcn: generate `tailwind` theme / shadcn CSS variables from `dist/tokens.css` (`tailwind_config_gen.py`), shadcn component mapping; also canvas-based visual assets | Hand-map tokens: Tailwind v4 `@theme { --color-*: var(--color-*) }` |
 | 3–4 Build | /dataviz | Chart container & palette rules | `data-display.md` chart section |
 | 5 Verify | /accesslint (`audit_html`, `audit_live`) | Automated WCAG audit of each page | Contract §5 checklist by reading |
 | 5 Verify | /webapp-testing or browser tools | Screenshots in light/dark/RTL/compact, keyboard walkthrough | `ds.py check` + manual reasoning |
 | 5 Verify | /ponytail-review | Over-engineering pass on `css/` and `js/` | — |
+| 5 Verify | `ds.py taste`, `ds.py playwright` (built in) | Generic-AI-look lint; visual regression + axe + keyboard focus per page × theme | — |
 | 6 Document | /graphify (again) | Graph of the generated system: components ↔ tokens ↔ JS, to spot orphan tokens and components bypassing semantic tokens; include `GRAPH_REPORT.md` in the docs | `grep -o 'var(--[a-z0-9-]*' css -r | sort | uniq -c` |
 | 6 Document | design-systems:* plugin skills (governance, documentation-template, naming-convention) | Governance docs, contribution model | `governance.md` |
 

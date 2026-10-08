@@ -24,6 +24,7 @@ Hybrids are fine and common: *adopt* Carbon's structure + *new* brand palette. R
 
 Run these before deciding (Phase 0):
 
+- `python3 <skill-dir>/scripts/ds.py audit --url <site>` — the same inventory for a live website (page + stylesheets) with suggested DTCG primitive colors; use it when the brand lives on a marketing site rather than in the repo.
 - `python3 <skill-dir>/scripts/ds.py audit <repo>` — counts distinct colors, spacings, radii, fonts, custom properties, Tailwind classes, and component-named files.
   - **< ~20 distinct colors and existing `--custom-properties`** → a system exists: *extend*.
   - **Hundreds of one-off hex values / px values** → no system: consolidate (extend with heavy cleanup) or *new*.
@@ -54,8 +55,8 @@ Borrow **structure and behavior** (inventory, states, ARIA, token tiers, naming)
    `python3 <ui-ux-pro-max>/scripts/search.py "<product type> <industry> <keywords>" --design-system -p "<Name>" -f markdown`
    Tune with `--variance/--motion/--density 1-10` (dense enterprise ≈ density 8, motion 3).
 2. Deep-dive any uncertain dimension with `--domain color|typography|style|ux`.
-3. Translate the output into tokens (see `tokens.md` §4): palette → primitives, roles → semantic, fonts → `font.family`, style keywords → radius/shadow/motion choices.
-4. Sanity-check distinctiveness with `/frontend-design` guidance if the result reads as a generic template.
+3. Translate the output into tokens (see `tokens.md` §4): generate the brand ramp with `ds.py palette <hex> --primary` and fluid scales with `ds.py scale`; palette → primitives, roles → semantic, fonts → `font.family`, style keywords → radius/shadow/motion choices.
+4. Sanity-check distinctiveness with `/frontend-design` guidance and `ds.py taste` if the result reads as a generic template (`references/taste.md`).
 5. **Allocate the style** when the direction mixes looks (e.g. editorial serif + brutalist accents + calm UI): record in `direction.allocation` which surfaces each look *owns* and what it is *never used for*, plus a budget ("one expressive moment per screen"). Without this, the loudest style leaks into every form and table.
    ```json
    "allocation": [
