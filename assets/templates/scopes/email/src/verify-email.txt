@@ -1,0 +1,7 @@
+VERIFY YOUR EMAIL ADDRESS
+
+Confirm this is your address so we can keep your account secure. The link expires in 24 hours.
+
+Verify email address: {{verify_url}}
+
+Didn't create an account? You can ignore this email.

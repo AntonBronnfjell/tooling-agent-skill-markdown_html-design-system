@@ -18,6 +18,8 @@
   ds.py detect [project] [--json]    read an existing project (stack, monorepo, styles, Storybook, CI) and propose a
                                      non-conflicting location + sync targets — writes nothing
   ds.py migrate-colors <dir>         convert legacy hex-string color tokens to DTCG 2025.10 color objects
+  ds.py email <dir> [--strict]       render email/src templates with literal token values (light + dark) into dist/email
+                                     and check client safety (tables, no var()/flex/rem, alt, lang, size, plain text)
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
   Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
@@ -404,13 +406,18 @@ def load_tokens(root):
     base = {}
     files = [t / n for n in ("primitive.json", "semantic.json", "component.json")]
     files += sorted((t / "components").glob("*.json"))  # one file per component: parallel-safe
+    files += sorted((t / "scopes").glob("*.json"))      # tokens added by optional scopes (ai, commerce, ...)
     for f in files:
         if f.exists():
             try:
                 base = deep_merge(base, json.loads(f.read_text()))
             except json.JSONDecodeError as e:
                 raise ValueError(f"{f.relative_to(root)}: invalid JSON ({e})")
-    themes = {p.stem: json.loads(p.read_text()) for p in sorted((t / "themes").glob("*.json"))} if (t / "themes").exists() else {}
+    themes = {}
+    # themes/dark.json is the theme; themes/dark.<scope>.json files are add-ons merged into it.
+    for p in sorted((t / "themes").glob("*.json"), key=lambda p: (p.name.count("."), p.name)) if (t / "themes").exists() else []:
+        name = p.name.split(".")[0]
+        themes[name] = deep_merge(themes.get(name, {}), json.loads(p.read_text()))
     return base, themes
 
 
@@ -580,6 +587,8 @@ def lint_file(path):
         text = path.read_text(errors="ignore")
     except OSError:
         return issues
+    if path.suffix == ".css" and "email" in path.stem:
+        return issues   # email CSS must use literal values and !important (client quirks) — checked by `ds.py email`
     if path.suffix == ".css" and "dist" not in path.parts and path.name != "base.css" and "docs" not in path.parts:
         stripped = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
         # token fallbacks inside var() are fine: var(--x, #fff)
@@ -668,6 +677,19 @@ def cmd_init(a):
     bad = [x for x in cfg["scopes"] if x not in MANIFEST["scopes"]]
     if bad:
         sys.exit(f"unknown scope(s) {bad}; known: {list(MANIFEST['scopes'])}")
+    for scope in cfg.get("scopes", []):
+        sdir = SKILL / "assets" / "templates" / "scopes" / scope
+        if not sdir.exists():
+            continue
+        if (sdir / "tokens.json").exists():
+            safe_copy(sdir / "tokens.json", root / "tokens" / "scopes" / f"{scope}.json", kind="owned")
+        for tf in sorted((sdir / "src").glob("*")) if (sdir / "src").exists() else []:
+            safe_copy(tf, root / "email" / "src" / tf.name, kind="owned")
+        for th in sorted((sdir / "themes").glob("*.json")) if (sdir / "themes").exists() else []:
+            safe_copy(th, root / "tokens" / "themes" / f"{th.stem}.{scope}.json", kind="owned")
+        if (sdir / "contrast_pairs.json").exists():
+            pairs = cfg.setdefault("contrast_pairs", [])
+            pairs += [x for x in json.loads((sdir / "contrast_pairs.json").read_text()) if x not in pairs]
     if a.project:
         info = detect_project(a.project)
         cfg["project"] = {"root": os.path.relpath(Path(a.project).resolve(), root.resolve()),
@@ -879,7 +901,8 @@ from html.parser import HTMLParser
 
 CAT_TITLES = {"foundations": "Foundations", "actions": "Actions", "forms": "Forms", "navigation": "Navigation",
               "data-display": "Data Display", "overlays": "Overlays", "feedback": "Feedback", "patterns": "Patterns",
-              "marketing": "Marketing", "marketing-pages": "Marketing Pages"}
+              "marketing": "Marketing", "marketing-pages": "Marketing Pages", "ai": "AI", "ai-patterns": "AI Patterns",
+              "commerce": "Commerce", "commerce-pages": "Commerce Pages", "email": "Email", "email-templates": "Email Templates"}
 SB_VERSION = "^10.6.1"
 
 
@@ -1551,6 +1574,85 @@ def cmd_sync(a):
     print(f"synced {n} file(s) into {proj}" + (f"; skipped {len(STATE['skipped'])}" if STATE["skipped"] else ""))
 
 
+# ---------- email ----------
+EMAIL_CHECKS = [
+    (re.compile(r"var\("), "CSS custom property (var()) — email clients don't support them; use $tokens"),
+    (re.compile(r"display\s*:\s*(flex|grid)"), "flex/grid layout — use role=presentation tables"),
+    (re.compile(r"\d+(\.\d+)?rem\b"), "rem unit — use px in email"),
+    (re.compile(r"<img(?![^>]*\balt=)[^>]*>", re.I), "img without alt"),
+    (re.compile(r"<img(?![^>]*\bwidth=)[^>]*>", re.I), "img without width attribute (Outlook)"),
+    (re.compile(r"<table(?![^>]*role=\"presentation\")[^>]*>", re.I), "layout table without role=\"presentation\""),
+    (re.compile(r"href=\"(#|)\""), "empty or # link"),
+    (re.compile(r">\s*(click here|here|read more)\s*<", re.I), "vague link text"),
+]
+
+
+def email_profile(root, theme=None):
+    """Flat {token_with_underscores: literal} map: colors as hex, rem as px — what email clients understand."""
+    base, themes = load_tokens(root)
+    flat = flatten(base)
+    if theme:
+        flat = {**flat, **flatten(themes.get(theme, {}))}
+    out = {}
+    for k, v in flat.items():
+        raw = resolve_raw(k, flat)
+        if v["type"] == "color":
+            rgb = color_rgb(raw)
+            val = _hex_from_rgb(rgb) if rgb else None
+        else:
+            try:
+                val = to_css(raw, v["type"], flat, as_var=False)
+            except (ValueError, TypeError, KeyError):
+                val = None
+            if val and "rem" in val:
+                val = re.sub(r"(-?\d*\.?\d+)rem", lambda m: f"{round(float(m.group(1)) * 16)}px", val)
+        if val is not None:
+            out[re.sub(r"[.-]", "_", k)] = val
+    return out
+
+
+def cmd_email(a):
+    """Render email/src/*.html|txt with literal token values into dist/email/, then check client safety."""
+    from string import Template
+    root = Path(a.dir)
+    load_cfg(root)
+    src = root / "email" / "src"
+    if not src.exists():
+        sys.exit(f"No {_rel(src)}/ — add the email scope (`ds.py init {root} --force --scopes ...,email`) or create templates there.")
+    light = email_profile(root)
+    dark = {f"dark_{k}": v for k, v in email_profile(root, "dark").items()}
+    values = {**light, **dark}
+    out_dir = root / "dist" / "email"
+    safe_write(out_dir / "tokens.light.json", json.dumps(light, indent=1) + "\n")
+    safe_write(out_dir / "tokens.dark.json", json.dumps({k[5:]: v for k, v in dark.items()}, indent=1) + "\n")
+    problems = 0
+    for f in sorted(src.glob("*.html")) + sorted(src.glob("*.txt")):
+        try:
+            rendered = Template(f.read_text()).substitute(values)
+        except KeyError as e:
+            print(f"✗ {f.name}: unknown token ${e.args[0]}")
+            problems += 1
+            continue
+        safe_write(out_dir / f.name, rendered)
+        if f.suffix != ".html":
+            continue
+        found = [msg for rx, msg in EMAIL_CHECKS if rx.search(re.sub(r"<!--.*?-->", "", rendered, flags=re.S))]
+        size = len(rendered.encode())
+        if size > 80_000:
+            found.append(f"{size // 1024}KB — Gmail clips around 102KB; keep under 80KB")
+        for needle, msg in (("<html lang=", "missing lang on <html>"), ('name="color-scheme"', "missing color-scheme meta"),
+                            ("<title>", "missing <title>")):
+            if needle not in rendered:
+                found.append(msg)
+        if not (src / f"{f.stem}.txt").exists():
+            found.append("no plain-text part (add <name>.txt)")
+        problems += len(found)
+        print(f"{'✓' if not found else '✗'} {f.name}" + "".join(f"\n    - {m}" for m in found))
+    print(f"rendered into {_rel(out_dir)}; {problems} problem(s)")
+    if problems and a.strict:
+        sys.exit(1)
+
+
 # ---------- hooks ----------
 def read_hook_input():
     try:
@@ -1645,6 +1747,7 @@ def main():
     p = sp.add_parser("detect"); p.add_argument("project", nargs="?", default="."); p.add_argument("--json", action="store_true")
     p = sp.add_parser("sync"); p.add_argument("dir")
     p = sp.add_parser("migrate-colors"); p.add_argument("dir")
+    p = sp.add_parser("email"); p.add_argument("dir"); p.add_argument("--strict", action="store_true")
     p = sp.add_parser("storybook"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p.add_argument("--renderer", choices=["html", "server"], default="html",
                    help="html: client-rendered from the pages (default). server: @storybook/server, a backend renders each story")
@@ -1664,7 +1767,7 @@ def main():
     {"init": cmd_init, "audit": cmd_audit, "build": cmd_build, "check": cmd_check,
      "coverage": cmd_coverage, "plan": cmd_plan, "phase": cmd_phase, "status": cmd_status,
      "storybook": cmd_storybook, "serve": cmd_serve, "design-md": cmd_design_md, "package": cmd_package, "ci": cmd_ci,
-     "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors}[a.cmd](a)
+     "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email}[a.cmd](a)
 
 
 if __name__ == "__main__":

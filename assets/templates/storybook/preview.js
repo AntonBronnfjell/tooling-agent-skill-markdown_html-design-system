@@ -29,6 +29,6 @@ export default {
     layout: 'padded',
     a11y: { test: 'error' }, // axe runs on every story; violations fail `storybook test`/CI
     docs: { toc: true },
-    options: { storySort: { order: ['Introduction', 'Foundations', 'Actions', 'Forms', 'Navigation', 'Data Display', 'Overlays', 'Feedback', 'Patterns', 'Marketing', 'Marketing Pages'] } },
+    options: { storySort: { order: ['Introduction', 'Foundations', 'Actions', 'Forms', 'Navigation', 'Data Display', 'Overlays', 'Feedback', 'Patterns', 'Marketing', 'Marketing Pages', 'AI', 'AI Patterns', 'Commerce', 'Commerce Pages', 'Email', 'Email Templates'] } },
   },
 };

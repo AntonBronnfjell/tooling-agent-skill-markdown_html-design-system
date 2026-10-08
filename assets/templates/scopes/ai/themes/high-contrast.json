@@ -1,0 +1,20 @@
+{
+  "$description": "Drop decorative tints: AI surfaces become plain surfaces with strong borders; glow and gradient off (set in CSS via [data-theme=high-contrast] / forced-colors).",
+  "color": {
+    "$type": "color",
+    "ai": {
+      "surface": {
+        "$value": "{color.bg.surface}"
+      },
+      "border": {
+        "$value": "{color.border.strong}"
+      },
+      "accent": {
+        "$value": "{color.violet.800}"
+      },
+      "fg": {
+        "$value": "{color.text.default}"
+      }
+    }
+  }
+}

@@ -14,7 +14,10 @@
  },
  "scopes": {
   "product": "Application UI: foundations, controls, navigation, data, overlays, feedback, app patterns (always on)",
-  "marketing": "Website / landing UI: hero, pricing, testimonials, FAQ, footers, marketing pages (add when the product has a public site)"
+  "marketing": "Website / landing UI: hero, pricing, testimonials, FAQ, footers, marketing pages (add when the product has a public site)",
+  "ai": "AI & chat UI: conversation, streaming, tools, approvals, citations, AI labelling, assistant layouts (add when the product ships an assistant or agent)",
+  "commerce": "Commerce UI: product cards, variant pickers, cart, checkout, orders, reviews, PLP/PDP/cart/checkout pages (add for stores and marketplaces)",
+  "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)"
  },
  "token_groups_required": {
   "core": [
@@ -2781,6 +2784,1404 @@
      "aria": "landmarks",
      "native": "main",
      "desc": "Case-study index and single story layout with metrics."
+    }
+   ]
+  },
+  {
+   "id": "ai",
+   "name": "AI & Chat",
+   "scope": "ai",
+   "components": [
+    {
+     "id": "conversation",
+     "name": "Conversation / Message List",
+     "tier": "core",
+     "file": "conversation",
+     "demos": [
+      "state:default",
+      "state:scrolled-up-new-content",
+      "state:loading-history",
+      "state:streaming",
+      "variant:with-day-dividers",
+      "state:error"
+     ],
+     "aria": "log (+ separate status live region)",
+     "native": "section[role=log] + ol/article",
+     "desc": "Scrolling thread with bottom anchoring that pauses when the user scrolls up, a 'Jump to latest' button, and history loading at the top."
+    },
+    {
+     "id": "chat-message",
+     "name": "Chat Message",
+     "tier": "core",
+     "file": "chat-message",
+     "demos": [
+      "variant:user",
+      "variant:assistant",
+      "variant:system",
+      "variant:error",
+      "variant:with-avatar",
+      "variant:compact",
+      "state:pending-send",
+      "state:failed-send"
+     ],
+     "aria": "article (in log)",
+     "native": "article + h-level sender label + time",
+     "desc": "One turn: sender label (user / assistant name), content, timestamp, status; user and assistant are distinguished by text and layout, not color alone."
+    },
+    {
+     "id": "streaming-response",
+     "name": "Streaming Response",
+     "tier": "core",
+     "file": "streaming-response",
+     "demos": [
+      "state:streaming",
+      "state:complete",
+      "state:stopped",
+      "state:interrupted",
+      "variant:markdown",
+      "variant:with-code",
+      "variant:with-table"
+     ],
+     "aria": "aria-busy on message + throttled polite announcer",
+     "native": "div.prose (markdown rendered to semantic HTML)",
+     "desc": "Incrementally rendered markdown answer with a caret/cursor while streaming, stable layout, and 'stopped'/'interrupted' end states."
+    },
+    {
+     "id": "reasoning",
+     "name": "Reasoning Disclosure",
+     "tier": "standard",
+     "file": "reasoning",
+     "demos": [
+      "state:thinking",
+      "state:collapsed",
+      "state:expanded",
+      "variant:with-duration",
+      "variant:summary-only"
+     ],
+     "aria": "disclosure",
+     "native": "details + summary",
+     "desc": "Collapsible 'Thought for 12s' block showing the model's reasoning summary; auto-opens while thinking, collapses when the answer starts."
+    },
+    {
+     "id": "agent-plan",
+     "name": "Task / Plan Steps",
+     "tier": "standard",
+     "file": "agent-plan",
+     "demos": [
+      "state:pending",
+      "state:in-progress",
+      "state:done",
+      "state:failed",
+      "state:skipped",
+      "variant:nested-substeps",
+      "variant:collapsed-summary"
+     ],
+     "aria": "list + status text",
+     "native": "ol + li (+ details for substeps)",
+     "desc": "Ordered checklist of the agent's plan with per-step status (pending, in progress, done, failed, skipped) and an 'n of m' summary."
+    },
+    {
+     "id": "tool-call",
+     "name": "Tool Call Card",
+     "tier": "standard",
+     "file": "tool-call",
+     "demos": [
+      "state:pending",
+      "state:running",
+      "state:success",
+      "state:error",
+      "state:cancelled",
+      "variant:with-input-output",
+      "variant:collapsed",
+      "variant:streaming-input"
+     ],
+     "aria": "disclosure + status",
+     "native": "details + summary + pre/dl",
+     "desc": "Inline record of a tool/function call: tool name, status badge, duration, collapsible input arguments and output/error."
+    },
+    {
+     "id": "approval-card",
+     "name": "Approval Card (Human-in-the-loop)",
+     "tier": "standard",
+     "file": "approval-card",
+     "demos": [
+      "state:awaiting",
+      "state:approved",
+      "state:denied",
+      "state:expired",
+      "variant:edit-before-approve",
+      "variant:scope-choice",
+      "variant:irreversible",
+      "variant:batch"
+     ],
+     "aria": "group/region + buttons",
+     "native": "form + fieldset + buttons",
+     "desc": "Agent pauses for consent: what will happen, to what, scope (once / this chat / always), reversibility, with Approve / Deny / Edit."
+    },
+    {
+     "id": "sources",
+     "name": "Sources List",
+     "tier": "core",
+     "file": "citations",
+     "demos": [
+      "variant:collapsed-count",
+      "variant:list",
+      "variant:cards",
+      "state:expanded",
+      "variant:unavailable-source"
+     ],
+     "aria": "disclosure + list",
+     "native": "details + ol of a[href]",
+     "desc": "'Used 5 sources' disclosure listing numbered source links (title, domain, favicon) that match inline citation numbers."
+    },
+    {
+     "id": "inline-citation",
+     "name": "Inline Citation",
+     "tier": "standard",
+     "file": "citations",
+     "demos": [
+      "variant:numbered",
+      "variant:multiple",
+      "state:hover-preview",
+      "state:focus-visible",
+      "variant:quote-highlight"
+     ],
+     "aria": "link (+ hover card)",
+     "native": "sup > a[href] (+ popover hint)",
+     "desc": "Superscript numbered link to a source with a hover/focus preview card (title, domain, quoted snippet)."
+    },
+    {
+     "id": "code-block",
+     "name": "Code Block (AI output)",
+     "tier": "core",
+     "file": "code-block",
+     "demos": [
+      "variant:with-copy",
+      "variant:with-run",
+      "variant:with-filename",
+      "state:copied",
+      "state:streaming",
+      "state:running",
+      "state:run-error",
+      "variant:long-scroll",
+      "variant:wrapped"
+     ],
+     "aria": "region (labelled, focusable scroll) + button",
+     "native": "figure + figcaption + pre > code",
+     "desc": "Syntax-highlighted code with language label, copy (announced), optional run/apply/insert, and a streaming state that defers highlighting."
+    },
+    {
+     "id": "prompt-input",
+     "name": "Prompt Input",
+     "tier": "core",
+     "file": "prompt-input",
+     "demos": [
+      "state:empty",
+      "state:filled",
+      "state:generating",
+      "variant:with-attachments",
+      "variant:with-tools",
+      "variant:with-context-meter",
+      "state:rate-limited",
+      "state:disabled"
+     ],
+     "aria": "form",
+     "native": "form + textarea + buttons",
+     "desc": "AI composer: extends `composer` with stop-while-generating (Esc), model picker, tools/mode menu, context chips and context meter; Enter sends."
+    },
+    {
+     "id": "model-picker",
+     "name": "Model Picker",
+     "tier": "standard",
+     "file": "prompt-input",
+     "demos": [
+      "state:default",
+      "state:open",
+      "variant:with-descriptions",
+      "state:unavailable-option"
+     ],
+     "aria": "button + listbox (or native select)",
+     "native": "select (customizable) / button + popover listbox",
+     "desc": "Compact selector in the prompt input for model or mode, with short capability/cost hints and disabled options explained."
+    },
+    {
+     "id": "suggestion-chips",
+     "name": "Suggestions / Starter Prompts",
+     "tier": "core",
+     "file": "suggestions",
+     "demos": [
+      "variant:follow-up-chips",
+      "variant:starter-cards",
+      "state:hover",
+      "state:focus-visible",
+      "variant:scrollable-row"
+     ],
+     "aria": "list of buttons",
+     "native": "ul > li > button",
+     "desc": "Clickable prompt suggestions: follow-up chips after an answer and starter cards in the empty state; insert or send per variant."
+    },
+    {
+     "id": "message-actions",
+     "name": "Message Actions",
+     "tier": "core",
+     "file": "message-actions",
+     "demos": [
+      "variant:assistant",
+      "variant:user",
+      "state:copied",
+      "state:regenerating",
+      "variant:branch-nav",
+      "state:feedback-up",
+      "state:feedback-down",
+      "variant:hover-reveal"
+     ],
+     "aria": "toolbar",
+     "native": "div[role=toolbar] + buttons",
+     "desc": "Per-message toolbar: copy, regenerate, edit (user), 'Previous/Next response 2 / 3' branch navigation, thumbs up/down (aria-pressed), more."
+    },
+    {
+     "id": "response-feedback",
+     "name": "Response Feedback Form",
+     "tier": "standard",
+     "file": "response-feedback",
+     "demos": [
+      "state:reasons-open",
+      "state:submitted",
+      "variant:with-comment",
+      "variant:inline",
+      "variant:dialog"
+     ],
+     "aria": "group + form",
+     "native": "form + fieldset[checkbox] + textarea",
+     "desc": "Follow-up after a thumbs rating: reason chips (Inaccurate, Not helpful, Unsafe, Other), optional comment, data-use notice, thank-you state."
+    },
+    {
+     "id": "ai-label",
+     "name": "AI Label + Explainability",
+     "tier": "core",
+     "file": "ai-label",
+     "demos": [
+      "variant:default",
+      "variant:inline",
+      "variant:with-text",
+      "size:sm",
+      "size:md",
+      "state:popover-open",
+      "state:edited-revert"
+     ],
+     "aria": "button (toggletip) + popover",
+     "native": "button + [popover]",
+     "desc": "Mark that identifies AI-generated content; it is a button that opens an explainability popover (what, how, data sources, confidence, actions)."
+    },
+    {
+     "id": "ai-disclaimer",
+     "name": "AI Disclaimer",
+     "tier": "core",
+     "file": "ai-disclaimer",
+     "demos": [
+      "variant:footnote",
+      "variant:inline-notice",
+      "variant:first-run-dialog"
+     ],
+     "aria": "note / dialog",
+     "native": "p (small) / aside / dialog",
+     "desc": "'AI can make mistakes. Check important info.' footnote near the input, plus a first-run notice with link to data-use/privacy terms."
+    },
+    {
+     "id": "generating-indicator",
+     "name": "Generating / Thinking Indicator",
+     "tier": "core",
+     "file": "generating-indicator",
+     "demos": [
+      "state:processing",
+      "state:generating",
+      "state:long-wait",
+      "variant:shimmer-text",
+      "variant:dots",
+      "variant:avatar-pulse",
+      "state:reduced-motion"
+     ],
+     "aria": "status",
+     "native": "div[role=status] + text",
+     "desc": "Shows the model is working (processing \u2192 generating), with a real text label, elapsed time after ~5\u201310s, and static fallback for reduced motion."
+    },
+    {
+     "id": "artifact-panel",
+     "name": "Artifact / Canvas Panel",
+     "tier": "standard",
+     "file": "artifact-panel",
+     "demos": [
+      "variant:side-panel",
+      "variant:fullscreen",
+      "variant:mobile-sheet",
+      "state:streaming",
+      "state:version-history",
+      "variant:code-preview-tabs",
+      "state:closed-chip"
+     ],
+     "aria": "complementary region + tabs",
+     "native": "aside + header + tabs + iframe/pre",
+     "desc": "Side panel that hosts a generated document, code or preview next to the chat, with versions, copy/download, and open/close states."
+    },
+    {
+     "id": "context-chips",
+     "name": "Context & Attachment Chips",
+     "tier": "standard",
+     "file": "context-chips",
+     "demos": [
+      "variant:file",
+      "variant:image",
+      "variant:selection",
+      "variant:page-context",
+      "state:uploading",
+      "state:error",
+      "state:removable",
+      "variant:overflow-count"
+     ],
+     "aria": "list + remove buttons",
+     "native": "ul > li (+ button)",
+     "desc": "Chips showing what the model will see (files, images, selected text, current page) with upload progress, errors and remove."
+    },
+    {
+     "id": "conversation-list",
+     "name": "Conversation History",
+     "tier": "standard",
+     "file": "conversation-list",
+     "demos": [
+      "state:default",
+      "state:current",
+      "variant:grouped-by-date",
+      "state:renaming",
+      "state:empty",
+      "state:loading",
+      "variant:with-search",
+      "variant:pinned"
+     ],
+     "aria": "navigation + list (+ menu)",
+     "native": "nav > ul > li > a[aria-current]",
+     "desc": "Sidebar list of past chats grouped by date (Today, Previous 7 days), with new chat, search, rename, pin and delete."
+    },
+    {
+     "id": "ai-empty-state",
+     "name": "Chat Empty State",
+     "tier": "core",
+     "file": "ai-empty-state",
+     "demos": [
+      "variant:greeting-with-starters",
+      "variant:capabilities",
+      "variant:scoped-assistant",
+      "state:first-run"
+     ],
+     "aria": "region",
+     "native": "section + h + ul",
+     "desc": "Welcome screen for a new conversation: greeting, what the assistant can and can't do, starter prompts, disclaimer."
+    },
+    {
+     "id": "ai-status-banner",
+     "name": "Rate-limit / Error / Retry Banner",
+     "tier": "core",
+     "file": "ai-status-banner",
+     "demos": [
+      "variant:rate-limited",
+      "variant:network-error",
+      "variant:server-error",
+      "variant:content-filtered",
+      "variant:context-limit",
+      "variant:partial-response",
+      "state:retrying"
+     ],
+     "aria": "alert / status",
+     "native": "div[role=alert|status] + button",
+     "desc": "Inline or above-input notices for AI failures with a specific cause, recovery action (Retry, Start new chat, Upgrade) and countdown when known."
+    },
+    {
+     "id": "voice-input",
+     "name": "Voice Input",
+     "tier": "enterprise",
+     "file": "voice-input",
+     "demos": [
+      "state:idle",
+      "state:listening",
+      "state:processing",
+      "state:permission-denied",
+      "state:error",
+      "variant:push-to-talk",
+      "variant:live-transcript"
+     ],
+     "aria": "toggle button + status",
+     "native": "button[aria-pressed] + status",
+     "desc": "Microphone toggle with listening state, input level, live transcript into the prompt input, and permission/unsupported fallbacks."
+    },
+    {
+     "id": "app-widget",
+     "name": "App Widget / MCP App Shell",
+     "tier": "enterprise",
+     "file": "app-widget",
+     "demos": [
+      "variant:inline-card",
+      "variant:carousel",
+      "variant:fullscreen",
+      "variant:pip",
+      "state:loading",
+      "state:error",
+      "state:awaiting-approval"
+     ],
+     "aria": "region (labelled) containing sandboxed iframe",
+     "native": "figure/section + iframe[sandbox]",
+     "desc": "Host frame for third-party interactive UI returned by a tool (MCP Apps / Apps SDK): app attribution, sandboxed iframe, display-mode controls."
+    },
+    {
+     "id": "usage-meter",
+     "name": "Token / Cost Usage Meter",
+     "tier": "enterprise",
+     "file": "usage-meter",
+     "demos": [
+      "variant:context-window",
+      "variant:cost",
+      "variant:quota",
+      "state:near-limit",
+      "state:over-limit",
+      "variant:compact"
+     ],
+     "aria": "meter",
+     "native": "meter + text",
+     "desc": "Shows context-window fill, token count, cost or plan quota with thresholds and a details popover; never color-only."
+    }
+   ]
+  },
+  {
+   "id": "ai-patterns",
+   "name": "AI Patterns",
+   "scope": "ai",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "chat-app",
+     "name": "Chat App Layout",
+     "tier": "core",
+     "file": "chat-app",
+     "demos": [
+      "variant:with-history-sidebar",
+      "variant:with-artifact-panel",
+      "variant:mobile",
+      "state:empty",
+      "state:streaming"
+     ],
+     "aria": "landmarks",
+     "native": "header/nav/main/aside",
+     "desc": "Full-page assistant: conversation-list sidebar, conversation + prompt input in main, optional artifact panel."
+    },
+    {
+     "id": "copilot-panel",
+     "name": "Copilot Side Panel",
+     "tier": "standard",
+     "file": "copilot-panel",
+     "demos": [
+      "variant:docked",
+      "variant:overlay",
+      "variant:mobile-sheet",
+      "state:closed",
+      "state:with-page-context"
+     ],
+     "aria": "complementary region",
+     "native": "aside (non-modal) / dialog (mobile)",
+     "desc": "Assistant docked beside an existing app screen, aware of page context/selection, proposing changes the user applies or approves."
+    },
+    {
+     "id": "agent-run",
+     "name": "Agent Run / Trace View",
+     "tier": "enterprise",
+     "file": "agent-run",
+     "demos": [
+      "state:running",
+      "state:awaiting-approval",
+      "state:completed",
+      "state:failed",
+      "variant:timeline",
+      "variant:step-detail"
+     ],
+     "aria": "landmarks + tree/list",
+     "native": "main + ol (+ details) + aside",
+     "desc": "Inspector for an autonomous run: plan, ordered steps/tool calls with timing and cost, approvals, logs, outputs, and stop/resume."
+    }
+   ]
+  },
+  {
+   "id": "commerce",
+   "name": "Commerce",
+   "scope": "commerce",
+   "components": [
+    {
+     "id": "product-card",
+     "name": "Product Card",
+     "tier": "core",
+     "file": "product-card",
+     "demos": [
+      "variant:default",
+      "variant:with-swatches",
+      "variant:with-quick-add",
+      "variant:horizontal",
+      "state:hover",
+      "state:sold-out",
+      "state:on-sale",
+      "state:loading"
+     ],
+     "aria": "article (stretched link)",
+     "native": "article + a + img",
+     "desc": "PLP tile: image (alt swap on hover optional), title link, price, rating, badges, swatch preview, quick add."
+    },
+    {
+     "id": "product-gallery",
+     "name": "Product Gallery",
+     "tier": "core",
+     "file": "product-gallery",
+     "demos": [
+      "variant:thumbnails-below",
+      "variant:thumbnails-side",
+      "variant:with-video",
+      "variant:with-zoom",
+      "variant:mobile-swipe",
+      "state:zoomed",
+      "state:lightbox-open"
+     ],
+     "aria": "region + group (slides) + button",
+     "native": "figure + img + button + dialog",
+     "desc": "PDP media: main image, thumbnail buttons, hover/tap zoom, video/3D slide, fullscreen lightbox, swipe on mobile."
+    },
+    {
+     "id": "price",
+     "name": "Price",
+     "tier": "core",
+     "file": "price",
+     "demos": [
+      "variant:regular",
+      "variant:sale-compare-at",
+      "variant:range",
+      "variant:unit-price",
+      "variant:tax-included",
+      "variant:subscription",
+      "variant:free",
+      "size:sm",
+      "size:md",
+      "size:lg"
+     ],
+     "aria": null,
+     "native": "data + del + ins + small",
+     "desc": "Formatted money (Intl.NumberFormat): sale vs compare-at with text labels, from/range, unit price, tax/VAT note."
+    },
+    {
+     "id": "variant-picker",
+     "name": "Variant Picker",
+     "tier": "core",
+     "file": "variant-picker",
+     "demos": [
+      "variant:color-swatches",
+      "variant:size-buttons",
+      "variant:image-swatches",
+      "variant:dropdown-fallback",
+      "state:selected",
+      "state:unavailable",
+      "state:out-of-stock-notify",
+      "state:invalid-unselected",
+      "state:focus-visible"
+     ],
+     "aria": "radiogroup",
+     "native": "fieldset + legend + input[type=radio]",
+     "desc": "Per-option radio groups shown as swatches/buttons; unavailable combos visible but marked; selection updates price, media, stock, URL."
+    },
+    {
+     "id": "quantity-stepper",
+     "name": "Quantity Stepper",
+     "tier": "core",
+     "file": "quantity-stepper",
+     "demos": [
+      "state:default",
+      "state:min",
+      "state:max",
+      "state:disabled",
+      "state:invalid",
+      "state:updating",
+      "size:sm",
+      "size:md"
+     ],
+     "aria": "spinbutton (native)",
+     "native": "input[type=number] + button x2",
+     "desc": "\u2212/+ buttons around a numeric input with min/max (stock limit); updates cart with debounce and announces result."
+    },
+    {
+     "id": "stock-delivery",
+     "name": "Stock & Delivery Estimate",
+     "tier": "standard",
+     "file": "stock-delivery",
+     "demos": [
+      "state:in-stock",
+      "state:low-stock",
+      "state:out-of-stock",
+      "state:preorder",
+      "state:backorder",
+      "variant:delivery-date",
+      "variant:pickup-in-store",
+      "variant:postcode-check"
+     ],
+     "aria": "status",
+     "native": "p + time + output",
+     "desc": "Availability text + icon, delivery-by date range, pickup availability, postcode/zip estimator."
+    },
+    {
+     "id": "add-to-cart",
+     "name": "Add to Cart Button",
+     "tier": "core",
+     "file": "add-to-cart",
+     "demos": [
+      "state:default",
+      "state:hover",
+      "state:focus-visible",
+      "state:loading",
+      "state:added",
+      "state:error",
+      "state:disabled-select-option",
+      "state:sold-out",
+      "variant:with-buy-now",
+      "variant:sticky-mobile"
+     ],
+     "aria": "button + status",
+     "native": "form + button[type=submit]",
+     "desc": "Primary purchase action with loading/added/error states, optional express buy-now; sticky bar on mobile PDP."
+    },
+    {
+     "id": "mini-cart",
+     "name": "Mini-Cart Drawer",
+     "tier": "core",
+     "file": "mini-cart",
+     "demos": [
+      "state:closed",
+      "state:open",
+      "state:empty",
+      "state:loading",
+      "state:with-free-shipping-progress",
+      "state:item-removed-undo",
+      "variant:with-upsell"
+     ],
+     "aria": "dialog",
+     "native": "dialog + ul + form",
+     "desc": "Side drawer opened after add-to-cart/cart icon: line items, subtotal, free-shipping meter, checkout + view cart."
+    },
+    {
+     "id": "cart-line-item",
+     "name": "Cart Line Item",
+     "tier": "core",
+     "file": "cart-line-item",
+     "demos": [
+      "variant:default",
+      "variant:with-options",
+      "variant:with-discount",
+      "variant:subscription",
+      "variant:gift",
+      "state:updating",
+      "state:removed",
+      "state:out-of-stock",
+      "state:price-changed",
+      "variant:compact"
+     ],
+     "aria": "listitem",
+     "native": "li + img + a + input + button",
+     "desc": "Image, title link, variant options, unit + line price, quantity stepper, remove (with undo), save for later."
+    },
+    {
+     "id": "order-summary",
+     "name": "Order Summary",
+     "tier": "core",
+     "file": "order-summary",
+     "demos": [
+      "variant:checkout-sidebar",
+      "variant:cart-page",
+      "variant:collapsible-mobile",
+      "state:with-discount",
+      "state:shipping-tbd",
+      "state:tax-estimated",
+      "state:loading"
+     ],
+     "aria": "region + table/dl",
+     "native": "aside + dl (or table)",
+     "desc": "Subtotal, discounts, shipping, tax, total (with currency); items list; collapses to 'Show order summary \u00b7 $X' on mobile."
+    },
+    {
+     "id": "promo-code",
+     "name": "Promo Code Field",
+     "tier": "standard",
+     "file": "promo-code",
+     "demos": [
+      "state:collapsed",
+      "state:expanded",
+      "state:applying",
+      "state:applied",
+      "state:invalid",
+      "state:expired",
+      "variant:gift-card"
+     ],
+     "aria": "group + status",
+     "native": "details + form-field + button",
+     "desc": "Discount/gift-card entry behind a disclosure; applied codes as removable tags; inline error reasons."
+    },
+    {
+     "id": "shipping-method",
+     "name": "Shipping Method Selector",
+     "tier": "core",
+     "file": "shipping-method",
+     "demos": [
+      "state:default",
+      "state:selected",
+      "state:loading-rates",
+      "state:no-rates",
+      "variant:with-pickup",
+      "variant:with-dates",
+      "state:disabled-option"
+     ],
+     "aria": "radiogroup",
+     "native": "fieldset + input[type=radio]",
+     "desc": "Radio cards: carrier/speed name, delivery date range, price (or Free); pickup points variant."
+    },
+    {
+     "id": "payment-method",
+     "name": "Payment Method Selector",
+     "tier": "core",
+     "file": "payment-method",
+     "demos": [
+      "variant:card",
+      "variant:wallets-express",
+      "variant:paypal",
+      "variant:bnpl",
+      "variant:saved-cards",
+      "state:selected",
+      "state:card-invalid",
+      "state:processing",
+      "state:declined",
+      "variant:billing-same-as-shipping"
+     ],
+     "aria": "radiogroup + group",
+     "native": "fieldset + input[type=radio] + input[autocomplete=cc-*]",
+     "desc": "Express wallets on top, then radio list of methods; card form with cc-* autocomplete, brand detection, CVC help, secure note."
+    },
+    {
+     "id": "address-form",
+     "name": "Address Form",
+     "tier": "core",
+     "file": "address-form",
+     "demos": [
+      "variant:us",
+      "variant:uk",
+      "variant:jp",
+      "variant:with-autocomplete",
+      "variant:saved-addresses",
+      "state:validating",
+      "state:invalid",
+      "state:suggestion-correction",
+      "variant:billing"
+     ],
+     "aria": "group + combobox",
+     "native": "fieldset + input[autocomplete] + select",
+     "desc": "Country-first, country-aware fields/labels/order, autocomplete tokens, address lookup combobox, validation/suggest correction."
+    },
+    {
+     "id": "checkout-steps",
+     "name": "Checkout Steps",
+     "tier": "core",
+     "file": "checkout-steps",
+     "demos": [
+      "variant:horizontal",
+      "variant:compact-mobile",
+      "state:current",
+      "state:completed-editable",
+      "state:upcoming",
+      "variant:accordion-sections"
+     ],
+     "aria": "list + aria-current=step",
+     "native": "nav + ol",
+     "desc": "Progress indicator for multi-step checkout (Information \u2192 Shipping \u2192 Payment \u2192 Review); completed steps editable."
+    },
+    {
+     "id": "order-confirmation",
+     "name": "Order Confirmation Panel",
+     "tier": "core",
+     "file": "order-confirmation",
+     "demos": [
+      "variant:default",
+      "variant:guest-create-account",
+      "variant:pickup",
+      "state:payment-pending"
+     ],
+     "aria": "status + region",
+     "native": "section + h1 + dl",
+     "desc": "Thank-you block: order number, email sent note, summary, delivery estimate, next steps, guest account creation."
+    },
+    {
+     "id": "order-tracking",
+     "name": "Order Status Timeline",
+     "tier": "standard",
+     "file": "order-tracking",
+     "demos": [
+      "state:placed",
+      "state:shipped",
+      "state:out-for-delivery",
+      "state:delivered",
+      "state:delayed",
+      "state:cancelled",
+      "variant:split-shipment",
+      "variant:with-carrier-link"
+     ],
+     "aria": "list",
+     "native": "ol + time",
+     "desc": "Order/shipment status steps with timestamps, carrier + tracking link, delay/exception messaging."
+    },
+    {
+     "id": "reviews-summary",
+     "name": "Reviews Summary",
+     "tier": "standard",
+     "file": "reviews-summary",
+     "demos": [
+      "variant:with-histogram",
+      "variant:compact-inline",
+      "variant:with-filters",
+      "state:no-reviews"
+     ],
+     "aria": "img (stars) + list",
+     "native": "section + meter-like bars + button",
+     "desc": "Average rating, count, star distribution histogram (bars are filter buttons), write-review CTA."
+    },
+    {
+     "id": "review-item",
+     "name": "Review Item",
+     "tier": "standard",
+     "file": "review-item",
+     "demos": [
+      "variant:default",
+      "variant:verified-buyer",
+      "variant:with-photos",
+      "variant:with-merchant-reply",
+      "variant:long-truncated",
+      "state:helpful-voted"
+     ],
+     "aria": "article",
+     "native": "article + h3 + time",
+     "desc": "Single review: stars (text), title, body, author, date, verified badge, photos, helpful votes, reply."
+    },
+    {
+     "id": "facets",
+     "name": "Facets & Filters",
+     "tier": "core",
+     "file": "facets",
+     "demos": [
+      "variant:sidebar",
+      "variant:mobile-drawer",
+      "variant:horizontal-bar",
+      "state:applied-chips",
+      "state:with-counts",
+      "state:zero-results-option",
+      "state:loading-results",
+      "variant:price-range"
+     ],
+     "aria": "group + checkbox/radio + status",
+     "native": "form + fieldset + details + input",
+     "desc": "PLP filters: collapsible groups (checkbox, color, size, price range), applied-filter chips, clear all, result count."
+    },
+    {
+     "id": "sort-control",
+     "name": "Sort Control",
+     "tier": "core",
+     "file": "sort-control",
+     "demos": [
+      "state:default",
+      "state:changed",
+      "variant:inline-with-count"
+     ],
+     "aria": null,
+     "native": "label + select",
+     "desc": "Native select for sort order beside the result count; change re-sorts and announces."
+    },
+    {
+     "id": "wishlist-button",
+     "name": "Wishlist / Save Button",
+     "tier": "standard",
+     "file": "wishlist-button",
+     "demos": [
+      "state:unsaved",
+      "state:saved",
+      "state:loading",
+      "state:signed-out-prompt",
+      "variant:icon-only",
+      "variant:with-label"
+     ],
+     "aria": "button[aria-pressed]",
+     "native": "button",
+     "desc": "Toggle to save an item (heart icon + accessible name), persisted; signed-out flow keeps intent."
+    },
+    {
+     "id": "recently-viewed",
+     "name": "Recently Viewed",
+     "tier": "enterprise",
+     "file": "recently-viewed",
+     "demos": [
+      "variant:carousel",
+      "variant:grid",
+      "state:empty-hidden",
+      "state:clear-history"
+     ],
+     "aria": "region + list",
+     "native": "section + ul",
+     "desc": "Row of product-cards from local history (privacy note, clear action); also used for recommendations rails."
+    },
+    {
+     "id": "size-guide",
+     "name": "Size Guide",
+     "tier": "standard",
+     "file": "size-guide",
+     "demos": [
+      "variant:table",
+      "variant:with-unit-toggle",
+      "variant:fit-finder",
+      "state:open"
+     ],
+     "aria": "dialog + table",
+     "native": "dialog + table + input[type=radio]",
+     "desc": "Measurement table in a dialog/drawer, cm/in toggle, how-to-measure, optional fit recommendation."
+    },
+    {
+     "id": "product-badge",
+     "name": "Product Badges",
+     "tier": "core",
+     "file": "product-badge",
+     "demos": [
+      "variant:new",
+      "variant:sale",
+      "variant:low-stock",
+      "variant:sold-out",
+      "variant:bestseller",
+      "variant:eco",
+      "variant:limited"
+     ],
+     "aria": null,
+     "native": "span (text)",
+     "desc": "Text badges overlaid on product media/cards; never color-only; max 2 per card."
+    }
+   ]
+  },
+  {
+   "id": "commerce-pages",
+   "name": "Commerce Pages",
+   "scope": "commerce",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "plp",
+     "name": "Product Listing Page",
+     "tier": "core",
+     "file": "plp",
+     "demos": [
+      "variant:grid",
+      "variant:with-sidebar-facets",
+      "variant:mobile-filter-drawer",
+      "state:no-results",
+      "state:loading",
+      "variant:pagination",
+      "variant:load-more"
+     ],
+     "aria": "landmarks",
+     "native": "header/main/footer",
+     "desc": "Category/search results: breadcrumbs, title + count, facets, sort, product grid, pagination/load more."
+    },
+    {
+     "id": "pdp",
+     "name": "Product Detail Page",
+     "tier": "core",
+     "file": "pdp",
+     "demos": [
+      "variant:apparel",
+      "variant:single-variant",
+      "variant:out-of-stock",
+      "variant:mobile-sticky-atc"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Gallery, title, price, rating, variant picker, quantity, add-to-cart, delivery, details accordions, reviews, recs."
+    },
+    {
+     "id": "cart-page",
+     "name": "Cart Page",
+     "tier": "core",
+     "file": "cart-page",
+     "demos": [
+      "state:with-items",
+      "state:empty",
+      "state:updating",
+      "state:item-unavailable",
+      "variant:with-saved-for-later"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Line items, order summary with total early, promo, express checkout, continue shopping, empty state."
+    },
+    {
+     "id": "checkout-page",
+     "name": "Checkout",
+     "tier": "core",
+     "file": "checkout-page",
+     "demos": [
+      "variant:multi-step",
+      "variant:one-page",
+      "variant:guest",
+      "variant:signed-in",
+      "state:error-summary",
+      "state:processing",
+      "state:payment-declined"
+     ],
+     "aria": "landmarks",
+     "native": "main + form",
+     "desc": "Guest-first checkout: contact, address, shipping, payment, review; minimal header; summary sidebar."
+    },
+    {
+     "id": "order-confirmation-page",
+     "name": "Order Confirmation Page",
+     "tier": "core",
+     "file": "order-confirmation-page",
+     "demos": [
+      "variant:guest",
+      "variant:signed-in",
+      "variant:pickup"
+     ],
+     "aria": "landmarks",
+     "native": "main",
+     "desc": "Thank-you page composed from order-confirmation, summary, tracking teaser, account creation."
+    },
+    {
+     "id": "account-orders",
+     "name": "Account Orders",
+     "tier": "standard",
+     "file": "account-orders",
+     "demos": [
+      "variant:list",
+      "variant:order-detail",
+      "state:empty",
+      "state:return-started"
+     ],
+     "aria": "landmarks",
+     "native": "main + table/list",
+     "desc": "Order history list with status badges, order detail with tracking timeline, reorder, return/cancel actions."
+    }
+   ]
+  },
+  {
+   "id": "email",
+   "name": "Email",
+   "scope": "email",
+   "components": [
+    {
+     "id": "email-shell",
+     "name": "Email Shell",
+     "tier": "core",
+     "file": "email-shell",
+     "demos": [
+      "variant:light",
+      "variant:dark-mode-aware",
+      "variant:rtl",
+      "variant:with-preheader",
+      "variant:outlook-ghost-table"
+     ],
+     "aria": "presentation tables",
+     "native": "html[lang dir] + table[role=presentation]",
+     "desc": "Document skeleton: doctype, meta (color-scheme, x-apple-disable-message-reformatting), preheader, 600px centered table, MSO conditionals."
+    },
+    {
+     "id": "email-header",
+     "name": "Email Header",
+     "tier": "core",
+     "file": "email-header",
+     "demos": [
+      "variant:logo-left",
+      "variant:logo-center",
+      "variant:with-view-online",
+      "variant:dark-mode-logo"
+     ],
+     "aria": null,
+     "native": "table + a + img",
+     "desc": "Logo (with dark-mode-safe treatment), optional 'View in browser' link."
+    },
+    {
+     "id": "email-hero",
+     "name": "Email Hero",
+     "tier": "standard",
+     "file": "email-hero",
+     "demos": [
+      "variant:image-top",
+      "variant:text-only",
+      "variant:background-image-vml",
+      "variant:inverse"
+     ],
+     "aria": null,
+     "native": "table + h1 + img",
+     "desc": "Headline, intro text, image (or VML background), primary button."
+    },
+    {
+     "id": "email-button",
+     "name": "Bulletproof Button",
+     "tier": "core",
+     "file": "email-button",
+     "demos": [
+      "variant:primary",
+      "variant:secondary",
+      "variant:full-width-mobile",
+      "variant:vml-outlook",
+      "variant:dark-mode"
+     ],
+     "aria": "link",
+     "native": "a (+ v:roundrect in mso)",
+     "desc": "Padding-based <a> button with VML fallback for Word-engine Outlook; whole area clickable."
+    },
+    {
+     "id": "email-text",
+     "name": "Email Text Block",
+     "tier": "core",
+     "file": "email-text",
+     "demos": [
+      "variant:paragraph",
+      "variant:heading",
+      "variant:list",
+      "variant:with-link",
+      "variant:small-print"
+     ],
+     "aria": null,
+     "native": "td + h1-h3 + p + ul",
+     "desc": "Body copy with inline-styled headings, paragraphs, lists, links (16px base)."
+    },
+    {
+     "id": "email-image",
+     "name": "Email Image",
+     "tier": "core",
+     "file": "email-image",
+     "demos": [
+      "variant:full-width",
+      "variant:inline",
+      "variant:linked",
+      "variant:retina",
+      "state:images-off"
+     ],
+     "aria": null,
+     "native": "img[width][alt]",
+     "desc": "Fluid image with width attribute, alt text, display:block, styled alt for images-off."
+    },
+    {
+     "id": "email-columns",
+     "name": "Columns (Stack on Mobile)",
+     "tier": "core",
+     "file": "email-columns",
+     "demos": [
+      "variant:two-equal",
+      "variant:one-third-two-thirds",
+      "variant:three",
+      "variant:reverse-on-mobile",
+      "state:mobile-stacked"
+     ],
+     "aria": "presentation",
+     "native": "table + div[inline-block] + mso ghost table",
+     "desc": "Hybrid/fluid columns: inline-block divs with MSO ghost tables; stack below 600px without media queries."
+    },
+    {
+     "id": "email-product-row",
+     "name": "Product Row",
+     "tier": "standard",
+     "file": "email-product-row",
+     "demos": [
+      "variant:single",
+      "variant:grid-2",
+      "variant:with-price-sale",
+      "variant:with-button"
+     ],
+     "aria": null,
+     "native": "table + img + a",
+     "desc": "Product image, name, price (sale/compare-at as text), CTA; abandoned cart / recommendations."
+    },
+    {
+     "id": "email-receipt",
+     "name": "Receipt Line-Items Table",
+     "tier": "core",
+     "file": "email-receipt",
+     "demos": [
+      "variant:items",
+      "variant:with-totals",
+      "variant:with-discount-tax",
+      "variant:with-addresses",
+      "variant:mobile-stacked"
+     ],
+     "aria": "table (data)",
+     "native": "table + th[scope] + caption",
+     "desc": "Real data table for line items and totals (the only non-presentation table), payment + address summary."
+    },
+    {
+     "id": "email-spacer",
+     "name": "Divider & Spacer",
+     "tier": "core",
+     "file": "email-spacer",
+     "demos": [
+      "variant:divider",
+      "variant:spacer-sm",
+      "variant:spacer-md",
+      "variant:spacer-lg"
+     ],
+     "aria": "presentation",
+     "native": "td[height] + border-top",
+     "desc": "Fixed-height spacer cells and 1px border dividers (Outlook-safe: font-size/line-height set)."
+    },
+    {
+     "id": "email-social",
+     "name": "Social Links",
+     "tier": "standard",
+     "file": "email-social",
+     "demos": [
+      "variant:icons",
+      "variant:text-links",
+      "variant:dark-mode"
+     ],
+     "aria": null,
+     "native": "table + a + img[alt]",
+     "desc": "Social icon links with alt naming the network; text fallback."
+    },
+    {
+     "id": "email-footer",
+     "name": "Email Footer",
+     "tier": "core",
+     "file": "email-footer",
+     "demos": [
+      "variant:marketing",
+      "variant:transactional",
+      "variant:with-preferences",
+      "variant:with-legal-address"
+     ],
+     "aria": "contentinfo (not supported in all clients)",
+     "native": "table + p + a",
+     "desc": "Why you got this, unsubscribe + manage preferences, physical address, legal copy, small-print sizes \u226514px."
+    },
+    {
+     "id": "email-alert",
+     "name": "Alert / Notice Block",
+     "tier": "standard",
+     "file": "email-alert",
+     "demos": [
+      "variant:info",
+      "variant:success",
+      "variant:warning",
+      "variant:danger"
+     ],
+     "aria": null,
+     "native": "table + td[border-left] + strong",
+     "desc": "Bordered callout with text label (not color-only) for security notices, payment failures."
+    },
+    {
+     "id": "email-code",
+     "name": "Code / OTP Display",
+     "tier": "core",
+     "file": "email-code",
+     "demos": [
+      "variant:otp",
+      "variant:magic-link-fallback",
+      "variant:monospace-block",
+      "state:expiry-note"
+     ],
+     "aria": null,
+     "native": "td + span[letter-spacing] + p",
+     "desc": "Large monospace code with spacing, expiry, plain-text copyable; never image-only."
+    }
+   ]
+  },
+  {
+   "id": "email-templates",
+   "name": "Email Templates",
+   "scope": "email",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "email-verify",
+     "name": "Verify Email",
+     "tier": "core",
+     "file": "email-verify",
+     "demos": [
+      "variant:button",
+      "variant:code",
+      "variant:dark"
+     ],
+     "aria": "presentation",
+     "native": "email-shell",
+     "desc": "Confirm address: hero text, button + code fallback, expiry, 'didn't request' note."
+    },
+    {
+     "id": "email-password-reset",
+     "name": "Password Reset",
+     "tier": "core",
+     "file": "email-password-reset",
+     "demos": [
+      "variant:link",
+      "variant:code",
+      "variant:dark"
+     ],
+     "aria": "presentation",
+     "native": "email-shell",
+     "desc": "Reset link button, expiry, security alert block, ignore-if-not-you, support link."
+    },
+    {
+     "id": "email-order-confirmation",
+     "name": "Receipt / Order Confirmation",
+     "tier": "core",
+     "file": "email-order-confirmation",
+     "demos": [
+      "variant:order-confirmation",
+      "variant:receipt",
+      "variant:shipped",
+      "variant:dark"
+     ],
+     "aria": "presentation + data table",
+     "native": "email-shell",
+     "desc": "Order number, items table, totals, addresses, delivery estimate, track/manage order buttons."
+    },
+    {
+     "id": "email-invite",
+     "name": "Invite",
+     "tier": "standard",
+     "file": "email-invite",
+     "demos": [
+      "variant:team",
+      "variant:with-avatar",
+      "variant:expired-link-note"
+     ],
+     "aria": "presentation",
+     "native": "email-shell",
+     "desc": "'X invited you to Y': inviter, workspace, accept button, expiry, decline/ignore note."
+    },
+    {
+     "id": "email-newsletter",
+     "name": "Newsletter Digest",
+     "tier": "standard",
+     "file": "email-newsletter",
+     "demos": [
+      "variant:editorial",
+      "variant:product-picks",
+      "variant:dark",
+      "state:mobile-stacked"
+     ],
+     "aria": "presentation",
+     "native": "email-shell",
+     "desc": "Header, hero story, article list (columns), product row, social, marketing footer."
+    },
+    {
+     "id": "email-notification-digest",
+     "name": "Notification Digest",
+     "tier": "standard",
+     "file": "email-notification-digest",
+     "demos": [
+      "variant:daily",
+      "variant:weekly",
+      "variant:empty-skip"
+     ],
+     "aria": "presentation",
+     "native": "email-shell",
+     "desc": "Grouped activity items with counts, deep links, 'manage notifications' prominent in footer."
     }
    ]
   }
