@@ -22,7 +22,7 @@ Build these first: every later component composes them. Files: `box`, `stack`, `
 ## icon
 - Wrapper `.icon` sizing to `--icon-size-*`, `fill/stroke: currentColor` so it inherits text color.
 - Decorative: `aria-hidden="true" focusable="false"`. Meaningful standalone: `role="img" aria-label="…"` (demo both).
-- Pick one icon set (Lucide/Phosphor/Heroicons — MIT, consistent stroke) and record it as an ADR; ship an SVG sprite (`<symbol>` + `<use>`) rather than an icon font. Directional icons (arrows, chevrons) mirror in RTL.
+- Pick one icon set and record it (and its license) as an ADR: Lucide (ISC; parts from Feather under MIT), Phosphor (MIT), Tabler (MIT), Heroicons (MIT), Material Symbols (Apache-2.0). Ship an SVG sprite (`<symbol>` + `<use>`, built with `ds.py icons`) rather than an icon font. Directional icons (arrows, chevrons) mirror in RTL.
 
 ## typography (headings, body-text, code, kbd, blockquote, list, prose)
 - Utility classes per role: `.text-display`, `.text-h1`…`.text-h6`, `.text-lead`, `.text-body`, `.text-small`, `.text-caption`, `.text-overline` consuming `--typography-*` sub-properties. Semantic level (`h2`) is independent from visual size (`.text-h4`) — demo that.

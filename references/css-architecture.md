@@ -2,6 +2,17 @@
 
 How the generated CSS is organized and which modern platform features are defaults vs progressive enhancements. Baseline data below is from `web-features` 3.40.1 (browser releases through Chrome 154 / Firefox 157 / Safari 27, Sept 2026); "newly" = works in the latest Chrome, Edge, Firefox and Safari; "widely" = newly + 30 months. Re-check with `npx web-features` or webstatus.dev before changing a default.
 
+## Contents
+- 1. Cascade layers — order instead of `!important` (Baseline widely)
+- 2. `@scope` for components (Baseline newly, 2026-03)
+- 3. Invoker commands — default for dialogs and popovers (Baseline newly, 2025-12)
+- 4. Anchor positioning — primary path with a shared fallback set
+- 5. Selectors & layout everyone may use (Baseline widely)
+- 6. Progressive-enhancement matrix (limited / newly available)
+- 7. Color: `light-dark()`, `color-mix()`, relative color, OKLCH/P3
+- 8. Checklist for new CSS
+
+
 ## 1. Cascade layers — order instead of `!important` (Baseline widely)
 
 Declare the order once, first thing in the entry stylesheet:

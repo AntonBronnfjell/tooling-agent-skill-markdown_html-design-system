@@ -1,0 +1,10 @@
+{
+  "name": "html-design-system",
+  "version": "1.0.0",
+  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI.",
+  "skills": "./",
+  "interface": {
+    "displayName": "HTML Design System",
+    "shortDescription": "Decide, build and verify a complete HTML/CSS design system"
+  }
+}

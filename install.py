@@ -25,7 +25,8 @@ from pathlib import Path
 NAME = "html-design-system"
 SRC = Path(__file__).resolve().parent
 MARKER = ".installed-by-html-design-system"
-EXCLUDE = {".git", ".github", "evals", "__pycache__", ".DS_Store", "install.py", "install.sh", "install.ps1", ".gitignore"}
+EXCLUDE = {".git", ".github", "evals", "plugin-evals", "tests", "examples", "docs", "__pycache__", ".DS_Store",
+           "install.py", "install.sh", "install.ps1", ".gitignore", "CONTRIBUTING.md", "CHANGELOG.md", "SECURITY.md"}
 CLAUDE_ONLY_KEYS = {"hooks", "argument-hint", "allowed-tools", "disable-model-invocation", "context", "model", "agent"}
 HOME = Path.home()
 

@@ -1,0 +1,17 @@
+{
+  "name": "anton-design",
+  "owner": {
+    "name": "Antonio Escalante",
+    "url": "https://github.com/AntonBronnfjell"
+  },
+  "metadata": {
+    "description": "Design-system skills for AI coding agents"
+  },
+  "plugins": [
+    {
+      "name": "html-design-system",
+      "source": "./",
+      "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI."
+    }
+  ]
+}

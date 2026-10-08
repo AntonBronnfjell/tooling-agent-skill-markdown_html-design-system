@@ -2,6 +2,35 @@
 
 Files: `table`, `data-table` (data-table, tree-table), `card`, `accordion` (accordion, disclosure), `avatar` (avatar, avatar-group), `badge` (badge, status-indicator), `tag`, `list-group`, `description-list`, `timeline`, `carousel`, `stat`, `chart`, `hover-card`, `truncate`.
 
+## Contents
+- table
+- data-table
+- card
+- accordion & disclosure
+- avatar & avatar-group
+- badge & status-indicator
+- tag (chip)
+- list-group
+- description-list
+- timeline
+- carousel (enterprise)
+- stat (metric)
+- chart (chart container & dataviz palette, enterprise)
+- hover-card (enterprise)
+- truncate
+- post-card
+- media-stage
+- stat (addition)
+- card-collection (grid list)
+- sortable-list (enterprise)
+- board (kanban, enterprise)
+- formatters (relative-time, number-format)
+- comment-thread
+- qr-code
+- chart-parts (chart-legend, chart-tooltip, chart-axis, sparkline)
+- status-indicator (extension — no new item)
+
+
 ## table
 - Semantic `<table>` with `<caption>` (visible or `.sr-only`), `<th scope="col|row">`. Numeric columns right-aligned with `font-variant-numeric: tabular-nums`. Striped / compact (density) / bordered variants. Wrap in a focusable scroll container (`role="region" aria-label tabindex="0"`) for horizontal overflow.
 

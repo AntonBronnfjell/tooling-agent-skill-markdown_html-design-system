@@ -12,6 +12,7 @@ description: >
   user wants to create, audit, extend, finish or document a design system, UI kit,
   component library, style guide, Storybook or design tokens, even if they only say
   "build our components", "we need consistent UI" or list components to build.
+license: MIT
 argument-hint: "[new|extend <path>|adopt <system>|audit <path>|resume] [core|standard|enterprise]"
 hooks:
   PostToolUse:

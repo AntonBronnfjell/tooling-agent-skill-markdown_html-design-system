@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "html-design-system",
+  "displayName": "HTML Design System",
+  "version": "1.0.0",
+  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI.",
+  "author": {
+    "name": "Antonio Escalante",
+    "url": "https://github.com/AntonBronnfjell"
+  },
+  "homepage": "https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system",
+  "repository": "https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system",
+  "license": "MIT",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "dtcg",
+    "wcag",
+    "accessibility",
+    "storybook",
+    "css",
+    "components"
+  ],
+  "commands": {
+    "new": {
+      "content": "Use the html-design-system skill to create a new design system. Arguments: $ARGUMENTS (optional tier and scopes). Start with Phase 0 (discover) and Phase 1 (decide).",
+      "description": "Create a new design system",
+      "argumentHint": "[core|standard|enterprise] [scopes]"
+    },
+    "extend": {
+      "content": "Use the html-design-system skill in extend mode on $ARGUMENTS: run `ds.py detect` and `ds.py audit` first, map the existing design into tokens, never overwrite project files.",
+      "description": "Turn an existing codebase's styles into a design system",
+      "argumentHint": "<path>"
+    },
+    "adopt": {
+      "content": "Use the html-design-system skill in adopt mode with the reference system $ARGUMENTS (e.g. Carbon, Material 3, Fluent 2, Polaris).",
+      "description": "Build on a reference design system",
+      "argumentHint": "<system>"
+    },
+    "audit": {
+      "content": "Use the html-design-system skill to audit $ARGUMENTS: run `ds.py detect`, `ds.py audit`, and if a design system exists `ds.py check` and `ds.py coverage`, then report gaps. Do not modify files.",
+      "description": "Audit a project or design system (read-only)",
+      "argumentHint": "[path]"
+    },
+    "resume": {
+      "content": "Use the html-design-system skill to resume the nearest design system: run `ds.py status` and `ds.py plan`, then continue from the recorded phase.",
+      "description": "Continue building an existing design system"
+    }
+  },
+  "experimental": {
+    "evals": "plugin-evals"
+  }
+}

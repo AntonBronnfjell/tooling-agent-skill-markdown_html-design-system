@@ -2,6 +2,39 @@
 
 Files in `patterns/`: `app-shell`, `form-layout`, `dashboard`, `empty-state`, `error-page`, `auth`, `settings`, `list-detail`, `detail-page`, `wizard`, `onboarding`.
 
+## Contents
+- app-shell
+- form-layout
+- dashboard
+- empty-state
+- error-page
+- auth
+- settings
+- list-detail
+- detail-page
+- wizard (enterprise)
+- onboarding (enterprise)
+- feed (enterprise)
+- Real-screen demos
+- start-page
+- question-page (one thing per page)
+- check-answers
+- confirmation-page
+- task-list-page
+- step-by-step-navigation
+- service-unavailable
+- session-timeout
+- exit-page-quickly
+- address-entry
+- name-entry
+- phone-entry
+- payment-card-entry
+- unsaved-changes
+- create-resource (enterprise)
+- delete-with-confirmation (enterprise)
+- saved-filters (enterprise)
+
+
 Patterns are **compositions of existing components only** — if a pattern needs new styling, that's a missing component or token; add it there, not in the pattern CSS. Pattern pages are full-page demos; each still has the five `data-doc` sections. Build them last; they're the integration test of the whole system.
 
 ## app-shell
