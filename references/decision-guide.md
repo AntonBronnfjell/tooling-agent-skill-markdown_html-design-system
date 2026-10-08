@@ -71,7 +71,7 @@ Batch these into one AskUserQuestion round, max 4:
 - Product type & primary users (enterprise data tool? consumer? public service?)
 - Existing assets: repo / Figma / brand guide / none
 - Scope tier: core (MVP, 65 items) · standard (109) · enterprise (all 136) — default **enterprise** when the user asks for "complete"
-- Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React wrappers, Figma variables
+- Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React/Vue/Svelte/Angular wrappers, web components, backend templates (Blade, Twig, Django/Jinja, ERB/ViewComponent, Thymeleaf, Razor), Figma variables — this also picks the workbench strategy in `storybook.md` §4
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support
 
 ## 6. Recording the decision

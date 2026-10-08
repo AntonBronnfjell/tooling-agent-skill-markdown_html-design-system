@@ -71,7 +71,9 @@ Tiers: **core** has 65 components (what every product needs), **standard** adds 
 | Docs site | `ds.py serve design-system` → http://127.0.0.1:8000 | Zero dependencies. Theme, density, RTL and motion toggles on every page |
 | Storybook (HTML) | `ds.py storybook design-system && cd design-system && npm i && npm run storybook` | One story per demo state, a live token catalog, the same toolbar, axe on every story, a static build you can deploy |
 | Storybook (frameworks) | see `references/storybook.md` | React, Vue, Svelte, Angular and Web Components adapters, with the same categories, toolbar and a11y gate |
-| Alternatives | see `references/storybook.md` | Histoire, Ladle, Lookbook, Pattern Lab, Fractal |
+| Storybook (backend templates) | `ds.py storybook design-system --renderer server` | `@storybook/server`: each story fetches HTML from a backend, so Laravel, Symfony, Django, Flask, Rails, Spring, ASP.NET or Phoenix render their own templates. `ds.py serve` answers as the reference backend, and its fragments are the contract the templates must match |
+| Native workbenches | see `references/storybook.md` §4 | Lookbook (Rails), Blast (Laravel), django-pattern-library + storybook-django, Blazing Story (Blazor), web components for multi-stack or WASM (Rust) |
+| Alternatives | see `references/storybook.md` | Histoire, Ladle, Pattern Lab, Fractal |
 
 `ds.py ci --provider github` deploys the Storybook to GitHub Pages on every merge. GitLab gets the equivalent through `--provider gitlab`.
 
@@ -150,7 +152,7 @@ $DS coverage ./design-system             # per component: which demos/doc sectio
 $DS plan ./design-system                 # ordered build queue grouped by file
 $DS phase ./design-system build          # discover | decide | plan | build | done (drives the Stop gate)
 $DS serve ./design-system                # preview at http://127.0.0.1:8000
-$DS storybook ./design-system            # generate the standalone Storybook
+$DS storybook ./design-system            # generate the standalone Storybook (--renderer server for backend templates)
 $DS design-md ./design-system            # write DESIGN.md
 $DS package ./design-system              # npm-ready package.json
 $DS ci ./design-system --provider github # pipeline + vendored tools

@@ -52,7 +52,7 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 | `ds.py coverage <dir>` / `plan <dir>` | What's missing per component / ordered build queue grouped by file |
 | `ds.py phase <dir> <phase>` | Record phase: discover → decide → plan → build → done |
 | `ds.py serve <dir>` | Preview the docs site at http://127.0.0.1:8000 (no dependencies) |
-| `ds.py storybook <dir>` | Standalone Storybook (html-vite): one story per demo, token catalog, theme/density/RTL/motion toolbar, axe on every story |
+| `ds.py storybook <dir> [--renderer server]` | Standalone Storybook: one story per demo, token catalog, theme/density/RTL/motion toolbar, axe on every story. `--renderer server` = `@storybook/server`, so PHP/Python/Ruby/Java/.NET backends render their own templates (`ds.py serve` is the reference backend) |
 | `ds.py design-md <dir>` | `DESIGN.md` — the one-file contract (themes with resolved values, type, scales, rules, inventory, decisions) |
 | `ds.py package <dir>` / `ci <dir> --provider github\|gitlab` | npm exports for CSS/tokens/js; pipeline: check → Storybook to Pages → idempotent publish |
 
@@ -97,7 +97,7 @@ Keep going until `ds.py coverage` is complete — hook messages tell you what's 
 - Automated tests per `references/testing.md`: Storybook a11y (every story), Playwright + axe over every page × theme, unit tests for framework adapters.
 
 ### Phase 6 — Document & ship
-`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract), `ds.py storybook` (the independent workbench — `references/storybook.md`), and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
+`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract), `ds.py storybook` (the independent workbench — `references/storybook.md`; for backend stacks pick strategy A server bridge, B web components, or C native tool such as Lookbook/Blast/Blazing Story per §4), and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
 
 ## Output layout
 
@@ -126,7 +126,7 @@ design-system/
 - `references/builder-brief.md` — subagent prompt for parallel category builds
 - `references/companion-skills.md` — when to use /graphify, /ui-ux-pro-max, /plan, /ponytail, /ui-styling and others, with fallbacks
 - `references/motion.md` — motion vocabulary, bans, reduced-motion (media query + `data-reduced-motion`)
-- `references/storybook.md` — docs site, generated Storybook, framework Storybooks (React/Vue/Svelte/Angular/WC), alternatives
+- `references/storybook.md` — docs site, generated Storybook, framework Storybooks (React/Vue/Svelte/Angular/WC), backend stacks (PHP, Python, Ruby, Java, .NET, Rust, Go, Elixir), alternatives
 - `references/testing.md` — Storybook a11y, Playwright + axe per page/theme, unit tests for adapters
 - `references/packaging.md` — npm exports, fonts, framework library builds, release/versioning
 - `references/governance.md` — DESIGN.md, versioning, migration guides, deprecation, contribution, adapters
