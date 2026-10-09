@@ -3,7 +3,7 @@
   "name": "html-design-system",
   "displayName": "HTML Design System",
   "version": "1.1.0",
-  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI.",
+  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI. Ports it to SwiftUI, Compose, Flutter and React Native from a measured spec, and builds icon sets.",
   "author": {
     "name": "Antonio Escalante",
     "url": "https://github.com/AntonBronnfjell"
@@ -19,7 +19,13 @@
     "accessibility",
     "storybook",
     "css",
-    "components"
+    "components",
+    "mobile",
+    "swiftui",
+    "jetpack-compose",
+    "flutter",
+    "react-native",
+    "icons"
   ],
   "commands": {
     "new": {
@@ -45,6 +51,16 @@
     "resume": {
       "content": "Use the html-design-system skill to resume the nearest design system: run `ds.py status` and `ds.py plan`, then continue from the recorded phase.",
       "description": "Continue building an existing design system"
+    },
+    "mobile": {
+      "content": "Use the html-design-system skill to port the nearest design system to mobile ($ARGUMENTS: swiftui, compose, flutter, react-native, maui, web-mobile or all; optional app path). Follow references/mobile.md: `ds.py mobile spec`, `ds.py mobile scaffold --target …`, build the remaining components from dist/mobile/spec.json, `ds.py mobile lint`, then snapshot tests and `ds.py mobile verify` until it passes. Never hand-translate CSS values.",
+      "description": "Port the design system to native apps with measured fidelity",
+      "argumentHint": "[swiftui|compose|flutter|react-native|maui|web-mobile|all] [app path]"
+    },
+    "icons": {
+      "content": "Use the html-design-system skill to work on icons for the nearest design system ($ARGUMENTS). Follow references/icons.md: `ds.py icons-add` from one library set, or draw missing icons to `icons/style.json` (`ds.py icons-style`) and check them with `ds.py icons-lint`; rebuild with `ds.py icons --platforms all`.",
+      "description": "Add icons from a library or draw new ones in the system's style",
+      "argumentHint": "[icon names] [--set lucide|tabler|phosphor|heroicons|material-symbols]"
     }
   },
   "experimental": {

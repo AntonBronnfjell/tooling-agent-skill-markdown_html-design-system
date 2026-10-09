@@ -11,7 +11,7 @@
     {
       "name": "html-design-system",
       "source": "./",
-      "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI."
+      "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI. Ports it to SwiftUI, Compose, Flutter and React Native from a measured spec, and builds icon sets."
     }
   ]
 }

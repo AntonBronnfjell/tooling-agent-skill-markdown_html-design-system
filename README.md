@@ -4,7 +4,7 @@
 
 **An agent skill that turns your AI coding assistant into a design-system team.**
 
-Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 306 components (app UI plus opt-in **marketing**, **AI chat**, **commerce** and **email**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project.
+Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 306 components (app UI plus opt-in **marketing**, **AI chat**, **commerce** and **email**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project. Then it ports the system to **SwiftUI, Jetpack Compose, Flutter and React Native** from a measured spec, with snapshot checks against the web, and builds a consistent **icon set**.
 
 [![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
 [![Components](https://img.shields.io/badge/components-306-2563eb)](#component-coverage-306)
@@ -12,19 +12,21 @@ Decides *which* design system your product needs, then builds a *complete* one: 
 [![Design tokens](https://img.shields.io/badge/tokens-DTCG_2025.10-0891b2)](references/tokens.md)
 [![MCP](https://img.shields.io/badge/MCP-server-111827)](#agents-can-query-your-system)
 [![Storybook 10](https://img.shields.io/badge/Storybook-10-ff4785?logo=storybook&logoColor=white)](references/storybook.md)
+[![Mobile](https://img.shields.io/badge/mobile-SwiftUI_·_Compose_·_Flutter_·_RN-0f766e)](#take-it-to-mobile-without-losing-fidelity)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-3776ab?logo=python&logoColor=white)](scripts/ds.py)
 [![CI](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/actions/workflows/ci.yml/badge.svg)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97706)](#install-as-a-plugin)
 [![Last commit](https://img.shields.io/github/last-commit/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system)](https://github.com/AntonBronnfjell/tooling-agent-skill-markdown_html-design-system/commits/main)
 
-[Quick start](#quick-start) · [Example](#example-fleetline) · [How it works](#what-it-does-step-by-step) · [Existing projects](#safe-in-existing-projects) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
+[Quick start](#quick-start) · [Example](#example-fleetline) · [How it works](#what-it-does-step-by-step) · [Existing projects](#safe-in-existing-projects) · [Mobile](#take-it-to-mobile-without-losing-fidelity) · [Your stack](#use-it-with-your-stack) · [Install](#install-any-agent) · [CLI](#cli-reference-scriptsdspy-python-38-no-dependencies) · [Limits](#known-limits)
 
 </div>
 
 <table>
 <tr><td><b>Agents</b></td><td>Claude Code · Codex · Cursor · GitHub Copilot · Gemini CLI · Windsurf/Devin · Cline · Kiro · Roo Code · OpenCode · Amp · Goose · Junie · Continue</td></tr>
 <tr><td><b>Stacks</b></td><td>Static HTML · React · Vue · Svelte · Angular · Web Components · Laravel · Symfony · Django · Flask/FastAPI · Rails · Spring · ASP.NET/Blazor · Phoenix · Go · Rust/WASM</td></tr>
+<tr><td><b>Mobile</b></td><td>SwiftUI · Jetpack Compose · Flutter · React Native/Expo · .NET MAUI (tokens) · Ionic/Capacitor/PWA · UIKit/Android Views (token exports)</td></tr>
 </table>
 
 > [!NOTE]
@@ -85,6 +87,7 @@ flowchart LR
     D --> E["🧱 Build<br/>up to 306 components · subagents"]
     E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
     F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
+    G --> H["📱 Mobile<br/>spec · scaffold · verify"]
     F -. "gaps found" .-> E
 ```
 
@@ -95,6 +98,7 @@ flowchart LR
 5. **Build.** The agent builds a reference implementation first (typography, layout, button, form field, shared JS behaviors), then hands the remaining categories to parallel subagents. Each component gets CSS that uses only tokens, a docs page showing every variant and state, and, only when native HTML can't do the job, a small vanilla JS module.
 6. **Verify.** `ds.py check --strict` must pass. Storybook runs axe on every story. Optional Playwright + axe tests cover every page in every theme. It also checks keyboard walkthroughs, RTL, 320px width and reduced motion.
 7. **Ship.** It generates the `DESIGN.md` contract, a standalone Storybook, an npm package, a CI pipeline, a changelog with migration notes, and governance docs.
+8. **Mobile (when the product has apps).** It measures the web components, generates native themes and core components from those numbers, lints the app code for bad migrations, and diffs native snapshots against the web until they match. See [Take it to mobile](#take-it-to-mobile-without-losing-fidelity).
 
 ## What you get
 
@@ -114,6 +118,9 @@ design-system/
 ├── llms.txt, llms/       agent-readable docs: one Markdown page per component
 ├── mcp/server.py         MCP server: agents query components, tokens and rules
 ├── email/src → dist/email  email templates rendered with literal token values (email scope)
+├── icons/                src/*.svg · style.json (the icon style contract) · LICENSES.md
+├── dist/icons/           native icon components: SwiftUI asset catalog, Compose ImageVectors, Flutter, React Native
+├── dist/mobile/          spec.json · reference/*.png · <target>/ theme + core components + snapshot tests + FIDELITY.md
 ├── .storybook/ stories/  standalone Storybook (generated from the pages)
 ├── package.json          npm exports for CSS, tokens and JS
 ├── tools/ds/             vendored CLI so CI and teammates don't need the skill installed
@@ -279,14 +286,17 @@ After installing, just ask:
 - "We're launching next month. Add the marketing components: hero, pricing, testimonials, FAQ, footer, and a landing page and pricing page built from them."
 - "We're a Laravel shop. Build the system, port the components to Blade, and set up a Storybook that renders our Blade partials."
 - "Our apps use React and .NET. Make the components shareable across both and document them in one place."
+- "We have an iOS app in SwiftUI and an Android app in Compose. Port the design system so it looks exactly like the web, and prove it with snapshots."
+- "Our Flutter app drifted from the web styles. Lint it against the design system and fix what doesn't match."
+- "Use Lucide for icons, and draw a 'work order' icon that matches the set."
 
-In Claude Code you can also call it directly: `/html-design-system new enterprise`, `/html-design-system extend ./src`, `/html-design-system resume`.
+In Claude Code you can also call it directly: `/html-design-system new enterprise`, `/html-design-system extend ./src`, `/html-design-system resume`, `/html-design-system:mobile swiftui,compose`, `/html-design-system:icons truck wrench --set lucide`.
 
 ## Install as a plugin
 
 | Agent | How |
 |---|---|
-| **Claude Code** | `/plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` → `/plugin install html-design-system@anton-design`. Adds the skill, its scoped hooks and five commands: `/html-design-system:new`, `:extend`, `:adopt`, `:audit`, `:resume` |
+| **Claude Code** | `/plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` → `/plugin install html-design-system@anton-design`. Adds the skill, its scoped hooks and seven commands: `/html-design-system:new`, `:extend`, `:adopt`, `:audit`, `:resume`, `:mobile`, `:icons` |
 | **Codex** | `codex plugin marketplace add AntonBronnfjell/tooling-agent-skill-markdown_html-design-system` (reads `.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`) |
 | **Cursor** | The repo carries `.cursor-plugin/plugin.json` and a root `SKILL.md`, so it can be added as a plugin from its Git URL, or submitted to the Cursor marketplace |
 | **Anything else** | The installer below (shared `~/.agents/skills` standard + agent-specific folders) |
@@ -412,7 +422,7 @@ $DS status                               # one-line state of the nearest design 
 ```
 ./  (repo root = skill root)
 ├── SKILL.md                     the workflow the agent follows, plus scoped Claude Code hooks
-├── .claude-plugin/              plugin.json (5 commands, evals dir) + marketplace.json — Claude Code plugin
+├── .claude-plugin/              plugin.json (7 commands, evals dir) + marketplace.json — Claude Code plugin
 ├── .cursor-plugin/ .codex-plugin/ .agents/plugins/   Cursor and Codex plugin manifests
 ├── assets/
 │   ├── manifest.json            306 components · 16 categories · 3 tiers · 5 scopes

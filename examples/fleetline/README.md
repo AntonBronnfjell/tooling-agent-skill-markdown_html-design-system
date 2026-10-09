@@ -13,6 +13,16 @@ python3 ../../scripts/ds.py storybook . && npm install && npm run storybook
 python3 ../../scripts/ds.py playwright . && npx playwright install chromium && npm run test:ui:update
 ```
 
+Mobile, from this example (needs `ds.py playwright .` + `npm install` once for measurement):
+
+```bash
+python3 ../../scripts/ds.py mobile spec .                  # dist/mobile/spec.json + @3x reference PNGs
+python3 ../../scripts/ds.py mobile scaffold . --target all # SwiftUI, Compose, Flutter, React Native, MAUI, web-mobile
+python3 ../../scripts/ds.py icons-add truck wrench gauge --set lucide --dir . --platforms all
+```
+
+The measurement corrected the defaults where Fleetline differs: the checkbox is 24 px with a 2 px border (not 20/1), cards pad 24 px, alerts 12 px; the neutral badge uses `bg.subtle` and the avatar `selected.bg`, so the generated native code does too. `FIDELITY.md` in each target lists the source of every number. The outputs aren't committed here; CI regenerates and compiles them on every push.
+
 How it was built:
 1. `ds.py init`, then `palette`, then the decision record.
 2. One reference implementation: typography, layout, button, form field, and the shared JS behaviors.

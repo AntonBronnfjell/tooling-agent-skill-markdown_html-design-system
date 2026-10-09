@@ -22,6 +22,8 @@ For each file:
 - Put component tokens in tokens/components/<file>.json (your own file — never edit shared token files).
 - JS only when native HTML can't do it: js/<file>.js, vanilla ES module exporting init(root), progressive enhancement; reuse js/lib/* behaviors (roving focus, dismiss, position, hotkey, live region) — never re-implement them.
 - Framework targets: per component write the test first, then the component, then the story (references/testing.md, references/storybook.md).
+- Icons only from the system sprite (`dist/icons.svg`, `<use href="…#icon-NAME">`). If one is missing, say so in your report, or add it with `ds.py icons-add` from the recorded set, or draw it and pass `ds.py icons-lint --dir <ABS_DIR>` (references/icons.md) — never paste an icon from another set.
+- Mobile builders (native targets): read <SKILL_DIR>/references/mobile.md and <ABS_DIR>/dist/mobile/spec.json; take every number from the spec and every value from the generated theme; copy the generated core components' patterns; add a snapshot test per component with the reference name; finish with `ds.py mobile lint <app src> --strict`.
 - Run `python3 <SKILL_DIR>/scripts/ds.py coverage <ABS_DIR>` and fix until your files' components are [x].
 - Run `python3 <SKILL_DIR>/scripts/ds.py check <ABS_DIR>` and fix lint issues in your files.
 

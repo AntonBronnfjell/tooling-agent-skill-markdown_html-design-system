@@ -30,6 +30,13 @@ claude plugin validate --strict .claude-plugin/plugin.json
 
 Add the function, its subparser and dispatch entry, a line in the module docstring, a row in `SKILL.md`'s toolkit table, the README CLI reference, and a test in `tests/test_ds.py`.
 
+## Mobile and icon templates
+
+- Native component templates live in `assets/templates/mobile/` (`DSComponents.swift`, `DsComponents.kt`, `ds_components.dart`, `DsComponents.tsx`, `measure.mjs`, `web-mobile.css`). They are not compilable as-is: markers are filled by `ds.py mobile scaffold` — `@C(role|file)` color (the `|file` part lets a measured web color override the role), `@D(file.prop)` dimension from `CORE_RECIPES`, `@W(file.prop)` font weight, `@T(role)` type style, `@E(keys)` shadow, `@HEAD`/`@PKG`.
+- New component props go in `CORE_RECIPES` (measured path + default tokens) so `FIDELITY.md` can report their source.
+- Generated code must stay clean under `ds.py mobile lint` (a test checks it) and compile on the real SDKs: the `mobile` CI job builds Swift (iOS SDK), Compose (Gradle), Flutter (analyze + golden run) and React Native (`tsc --strict`). Locally, `swiftc -typecheck` works on macOS with Xcode.
+- Icon sets: add to `ICON_SETS` (npm package, path pattern, license, license URL) and to `references/icons.md`.
+
 ## Evals
 
 - `evals/evals.json` — skill-creator format (qualitative iteration).

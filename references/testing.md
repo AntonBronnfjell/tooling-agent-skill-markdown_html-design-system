@@ -49,5 +49,8 @@ Interaction to Next Paint (INP) ≤ 200 ms on mid-range mobile, no long tasks (>
 ## 5. Visual regression (optional)
 Chromatic, Playwright `toHaveScreenshot()`, or Storybook's visual tests across themes and viewports. Gate only on reviewed baselines; skip shimmer/animated stories or force reduced motion.
 
-## 6. What CI runs (`ds.py ci` generates the first two)
+## 6. Native apps — snapshot parity with the web
+`ds.py mobile scaffold` writes snapshot tests per platform (swift-snapshot-testing, Roborazzi + Robolectric, Flutter `matchesGoldenFile`, a react-native-view-shot capture screen) that render each component at the web reference size, with the web copy, named `<file>--<demo>--<theme>.png`. Run them, then `ds.py mobile verify <ds> --native <folder>`: per-snapshot drift %, size check, diff images and a report; exit 1 on drift, so it can gate CI. Use the real fonts and a fixed simulator/emulator image. Details: `references/mobile.md`.
+
+## 7. What CI runs (`ds.py ci` generates the first two)
 1. `ds.py check . --strict` 2. Storybook build (+ Vitest a11y if configured) 3. Playwright/axe or unit tests 4. publish.
