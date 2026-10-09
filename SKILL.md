@@ -7,8 +7,9 @@ description: >
   themes and up to 306 components (every control, navigation, data, overlay, feedback
   and app pattern, plus opt-in scopes: marketing/landing pages, AI chat UI, commerce,
   HTML email), each with every state, WCAG 2.2 AA accessibility and a docs page, plus
-  Storybook, DESIGN.md, llms.txt, an MCP server, npm packaging and CI. Works safely inside
-  existing projects (detects the stack, never overwrites your files). Use whenever the
+  Storybook, DESIGN.md, llms.txt, MCP, npm packaging and CI. Ports it to mobile (SwiftUI,
+  Compose, Flutter, React Native) from a measured spec with snapshot checks, and builds
+  icon sets. Safe in existing projects (never overwrites your files). Use whenever the
   user wants to create, audit, extend, finish or document a design system, UI kit,
   component library, style guide, Storybook or design tokens, even if they only say
   "build our components", "we need consistent UI" or list components to build.
@@ -53,7 +54,12 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 | `ds.py palette <hex> [--primary] [--brand B] --dir D` | OKLCH ramp (50–950) from one color; maps primary/link/focus/selected per theme by measured contrast; `--brand` writes a white-label override |
 | `ds.py scale type\|space --dir D` | Utopia fluid type and space scales as `clamp()` tokens |
 | `ds.py export <dir> --target …` | Tailwind v4, shadcn, Figma Variables (with aliases), iOS, Android, Compose, Flutter — `references/adapters.md` |
-| `ds.py icons <svg-dir> <dir>` | Optimized SVG sprite (`currentColor`) + icon gallery |
+| `ds.py icons <svg-dir> <dir> [--platforms all]` | Optimized SVG sprite (`currentColor`) + gallery + native icon components (SwiftUI, Compose, Flutter, RN) |
+| `ds.py icons-add <names> --set lucide\|tabler\|phosphor\|heroicons\|material-symbols --dir D` | Fetch icons from a library at a pinned version, record the license, rebuild |
+| `ds.py icons-style [svg-dir] --dir D` / `icons-lint <svg…> --dir D` | Measure the icon style (or derive it from tokens) → `icons/style.json`; check new or hand-drawn icons against it (`references/icons.md`) |
+| `ds.py mobile spec <dir>` | `dist/mobile/spec.json`: tokens per theme + measured web boxes + @3x reference PNGs (Playwright; `--tokens-only` without) |
+| `ds.py mobile scaffold <dir> --target swiftui,compose,flutter,react-native,maui,web-mobile\|all [--out app]` | Native theme + 10 core components + snapshot tests + `FIDELITY.md`, calibrated by the measurements |
+| `ds.py mobile verify <dir> --native <pngs>` / `mobile lint <src>` | Diff native snapshots against the web references (exit 1 on drift); catch raw colors, magic numbers, fixed fonts, hover, small targets, foreign icons (`references/mobile.md`) |
 | `ds.py build <dir>` | Tokens → `dist/tokens.css`; bundle `dist/ds.css`; regenerate `index.html` with coverage |
 | `ds.py check <dir> [--strict]` | Token validity, required groups/themes, contrast pairs in every theme, CSS/HTML lint |
 | `ds.py coverage <dir>` / `plan <dir>` | What's missing per component / ordered build queue grouped by file |
@@ -67,7 +73,7 @@ A design system fails in two ways: it looks wrong for the product (wrong *direct
 | `ds.py taste [path] [--strict]` | Lint for the generic "AI look": purple gradients, glass, buzzwords, emoji UI, placeholder copy, vague CTAs (`references/taste.md`) |
 | `ds.py package <dir>` / `ci <dir> --provider github\|gitlab` | npm exports for CSS/tokens/js; pipeline: check → Storybook to Pages → idempotent publish |
 
-**Hooks (active while this skill is loaded):** after every Write/Edit of a file inside a design system, `hook-post-edit` lints it, rebuilds tokens when token JSON changes, and tells you which demos/doc sections that page still lacks. When phase is `build`, `hook-stop` blocks ending the turn while components are incomplete (once per turn — if you genuinely need the user, set phase to `plan` first). To keep hooks on outside this skill, see the README's project-hook snippet.
+**Hooks (active while this skill is loaded):** after every Write/Edit of a file inside a design system (or a native file in an app scaffolded with `mobile scaffold --out`), `hook-post-edit` lints it, rebuilds tokens when token JSON changes, and tells you which demos/doc sections that page still lacks. When phase is `build`, `hook-stop` blocks ending the turn while components are incomplete (once per turn — if you genuinely need the user, set phase to `plan` first). To keep hooks on outside this skill, see the README's project-hook snippet.
 **No hooks in your tool** (Cursor, Copilot, Gemini, Codex, …)? Do their job by hand: run `ds.py check <dir>` after each file you finish, and `ds.py coverage <dir>` before you end any turn during the build phase — if it isn't complete, keep building.
 
 **Global flags:** `--dry-run` prints every planned write; `--force-all` is the only way to overwrite files you created or edited.
@@ -118,7 +124,7 @@ Keep going until `ds.py coverage` is complete — hook messages tell you what's 
 - Automated tests: `ds.py playwright <dir>` (visual regression + axe + keyboard focus for every page × theme), Storybook a11y on every story, unit tests for framework adapters (`references/testing.md`).
 
 ### Phase 6 — Document & ship
-`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract + `ACCESSIBILITY.md`), `ds.py llms` / `ds.py mcp` (so other agents can use the system), `ds.py storybook` (the independent workbench — `references/storybook.md`; for backend stacks pick strategy A server bridge, B web components, or C native tool such as Lookbook/Blast/Blazing Story per §4), `ds.py export` for Tailwind/shadcn/Figma/native targets (`references/adapters.md`), `ds.py icons` for the icon sprite, and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
+`ds.py build` (regenerates `index.html` with live coverage), `ds.py design-md` (the contract + `ACCESSIBILITY.md`), `ds.py llms` / `ds.py mcp` (so other agents can use the system), `ds.py storybook` (the independent workbench — `references/storybook.md`; for backend stacks pick strategy A server bridge, B web components, or C native tool such as Lookbook/Blast/Blazing Story per §4), `ds.py export` for Tailwind/shadcn/Figma/native targets (`references/adapters.md`), `ds.py icons` for the icon sprite (`icons-add` / `icons-style` / `icons-lint` per `references/icons.md`), and when it will be consumed by other repos `ds.py package` + `ds.py ci` (`references/packaging.md`). Write the system `README.md`, `CHANGELOG.md` (+ migration notes), `CONTRIBUTING.md` and principles per `references/governance.md`. **Mobile apps** (the brief lists iOS/Android/Flutter/React Native, or the user asks to port the system): follow `references/mobile.md`: never hand-translate CSS; `ds.py mobile spec` → `mobile scaffold --target …` → build the remaining components from `spec.json` → `mobile lint` → snapshot tests → `mobile verify` until it passes. Optionally run **/graphify** on the design system to produce a component↔token map for the docs. Then `ds.py phase <dir> done` and report: direction + rationale, tier, coverage numbers, check results, how to consume, and known gaps.
 
 ## Output layout
 
@@ -157,6 +163,8 @@ design-system/
 - `references/packaging.md` — npm exports, fonts, framework library builds, release/versioning
 - `references/governance.md` — DESIGN.md, accessibility law (EAA/EN 301 549, ADA Title II), versioning, migration guides, deprecation, adapters
 - `references/adapters.md` — Tailwind, shadcn, Figma, iOS/Android/Compose/Flutter exports, multi-brand
+- `references/mobile.md` — web → native migration without drift: fidelity contract, spec/scaffold/verify loop, conversion tables, anti-patterns
+- `references/icons.md` — icon sets, licenses, the style contract, drawing icons from scratch, native icon components
 - `references/content.md` — voice and tone, errors, empty states, CTAs, inclusive language, i18n, Intl formatting
 - `references/imagery.md` — images, dark-mode images, illustration, icons, dataviz colors, print
 - `references/taste.md` — the generic-AI-look rules and what to do instead

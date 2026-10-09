@@ -2,6 +2,14 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [1.1.0] - 2026-10-08
+
+### Added
+- **Mobile migration** (`references/mobile.md`): `ds.py mobile spec` (tokens per theme with absolute type metrics, shadows and motion; Playwright-measured boxes of every demo at 390 px; @3x reference PNGs), `mobile scaffold` (SwiftUI, Jetpack Compose, Flutter, React Native themes + 10 core components + snapshot tests + `FIDELITY.md`; .NET MAUI resources; `web-mobile.css` for Ionic/Capacitor/PWA), `mobile verify` (stdlib PNG decoder, OKLab ΔE diff, size check, diff images, report, exit 1 on drift; optional numeric comparison), `mobile lint` (raw colors, magic numbers, fixed fonts, hover, small touch targets, foreign icons). Measured values are snapped to the token that has them, and colors the web paints with another token follow the web.
+- The PostToolUse hook lints Swift, Kotlin, Dart and TS/TSX edits in apps scaffolded with `--out` (`.ds-mobile.json` marker).
+- **Icons** (`references/icons.md`): `icons-add` (Lucide, Tabler, Phosphor, Heroicons, Material Symbols from jsDelivr at a pinned version, license recorded, unsafe SVG refused, mirror via `DS_ICON_CDN`), `icons-style` (measured style contract, or derived from tokens), `icons-lint` (viewBox, paint, stroke, caps/joins, live area, forbidden elements, complexity) for icons drawn from scratch, and `icons --platforms` for SwiftUI asset catalogs + `DSIcon`, Compose `ImageVector`s + VectorDrawables, Flutter `DsIcon`, React Native `DsIcon`.
+- CI job that compiles the generated code on real SDKs: Swift against the iOS SDK, Compose with Gradle, Flutter analyze + golden run, React Native `tsc --strict`.
+
 ## [1.0.0] - 2026-10-08
 
 First tagged release.

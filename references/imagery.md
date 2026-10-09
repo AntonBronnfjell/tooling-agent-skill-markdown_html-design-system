@@ -34,6 +34,7 @@
 ## Icons
 - One set, one stroke width, one grid (24px), built into a sprite with `ds.py icons <svg-dir> <ds-dir> --license "<set> (<license>)"`. Licenses: Lucide ISC (parts from Feather MIT), Phosphor MIT, Tabler MIT, Heroicons MIT, Material Symbols Apache-2.0.
 - Sizes come from `icon.size.*`; color from `currentColor`. Icon-only buttons need an accessible name and a tooltip.
+- Fetching from a set, the style contract, drawing missing icons and native icon components: `references/icons.md`.
 
 ## Data visualization colors
 - Categorical palette: `dataviz.categorical.1…8` (color-blind-safe defaults). For brand-matched sets, generate hues with equal OKLCH lightness and chroma, at least 30° apart, each ≥ 3:1 against the chart surface (`ds.py palette` per hue, then pick the same step from each ramp).

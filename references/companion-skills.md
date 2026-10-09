@@ -13,6 +13,9 @@ This skill owns the **structure and completeness** of the system. Other installe
 | 3–4 Build | **/ponytail** | Native-first, no-dependency implementation: `<dialog>`, `popover`, `<details>`, native inputs, CSS over JS, one small module instead of a framework. Apply its YAGNI lens to *implementation*, never to *coverage* — the component list is the requirement | `component-contract.md` §4 |
 | 3–4 Build | `ds.py export` (built in) | Tailwind v4, shadcn, Figma Variables, iOS/Android/Compose/Flutter outputs from the tokens (`adapters.md`) | — |
 | 3–4 Build | **/ui-styling** | When `targets` includes Tailwind or shadcn: generate `tailwind` theme / shadcn CSS variables from `dist/tokens.css` (`tailwind_config_gen.py`), shadcn component mapping; also canvas-based visual assets | Hand-map tokens: Tailwind v4 `@theme { --color-*: var(--color-*) }` |
+| 3–4 Build | `ds.py icons-add` / `icons-style` / `icons-lint` (built in) | Icons from Lucide/Tabler/Phosphor/Heroicons/Material Symbols, or drawn from scratch and checked against the set's measured style (`icons.md`) | — |
+| 3–4 Build | Figma MCP (`/figma-generate-library`) | Push the icon set and components into a Figma library when the team designs in Figma | Export SVGs from `icons/src/` |
+| 6 Ship | `ds.py mobile` (built in) | Native apps: measured spec → generated theme + core components + snapshot tests → lint → verify (`mobile.md`). Pair with a platform skill (e.g. Swift/Kotlin/Flutter experts) for the remaining screens | Hand-port from `spec.json`, then `mobile lint` + `mobile verify` |
 | 3–4 Build | /dataviz | Chart container & palette rules | `data-display.md` chart section |
 | 5 Verify | /accesslint (`audit_html`, `audit_live`) | Automated WCAG audit of each page | Contract §5 checklist by reading |
 | 5 Verify | /webapp-testing or browser tools | Screenshots in light/dark/RTL/compact, keyboard walkthrough | `ds.py check` + manual reasoning |

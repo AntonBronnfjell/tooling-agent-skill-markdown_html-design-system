@@ -28,7 +28,17 @@
                                      Utopia fluid type/space scales as clamp() tokens
   ds.py export <dir> [--target tailwind,shadcn,figma,ios,android,compose,flutter|all]
                                      framework/platform outputs in dist/exports (no dependencies)
-  ds.py icons <svg-dir> <dir>        optimized SVG sprite (currentColor) + icon gallery page
+  ds.py icons <svg-dir> <dir> [--platforms web,swiftui,compose,flutter,react-native|all]
+                                     optimized SVG sprite (currentColor) + gallery + native icon components
+  ds.py icons-add <names…> --set lucide|tabler|phosphor|heroicons|material-symbols --dir D
+                                     fetch icons from a library (pinned version, license recorded), rebuild the sprite
+  ds.py icons-style [svg-dir] --dir D   icons/style.json: grid, stroke, caps/joins, padding, complexity (from a set or tokens)
+  ds.py icons-lint <svg…> --dir D    check icons (e.g. drawn from scratch) against icons/style.json
+  ds.py mobile spec <dir> [--tokens-only]     dist/mobile/spec.json: tokens per theme + measured web boxes + @3x reference PNGs
+  ds.py mobile scaffold <dir> --target swiftui,compose,flutter,react-native,maui,web-mobile|all [--out PATH]
+                                     native theme + 10 core components + snapshot tests + FIDELITY.md from the spec
+  ds.py mobile verify <dir> --native <png-dir>   diff native snapshots against the web references (exit 1 on drift)
+  ds.py mobile lint <path…>          catch bad migrations: raw colors, magic numbers, fixed fonts, hover, small targets
   ds.py playwright <dir>             free visual regression + axe + keyboard-focus suite (Playwright) for every page
   ds.py taste [path] [--strict]      lint for the generic "AI look" (purple gradients, glass, buzzwords, emoji UI, …)
   ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
@@ -2472,8 +2482,12 @@ def optimize_svg(text, name):
 
 
 def cmd_icons(a):
-    src, root = Path(a.src), Path(a.dir)
+    root = Path(a.dir)
     load_cfg(root)
+    build_icons(root, Path(a.src), a.license, a.platforms)
+
+
+def build_icons(root, src, license_=None, platforms="web"):
     files = sorted(src.rglob("*.svg"))
     if not files:
         sys.exit(f"no .svg files under {src}")
@@ -2490,7 +2504,7 @@ def cmd_icons(a):
     sprite = ('<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:none">\n'
               + "\n".join(symbols) + "\n</svg>\n")
     safe_write(root / "dist" / "icons.svg", sprite)
-    safe_write(root / "dist" / "icons.json", json.dumps({"icons": names, "license": a.license or "record the icon set license (ADR)"}, indent=1) + "\n")
+    safe_write(root / "dist" / "icons.json", json.dumps({"icons": names, "license": license_ or "record the icon set license (ADR)"}, indent=1) + "\n")
     tiles = "\n".join(f'      <li class="ds-icons__item"><svg class="icon" aria-hidden="true"><use href="../dist/icons.svg#icon-{n}"></use></svg>'
                       f'<code>{n}</code></li>' for n in names)
     page = f"""<!doctype html>
@@ -2511,6 +2525,1728 @@ def cmd_icons(a):
     print(f"{len(names)} icons → dist/icons.svg ({before // 1024}KB → {after // 1024}KB), gallery docs/icons.html"
           + (f"; {len(failed)} failed: " + "; ".join(failed[:5]) if failed else "")
           + ". Light optimization only (metadata, editor attributes, precision, currentColor) — not a full SVGO.")
+    wanted = ICON_PLATFORMS if platforms == "all" else [p_ for p_ in (platforms or "web").split(",") if p_ and p_ != "web"]
+    symbols = sprite_symbols(root) if wanted else []
+    for plat in wanted:
+        if plat not in ICON_PLATFORMS:
+            sys.exit(f"unknown platform {plat}; choose from web, {', '.join(ICON_PLATFORMS)} or all")
+        for rel, text in platform_icons(symbols, plat).items():
+            safe_write(root / "dist" / "icons" / plat / rel, text)
+        print(f"icons for {plat} → dist/icons/{plat}/")
+
+
+# ---------- mobile: spec → scaffold → lint → verify ----------
+# Bad web→mobile migrations come from re-guessed values, literal CSS translation, dropped states, wrong line
+# heights, swapped icons and nobody measuring. So: the web system becomes a measured spec (tokens + computed
+# boxes + reference PNGs), native code is generated from the spec, and native snapshots are diffed against it.
+import struct
+import zlib
+
+PRIMITIVE_COLOR = re.compile(r"color\.([\w-]+\.(\d+|a\d+)|alpha\.[\w.-]+)$")
+
+
+def _px(css):
+    m = re.fullmatch(r"\s*(-?\d*\.?\d+)(rem|px|em)?\s*", str(css or ""))
+    return float(m.group(1)) * (16 if m.group(2) in ("rem", "em") else 1) if m else None
+
+
+def _rgba(raw, tf, depth=0):
+    """(r, g, b, a) in sRGB 0..1 from a DTCG color value or alias; None if not a color."""
+    if isinstance(raw, str) and depth < 20:
+        m = re.fullmatch(r"\{([^{}]+)\}", raw.strip())
+        if m and m.group(1) in tf:
+            return _rgba(tf[m.group(1)]["value"], tf, depth + 1)
+    rgb = color_rgb(raw)
+    if not rgb:
+        return None
+    if isinstance(raw, dict):
+        return (*rgb, float(raw.get("alpha", 1)))
+    hx = raw.strip().lstrip("#")
+    return (*rgb, int(hx[6:8], 16) / 255 if len(hx) == 8 else 1.0)
+
+
+def _shadow_layers(key, tf):
+    raw = resolve_raw(key, tf)
+    out = []
+    for layer in raw if isinstance(raw, list) else [raw]:
+        if not isinstance(layer, dict):
+            continue
+        dim = lambda p: _px(to_css(layer.get(p, 0), "dimension", tf, as_var=False)) or 0
+        out.append({"x": dim("offsetX"), "y": dim("offsetY"), "blur": dim("blur"), "spread": dim("spread"),
+                    "color": [round(c, 4) for c in (_rgba(layer.get("color", "#00000000"), tf) or (0, 0, 0, 0))],
+                    "inset": bool(layer.get("inset"))})
+    return out
+
+
+def mobile_tokens(root):
+    """Absolute, platform-ready values per theme. 1 CSS px = 1 pt (iOS) = 1 dp (Android) = 1 logical px (Flutter/RN)."""
+    values, flat, themes = _theme_values(root)
+    out = {}
+    for theme, vals in values.items():
+        tf = flat if theme == "light" else {**flat, **flatten(themes[theme])}
+        t = {"color": {}, "dimension": {}, "number": {}, "typography": {}, "shadow": {}, "duration": {}, "easing": {}}
+        for k, (typ, v) in sorted(vals.items()):
+            if typ == "color" and not PRIMITIVE_COLOR.match(k):
+                t["color"][k] = [round(x, 4) for x in v]
+            elif typ == "dimension":
+                t["dimension"][k] = round(v, 2)
+            elif typ == "number":
+                t["number"][k] = v
+        for key in sorted(k for k in tf if k.startswith("typography.")):
+            role = key[len("typography."):]
+            if not isinstance(tf[key]["value"], dict):
+                continue
+            tv = tf[key]["value"]
+            res = lambda p: to_css(tv[p], None, tf, as_var=False) if p in tv else None
+            size = _px(res("fontSize")) or 16
+            lh = res("lineHeight")
+            lh_px = size * float(lh) if lh and re.fullmatch(r"[\d.]+", lh) else (_px(lh) or round(size * 1.4))
+            t["typography"][role] = {"family": (res("fontFamily") or "system-ui").split(",")[0].strip().strip('"'),
+                                     "size": round(size, 2), "weight": int(float(res("fontWeight") or 400)),
+                                     "lineHeight": round(lh_px, 2)}
+        for k, v in sorted(tf.items()):
+            try:
+                if v["type"] == "shadow":
+                    t["shadow"][k] = _shadow_layers(k, tf)
+                elif v["type"] == "duration":
+                    raw = resolve_raw(k, tf)
+                    css = to_css(raw, "duration", tf, as_var=False)
+                    n = float(re.match(r"[\d.]+", css).group())
+                    t["duration"][k] = n * 1000 if css.endswith("s") and not css.endswith("ms") else n
+                elif v["type"] == "cubicBezier" and isinstance(resolve_raw(k, tf), list):
+                    t["easing"][k] = [float(x) for x in resolve_raw(k, tf)]
+            except (ValueError, TypeError, AttributeError):
+                pass   # clamp()/calc()/unresolvable: no single native value
+        out[theme] = t
+    return out
+
+
+
+
+def _tpl(name):
+    """Native/JS templates live in assets/templates/mobile (markers: @C color, @D dimension, @W weight, @T type, @E shadow)."""
+    return (SKILL / "assets" / "templates" / "mobile" / name).read_text(encoding="utf-8")
+
+
+def ref_name(file, marker, theme):
+    """Snapshot file name shared by the reference PNGs and the native snapshot tests."""
+    safe = re.sub(r"[^\w.+-]", "_", marker)
+    return f"{file}--{safe}--{theme}.png"
+
+
+def block_selectors(root):
+    """{file: '.block'} from each component CSS header ("Block alias: .btn"), so wrappers aren't measured as the component."""
+    out = {}
+    for css in sorted((Path(root) / "css" / "components").glob("*.css")):
+        m = re.search(r"Block alias:\s*(\.[\w-]+)", css.read_text(encoding="utf-8", errors="ignore")[:600])
+        out[css.stem] = m.group(1) if m else f".{css.stem}"
+    return out
+
+
+def cmd_mobile_spec(a):
+    root = Path(a.dir)
+    cfg = load_cfg(root)
+    build_tokens(root)
+    out = root / "dist" / "mobile"
+    tokens = mobile_tokens(root)
+    measured = out / "measured.json"
+    if not a.tokens_only:
+        if not shutil.which("node"):
+            print("measurement skipped: Node.js not found (token layer only).", file=sys.stderr)
+        else:
+            import socket
+            import time
+            safe_write(out / "measure.mjs", _tpl("measure.mjs").replace("__BLOCKS__", json.dumps(block_selectors(root))))
+            with socket.socket() as s:
+                s.bind(("127.0.0.1", 0))
+                port = s.getsockname()[1]
+            server = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "serve", str(root), "--port", str(port)],
+                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                for _ in range(60):   # wait until the docs server answers (it builds first)
+                    time.sleep(0.25)
+                    with socket.socket() as probe:
+                        if probe.connect_ex(("127.0.0.1", port)) == 0:
+                            break
+                # ESM resolves @playwright/test from the script's folder upward: <ds root>/node_modules (ds.py playwright + npm install).
+                r = subprocess.run(["node", str((out / "measure.mjs").resolve()), f"http://127.0.0.1:{port}", str(out.resolve()),
+                                    json.dumps(list(tokens)), a.only or ""],
+                                   cwd=str(root), capture_output=True, text=True)
+                if r.returncode:
+                    tail = (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or [f"exit {r.returncode}"])[-1]
+                    print(f"measurement failed ({tail}). Needs @playwright/test: `ds.py playwright {root}` then "
+                          "`npm install && npx playwright install chromium`, or pass --tokens-only.", file=sys.stderr)
+            finally:
+                server.terminate()
+    spec = {"$note": "Generated by ds.py mobile spec. 1 CSS px = 1 pt = 1 dp. tokens: resolved per theme. components: computed "
+                     "boxes of each docs demo at 390px wide (root + first form control), per theme; reference PNGs at @3x in "
+                     "dist/mobile/reference/<file>--<demo>--<theme>.png. Build native from these numbers, never from memory.",
+            "name": cfg["name"], "touchTarget": {"ios": 44, "android": 48}, "scale": 3, "tokens": tokens,
+            "components": json.loads(measured.read_text(encoding="utf-8")) if measured.exists() else {}}
+    safe_write(out / "spec.json", json.dumps(spec, indent=1) + "\n")
+    refs = len(list((out / "reference").glob("*.png"))) if (out / "reference").exists() else 0
+    print(f"dist/mobile/spec.json: {len(tokens)} themes, {sum(len(t['color']) for t in tokens.values()) // max(1, len(tokens))} "
+          f"semantic colors, {len(spec['components'])} measured components, {refs} reference PNGs.")
+
+
+# --- PNG (stdlib): decode 8-bit non-interlaced (gray, RGB, palette, gray+alpha, RGBA), encode RGB ---
+def png_read(path):
+    """(width, height, rows of (r, g, b)) with alpha composited over white."""
+    data = Path(path).read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"{path}: not a PNG")
+    pos, idat, plte, trns = 8, bytearray(), b"", b""
+    while pos < len(data):
+        ln, typ = struct.unpack(">I4s", data[pos:pos + 8])
+        chunk = data[pos + 8:pos + 8 + ln]
+        if typ == b"IHDR":
+            w, h, depth, ctype, _, _, interlace = struct.unpack(">IIBBBBB", chunk)
+            if depth != 8 or interlace or ctype not in (0, 2, 3, 4, 6):
+                raise ValueError(f"{path}: only 8-bit, non-interlaced PNGs are supported (got depth {depth}, interlace {interlace})")
+        elif typ == b"PLTE":
+            plte = chunk
+        elif typ == b"tRNS":
+            trns = chunk
+        elif typ == b"IDAT":
+            idat += chunk
+        pos += 12 + ln
+    bpp = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[ctype]
+    raw, stride, prev, rows, i = zlib.decompress(bytes(idat)), w * bpp, bytearray(w * bpp), [], 0
+    over = lambda c, al: round(c * al / 255 + 255 * (1 - al / 255))
+    for _ in range(h):
+        f, line = raw[i], bytearray(raw[i + 1:i + 1 + stride])
+        i += 1 + stride
+        if f:
+            for x in range(stride):
+                a_ = line[x - bpp] if x >= bpp else 0
+                b_ = prev[x]
+                if f == 1:
+                    line[x] = (line[x] + a_) & 255
+                elif f == 2:
+                    line[x] = (line[x] + b_) & 255
+                elif f == 3:
+                    line[x] = (line[x] + ((a_ + b_) >> 1)) & 255
+                else:
+                    c_ = prev[x - bpp] if x >= bpp else 0
+                    p_ = a_ + b_ - c_
+                    pa, pb, pc = abs(p_ - a_), abs(p_ - b_), abs(p_ - c_)
+                    line[x] = (line[x] + (a_ if pa <= pb and pa <= pc else b_ if pb <= pc else c_)) & 255
+        if ctype == 6:
+            row = [(over(line[x], line[x + 3]), over(line[x + 1], line[x + 3]), over(line[x + 2], line[x + 3])) for x in range(0, stride, 4)]
+        elif ctype == 2:
+            row = [tuple(line[x:x + 3]) for x in range(0, stride, 3)]
+        elif ctype == 3:
+            row = []
+            for x in line:
+                al = trns[x] if x < len(trns) else 255
+                row.append(tuple(over(c, al) for c in plte[x * 3:x * 3 + 3]))
+        elif ctype == 4:
+            row = [(over(line[x], line[x + 1]),) * 3 for x in range(0, stride, 2)]
+        else:
+            row = [(g,) * 3 for g in line]
+        rows.append(row)
+        prev = line
+    return w, h, rows
+
+
+def png_write(path, w, h, rows):
+    raw = b"".join(b"\x00" + bytes(v for px in row for v in px[:3]) for row in rows)
+    chunk = lambda t, d: struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d) & 0xFFFFFFFF)
+    return safe_write(path, b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+                      + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+
+
+def _oklab(px):
+    import math
+    L, C, H = _srgb_to_oklch(tuple(c / 255 for c in px))
+    return L, C * math.cos(math.radians(H or 0)), C * math.sin(math.radians(H or 0))
+
+
+def png_compare(ref_path, native_path, threshold=0.03):
+    """Scale native to the reference size (nearest neighbor), then per-pixel OKLab ΔE. Pixels over threshold count as drift."""
+    rw, rh, ref = png_read(ref_path)
+    nw, nh, nat = png_read(native_path)
+    diff, bad, worst, cache = [], 0, 0.0, {}
+    lab = lambda p: cache[p] if p in cache else cache.setdefault(p, _oklab(p))
+    for y in range(rh):
+        nrow, row = nat[min(nh - 1, y * nh // rh)], []
+        for x, p in enumerate(ref[y]):
+            q = nrow[min(nw - 1, x * nw // rw)]
+            de = 0.0 if p == q else sum((u - v) ** 2 for u, v in zip(lab(p), lab(q))) ** 0.5
+            worst = max(worst, de)
+            if de > threshold:
+                bad += 1
+                row.append((230, 0, 80))
+            else:
+                row.append(tuple(170 + c // 3 for c in p))   # faded reference where pixels agree
+        diff.append(row)
+    return {"ref": [rw, rh], "native": [nw, nh], "mismatch": round(100 * bad / max(1, rw * rh), 2),
+            "max_delta_e": round(worst * 100, 1)}, diff
+
+
+def _css_rgba(s):
+    """Computed CSS color (rgb()/rgba()/color(srgb …)/oklch()) to (r, g, b, a) 0..1."""
+    s = (s or "").strip()
+    nums = [float(x) for x in re.findall(r"-?\d*\.?\d+(?:e-?\d+)?", s)]
+    if s.startswith("rgb") and len(nums) >= 3:
+        return (nums[0] / 255, nums[1] / 255, nums[2] / 255, nums[3] if len(nums) > 3 else 1.0)
+    if s.startswith("color(srgb") and len(nums) >= 3:
+        return (*nums[:3], nums[3] if len(nums) > 3 else 1.0)
+    if s.startswith("oklch") and len(nums) >= 3:
+        l_ = nums[0] / 100 if "%" in s.split()[0] else nums[0]
+        return (*_oklch_to_srgb(l_, nums[1], nums[2]), nums[3] if len(nums) > 3 else 1.0)
+    return None
+
+
+def match_reference(ref_dir, name):
+    """Snapshot tools prefix names (swift-snapshot-testing: testX.<name>.png, Paparazzi: pkg_Class_test_<name>.png):
+    accept the reference whose name is a suffix that starts after a '.' or '_'."""
+    if (ref_dir / name).exists():
+        return ref_dir / name
+    for i, ch in enumerate(name):
+        if ch in "._" and (ref_dir / name[i + 1:]).exists() and "--" in name[i + 1:]:
+            return ref_dir / name[i + 1:]
+    return None
+
+
+def cmd_mobile_verify(a):
+    root = Path(a.dir)
+    load_cfg(root)
+    ref_dir, nat_dir = root / "dist" / "mobile" / "reference", Path(a.native)
+    lines = ["# Mobile fidelity report", "", f"Native snapshots `{nat_dir.name}/` vs `dist/mobile/reference` · fail above "
+             f"{a.max_diff}% drifting pixels or ±{a.size_tolerance}% size.", "",
+             "| Snapshot | Size ref → native | Drift % | Max ΔE | Result |", "|---|---|---|---|---|"]
+    failed = compared = 0
+    for nat in sorted(nat_dir.glob("*.png")):
+        ref = match_reference(ref_dir, nat.name)
+        if not ref:
+            lines.append(f"| {nat.stem} | | | | no reference with this name (run `ds.py mobile spec`; names must match) |")
+            continue
+        stats, diff = png_compare(ref, nat)
+        compared += 1
+        (rw, rh), (nw, nh) = stats["ref"], stats["native"]
+        size_ok = abs(nw - rw) <= rw * a.size_tolerance / 100 and abs(nh - rh) <= rh * a.size_tolerance / 100
+        ok = size_ok and stats["mismatch"] <= a.max_diff
+        if not ok:
+            failed += 1
+            png_write(root / "dist" / "mobile" / "diff" / nat.name, rw, rh, diff)
+        lines.append(f"| {nat.stem} | {rw}×{rh} → {nw}×{nh}{'' if size_ok else ' **size**'} | {stats['mismatch']} | "
+                     f"{stats['max_delta_e']} | {'pass' if ok else 'DRIFT: dist/mobile/diff/' + nat.name} |")
+    drift = []
+    if a.measurements:
+        drift = compare_measurements(root, Path(a.measurements))
+        lines += ["", "## Measurements", ""] + [f"- {d}" for d in drift or ["all measured values within tolerance"]]
+    summary = f"{compared - failed}/{compared} snapshots within tolerance" + (f", {len(drift)} measurement drifts" if a.measurements else "")
+    lines += ["", f"**{summary}.**"]
+    safe_write(root / "dist" / "mobile" / "fidelity-report.md", "\n".join(lines) + "\n")
+    print(f"{summary}. Report: dist/mobile/fidelity-report.md" + (" · diffs: dist/mobile/diff/" if failed else ""))
+    if not compared and not a.measurements:
+        sys.exit("no native snapshot matched a reference name")
+    if failed or drift:
+        sys.exit(1)
+
+
+MEASURE_TOLERANCE = {"width": 1.0, "height": 1.0, "radius": 1.0, "borderWidth": 0.5, "fontSize": 0.01, "lineHeight": 1.0, "gap": 1.0}
+
+
+def compare_measurements(root, path):
+    """Native test dumps {file: {demo: {theme: {width, height, radius, fontSize, background, …}}}}; compare to the spec."""
+    spec = json.loads((root / "dist" / "mobile" / "spec.json").read_text(encoding="utf-8")).get("components", {})
+    out = []
+    for comp, demos in json.loads(Path(path).read_text(encoding="utf-8")).items():
+        for demo, themes in demos.items():
+            for theme, got in themes.items():
+                want = spec.get(comp, {}).get(demo, {}).get(theme)
+                if not want:
+                    out.append(f"{comp}/{demo}/{theme}: not in spec (check the name)")
+                    continue
+                for k, tol in MEASURE_TOLERANCE.items():
+                    if got.get(k) is not None and want.get(k) is not None and abs(float(got[k]) - float(want[k])) > tol:
+                        out.append(f"{comp}/{demo}/{theme} {k}: native {got[k]} vs web {want[k]}")
+                for k in ("background", "color", "borderColor"):
+                    g, w_ = got.get(k), _css_rgba(want.get(k))
+                    g = _css_rgba(g) if isinstance(g, str) else (tuple(g) if g else None)
+                    if g and w_ and max(abs(x - y) for x, y in zip(g, w_)) > 2 / 255 + 1e-6:
+                        out.append(f"{comp}/{demo}/{theme} {k}: native {_hex_from_rgb(g[:3], g[3])} vs web {_hex_from_rgb(w_[:3], w_[3])}")
+    return out
+
+
+MOBILE_LINT = {
+    ".swift": [(r"\b(?:UI)?Color\(\s*(?:red|hue|white):|Color\(\s*hex:|#colorLiteral|Color\(\s*\"#", "raw color: use DSColor"),
+               (r"\.font\(\s*\.system\(\s*size:", "fixed font size ignores Dynamic Type: use DSType / .dsText()"),
+               (r"\.padding\(\s*(?:\.\w+\s*,\s*)?\d+(?:\.\d+)?\s*\)", "magic padding: use DSDimension"),
+               (r"cornerRadius:\s*\d", "magic radius: use DSDimension.radius*"),
+               (r"\.onHover\b", "hover has no touch equivalent: use the pressed state"),
+               (r"\.frame\([^)]*\bheight:\s*(?:[1-9]|[1-3]\d|4[0-3])(?:\.\d+)?\s*[,)]", "height under 44 pt: touch target too small (pad the hit area)"),
+               (r"Image\(\s*systemName:", "SF Symbol: use DSIcon so icons match the design system")],
+    ".kt": [(r"\bColor\(\s*0x[0-9A-Fa-f]{6,8}\s*\)|Color\.(?:Red|Blue|Green|Black|White|Gray)\b", "raw color: use DsTheme.colors"),
+            (r"\bfontSize\s*=\s*\d", "raw font size: use DsType"),
+            (r"\.padding\(\s*(?:\w+\s*=\s*)?\d+(?:\.\d+)?\.dp", "magic padding: use DsDimension"),
+            (r"RoundedCornerShape\(\s*\d", "magic radius: use DsDimension.radius*"),
+            (r"\bIcons\.(?:Default|Filled|Outlined|Rounded|Sharp|TwoTone|AutoMirrored)\.", "Material icon: use DsIcons"),
+            (r"\.hoverable\(|onPointerEvent\(\s*PointerEventType\.Enter", "hover has no touch equivalent: use pressed"),
+            (r"\.(?:height|size)\(\s*(?:[1-9]|[1-3]\d|4[0-7])(?:\.\d+)?\.dp\s*\)", "under 48 dp: wrap with minimumInteractiveComponentSize() or pad the hit area")],
+    ".dart": [(r"\bColor\(\s*0x[0-9A-Fa-f]{8}\s*\)|Color\.fromRGBO|Color\.fromARGB", "raw color: use DsColors"),
+              (r"\bColors\.(?!transparent\b)\w+", "Material palette color: use DsColors"),
+              (r"fontSize:\s*\d", "raw font size: use DsType"),
+              (r"EdgeInsets\.\w+\(\s*(?:\w+:\s*)?\d", "magic padding: use DsDimension"),
+              (r"BorderRadius\.circular\(\s*\d", "magic radius: use DsDimension.radius*"),
+              (r"\bIcons\.\w+|CupertinoIcons\.\w+", "framework icon: use DsIcon"),
+              (r"\bonHover:", "hover has no touch equivalent: use pressed")],
+    ".tsx": [(r"['\"]#[0-9a-fA-F]{3,8}['\"]|['\"]rgba?\(", "raw color: use theme colors"),
+             (r"fontSize:\s*\d", "raw font size: use type"),
+             (r"\b(?:padding|margin)(?:Horizontal|Vertical|Top|Bottom|Left|Right|Start|End)?:\s*\d", "magic spacing: use dimension"),
+             (r"borderRadius:\s*\d", "magic radius: use dimension.radius*"),
+             (r"react-native-vector-icons|@expo/vector-icons", "third-party icon font: use DsIcon"),
+             (r"\bonHoverIn\b|\bonMouseEnter\b", "hover has no touch equivalent: use pressed")],
+}
+MOBILE_LINT[".ts"] = MOBILE_LINT[".jsx"] = MOBILE_LINT[".tsx"]
+MOBILE_EXEMPT = re.compile(r"^(DSTheme|DsTheme|ds_theme|theme|DSIcon|DsIcon|DsIcons|ds_icons|DesignTokens|ds_tokens|"
+                           r"DSSnapshotTests|DsSnapshotTest|DsSnapshots|ds_golden_test)\.\w+$")
+MOBILE_SKIP = {"node_modules", "build", ".gradle", "Pods", "DerivedData", ".dart_tool"}
+
+
+def mobile_lint_file(path):
+    path = Path(path)
+    rules = MOBILE_LINT.get(path.suffix)
+    if not rules or MOBILE_EXEMPT.match(path.name):
+        return []
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    lines, issues = text.splitlines(), []
+    for rx, msg in rules:
+        for m in re.finditer(rx, text):
+            n = text.count("\n", 0, m.start()) + 1
+            if "ds-lint: ignore" not in lines[n - 1]:
+                issues.append(f"{path}:{n}: {msg}")
+    return issues
+
+
+def cmd_mobile_lint(a):
+    files = []
+    for p_ in map(Path, a.paths):
+        files += [p_] if p_.is_file() else [f for f in sorted(p_.rglob("*")) if f.suffix in MOBILE_LINT and not set(f.parts) & MOBILE_SKIP]
+    issues = [i for f in files for i in mobile_lint_file(f)]
+    print("\n".join(f"- {i}" for i in issues) or "- ok")
+    print(f"{len(issues)} issue(s) in {len(files)} file(s). Deliberate exception: add a `ds-lint: ignore` comment on that line.")
+    if issues and a.strict:
+        sys.exit(1)
+
+
+# --- scaffold: recipes calibrated by the measured spec ---
+# Each core component prop = (measured path in spec.components[file][demo][light], default token keys / number).
+# With a measured spec the web's computed value wins (snapped to the token that has that value, else a literal);
+# without one the default tokens are used. FIDELITY.md shows the source of every number.
+CORE_RECIPES = {
+    "button": ("variant:primary+state:default", {
+        "height": ("height", ["button.height.md", "size.control.md", 40]),
+        "heightSm": ("size:sm@height", ["button.height.sm", "size.control.sm", 32]),
+        "heightLg": ("size:lg@height", ["button.height.lg", "size.control.lg", 48]),
+        "paddingX": ("padding.3", ["button.padding-x", "space.4", 16]),
+        "radius": ("radius", ["button.radius", "radius.md", 8]),
+        "fontSize": ("fontSize", ["button.font-size", "font.size.sm", 14]),
+        "fontWeight": ("fontWeight", ["button.font-weight", "font.weight.semibold", 600]),
+        "borderWidth": (None, ["border.width.thin", 1]),
+        "gap": ("gap", ["space.2", 8])},
+        [("background", "action.primary.bg"), ("color", "action.primary.fg")]),
+    "text-field": ("state:default", {
+        "height": ("control.height", ["input.height.md", "size.control.md", 40]),
+        "paddingX": ("control.padding.3", ["input.padding-x", "space.3", 12]),
+        "radius": ("control.radius", ["input.radius", "radius.md", 8]),
+        "fontSize": ("control.fontSize", ["font.size.md", 16]),
+        "borderWidth": ("control.borderWidth", ["border.width.thin", 1]),
+        "gap": ("gap", ["space.1-5", "space.2", 6])},
+        [("control.background", "input.bg"), ("control.borderColor", "input.border")]),
+    "checkbox": ("state:unchecked", {
+        "size": ("control.width", ["checkbox.size", "icon.size.md", 20]),
+        "rowHeight": ("minHeight", ["size.touch-target", 44]),
+        "radius": ("control.radius", ["checkbox.radius", "radius.sm", 4]),
+        "borderWidth": ("control.borderWidth", ["border.width.thin", 1]),
+        "gap": ("gap", ["space.2", 8])},
+        [("control.borderColor", "input.border")]),
+    "switch": ("state:off", {
+        "width": ("control.width", ["switch.width", 44]),
+        "height": ("control.height", ["switch.height", 24]),
+        "inset": (None, ["space.0-5", 2]),
+        "radius": (None, ["switch.radius", "radius.full", 9999]),
+        "rowHeight": ("minHeight", ["size.touch-target", 44]),
+        "gap": ("gap", ["space.2", 8])}, []),
+    "card": ("variant:basic", {
+        "padding": ("padding.0", ["card.padding", "space.4", 16]),
+        "radius": ("radius", ["card.radius", "radius.lg", 12]),
+        "borderWidth": ("borderWidth", ["border.width.thin", 1]),
+        "gap": ("gap", ["space.2", 8])},
+        [("background", "surface.raised")]),
+    "badge": ("variant:neutral", {
+        "height": ("height", ["badge.height", 20]),
+        "paddingX": ("padding.3", ["space.2", 8]),
+        "radius": ("radius", ["badge.radius", "radius.full", 9999]),
+        "fontSize": ("fontSize", ["font.size.xs", 12]),
+        "fontWeight": ("fontWeight", ["font.weight.medium", 500]),
+        "gap": ("gap", ["space.1", 4])},
+        [("background", "bg.muted"), ("color", "text.default")]),
+    "alert": ("variant:info", {
+        "padding": ("padding.0", ["alert.padding", "space.4", 16]),
+        "radius": ("radius", ["alert.radius", "radius.md", 8]),
+        "borderWidth": ("borderWidth", ["border.width.thin", 1]),
+        "gap": ("gap", ["space.3", 12]),
+        "iconSize": (None, ["icon.size.md", 20])},
+        [("background", "feedback.info.bg"), ("borderColor", "feedback.info.border")]),
+    "avatar": ("variant:initials", {
+        "size": ("width", ["avatar.size.md", "size.control.md", 40]),
+        "radius": ("radius", ["avatar.radius", "radius.full", 9999]),
+        "fontSize": ("fontSize", ["font.size.sm", 14])},
+        [("background", "bg.muted")]),
+    "tag": ("variant:static", {
+        "height": ("height", ["tag.height", "size.control.sm", 28]),
+        "paddingX": ("padding.3", ["space.2", 8]),
+        "radius": ("radius", ["tag.radius", "radius.sm", 4]),
+        "fontSize": ("fontSize", ["font.size.sm", 14]),
+        "borderWidth": ("borderWidth", ["border.width.thin", 1]),
+        "gap": ("gap", ["space.1", 4])},
+        [("borderColor", "border.default")]),
+    "divider": ("variant:horizontal", {
+        "thickness": ("height", ["divider.thickness", "border.width.thin", 1])}, [("borderColor", "border.default")]),
+}
+SIZED_SNAPS = {"text-field", "card", "alert", "divider", "checkbox", "switch"}   # block-level: snapshot at the web width
+SNAP_DEMOS = {"button": "variant:primary+state:default", "text-field": "state:default", "checkbox": "state:unchecked",
+              "switch": "state:off", "card": "variant:basic", "badge": "variant:neutral", "alert": "variant:info",
+              "avatar": "variant:initials", "tag": "variant:static", "divider": "variant:horizontal"}
+NUMBER_PROPS = {"fontWeight"}
+
+
+def _measured(spec_components, file, demo, path):
+    if "@" in path:
+        demo, path = path.split("@", 1)
+    node = spec_components.get(file, {}).get(demo, {}).get("light")
+    for part in path.split("."):
+        if node is None:
+            return None
+        node = node[int(part)] if isinstance(node, list) else node.get(part)
+    if path.endswith("minHeight") and not node:
+        return None   # no min-height on the web: keep the platform touch-target default
+    return node if isinstance(node, (int, float)) else None
+
+
+def calibrate(tokens, components_spec):
+    """{file: {prop: {value, token, source}}} for the core components."""
+    dims, nums = tokens["light"]["dimension"], tokens["light"]["number"]
+    out = {}
+    for file, (demo, props, _) in CORE_RECIPES.items():
+        out[file] = {}
+        for prop, (path, defaults) in props.items():
+            pool = nums if prop in NUMBER_PROPS else dims
+            keys = [d for d in defaults if isinstance(d, str)]
+            fallback = next((d for d in defaults if not isinstance(d, str)), 0)
+            got = _measured(components_spec, file, demo, path) if path else None
+            if got is not None:
+                fam = keys[-1].rsplit(".", 1)[0] + "." if keys else "\0"
+                match = next((k for k in keys if k in pool and abs(pool[k] - got) < 0.3), None) or next(
+                    (k for k, v in pool.items() if k.startswith(fam) and abs(v - got) < 0.3), None)
+                out[file][prop] = {"value": got, "token": match, "source": "measured"}
+            else:
+                key = next((k for k in keys if k in pool), None)
+                out[file][prop] = {"value": pool[key] if key else fallback, "token": key, "source": "token" if key else "default"}
+    out["_colors"] = calibrate_colors(tokens, components_spec)
+    return out
+
+
+def calibrate_colors(tokens, components_spec):
+    """{file: {role: token}} where the web paints a component with a different semantic token than the default role.
+    A candidate must match the measured color in every measured theme, so a coincidental match (white = white) loses."""
+    out = {}
+    for file, (demo, _, checks) in CORE_RECIPES.items():
+        themes = components_spec.get(file, {}).get(demo, {})
+        for path, role in checks:
+            seen = {}
+            for theme, box in themes.items():
+                node = box
+                for part in path.split("."):
+                    node = node.get(part) if isinstance(node, dict) else None
+                rgba = _css_rgba(node) if isinstance(node, str) else None
+                if rgba and rgba[3] > 0 and theme in tokens:
+                    seen[theme] = rgba
+            if not seen:
+                continue
+            same = lambda key: all(key in tokens[t]["color"] and max(abs(x - y) for x, y in zip(tokens[t]["color"][key], c)) <= 2 / 255 + 1e-6
+                                   for t, c in seen.items())
+            default = pick_color(tokens["light"]["color"], role)
+            if default and same(default):
+                continue
+            match = next((k for k in tokens["light"]["color"] if same(k)), None)
+            out.setdefault(file, {})[role] = {"token": match, "default": default, "web": seen.get("light") or next(iter(seen.values()))}
+    return out
+
+
+COLOR_FALLBACKS = {
+    "input.bg": ["input.bg", "color.bg.surface", "color.bg.canvas"],
+    "input.border": ["input.border", "color.border.strong", "color.border.default"],
+    "surface.raised": ["color.elevation.surface.raised", "color.bg.surface", "color.bg.canvas"],
+    "bg.muted": ["color.bg.muted", "color.bg.subtle", "color.bg.surface"],
+    "bg.surface": ["color.bg.surface", "color.bg.canvas"],
+    "border.invalid": ["color.border.invalid", "color.feedback.danger.border", "color.feedback.danger.fg"],
+    "action.secondary.border": ["color.action.secondary.border", "color.border.default"],
+}
+
+
+def pick_color(colors, role):
+    cands = COLOR_FALLBACKS.get(role) or ["color." + role, role]
+    if role.endswith("-active"):
+        cands += ["color." + role[:-7] + "-hover", "color." + role[:-7]]
+    if role.endswith(".icon"):
+        cands += ["color." + role[:-5] + ".fg"]
+    return next((k for k in cands if k in colors), None)
+
+
+def color_ident(key):
+    return _camel(key[6:] if key.startswith("color.") else key)
+
+
+SWIFT_WEIGHTS = {100: ".ultraLight", 200: ".thin", 300: ".light", 400: ".regular", 500: ".medium", 600: ".semibold",
+                 700: ".bold", 800: ".heavy", 900: ".black"}
+
+
+def _rgba_hex(c):
+    return "".join(f"{round(max(0, min(1, x)) * 255):02X}" for x in c)
+
+
+def _lit(v):
+    return f"{round(v, 2):g}"
+
+
+class Emitter:
+    """Fills @C(role) @D(file.prop) @W(file.prop) @T(role) @E(file) markers with target-language expressions."""
+
+    def __init__(self, tokens, recipes, lang):
+        self.t, self.r, self.lang, self.missing = tokens, recipes, lang, []
+        self.light = tokens["light"]
+
+    def color(self, role):
+        role, _, file = role.partition("|")
+        over = self.r.get("_colors", {}).get(file, {}).get(role) if file else None
+        k = over["token"] if over and over["token"] else pick_color(self.light["color"], role)
+        if not k:
+            self.missing.append(role)
+            return "MISSING_" + _camel(role)
+        name = color_ident(k)
+        return {"swift": f"DSColor.{name}", "kotlin": f"DsTheme.colors.{name}", "dart": f"c.{name}", "ts": f"colors.{name}"}[self.lang]
+
+    def dim(self, ref):
+        file, prop = ref.split(".", 1)
+        v = self.r[file][prop]
+        if v["token"]:
+            name = _camel(v["token"])
+            return {"swift": f"DSDimension.{name}", "kotlin": f"DsDimension.{name}", "dart": f"DsDimension.{name}",
+                    "ts": f"dimension.{name}"}[self.lang]
+        lit = _lit(v["value"])
+        return {"swift": lit, "kotlin": lit + "f", "dart": lit if "." in lit else lit + ".0", "ts": lit}[self.lang]
+
+    def weight(self, ref):
+        file, prop = ref.split(".", 1)
+        w = int(round(self.r[file][prop]["value"] / 100) * 100) or 400
+        return {"swift": SWIFT_WEIGHTS.get(w, ".regular"), "kotlin": f"FontWeight({w})", "dart": f"FontWeight.w{w}", "ts": f"'{w}'"}[self.lang]
+
+    def type_(self, role):
+        roles = self.light["typography"]
+        role = role if role in roles else "body" if "body" in roles else next(iter(roles), None)
+        if role is None:
+            self.missing.append("typography.body")
+            return "MISSING_TYPE"
+        return {"swift": f"DSType.{_camel(role)}", "kotlin": f"DsType.{_camel(role)}", "dart": f"DsType.{_camel(role)}",
+                "ts": f"type.{_camel(role)}"}[self.lang]
+
+    def shadow(self, keys):
+        k = next((k for k in keys.split("|") if k in self.light["shadow"]), None)
+        empty = {"swift": "[]", "kotlin": "0f", "dart": "const <BoxShadow>[]", "ts": "{}"}[self.lang]
+        if not k:
+            return empty
+        return {"swift": f"DSElevation.{_camel(k)}", "kotlin": f"DsElevation.{_camel(k)}", "dart": f"DsElevation.{_camel(k)}",
+                "ts": f"elevation.{_camel(k)}"}[self.lang]
+
+    def fill(self, text):
+        text = re.sub(r"@C\(([\w.|-]+)\)", lambda m: self.color(m.group(1)), text)
+        text = re.sub(r"@D\(([\w.-]+)\)", lambda m: self.dim(m.group(1)), text)
+        text = re.sub(r"@W\(([\w.-]+)\)", lambda m: self.weight(m.group(1)), text)
+        text = re.sub(r"@T\(([\w.-]+)\)", lambda m: self.type_(m.group(1)), text)
+        return re.sub(r"@E\(([\w.|-]+)\)", lambda m: self.shadow(m.group(1)), text)
+
+
+def _snap_cases(components_spec):
+    """[(file, demo, theme, texts, width)] for the snapshot tests: same names and copy as the web references."""
+    out = []
+    for file, demo in SNAP_DEMOS.items():
+        m = components_spec.get(file, {}).get(demo, {})
+        for theme in (m or {"light": {}, "dark": {}}):
+            box = m.get(theme) or {}
+            out.append((file, demo, theme, box.get("texts") or [], box.get("width")))
+    return out
+
+
+def _themes_by_role(tokens):
+    names = list(tokens)
+    dark = "dark" if "dark" in names else names[0]
+    contrast = next((n for n in names if "contrast" in n and "dark" not in n), names[0])
+    return names[0] if "light" not in names else "light", dark, contrast
+
+
+HEAD = "Generated by ds.py mobile scaffold from the {name} design system. Do not edit: change tokens, re-run the scaffold."
+
+
+# ---------- SwiftUI ----------
+
+
+def _swift_str(s):
+    return json.dumps(s, ensure_ascii=False)
+
+
+def gen_swiftui(tokens, recipes, components_spec, name):
+    light_n, dark_n, hc_n = _themes_by_role(tokens)
+    L, D, H = tokens[light_n], tokens[dark_n], tokens[hc_n]
+    tri = lambda key, group="color": ", ".join("0x" + _rgba_hex(T[group].get(key, L[group][key])) for T in (L, D, H))
+    out = [f"// {HEAD.format(name=name)}", "// 1 CSS px = 1 pt. Colors resolve light / dark / Increase Contrast at runtime.",
+           "import SwiftUI", "import UIKit", "",
+           "extension UIColor {", "    convenience init(dsRGBA v: UInt32) {",
+           "        self.init(red: CGFloat(v >> 24 & 0xFF) / 255, green: CGFloat(v >> 16 & 0xFF) / 255,",
+           "                  blue: CGFloat(v >> 8 & 0xFF) / 255, alpha: CGFloat(v & 0xFF) / 255)", "    }", "}", "",
+           "func dsColor(_ light: UInt32, _ dark: UInt32, _ contrast: UInt32) -> Color {",
+           "    Color(UIColor { t in", "        UIColor(dsRGBA: t.accessibilityContrast == .high ? contrast : t.userInterfaceStyle == .dark ? dark : light)",
+           "    })", "}", "", f"/// Themes: light = {light_n}, dark = {dark_n}, Increase Contrast = {hc_n}.", "public enum DSColor {"]
+    out += [f"    public static let {color_ident(k)} = dsColor({tri(k)})" for k in L["color"]]
+    out += ["}", "", "public enum DSDimension {"]
+    out += [f"    public static let {_camel(k)}: CGFloat = {_lit(v)}" for k, v in L["dimension"].items()]
+    out += ["}", "", "public enum DSOpacity {"]
+    out += [f"    public static let {_camel(k[8:])}: Double = {_lit(v)}" for k, v in L["number"].items() if k.startswith("opacity.")]
+    out += ["}", "", "public enum DSMotion {", "    // Durations in ms. Respect accessibilityReduceMotion: no animation, or a cross-fade."]
+    out += [f"    public static let {_camel(k[7:] if k.startswith('motion.') else k)}: Double = {_lit(v)}" for k, v in L["duration"].items()]
+    out += [f"    public static func {_camel(k[7:] if k.startswith('motion.') else k)}(_ ms: Double) -> Animation "
+            f"{{ .timingCurve({', '.join(_lit(x) for x in v)}, duration: ms / 1000) }}" for k, v in L["easing"].items()]
+    out += ["}", "", "public struct DSTextStyle {", "    public let family: String", "    public let size: CGFloat",
+            "    public let weight: Font.Weight", "    public let lineHeight: CGFloat", "    public let relativeTo: Font.TextStyle",
+            "    public var font: Font { .custom(family, size: size, relativeTo: relativeTo).weight(weight) }", "}", "",
+            "public enum DSType {"]
+    rel = {"display": ".largeTitle", "h1": ".largeTitle", "h2": ".title", "h3": ".title2", "h4": ".title3", "h5": ".headline",
+           "h6": ".headline", "lead": ".body", "body": ".body", "small": ".subheadline", "caption": ".caption", "code": ".body"}
+    for role, ty in L["typography"].items():
+        out.append(f"    public static let {_camel(role)} = DSTextStyle(family: {_swift_str(ty['family'])}, size: {_lit(ty['size'])}, "
+                   f"weight: {SWIFT_WEIGHTS.get(round(ty['weight'] / 100) * 100, '.regular')}, lineHeight: {_lit(ty['lineHeight'])}, "
+                   f"relativeTo: {rel.get(role, '.body')})")
+    out += ["}", "",
+            "/// CSS line-height in SwiftUI: the extra leading is split above and below the line (half-leading) and scales",
+            "/// with Dynamic Type, so text boxes match the web measurement.",
+            "struct DSTextModifier: ViewModifier {", "    let style: DSTextStyle",
+            "    @Environment(\\.dynamicTypeSize) private var dynamicTypeSize", "",
+            "    func body(content: Content) -> some View {", "        let _ = dynamicTypeSize",
+            "        let scale = UIFontMetrics.default.scaledValue(for: style.size) / style.size",
+            "        let natural = (UIFont(name: style.family, size: style.size) ?? .systemFont(ofSize: style.size)).lineHeight",
+            "        let extra = max(0, style.lineHeight - natural) * scale",
+            "        content.font(style.font).lineSpacing(extra).padding(.vertical, extra / 2)", "    }", "}", "",
+            "public extension View {", "    func dsText(_ style: DSTextStyle) -> some View { modifier(DSTextModifier(style: style)) }", "",
+            "    func dsShadow(_ layers: [DSShadow]) -> some View {",
+            "        layers.reduce(AnyView(self)) { AnyView($0.shadow(color: $1.color, radius: $1.radius, x: $1.x, y: $1.y)) }", "    }", "}", "",
+            "/// CSS box-shadow layer. SwiftUI radius = blur / 2; spread has no SwiftUI equivalent and is dropped.",
+            "public struct DSShadow {", "    public let color: Color", "    public let radius: CGFloat", "    public let x: CGFloat", "    public let y: CGFloat", "}", "",
+            "public enum DSElevation {"]
+    for k, layers in L["shadow"].items():
+        rows = []
+        for i, ly in enumerate(layers):
+            if ly["inset"]:
+                continue
+            cols = ", ".join("0x" + _rgba_hex((T["shadow"].get(k) or layers)[min(i, len(T["shadow"].get(k) or layers) - 1)]["color"]) for T in (L, D, H))
+            rows.append(f"DSShadow(color: dsColor({cols}), radius: {_lit(ly['blur'] / 2)}, x: {_lit(ly['x'])}, y: {_lit(ly['y'])})")
+        out.append(f"    public static let {_camel(k)}: [DSShadow] = [{', '.join(rows)}]")
+    out += ["}", ""]
+    em = Emitter(tokens, recipes, "swift")
+    files = {"DSTheme.swift": "\n".join(out), "DSComponents.swift": em.fill(_tpl("DSComponents.swift").replace("@HEAD", HEAD.format(name=name)))}
+    files["Tests/DSSnapshotTests.swift"] = swift_snapshots(_snap_cases(components_spec), em)
+    return files, em.missing
+
+
+def swift_snapshots(cases, em):
+    def view(file, texts):
+        t = lambda i, d: _swift_str(texts[i] if len(texts) > i else d)
+        return {"button": f"Button({t(0, 'Button')}) {{}}.buttonStyle(DSButtonStyle(.primary))",
+                "text-field": f"DSTextField({t(0, 'Label')}, text: .constant(\"\")" + (f", hint: {t(1, '')})" if len(texts) > 1 else ")"),
+                "checkbox": f"Toggle({t(0, 'Checkbox')}, isOn: .constant(false)).toggleStyle(DSCheckboxStyle())",
+                "switch": f"Toggle({t(0, 'Switch')}, isOn: .constant(false)).toggleStyle(DSSwitchStyle())",
+                "card": f"DSCard {{ Text({t(0, 'Title')}).dsText(DSType.{_camel('h5') if 'h5' in em.light['typography'] else 'body'}); Text({t(1, 'Body')}).dsText(DSType.body) }}",
+                "badge": f"DSBadge({t(0, 'Badge')})",
+                "alert": f"DSAlert({t(0, 'Title')}" + (f", message: {t(1, '')}" if len(texts) > 1 else "") + ", tone: .info)",
+                "avatar": f"DSAvatar({t(0, 'A B')})",
+                "tag": f"DSTag({t(0, 'Tag')})",
+                "divider": "DSDivider()"}[file]
+    light_n, dark_n, hc_n = _themes_by_role(em.t)
+    rows = []
+    for file, demo, theme, texts, width in cases:
+        if theme not in (light_n, dark_n, hc_n):
+            continue
+        frame = f".frame(width: {_lit(width)})" if width and file in SIZED_SNAPS else ""
+        mode = "dark" if theme == dark_n and theme != light_n else "contrast" if theme == hc_n and theme != light_n else "light"
+        rows.append(f'        snap({view(file, texts)}{frame}, "{ref_name(file, demo, theme)[:-4]}", .{mode})')
+    return f"""// {HEAD.format(name='this')}
+// Snapshot names match dist/mobile/reference/<file>--<demo>--<theme>.png, rendered at @3x like the references.
+// Setup: add https://github.com/pointfreeco/swift-snapshot-testing to the test target and `@testable import` your app.
+// Then: python3 ds.py mobile verify <ds-dir> --native <path to __Snapshots__/DSSnapshotTests>
+import SnapshotTesting
+import SwiftUI
+import XCTest
+
+final class DSSnapshotTests: XCTestCase {{
+    enum Mode {{ case light, dark, contrast }}
+
+    private func snap<V: View>(_ view: V, _ name: String, _ mode: Mode, file: StaticString = #filePath, testName: String = #function, line: UInt = #line) {{
+        let host = UIHostingController(rootView: view.fixedSize(horizontal: false, vertical: true))
+        host.overrideUserInterfaceStyle = mode == .dark ? .dark : .light
+        host.view.backgroundColor = .clear
+        let size = host.sizeThatFits(in: CGSize(width: 390, height: CGFloat.greatestFiniteMagnitude))
+        var traits = [UITraitCollection(displayScale: 3), UITraitCollection(userInterfaceStyle: mode == .dark ? .dark : .light)]
+        if mode == .contrast {{ traits.append(UITraitCollection(accessibilityContrast: .high)) }}
+        assertSnapshot(of: host, as: .image(size: size, traits: UITraitCollection(traitsFrom: traits)), named: name,
+                       file: file, testName: testName, line: line)
+    }}
+
+    func testCoreComponents() {{
+{chr(10).join(rows)}
+    }}
+}}
+"""
+
+
+# ---------- Jetpack Compose ----------
+def _argb(c):
+    return f"{round(max(0, min(1, c[3])) * 255):02X}" + "".join(f"{round(max(0, min(1, x)) * 255):02X}" for x in c[:3])
+
+
+def _theme_ident(name):
+    return _camel(name) if not name[:1].isdigit() else "t" + _camel(name)
+
+
+
+
+def gen_compose(tokens, recipes, components_spec, name, pkg):
+    L = tokens["light"]
+    keys = list(L["color"])
+    head = f"// {HEAD.format(name=name)}\n// 1 CSS px = 1 dp. Text sizes are sp, so they follow the user's font scale.\npackage {pkg}\n\n"
+    imports = ["androidx.compose.animation.core.CubicBezierEasing", "androidx.compose.foundation.isSystemInDarkTheme",
+               "androidx.compose.runtime.Composable", "androidx.compose.runtime.CompositionLocalProvider", "androidx.compose.runtime.Immutable",
+               "androidx.compose.runtime.staticCompositionLocalOf", "androidx.compose.ui.graphics.Color", "androidx.compose.ui.text.TextStyle",
+               "androidx.compose.ui.text.font.FontFamily", "androidx.compose.ui.text.font.FontWeight",
+               "androidx.compose.ui.text.style.LineHeightStyle", "androidx.compose.ui.unit.sp"]
+    out = [head + "\n".join(f"import {i}" for i in imports), "",
+           "@Immutable", "data class DsColors("] + [f"    val {color_ident(k)}: Color," for k in keys] + [")", ""]
+    for theme, T in tokens.items():
+        out.append(f"val Ds{_theme_ident(theme)[:1].upper() + _theme_ident(theme)[1:]}Colors = DsColors(")
+        out += [f"    {color_ident(k)} = Color(0x{_argb(T['color'].get(k, L['color'][k]))})," for k in keys]
+        out += [")", ""]
+    _, dark_n, _ = _themes_by_role(tokens)
+    cap = lambda t: _theme_ident(t)[:1].upper() + _theme_ident(t)[1:]
+    out += ["val DsThemes: Map<String, DsColors> = mapOf(" + ", ".join(f'"{t}" to Ds{cap(t)}Colors' for t in tokens) + ")", "",
+            "val LocalDsColors = staticCompositionLocalOf { DsLightColors }" if "light" in tokens else
+            f"val LocalDsColors = staticCompositionLocalOf {{ Ds{cap(next(iter(tokens)))}Colors }}", "",
+            "object DsTheme {", "    val colors: DsColors", "        @Composable get() = LocalDsColors.current", "}", "",
+            "/** Wrap the app (and each snapshot). theme = null follows the system light/dark setting. */",
+            "@Composable", "fun DsTheme(theme: String? = null, content: @Composable () -> Unit) {",
+            f"    val colors = DsThemes[theme ?: if (isSystemInDarkTheme()) \"{dark_n}\" else \"{next(iter(tokens))}\"] ?: LocalDsColors.current",
+            "    CompositionLocalProvider(LocalDsColors provides colors, content = content)", "}", "",
+            "object DsDimension {", "    const val androidTouchTarget = 48f"]
+    out += [f"    const val {_camel(k)} = {_lit(v)}f" for k, v in L["dimension"].items()]
+    out += ["}", "", "object DsOpacity {"] + [f"    const val {_camel(k[8:])} = {_lit(v)}f" for k, v in L["number"].items() if k.startswith("opacity.")]
+    out += ["}", "", "/** Durations in ms; honor the system 'Remove animations' setting. */", "object DsMotion {"]
+    out += [f"    const val {_camel(k[7:] if k.startswith('motion.') else k)} = {round(v)}" for k, v in L["duration"].items()]
+    out += [f"    val {_camel(k[7:] if k.startswith('motion.') else k)} = CubicBezierEasing({', '.join(_lit(x) + 'f' for x in v)})" for k, v in L["easing"].items()]
+    out += ["}", "", "/** Elevation in dp, from the CSS shadow blur (blur / 2). Material shadows approximate the CSS ones. */", "object DsElevation {"]
+    out += [f"    const val {_camel(k)} = {_lit(max([ly['blur'] / 2 for ly in v if not ly['inset']] or [0]))}f" for k, v in L["shadow"].items()]
+    out += ["}", "", "/** Register the DS font files: DsFonts.families = mapOf(\"Inter\" to FontFamily(Font(R.font.inter_regular), ...)). */",
+            "object DsFonts {", "    var families: Map<String, FontFamily> = emptyMap()", "    fun family(name: String): FontFamily = families[name] ?: FontFamily.Default", "}", "",
+            "/** CSS line-height → lineHeight sp with centered, untrimmed leading (= CSS half-leading). */", "object DsType {",
+            "    private val leading = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None)"]
+    for role, ty in L["typography"].items():
+        out.append(f"    val {_camel(role)}: TextStyle get() = TextStyle(fontFamily = DsFonts.family(\"{ty['family']}\"), fontSize = {_lit(ty['size'])}.sp, "
+                   f"fontWeight = FontWeight({ty['weight']}), lineHeight = {_lit(ty['lineHeight'])}.sp, lineHeightStyle = leading)")
+    out += ["}", ""]
+    em = Emitter(tokens, recipes, "kotlin")
+    files = {"DsTheme.kt": "\n".join(out),
+             "DsComponents.kt": em.fill(_tpl("DsComponents.kt").replace("@HEAD", HEAD.format(name=name)).replace("@PKG", pkg))}
+    files["test/DsSnapshotTest.kt"] = compose_snapshots(_snap_cases(components_spec), pkg, tokens)
+    return files, em.missing
+
+
+def compose_snapshots(cases, pkg, tokens):
+    def view(file, texts):
+        t = lambda i, d: json.dumps(texts[i] if len(texts) > i else d, ensure_ascii=False).replace("$", "\\$")
+        return {"button": f"DsButton({t(0, 'Button')}, onClick = {{}})",
+                "text-field": f"DsTextField(\"\", {{}}, {t(0, 'Label')}" + (f", hint = {t(1, '')})" if len(texts) > 1 else ")"),
+                "checkbox": f"DsCheckbox(false, {{}}, {t(0, 'Checkbox')})",
+                "switch": f"DsSwitch(false, {{}}, {t(0, 'Switch')})",
+                "card": f"DsCard {{ BasicText({t(0, 'Title')}, style = DsType.{'h5' if 'h5' in tokens['light']['typography'] else 'body'}); BasicText({t(1, 'Body')}, style = DsType.body) }}",
+                "badge": f"DsBadge({t(0, 'Badge')})",
+                "alert": f"DsAlert({t(0, 'Title')}" + (f", message = {t(1, '')})" if len(texts) > 1 else ")"),
+                "avatar": f"DsAvatar({t(0, 'A B')})",
+                "tag": f"DsTag({t(0, 'Tag')})",
+                "divider": "DsDivider()"}[file]
+    tests = []
+    for file, demo, theme, texts, width in cases:
+        if theme not in tokens:
+            continue
+        name = ref_name(file, demo, theme)
+        fn = re.sub(r"\W", "_", name[:-4])
+        mod = f"Modifier.testTag(\"snap\").width({_lit(width)}.dp)" if width and file in SIZED_SNAPS else "Modifier.testTag(\"snap\")"
+        tests.append(f"    @Test\n    fun `{fn}`() = snap(\"{name}\", \"{theme}\") {{\n        Box({mod}) {{ {view(file, texts)} }}\n    }}\n")
+    return f"""// Generated by ds.py mobile scaffold. Roborazzi + Robolectric at xxhdpi (3x) = the web references' @3x.
+// Files land in build/ds-snapshots/<file>--<demo>--<theme>.png; then:
+//   python3 ds.py mobile verify <ds-dir> --native app/build/ds-snapshots
+// Gradle: testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:<v>"), robolectric, compose ui-test-junit4.
+package {pkg}
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.captureRoboImage
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = "w390dp-h844dp-xxhdpi")
+class DsSnapshotTest {{
+    @get:Rule val compose = createComposeRule()
+
+    private fun snap(file: String, theme: String, content: @Composable () -> Unit) {{
+        compose.setContent {{
+            DsTheme(theme) {{ CompositionLocalProvider(LocalDsTouchTarget provides false) {{ content() }} }}
+        }}
+        compose.onNodeWithTag("snap").captureRoboImage("build/ds-snapshots/$file")
+    }}
+
+{chr(10).join(tests)}}}
+"""
+
+
+# ---------- Flutter ----------
+DART_RESERVED = {"abstract", "as", "assert", "async", "await", "break", "case", "catch", "class", "const", "continue", "default",
+                 "do", "else", "enum", "export", "extends", "external", "factory", "false", "final", "finally", "for", "get", "if",
+                 "implements", "import", "in", "is", "library", "new", "null", "operator", "part", "rethrow", "return", "set",
+                 "static", "super", "switch", "this", "throw", "true", "try", "var", "void", "while", "with", "yield"}
+
+
+
+def _flutter_blur(css_blur):
+    """Flutter blurRadius → sigma = 0.57735·r + 0.5; CSS blur b → sigma = b / 2. Solve for r so they match."""
+    return max(0.0, (css_blur / 2 - 0.5) / 0.57735) if css_blur > 1 else css_blur
+
+
+def gen_flutter(tokens, recipes, components_spec, name):
+    L = tokens["light"]
+    keys = list(L["color"])
+    first, dark_n, _ = _themes_by_role(tokens)
+    out = [f"// {HEAD.format(name=name)}", "// 1 CSS px = 1 logical px. Text scales with MediaQuery.textScaler.",
+           "import 'package:flutter/animation.dart';", "import 'package:flutter/widgets.dart';", "",
+           "@immutable", "class DsColors {", "  const DsColors({"] + [f"    required this.{color_ident(k)}," for k in keys] + ["  });", ""]
+    out += [f"  final Color {color_ident(k)};" for k in keys] + [""]
+    for theme, T in tokens.items():
+        out.append(f"  static const {_theme_ident(theme)} = DsColors(")
+        out += [f"    {color_ident(k)}: Color(0x{_argb(T['color'].get(k, L['color'][k]))})," for k in keys]
+        out += ["  );", ""]
+    out += ["  static const themes = <String, DsColors>{" + ", ".join(f"'{t}': {_theme_ident(t)}" for t in tokens) + "};", "}", "",
+            "/// Wrap the app (and each golden). Without one, colors follow the platform brightness.",
+            "class DsTheme extends InheritedWidget {", "  const DsTheme({super.key, required this.colors, required super.child});", "",
+            "  final DsColors colors;", "",
+            "  static DsColors of(BuildContext context) =>",
+            "      context.dependOnInheritedWidgetOfExactType<DsTheme>()?.colors ??",
+            f"      (MediaQuery.maybePlatformBrightnessOf(context) == Brightness.dark ? DsColors.{_theme_ident(dark_n)} : DsColors.{_theme_ident(first)});", "",
+            "  @override", "  bool updateShouldNotify(DsTheme oldWidget) => colors != oldWidget.colors;", "}", "",
+            "class DsDimension {", "  DsDimension._();", "  static const double androidTouchTarget = 48;"]
+    out += [f"  static const double {_camel(k)} = {_lit(v)};" for k, v in L["dimension"].items()]
+    out += ["}", "", "class DsOpacity {", "  DsOpacity._();"] + [f"  static const double {_camel(k[8:])} = {_lit(v)};" for k, v in L["number"].items() if k.startswith("opacity.")]
+    out += ["}", "", "/// Honor MediaQuery.disableAnimations: use Duration.zero.", "class DsMotion {", "  DsMotion._();"]
+    out += [f"  static const {_camel(k[7:] if k.startswith('motion.') else k)} = Duration(milliseconds: {round(v)});" for k, v in L["duration"].items()]
+    out += [f"  static const {_camel(k[7:] if k.startswith('motion.') else k)} = Cubic({', '.join(_lit(x) for x in v)});" for k, v in L["easing"].items()]
+    out += ["}", "", "/// CSS line-height → height ratio with even leading distribution (= CSS half-leading).", "class DsType {", "  DsType._();"]
+    for role, ty in L["typography"].items():
+        out.append(f"  static const {_camel(role)} = TextStyle(fontFamily: '{ty['family']}', fontSize: {_lit(ty['size'])}, "
+                   f"fontWeight: FontWeight.w{round(ty['weight'] / 100) * 100}, height: {round(ty['lineHeight'] / ty['size'], 4)}, "
+                   "leadingDistribution: TextLeadingDistribution.even);")
+    out += ["}", "", "/// CSS box-shadow layers. blurRadius converted so Flutter's blur sigma equals the CSS one.", "class DsElevation {", "  DsElevation._();"]
+    for k, layers in L["shadow"].items():
+        rows = [f"BoxShadow(color: Color(0x{_argb(ly['color'])}), offset: Offset({_lit(ly['x'])}, {_lit(ly['y'])}), "
+                f"blurRadius: {_lit(_flutter_blur(ly['blur']))}, spreadRadius: {_lit(ly['spread'])})" for ly in layers if not ly["inset"]]
+        out.append(f"  static const {_camel(k)} = <BoxShadow>[{', '.join(rows)}];")
+    out += ["}", ""]
+    em = Emitter(tokens, recipes, "dart")
+    files = {"ds_theme.dart": "\n".join(out), "ds_components.dart": em.fill(_tpl("ds_components.dart").replace("@HEAD", HEAD.format(name=name)))}
+    files["test/ds_golden_test.dart"] = flutter_goldens(_snap_cases(components_spec), tokens)
+    return files, em.missing
+
+
+def flutter_goldens(cases, tokens):
+    def view(file, texts):
+        t = lambda i, d: "'" + (texts[i] if len(texts) > i else d).replace("\\", "\\\\").replace("'", "\\'").replace("$", "\\$") + "'"
+        return {"button": f"DsButton({t(0, 'Button')}, onPressed: () {{}})",
+                "text-field": f"DsTextField(label: {t(0, 'Label')}" + (f", hint: {t(1, '')})" if len(texts) > 1 else ")"),
+                "checkbox": f"DsCheckbox(value: false, onChanged: (_) {{}}, label: {t(0, 'Checkbox')})",
+                "switch": f"DsSwitch(value: false, onChanged: (_) {{}}, label: {t(0, 'Switch')})",
+                "card": f"DsCard(children: [Text({t(0, 'Title')}, style: DsType.{'h5' if 'h5' in tokens['light']['typography'] else 'body'}), Text({t(1, 'Body')}, style: DsType.body)])",
+                "badge": f"DsBadge({t(0, 'Badge')})",
+                "alert": f"DsAlert({t(0, 'Title')}" + (f", message: {t(1, '')})" if len(texts) > 1 else ")"),
+                "avatar": f"DsAvatar({t(0, 'A B')})",
+                "tag": f"DsTag({t(0, 'Tag')})",
+                "divider": "const DsDivider()"}[file]
+    rows = []
+    for file, demo, theme, texts, width in cases:
+        if theme not in tokens:
+            continue
+        name = ref_name(file, demo, theme)[:-4]
+        w = f", width: {_lit(width)}" if width and file in SIZED_SNAPS else ""
+        rows.append(f"  testWidgets('{name}', (t) => snap(t, '{name}', '{theme}', {view(file, texts)}{w}));")
+    return f"""// Generated by ds.py mobile scaffold. Goldens at devicePixelRatio 3 = the web references' @3x, same names.
+// Load the real fonts first (flutter_test renders Ahem boxes otherwise), e.g. with FontLoader in setUpAll.
+//   flutter test --update-goldens test/ds_golden_test.dart
+//   python3 ds.py mobile verify <ds-dir> --native test/goldens
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../lib/ds/ds_components.dart'; // adjust to where the scaffold lives
+import '../lib/ds/ds_theme.dart';
+
+Future<void> snap(WidgetTester tester, String name, String theme, Widget child, {{double? width}}) async {{
+  DsConfig.expandTapTargets = false;
+  tester.view.devicePixelRatio = 3;
+  tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(MediaQuery(
+    data: const MediaQueryData(),
+    child: Directionality(
+      textDirection: TextDirection.ltr,
+      child: DsTheme(
+        colors: DsColors.themes[theme]!,
+        child: Center(child: RepaintBoundary(key: const ValueKey('snap'), child: SizedBox(width: width, child: child))),
+      ),
+    ),
+  ));
+  await expectLater(find.byKey(const ValueKey('snap')), matchesGoldenFile('goldens/$name.png'));
+}}
+
+void main() {{
+{chr(10).join(rows)}
+}}
+"""
+
+
+# ---------- React Native ----------
+
+
+def _rn_hex(c):
+    return "#" + _rgba_hex(c) if c[3] < 1 else "#" + _rgba_hex(c)[:6]
+
+
+def gen_react_native(tokens, recipes, components_spec, name):
+    L = tokens["light"]
+    keys = list(L["color"])
+    first, dark_n, _ = _themes_by_role(tokens)
+    out = [f"// {HEAD.format(name=name)}", "// 1 CSS px = 1 dp. Text scales with the OS font size (allowFontScaling).", ""]
+    for theme, T in tokens.items():
+        out.append(f"const {_theme_ident(theme)} = {{")
+        out += [f"  {color_ident(k)}: '{_rn_hex(T['color'].get(k, L['color'][k]))}'," for k in keys]
+        out += ["};", ""]
+    out += [f"export type DsColors = typeof {_theme_ident(first)};", "",
+            "export const themes: Record<string, DsColors> = { " + ", ".join(f"'{t}': {_theme_ident(t)}" for t in tokens) + " };", "",
+            "export const dimension = {", "  androidTouchTarget: 48,"]
+    out += [f"  {_camel(k)}: {_lit(v)}," for k, v in L["dimension"].items()]
+    out += ["} as const;", "", "export const opacity = {"] + [f"  {_camel(k[8:])}: {_lit(v)}," for k, v in L["number"].items() if k.startswith("opacity.")]
+    out += ["} as const;", "", "/** Durations in ms + cubic-bezier control points. Skip animation when AccessibilityInfo.isReduceMotionEnabled(). */",
+            "export const motion = {"]
+    out += [f"  {_camel(k[7:] if k.startswith('motion.') else k)}: {round(v)}," for k, v in L["duration"].items()]
+    out += [f"  {_camel(k[7:] if k.startswith('motion.') else k)}: [{', '.join(_lit(x) for x in v)}] as const," for k, v in L["easing"].items()]
+    out += ["} as const;", "", "/** lineHeight is absolute, like the measured web value. */", "export const typography = {"]
+    for role, ty in L["typography"].items():
+        out.append(f"  {_camel(role)}: {{ fontFamily: '{ty['family']}', fontSize: {_lit(ty['size'])}, fontWeight: '{round(ty['weight'] / 100) * 100}' as const, lineHeight: {_lit(ty['lineHeight'])} }},")
+    out += ["} as const;", "", "/** CSS box-shadow strings: React Native 0.76+ (New Architecture) renders boxShadow natively. */", "export const elevation = {"]
+    for k, layers in L["shadow"].items():
+        css = ", ".join(f"{'inset ' if ly['inset'] else ''}{_lit(ly['x'])}px {_lit(ly['y'])}px {_lit(ly['blur'])}px {_lit(ly['spread'])}px "
+                        f"{_rn_hex(ly['color'])}" for ly in layers)
+        out.append(f"  {_camel(k)}: {{ boxShadow: '{css}' }},")
+    out += ["} as const;", ""]
+    em = Emitter(tokens, recipes, "ts")
+    comp = _tpl("DsComponents.tsx").replace("@HEAD", HEAD.format(name=name)).replace("@DARK", dark_n).replace("@LIGHT", first)
+    files = {"theme.ts": "\n".join(out), "DsComponents.tsx": em.fill(comp)}
+    files["DsSnapshots.tsx"] = rn_snapshots(_snap_cases(components_spec), tokens)
+    return files, em.missing
+
+
+def rn_snapshots(cases, tokens):
+    def view(file, texts):
+        t = lambda i, d: json.dumps(texts[i] if len(texts) > i else d, ensure_ascii=False)
+        return {"button": f"<DsButton label={{{t(0, 'Button')}}} onPress={{() => {{}}}} />",
+                "text-field": f"<DsTextField label={{{t(0, 'Label')}}}" + (f" hint={{{t(1, '')}}}" if len(texts) > 1 else "") + " value=\"\" onChangeText={() => {}} />",
+                "checkbox": f"<DsCheckbox value={{false}} onValueChange={{() => {{}}}} label={{{t(0, 'Checkbox')}}} />",
+                "switch": f"<DsSwitch value={{false}} onValueChange={{() => {{}}}} label={{{t(0, 'Switch')}}} />",
+                "card": f"<DsCard><Text style={{typography.{'h5' if 'h5' in tokens['light']['typography'] else 'body'}}}>{{{t(0, 'Title')}}}</Text><Text style={{typography.body}}>{{{t(1, 'Body')}}}</Text></DsCard>",
+                "badge": f"<DsBadge text={{{t(0, 'Badge')}}} />",
+                "alert": f"<DsAlert title={{{t(0, 'Title')}}}" + (f" message={{{t(1, '')}}}" if len(texts) > 1 else "") + " />",
+                "avatar": f"<DsAvatar name={{{t(0, 'A B')}}} />",
+                "tag": f"<DsTag text={{{t(0, 'Tag')}}} />",
+                "divider": "<DsDivider />"}[file]
+    rows = []
+    for file, demo, theme, texts, width in cases:
+        if theme not in tokens:
+            continue
+        w = _lit(width) if width and file in SIZED_SNAPS else "undefined"
+        rows.append(f"  {{ name: '{ref_name(file, demo, theme)}', theme: '{theme}', width: {w}, node: {view(file, texts)} }},")
+    return f"""// Generated by ds.py mobile scaffold. A dev-only screen: renders each core component like the web reference
+// and captures it at the device scale with react-native-view-shot (use a 3x device, e.g. iPhone 15, for @3x parity).
+// Copy the files it logs into one folder, then: python3 ds.py mobile verify <ds-dir> --native <folder>
+import React, {{ useRef }} from 'react';
+import {{ Button, ScrollView, Text, View }} from 'react-native';
+import {{ captureRef }} from 'react-native-view-shot';
+import {{ DsAlert, DsAvatar, DsBadge, DsButton, DsCard, DsCheckbox, DsDivider, DsSwitch, DsTag, DsTextField, DsThemeProvider }} from './DsComponents';
+import {{ typography }} from './theme';
+
+const cases = [
+{chr(10).join(rows)}
+];
+
+export default function DsSnapshots() {{
+  const refs = useRef<Record<string, View | null>>({{}});
+  const capture = async () => {{
+    for (const c of cases) {{
+      const uri = await captureRef(refs.current[c.name]!, {{ format: 'png', result: 'tmpfile', fileName: c.name.replace(/\\.png$/, '') }});
+      console.log(`[ds-snapshot] ${{c.name}} ${{uri}}`);
+    }}
+  }};
+  return (
+    <ScrollView contentContainerStyle={{{{ padding: 16, gap: 16 }}}}>
+      <Button title="Capture all" onPress={{capture}} />
+      {{cases.map((c) => (
+        <DsThemeProvider key={{c.name}} theme={{c.theme}}>
+          <View ref={{(r) => {{ refs.current[c.name] = r; }}}} collapsable={{false}} style={{{{ alignSelf: 'flex-start', width: c.width }}}}>
+            {{c.node}}
+          </View>
+        </DsThemeProvider>
+      ))}}
+    </ScrollView>
+  );
+}}
+"""
+
+
+# ---------- .NET MAUI (resources only) and web-mobile (Ionic / Capacitor / PWA) ----------
+def gen_maui(tokens, name):
+    L = tokens["light"]
+    first, dark_n, _ = _themes_by_role(tokens)
+    pas = lambda k: _camel(k)[:1].upper() + _camel(k)[1:]
+    rows = [f'<?xml version="1.0" encoding="utf-8" ?>', f"<!-- {HEAD.format(name=name)}", "     Merge into App.xaml: <ResourceDictionary Source=\"DsTokens.xaml\" />.",
+            "     Colors: {AppThemeBinding Light={StaticResource XLight}, Dark={StaticResource XDark}}. 1 CSS px = 1 device-independent unit. -->",
+            '<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">']
+    for k in L["color"]:
+        for suffix, T in (("Light", tokens[first]), ("Dark", tokens[dark_n])):
+            rows.append(f'    <Color x:Key="Ds{pas(color_ident(k))}{suffix}">#{_argb(T["color"].get(k, L["color"][k]))}</Color>')
+    rows += [f'    <x:Double x:Key="Ds{pas(k)}">{_lit(v)}</x:Double>' for k, v in L["dimension"].items()]
+    for role, ty in L["typography"].items():
+        rows.append(f'    <Style x:Key="DsType{pas(role)}" TargetType="Label"><Setter Property="FontFamily" Value="{ty["family"]}" />'
+                    f'<Setter Property="FontSize" Value="{_lit(ty["size"])}" /><Setter Property="LineHeight" Value="{round(ty["lineHeight"] / ty["size"], 3)}" /></Style>')
+    rows.append("</ResourceDictionary>")
+    return {"DsTokens.xaml": "\n".join(rows) + "\n"}
+
+
+
+
+def fidelity_md(target, recipes, tokens, components_spec, missing, name):
+    rows, checks = [], []
+    for file, props in recipes.items():
+        if file == "_colors":
+            continue
+        for prop, v in props.items():
+            src = {"measured": f"web measurement → {'`' + v['token'] + '`' if v['token'] else '**literal (no token has this value)**'}",
+                   "token": f"`{v['token']}` (not measured)", "default": "**fallback default (no token, not measured)**"}[v["source"]]
+            rows.append(f"| {file} | {prop} | {_lit(v['value'])} | {src} |")
+    colors = tokens["light"]["color"]
+    for file, (demo, _, color_checks) in CORE_RECIPES.items():
+        box = components_spec.get(file, {}).get(demo, {}).get("light")
+        for path, role in color_checks:
+            node = box
+            for part in path.split("."):
+                node = node.get(part) if isinstance(node, dict) else None
+            want, key = _css_rgba(node) if isinstance(node, str) else None, pick_color(colors, role)
+            if not want or not key:
+                continue
+            got = colors[key]
+            same = max(abs(a - b) for a, b in zip(want, got)) <= 2 / 255 + 1e-6
+            over = recipes.get("_colors", {}).get(file, {}).get(role)
+            verdict = ("ok" if same else f"web uses `{over['token']}`: generated code follows the web" if over and over["token"]
+                       else "**MISMATCH: no semantic token has the web color; fix the web or add a token**")
+            checks.append(f"| {file} | {path} | {_hex_from_rgb(want[:3], want[3])} | `{key}` {_hex_from_rgb(got[:3], got[3])} | {verdict} |")
+    measured = bool(components_spec)
+    return "\n".join([
+        f"# {name}: {target} fidelity checklist", "",
+        "Generated by `ds.py mobile scaffold`. The web system is the source of truth; this file says where each native number came from.", "",
+        "## Status", "",
+        f"- Measured spec: {'yes, numbers below come from the web' if measured else '**no**: run `ds.py mobile spec <dir>` (needs Playwright), then re-scaffold'}.",
+        f"- Missing tokens: {', '.join('`' + m + '`' for m in sorted(set(missing))) if missing else 'none'}.", "",
+        "## Same as web (never adapt)", "",
+        "- [ ] Every color, size, radius, border, type style and shadow comes from the generated theme. No literals in screens.",
+        "- [ ] Anatomy, variants, states, copy and icons match the web component page.",
+        "- [ ] Disabled, loading, error, empty and selected states exist; error is never color alone.",
+        "- [ ] Text uses the theme roles; line height matches (the theme already converts CSS line-height).",
+        "- [ ] Icons come from the DS icon set (`ds.py icons ... --platforms`), not SF Symbols / Material icons.", "",
+        "## Platform idioms (adapt on purpose)", "",
+        "- [ ] Hover → pressed state. No hover-only affordances.",
+        "- [ ] Touch targets ≥ 44 pt (iOS) / 48 dp (Android): hit area grows, the visual box keeps the web size.",
+        "- [ ] Focus ring → platform focus (keyboard/TV/switch control) — keep it visible.",
+        "- [ ] Dropdown/select → native picker or bottom sheet; modal → sheet; toast → platform snackbar position; tabs/nav → tab bar / navigation stack.",
+        "- [ ] Dynamic Type / font scale on; layouts reflow at 200% text.",
+        "- [ ] Safe areas, keyboard avoidance, dark mode and increased contrast.", "",
+        "## Verify", "",
+        "1. Run the generated snapshot tests (same names as `dist/mobile/reference/*.png`).",
+        "2. `python3 ds.py mobile verify <ds-dir> --native <snapshot folder>` → `dist/mobile/fidelity-report.md`; fix drift until it passes.",
+        "3. `python3 ds.py mobile lint <native src>` → 0 issues (raw colors, magic numbers, fixed fonts, hover, small targets, foreign icons).", "",
+        "## Where each number came from", "", "| Component | Prop | Value | Source |", "|---|---|---|---|", *rows, "",
+        "## Web colors vs tokens (light)", "",
+        *(["| Component | Measured | Web value | Token | |", "|---|---|---|---|---|", *checks] if checks else ["No measured spec yet."]), ""])
+
+
+SCAFFOLD_GENERATORS = {"swiftui": "Swift / SwiftUI (iOS 16+)", "compose": "Kotlin / Jetpack Compose", "flutter": "Dart / Flutter 3.10+",
+                       "react-native": "TypeScript / React Native (Expo ok)", "maui": ".NET MAUI resources", "web-mobile": "CSS for Ionic/Capacitor/PWA"}
+
+
+def ensure_mobile_defaults(tokens):
+    """Names the generated components rely on, filled from tokens or sane defaults (FIDELITY.md flags the gaps)."""
+    for T in tokens.values():
+        d, n = T["dimension"], T["number"]
+        for k, v in (("size.touch-target", 44), ("icon.size.sm", 16), ("icon.size.md", 20), ("space.1", 4)):
+            d.setdefault(k, v)
+        d.setdefault("icon.stroke", n.get("icon.stroke", 2))
+        n.setdefault("opacity.disabled", 0.5)
+        T["duration"].setdefault("motion.duration.fast", 120)
+        T["easing"].setdefault("motion.easing.standard", [0.2, 0, 0, 1])
+    return tokens
+
+
+def cmd_mobile_scaffold(a):
+    root = Path(a.dir)
+    cfg = load_cfg(root)
+    build_tokens(root)
+    tokens = ensure_mobile_defaults(mobile_tokens(root))
+    spec_path = root / "dist" / "mobile" / "spec.json"
+    comps = json.loads(spec_path.read_text(encoding="utf-8")).get("components", {}) if spec_path.exists() else {}
+    if not comps:
+        print("note: no measured spec, so values come from tokens only. For web-exact sizes run `ds.py mobile spec` first.", file=sys.stderr)
+    recipes = calibrate(tokens, comps)
+    targets = list(SCAFFOLD_GENERATORS) if a.target == "all" else a.target.split(",")
+    icons = sprite_symbols(root)
+    report = []
+    for t in targets:
+        if t not in SCAFFOLD_GENERATORS:
+            sys.exit(f"unknown target {t}; choose from {', '.join(SCAFFOLD_GENERATORS)} or all")
+        out = Path(a.out) / t if a.out and len(targets) > 1 else Path(a.out) if a.out else root / "dist" / "mobile" / t
+        missing = []
+        if t == "swiftui":
+            files, missing = gen_swiftui(tokens, recipes, comps, cfg["name"])
+        elif t == "compose":
+            files, missing = gen_compose(tokens, recipes, comps, cfg["name"], a.package)
+        elif t == "flutter":
+            files, missing = gen_flutter(tokens, recipes, comps, cfg["name"])
+        elif t == "react-native":
+            files, missing = gen_react_native(tokens, recipes, comps, cfg["name"])
+        elif t == "maui":
+            files = gen_maui(tokens, cfg["name"])
+        else:
+            files = {"web-mobile.css": _tpl("web-mobile.css")}
+        if icons and t in ICON_PLATFORMS:
+            files.update({f"icons/{k}": v for k, v in platform_icons(icons, t, a.package).items()})
+        if t not in ("maui", "web-mobile"):
+            files["FIDELITY.md"] = fidelity_md(t, recipes, tokens, comps, missing, cfg["name"])
+        for rel, text in files.items():
+            safe_write(out / rel, text)
+        if a.out:
+            safe_write(out / ".ds-mobile.json", json.dumps({"designSystem": os.path.relpath(root.resolve(), out.resolve()), "target": t}, indent=1) + "\n")
+        issues = [i for f in files if Path(f).suffix in MOBILE_LINT and not MOBILE_EXEMPT.match(Path(f).name) for i in mobile_lint_file(out / f)] if not STATE["dry_run"] else []
+        report.append(f"{t}: {len(files)} files → {_rel(out)}" + (f" · missing tokens: {', '.join(sorted(set(missing)))}" if missing else "")
+                      + (f" · lint: {len(issues)}" if issues else ""))
+    print("\n".join(report))
+    print("Next: run the snapshot tests, then `ds.py mobile verify <dir> --native <snapshots>`. Build the other components "
+          "from dist/mobile/spec.json the same way (references/mobile.md).")
+
+
+# ---------- icons: library fetch, style, lint, platform components ----------
+ICON_SETS = {   # set: (npm package, path inside it, license, license url)
+    "lucide": ("lucide-static", "icons/{name}.svg", "ISC", "https://lucide.dev/license"),
+    "tabler": ("@tabler/icons", "icons/outline/{name}.svg", "MIT", "https://github.com/tabler/tabler-icons/blob/main/LICENSE"),
+    "tabler-filled": ("@tabler/icons", "icons/filled/{name}.svg", "MIT", "https://github.com/tabler/tabler-icons/blob/main/LICENSE"),
+    "phosphor": ("@phosphor-icons/core", "assets/regular/{name}.svg", "MIT", "https://github.com/phosphor-icons/core/blob/main/LICENSE"),
+    "heroicons": ("heroicons", "24/outline/{name}.svg", "MIT", "https://github.com/tailwindlabs/heroicons/blob/master/LICENSE"),
+    "heroicons-solid": ("heroicons", "24/solid/{name}.svg", "MIT", "https://github.com/tailwindlabs/heroicons/blob/master/LICENSE"),
+    "material-symbols": ("@material-symbols/svg-400", "outlined/{name}.svg", "Apache-2.0", "https://github.com/google/material-design-icons/blob/master/LICENSE"),
+}
+ICON_PLATFORMS = ["swiftui", "compose", "flutter", "react-native"]
+UNSAFE_SVG = re.compile(r"<script|<foreignObject|\son\w+\s*=|javascript:|<!ENTITY|xlink:href\s*=\s*\"(?!#)", re.I)
+
+
+def _http_get(url, timeout=20):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "html-design-system/ds.py"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:   # noqa: S310 - fixed CDN or user-set mirror
+        return r.read(300_000)
+
+
+def cmd_icons_add(a):
+    root = Path(a.dir)
+    load_cfg(root)
+    if a.set not in ICON_SETS:
+        sys.exit(f"unknown set {a.set}; choose from {', '.join(ICON_SETS)}")
+    pkg, path, lic, lic_url = ICON_SETS[a.set]
+    cdn = os.environ.get("DS_ICON_CDN", "https://cdn.jsdelivr.net/npm").rstrip("/")
+    version = a.version
+    if not version:
+        if "DS_ICON_CDN" in os.environ:
+            version = "latest"
+        else:
+            try:
+                version = json.loads(_http_get(f"https://data.jsdelivr.com/v1/packages/npm/{pkg}/resolved?specifier=latest"))["version"]
+            except Exception as e:  # noqa: BLE001
+                sys.exit(f"could not resolve the {pkg} version ({e}); pass --version")
+    src = root / "icons" / "src"
+    lic_file = root / "icons" / "LICENSES.md"
+    existing = lic_file.read_text(encoding="utf-8") if lic_file.exists() else ""
+    others = [s for s in ICON_SETS if s != a.set and f"| {s} |" in existing and ICON_SETS[s][0] != pkg]
+    if others:
+        print(f"warning: icons/src already has icons from {', '.join(others)}. Mixing sets breaks stroke, corner and "
+              "proportion consistency; prefer one set, or check new icons with `ds.py icons-lint --style`.", file=sys.stderr)
+    got, failed = [], []
+    for raw_name in a.names:
+        name = raw_name.strip().lower()
+        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", name):
+            failed.append(f"{raw_name}: invalid name")
+            continue
+        url = f"{cdn}/{pkg}@{version}/{path.format(name=name)}"
+        try:
+            text = _http_get(url).decode("utf-8")
+        except Exception as e:  # noqa: BLE001
+            failed.append(f"{name}: {e}")
+            continue
+        body = re.sub(r"<!--.*?-->", "", text, flags=re.S).strip()
+        if not body.startswith("<svg") or UNSAFE_SVG.search(body):
+            failed.append(f"{name}: not a plain SVG")
+            continue
+        safe_write(src / f"{name.replace('_', '-')}.svg", text, kind="owned")
+        got.append(name)
+    if got and f"| {a.set} |" not in existing:
+        head = "" if existing else ("# Icon licenses\n\nRecorded by `ds.py icons-add`. Keep this file with the icons.\n\n"
+                                    "| Set | Package | License | |\n|---|---|---|---|\n")
+        safe_write(lic_file, existing + head + f"| {a.set} | {pkg}@{version} | {lic} | {lic_url} |\n", kind="owned")
+    print(f"{len(got)} icon(s) from {a.set} ({pkg}@{version}, {lic}) → icons/src/" + (f"; failed: {'; '.join(failed)}" if failed else ""))
+    if got:
+        build_icons(root, src, f"{a.set} ({lic}); see icons/LICENSES.md", a.platforms)
+    if failed and not got:
+        sys.exit(1)
+
+
+# --- SVG geometry (stdlib): shapes → path data, path → points, bbox ---
+def _f(el, k, d=0.0):
+    try:
+        return float(re.sub(r"px$", "", el.get(k, d) if isinstance(el.get(k, d), str) else str(el.get(k, d))))
+    except ValueError:
+        return d
+
+
+def shape_to_d(el):
+    tag = el.tag.split("}")[-1]
+    if tag == "path":
+        return el.get("d", "")
+    if tag == "line":
+        return f"M{_lit(_f(el, 'x1'))} {_lit(_f(el, 'y1'))}L{_lit(_f(el, 'x2'))} {_lit(_f(el, 'y2'))}"
+    if tag in ("polyline", "polygon"):
+        nums = re.findall(r"-?\d*\.?\d+(?:e-?\d+)?", el.get("points", ""))
+        pts = [f"{nums[i]} {nums[i + 1]}" for i in range(0, len(nums) - 1, 2)]
+        return ("M" + "L".join(pts) + ("Z" if tag == "polygon" else "")) if pts else ""
+    if tag == "rect":
+        x, y, w, h = _f(el, "x"), _f(el, "y"), _f(el, "width"), _f(el, "height")
+        rx = _f(el, "rx", _f(el, "ry"))
+        ry = _f(el, "ry", rx)
+        rx, ry = min(rx, w / 2), min(ry, h / 2)
+        if not rx:
+            return f"M{_lit(x)} {_lit(y)}H{_lit(x + w)}V{_lit(y + h)}H{_lit(x)}Z"
+        a_ = lambda ex, ey: f"A{_lit(rx)} {_lit(ry)} 0 0 1 {_lit(ex)} {_lit(ey)}"
+        return (f"M{_lit(x + rx)} {_lit(y)}H{_lit(x + w - rx)}{a_(x + w, y + ry)}V{_lit(y + h - ry)}{a_(x + w - rx, y + h)}"
+                f"H{_lit(x + rx)}{a_(x, y + h - ry)}V{_lit(y + ry)}{a_(x + rx, y)}Z")
+    if tag in ("circle", "ellipse"):
+        cx, cy = _f(el, "cx"), _f(el, "cy")
+        rx = _f(el, "r") if tag == "circle" else _f(el, "rx")
+        ry = _f(el, "r") if tag == "circle" else _f(el, "ry")
+        return (f"M{_lit(cx - rx)} {_lit(cy)}A{_lit(rx)} {_lit(ry)} 0 1 0 {_lit(cx + rx)} {_lit(cy)}"
+                f"A{_lit(rx)} {_lit(ry)} 0 1 0 {_lit(cx - rx)} {_lit(cy)}Z")
+    return ""
+
+
+def _arc_points(x1, y1, rx, ry, phi, fa, fs, x2, y2, n=12):
+    """Points along an SVG arc (endpoint → center parameterization, SVG spec F.6.5)."""
+    import math
+    if not rx or not ry:
+        return [(x2, y2)]
+    rx, ry, p = abs(rx), abs(ry), math.radians(phi)
+    dx, dy = (x1 - x2) / 2, (y1 - y2) / 2
+    x1p, y1p = math.cos(p) * dx + math.sin(p) * dy, -math.sin(p) * dx + math.cos(p) * dy
+    lam = x1p ** 2 / rx ** 2 + y1p ** 2 / ry ** 2
+    if lam > 1:
+        rx, ry = rx * lam ** 0.5, ry * lam ** 0.5
+    num = rx ** 2 * ry ** 2 - rx ** 2 * y1p ** 2 - ry ** 2 * x1p ** 2
+    co = (max(0, num) / (rx ** 2 * y1p ** 2 + ry ** 2 * x1p ** 2 or 1)) ** 0.5 * (-1 if fa == fs else 1)
+    cxp, cyp = co * rx * y1p / ry, -co * ry * x1p / rx
+    cx, cy = math.cos(p) * cxp - math.sin(p) * cyp + (x1 + x2) / 2, math.sin(p) * cxp + math.cos(p) * cyp + (y1 + y2) / 2
+    ang = lambda ux, uy, vx, vy: math.atan2(ux * vy - uy * vx, ux * vx + uy * vy)
+    t1 = ang(1, 0, (x1p - cxp) / rx, (y1p - cyp) / ry)
+    dt = ang((x1p - cxp) / rx, (y1p - cyp) / ry, (-x1p - cxp) / rx, (-y1p - cyp) / ry)
+    if not fs and dt > 0:
+        dt -= 2 * math.pi
+    elif fs and dt < 0:
+        dt += 2 * math.pi
+    return [(cx + rx * math.cos(t1 + dt * i / n) * math.cos(p) - ry * math.sin(t1 + dt * i / n) * math.sin(p),
+             cy + rx * math.cos(t1 + dt * i / n) * math.sin(p) + ry * math.sin(t1 + dt * i / n) * math.cos(p)) for i in range(1, n + 1)]
+
+
+def path_points(d):
+    """(points incl. control points, number of commands) for a path's d attribute."""
+    toks = re.findall(r"[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?", d)
+    nargs = {"M": 2, "L": 2, "H": 1, "V": 1, "C": 6, "S": 4, "Q": 4, "T": 2, "A": 7, "Z": 0}
+    pts, cmds, i, cmd, x, y, sx, sy = [], 0, 0, None, 0.0, 0.0, 0.0, 0.0
+    while i < len(toks):
+        if toks[i].isalpha():
+            cmd = toks[i]
+            i += 1
+            cmds += 1
+            if cmd in "Zz":
+                x, y = sx, sy
+                continue
+        if cmd is None or cmd in "Zz":
+            break
+        up, rel, n = cmd.upper(), cmd.islower(), nargs[cmd.upper()]
+        if i + n > len(toks) or any(t.isalpha() for t in toks[i:i + n]):
+            break
+        v = [float(t) for t in toks[i:i + n]]
+        i += n
+        if up == "H":
+            x = v[0] + (x if rel else 0)
+            pts.append((x, y))
+        elif up == "V":
+            y = v[0] + (y if rel else 0)
+            pts.append((x, y))
+        elif up == "A":
+            ex, ey = v[5] + (x if rel else 0), v[6] + (y if rel else 0)
+            pts += _arc_points(x, y, v[0], v[1], v[2], int(v[3]), int(v[4]), ex, ey)
+            x, y = ex, ey
+        else:
+            for k in range(0, n, 2):
+                pts.append((v[k] + (x if rel else 0), v[k + 1] + (y if rel else 0)))
+            x, y = pts[-1]
+            if up == "M":
+                sx, sy = x, y
+                cmd = "l" if rel else "L"
+    return pts, cmds
+
+
+def _svg_root(text):
+    import xml.etree.ElementTree as ET
+    return ET.fromstring(re.sub(r"<!--.*?-->", "", text, flags=re.S))
+
+
+def svg_facts(text):
+    """Measured style facts of one icon: viewBox, paint model, stroke, caps/joins, geometry bbox, complexity."""
+    root = _svg_root(text)
+    vb = [float(x) for x in re.findall(r"-?\d*\.?\d+", root.get("viewBox") or f"0 0 {root.get('width', 24)} {root.get('height', 24)}")]
+    facts = {"viewBox": vb, "strokeWidths": set(), "caps": set(), "joins": set(), "fills": set(), "strokes": set(),
+             "forbidden": set(), "transforms": 0, "elements": 0, "commands": 0, "points": [], "rx": []}
+
+    def walk(el, inherited):
+        paint = dict(inherited)
+        for k in ("fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin"):
+            if el.get(k) is not None:
+                paint[k] = el.get(k)
+        if el.get("style"):
+            facts["forbidden"].add("style attribute")
+        if el.get("transform"):
+            facts["transforms"] += 1
+        tag = el.tag.split("}")[-1]
+        if tag in ("text", "image", "foreignObject", "script", "style", "filter", "use", "mask", "pattern"):
+            facts["forbidden"].add(tag)
+        d = shape_to_d(el) if el is not root else ""
+        if d:
+            facts["elements"] += 1
+            pts, n = path_points(d)
+            facts["points"] += pts
+            facts["commands"] += n
+            fill, stroke = paint.get("fill", "black"), paint.get("stroke", "none")
+            facts["fills"].add(fill)
+            facts["strokes"].add(stroke)
+            if stroke != "none":
+                facts["strokeWidths"].add(float(re.sub(r"px$", "", str(paint.get("stroke-width", 1)))))
+                facts["caps"].add(paint.get("stroke-linecap", "butt"))
+                facts["joins"].add(paint.get("stroke-linejoin", "miter"))
+            if tag == "rect" and el.get("rx"):
+                facts["rx"].append(_f(el, "rx"))
+        for ch in el:
+            walk(ch, paint)
+
+    walk(root, {})
+    xs, ys = [p[0] for p in facts["points"]], [p[1] for p in facts["points"]]
+    facts["bbox"] = [min(xs), min(ys), max(xs), max(ys)] if xs else None
+    facts["model"] = ("stroke" if facts["strokes"] - {"none"} and facts["fills"] <= {"none"} else
+                      "fill" if facts["strokes"] <= {"none"} else "mixed")
+    return facts
+
+
+def _mode(values, default=None):
+    vals = [v for v in values if v is not None]
+    return max(set(vals), key=vals.count) if vals else default
+
+
+def _pct(values, q):
+    vals = sorted(values)
+    return vals[min(len(vals) - 1, int(q * (len(vals) - 1)))] if vals else None
+
+
+def icon_style_from_ds(root):
+    tokens = mobile_tokens(root)["light"]
+    radius = tokens["dimension"].get("radius.md", tokens["dimension"].get("radius.sm", 4))
+    rounded = radius >= 4
+    return {"source": "derived from design-system tokens (no reference icons)", "grid": 24, "viewBox": [0, 0, 24, 24],
+            "model": "stroke", "strokeWidth": tokens["number"].get("icon.stroke", 2), "linecap": "round" if rounded else "square",
+            "linejoin": "round" if rounded else "miter", "padding": 2, "cornerRadius": 2 if rounded else 0,
+            "complexity": [1, 12], "notes": ["Draw on the 24 grid; keep geometry inside the 2 px padding (live area 20 × 20).",
+                                             "Use only currentColor; no fills in a stroke set; whole or half-pixel coordinates."]}
+
+
+def cmd_icons_style(a):
+    files = sorted(Path(a.src).rglob("*.svg")) if a.src else []
+    if a.dir:
+        load_cfg(Path(a.dir))
+    if files:
+        facts = []
+        for f in files:
+            try:
+                facts.append(svg_facts(f.read_text(encoding="utf-8", errors="ignore")))
+            except Exception:  # noqa: BLE001 - skip unparsable icons
+                continue
+        vb = _mode([tuple(x["viewBox"]) for x in facts], (0, 0, 24, 24))
+        pads = [min(x["bbox"][0] - vb[0], x["bbox"][1] - vb[1], vb[0] + vb[2] - x["bbox"][2], vb[1] + vb[3] - x["bbox"][3])
+                for x in facts if x["bbox"] and tuple(x["viewBox"]) == vb]
+        sizes = [x["elements"] + x["commands"] for x in facts]
+        style = {"source": f"{len(facts)} icons in {Path(a.src).name}/", "grid": vb[2], "viewBox": list(vb),
+                 "model": _mode([x["model"] for x in facts], "stroke"),
+                 "strokeWidth": _mode([w for x in facts for w in x["strokeWidths"]], None),
+                 "linecap": _mode([c for x in facts for c in x["caps"]], None), "linejoin": _mode([j for x in facts for j in x["joins"]], None),
+                 "padding": round(max(0, _pct(pads, 0.1) or 0), 2), "cornerRadius": _pct([r for x in facts for r in x["rx"]], 0.5),
+                 "complexity": [_pct(sizes, 0.05), _pct(sizes, 0.95)],
+                 "notes": ["Thresholds are the 10th percentile padding and the 5th–95th percentile complexity of the reference set."]}
+    elif a.dir:
+        style = icon_style_from_ds(Path(a.dir))
+    else:
+        sys.exit("give a folder of reference .svg icons, or --dir <design system> to derive the style from tokens")
+    tidy = lambda v: int(v) if isinstance(v, float) and v.is_integer() else [tidy(x) for x in v] if isinstance(v, list) else v
+    text = json.dumps({k: tidy(v) for k, v in style.items()}, indent=1, ensure_ascii=False) + "\n"
+    if a.dir:
+        safe_write(Path(a.dir) / "icons" / "style.json", text, kind="owned")
+        print(f"icons/style.json: {style['model']} icons on a {_lit(style['grid'])} grid, stroke {style['strokeWidth']}, "
+              f"caps {style['linecap']}, joins {style['linejoin']}, padding {style['padding']} ({style['source']}).")
+    else:
+        print(text)
+
+
+def icon_issues(text, style):
+    """(errors, warnings) for one SVG against a style.json — the guardrail for icons drawn from scratch."""
+    errs, warns = [], []
+    if UNSAFE_SVG.search(text):
+        errs.append("unsafe content (script, event handler, external reference or entity)")
+    try:
+        f = svg_facts(text)
+    except Exception as e:  # noqa: BLE001
+        return [f"not parseable SVG: {e}"], []
+    vb = style.get("viewBox") or [0, 0, 24, 24]
+    if [round(v, 3) for v in f["viewBox"]] != [round(v, 3) for v in vb]:
+        errs.append(f"viewBox {' '.join(_lit(v) for v in f['viewBox'])} ≠ {' '.join(_lit(v) for v in vb)}")
+    paints = (f["fills"] | f["strokes"]) - {"none", "currentColor"}
+    if paints:
+        errs.append(f"hard-coded paint {', '.join(sorted(paints))}: use currentColor")
+    if f["forbidden"]:
+        errs.append(f"not allowed: {', '.join(sorted(f['forbidden']))}")
+    if f["transforms"]:
+        warns.append(f"{f['transforms']} transform(s): bake them into the coordinates")
+    if style.get("model") and f["model"] != style["model"]:
+        errs.append(f"paint model {f['model']} ≠ {style['model']}")
+    if style.get("model") == "stroke":
+        sw = style.get("strokeWidth")
+        if sw and any(abs(w - sw) > 0.01 for w in f["strokeWidths"]):
+            errs.append(f"stroke-width {', '.join(_lit(w) for w in sorted(f['strokeWidths']))} ≠ {_lit(sw)}")
+        for k, key in (("caps", "linecap"), ("joins", "linejoin")):
+            if style.get(key) and f[k] - {style[key]}:
+                errs.append(f"stroke-{key} {', '.join(sorted(f[k]))} ≠ {style[key]}")
+    if f["bbox"]:
+        pad, (x0, y0, x1, y1) = style.get("padding", 0) or 0, f["bbox"]
+        if x0 < vb[0] - 0.01 or y0 < vb[1] - 0.01 or x1 > vb[0] + vb[2] + 0.01 or y1 > vb[1] + vb[3] + 0.01:
+            errs.append("geometry outside the viewBox")
+        elif min(x0 - vb[0], y0 - vb[1], vb[0] + vb[2] - x1, vb[1] + vb[3] - y1) < pad - 0.5:
+            warns.append(f"geometry enters the {_lit(pad)} px padding (bbox {', '.join(_lit(v) for v in f['bbox'])})")
+    else:
+        errs.append("no drawable geometry")
+    lo, hi = (list(style.get("complexity") or []) + [None, None])[:2]
+    size = f["elements"] + f["commands"]
+    if hi and size > hi * 1.5:
+        warns.append(f"complexity {size} well above the set (≤ {hi}): simplify for small sizes")
+    if lo and size < lo:
+        warns.append(f"complexity {size} below the set ({lo}+): may look lighter than its neighbors")
+    return errs, warns
+
+
+def cmd_icons_lint(a):
+    style_path = Path(a.style) if a.style else (Path(a.dir) / "icons" / "style.json" if a.dir else None)
+    if not style_path or not style_path.exists():
+        sys.exit("needs a style: --style icons/style.json, or --dir <design system> (run `ds.py icons-style` first)")
+    style = json.loads(style_path.read_text(encoding="utf-8"))
+    files = [f for p_ in map(Path, a.paths) for f in ([p_] if p_.is_file() else sorted(p_.rglob("*.svg")))]
+    n_err = 0
+    for f in files:
+        errs, warns = icon_issues(f.read_text(encoding="utf-8", errors="ignore"), style)
+        n_err += bool(errs)
+        for m in errs:
+            print(f"- {f.name}: error: {m}")
+        for m in warns:
+            print(f"- {f.name}: warning: {m}")
+    print(f"{len(files) - n_err}/{len(files)} icon(s) match {style_path} ({style.get('source', '')}).")
+    if n_err:
+        sys.exit(1)
+
+
+# --- platform icon components from the optimized sprite ---
+def sprite_symbols(root):
+    """[(name, viewBox, root paint attrs, inner XML)] from dist/icons.svg."""
+    p = Path(root) / "dist" / "icons.svg"
+    if not p.exists():
+        return []
+    out = []
+    for m in re.finditer(r'<symbol id="icon-([^"]+)" viewBox="([^"]+)"([^>]*)>(.*?)</symbol>', p.read_text(encoding="utf-8"), re.S):
+        attrs = dict(re.findall(r'([\w-]+)="([^"]*)"', m.group(3)))
+        out.append((m.group(1), m.group(2), attrs, m.group(4)))
+    return out
+
+
+def _svg_doc(view_box, attrs, inner, color=None):
+    vb = view_box.split()
+    paint = "".join(f' {k}="{(color if color and v == "currentColor" else v)}"' for k, v in attrs.items())
+    body = inner.replace('"currentColor"', f'"{color}"') if color else inner
+    return f'<svg xmlns="http://www.w3.org/2000/svg" width="{vb[2]}" height="{vb[3]}" viewBox="{view_box}"{paint}>{body}</svg>'
+
+
+def _icon_paths(attrs, inner):
+    """Flatten an icon into [{d, fill, stroke, width, cap, join}] with inherited paint (for VectorDrawable / ImageVector)."""
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(f"<g>{inner}</g>")
+    out = []
+
+    def walk(el, paint):
+        paint = {**paint, **{k: el.get(k) for k in ("fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin") if el.get(k)}}
+        d = shape_to_d(el) if el.tag != "g" else ""
+        if d:
+            out.append({"d": d, "fill": paint.get("fill", "currentColor") != "none", "stroke": paint.get("stroke", "none") != "none",
+                        "width": float(paint.get("stroke-width", 1)), "cap": paint.get("stroke-linecap", "butt"),
+                        "join": paint.get("stroke-linejoin", "miter")})
+        for ch in el:
+            walk(ch, paint)
+
+    walk(root, {"fill": attrs.get("fill", "currentColor"), **{k: v for k, v in attrs.items() if k != "fill"}})
+    return out
+
+
+def _ident(name, lang):
+    base = _camel(name.replace("_", "-"))
+    if base[:1].isdigit():
+        base = "i" + base
+    if lang == "kotlin":
+        return base[:1].upper() + base[1:]
+    if lang == "swift" and base in {"repeat", "case", "default", "import", "return", "switch", "class", "func", "if", "else", "for",
+                                    "in", "is", "let", "var", "while", "do", "self", "super", "true", "false", "nil", "where", "as"}:
+        return f"`{base}`"
+    if lang == "dart" and base in DART_RESERVED:
+        return base + "Icon"
+    return base
+
+
+def platform_icons(symbols, platform, pkg="design.system"):
+    files = {}
+    if platform == "swiftui":
+        files["Icons.xcassets/Contents.json"] = json.dumps({"info": {"author": "xcode", "version": 1}}, indent=1) + "\n"
+        cases = []
+        for name, vb, attrs, inner in symbols:
+            files[f"Icons.xcassets/{name}.imageset/{name}.svg"] = _svg_doc(vb, attrs, inner, "#000000") + "\n"
+            files[f"Icons.xcassets/{name}.imageset/Contents.json"] = json.dumps(
+                {"images": [{"filename": f"{name}.svg", "idiom": "universal"}], "info": {"author": "xcode", "version": 1},
+                 "properties": {"preserves-vector-representation": True, "template-rendering-intent": "template"}}, indent=1) + "\n"
+            cases.append(f'    case {_ident(name, "swift")} = "{name}"')
+        files["DSIcon.swift"] = ("// Generated by ds.py icons --platforms swiftui. Add Icons.xcassets to the app target.\nimport SwiftUI\n\n"
+                                 "public enum DSIcon: String, CaseIterable {\n" + "\n".join(cases) + "\n\n"
+                                 "    public var image: Image { Image(rawValue).renderingMode(.template) }\n}\n\n"
+                                 "/// Decorative unless a label is given (then it is announced as an image).\n"
+                                 "public struct DSIconView: View {\n    let icon: DSIcon\n    var size: CGFloat = 24\n    var label: String?\n\n"
+                                 "    public init(_ icon: DSIcon, size: CGFloat = 24, label: String? = nil) {\n"
+                                 "        self.icon = icon\n        self.size = size\n        self.label = label\n    }\n\n"
+                                 "    public var body: some View {\n        icon.image.resizable().scaledToFit().frame(width: size, height: size)\n"
+                                 "            .accessibilityLabel(label ?? \"\").accessibilityHidden(label == nil)\n    }\n}\n")
+    elif platform == "compose":
+        vals = []
+        for name, vb, attrs, inner in symbols:
+            _, _, w, h = vb.split()
+            paths = _icon_paths(attrs, inner)
+            vd = [f'<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="{w}dp" android:height="{h}dp" '
+                  f'android:viewportWidth="{w}" android:viewportHeight="{h}" android:tint="?attr/colorControlNormal">']
+            adds = []
+            for p_ in paths:
+                vd.append(f'    <path android:pathData="{p_["d"]}"' + (' android:fillColor="#FF000000"' if p_["fill"] else "")
+                          + (f' android:strokeColor="#FF000000" android:strokeWidth="{_lit(p_["width"])}" android:strokeLineCap="{p_["cap"]}"'
+                             f' android:strokeLineJoin="{p_["join"]}"' if p_["stroke"] else "") + " />")
+                cap = {"round": "Round", "square": "Square"}.get(p_["cap"], "Butt")
+                join = {"round": "Round", "bevel": "Bevel"}.get(p_["join"], "Miter")
+                adds.append(f'            addPath(addPathNodes("{p_["d"]}"), fill = {"SolidColor(Color.Black)" if p_["fill"] else "null"}, '
+                            + (f"stroke = SolidColor(Color.Black), strokeLineWidth = {_lit(p_['width'])}f, strokeLineCap = StrokeCap.{cap}, "
+                               f"strokeLineJoin = StrokeJoin.{join})" if p_["stroke"] else "stroke = null)"))
+            vd.append("</vector>")
+            files[f"drawable/ds_icon_{name.replace('-', '_')}.xml"] = "\n".join(vd) + "\n"
+            vals.append(f"    val {_ident(name, 'kotlin')}: ImageVector by lazy {{\n        ImageVector.Builder(\"{name}\", {w}.dp, {h}.dp, {w}f, {h}f).apply {{\n"
+                        + "\n".join(adds) + "\n        }.build()\n    }")
+        files["DsIcons.kt"] = (f"// Generated by ds.py icons --platforms compose. Tint with Icon(DsIcons.X, contentDescription, tint = ...).\n"
+                               f"package {pkg}\n\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.graphics.SolidColor\n"
+                               "import androidx.compose.ui.graphics.StrokeCap\nimport androidx.compose.ui.graphics.StrokeJoin\n"
+                               "import androidx.compose.ui.graphics.vector.ImageVector\nimport androidx.compose.ui.graphics.vector.addPathNodes\n"
+                               "import androidx.compose.ui.unit.dp\n\nobject DsIcons {\n" + "\n\n".join(vals) + "\n}\n")
+    elif platform == "flutter":
+        consts = [f"  static const {_ident(n, 'dart')} = r'''{_svg_doc(vb, at, inner)}''';" for n, vb, at, inner in symbols]
+        files["ds_icons.dart"] = ("// Generated by ds.py icons --platforms flutter. Needs flutter_svg.\n"
+                                  "import 'package:flutter/widgets.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n"
+                                  "class DsIcons {\n  DsIcons._();\n" + "\n".join(consts) + "\n\n  static const all = <String, String>{"
+                                  + ", ".join(f"'{n}': {_ident(n, 'dart')}" for n, *_ in symbols) + "};\n}\n\n"
+                                  "/// Decorative unless semanticLabel is set. Color defaults to IconTheme (like Icon).\n"
+                                  "class DsIcon extends StatelessWidget {\n"
+                                  "  const DsIcon(this.svg, {super.key, this.size = 24, this.color, this.semanticLabel});\n\n"
+                                  "  final String svg;\n  final double size;\n  final Color? color;\n  final String? semanticLabel;\n\n"
+                                  "  @override\n  Widget build(BuildContext context) {\n"
+                                  "    final c = color ?? IconTheme.of(context).color ?? const Color(0xFF000000);\n"
+                                  "    return SvgPicture.string(svg, width: size, height: size, colorFilter: ColorFilter.mode(c, BlendMode.srcIn),\n"
+                                  "        semanticsLabel: semanticLabel, excludeFromSemantics: semanticLabel == null);\n  }\n}\n")
+    elif platform == "react-native":
+        rows = [f"  {json.dumps(n)}: {json.dumps(_svg_doc(vb, at, inner))}," for n, vb, at, inner in symbols]
+        files["DsIcon.tsx"] = ("// Generated by ds.py icons --platforms react-native. Needs react-native-svg.\n"
+                               "import React from 'react';\nimport { SvgXml } from 'react-native-svg';\n\n"
+                               "const icons = {\n" + "\n".join(rows) + "\n} as const;\n\nexport type DsIconName = keyof typeof icons;\n\n"
+                               "/** Decorative unless accessibilityLabel is set. color fills currentColor. */\n"
+                               "export function DsIcon({ name, size = 24, color, accessibilityLabel }: { name: DsIconName; size?: number; color?: string; accessibilityLabel?: string }) {\n"
+                               "  return (\n    <SvgXml xml={icons[name]} width={size} height={size} color={color} accessible={!!accessibilityLabel}\n"
+                               "      accessibilityLabel={accessibilityLabel} accessibilityRole={accessibilityLabel ? 'image' : undefined} />\n  );\n}\n")
+    return files
 
 
 # ---------- taste: the "generic AI look" linter ----------
@@ -2693,6 +4429,8 @@ def read_hook_input():
 def hook_post_edit():
     data = read_hook_input()
     fp = (data.get("tool_input") or {}).get("file_path") or ""
+    if fp and Path(fp).suffix in MOBILE_LINT:
+        return hook_native_edit(fp)
     if not fp or not fp.endswith((".css", ".html", ".json")):
         return
     root = find_root(Path(fp).parent, depth=0)
@@ -2719,6 +4457,24 @@ def hook_post_edit():
     if msgs:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse",
                                                  "additionalContext": "html-design-system checks:\n- " + "\n- ".join(msgs)}}))
+
+
+def hook_native_edit(fp):
+    """Lint native (Swift/Kotlin/Dart/RN) edits inside a scaffolded mobile app (.ds-mobile.json) or a design system."""
+    path = Path(fp).resolve()
+    inside = any((p_ / ".ds-mobile.json").exists() for p_ in list(path.parents)[:8])
+    if not inside:
+        root = find_root(path.parent, depth=0)
+        inside = bool(root) and "mobile" in path.relative_to(root).parts[:2]
+    if not inside or not path.exists():
+        return
+    try:
+        msgs = mobile_lint_file(path)[:20]
+    except Exception as e:  # noqa: BLE001 - hooks must never crash the session
+        msgs = [f"ds hook error: {e}"]
+    if msgs:
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext":
+                          "html-design-system mobile checks (fix, or mark a deliberate exception with `ds-lint: ignore`):\n- " + "\n- ".join(msgs)}}))
 
 
 def hook_stop():
@@ -2799,6 +4555,24 @@ def main():
     p.add_argument("--target", default="all", help=f"comma list or all: {', '.join(EXPORT_TARGETS)}")
     p = sp.add_parser("icons"); p.add_argument("src", help="folder of .svg files"); p.add_argument("dir")
     p.add_argument("--license", help="icon set license to record, e.g. 'Lucide (ISC)'")
+    p.add_argument("--platforms", default="web", help=f"comma list or all: web, {', '.join(ICON_PLATFORMS)}")
+    p = sp.add_parser("icons-add"); p.add_argument("names", nargs="+"); p.add_argument("--set", required=True, choices=list(ICON_SETS))
+    p.add_argument("--dir", required=True); p.add_argument("--version", help="package version (default: latest, pinned in icons/LICENSES.md)")
+    p.add_argument("--platforms", default="web")
+    p = sp.add_parser("icons-style"); p.add_argument("src", nargs="?", help="folder of reference icons (omit: derive from tokens)")
+    p.add_argument("--dir", help="design system: writes icons/style.json")
+    p = sp.add_parser("icons-lint"); p.add_argument("paths", nargs="+"); p.add_argument("--style"); p.add_argument("--dir")
+    p = sp.add_parser("mobile"); msp = p.add_subparsers(dest="mobile_cmd", required=True)
+    q = msp.add_parser("spec"); q.add_argument("dir"); q.add_argument("--tokens-only", action="store_true")
+    q.add_argument("--only", help="comma list of component files to measure, e.g. button,card")
+    q = msp.add_parser("scaffold"); q.add_argument("dir"); q.add_argument("--target", default="all", help=f"comma list or all: {', '.join(SCAFFOLD_GENERATORS)}")
+    q.add_argument("--out", help="write into the app instead of dist/mobile/<target> (adds .ds-mobile.json so the hook lints edits)")
+    q.add_argument("--package", default="design.system", help="Kotlin package for compose")
+    q = msp.add_parser("verify"); q.add_argument("dir"); q.add_argument("--native", required=True, help="folder of native snapshot PNGs")
+    q.add_argument("--measurements", help="JSON of native measurements {file: {demo: {theme: {width, height, ...}}}}")
+    q.add_argument("--max-diff", type=float, default=1.0, help="max %% of pixels over OKLab ΔE 3 (default 1)")
+    q.add_argument("--size-tolerance", type=float, default=3.0, help="max %% size difference (default 3)")
+    q = msp.add_parser("lint"); q.add_argument("paths", nargs="+"); q.add_argument("--strict", action="store_true")
     p = sp.add_parser("playwright"); p.add_argument("dir"); p.add_argument("--force", action="store_true")
     p = sp.add_parser("taste"); p.add_argument("path", nargs="?", default=".")
     p.add_argument("--json", action="store_true"); p.add_argument("--strict", action="store_true")
@@ -2826,6 +4600,9 @@ def main():
      "detect": cmd_detect, "sync": cmd_sync, "migrate-colors": cmd_migrate_colors, "email": cmd_email,
      "llms": cmd_llms, "mcp": cmd_mcp,
      "palette": cmd_palette, "scale": cmd_scale, "export": cmd_export, "icons": cmd_icons, "taste": cmd_taste,
+     "icons-add": cmd_icons_add, "icons-style": cmd_icons_style, "icons-lint": cmd_icons_lint,
+     "mobile": lambda a: {"spec": cmd_mobile_spec, "scaffold": cmd_mobile_scaffold, "verify": cmd_mobile_verify,
+                          "lint": cmd_mobile_lint}[a.mobile_cmd](a),
      "playwright": cmd_playwright}[a.cmd](a)
 
 

@@ -51,3 +51,99 @@ jobs:
           python3 scripts/ds.py design-md /tmp/ds
           npx -y @google/design.md lint /tmp/ds/DESIGN.md | tee /tmp/lint.json
           python3 -c "import json;s=json.load(open('/tmp/lint.json'))['summary'];assert s['errors']==0 and s['warnings']==0, s"
+
+  # Generated native code must compile on the real SDKs. Scaffold the example (tokens + two icons), then build each target.
+  mobile:
+    name: mobile scaffold compiles · ${{ matrix.target }}
+    runs-on: ${{ matrix.target == 'swiftui' && 'macos-latest' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [swiftui, compose, flutter, react-native]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scaffold Fleetline for ${{ matrix.target }}
+        shell: bash
+        run: |
+          cp -r examples/fleetline "$RUNNER_TEMP/fl"
+          mkdir -p "$RUNNER_TEMP/svg"
+          echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>' > "$RUNNER_TEMP/svg/arrow-right.svg"
+          echo '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><polyline points="3,9 21,9"/></svg>' > "$RUNNER_TEMP/svg/repeat.svg"
+          python3 scripts/ds.py icons "$RUNNER_TEMP/svg" "$RUNNER_TEMP/fl"
+          python3 scripts/ds.py mobile spec "$RUNNER_TEMP/fl" --tokens-only
+          python3 scripts/ds.py mobile scaffold "$RUNNER_TEMP/fl" --target ${{ matrix.target }}
+          python3 scripts/ds.py mobile lint "$RUNNER_TEMP/fl/dist/mobile" --strict
+          echo "OUT=$RUNNER_TEMP/fl/dist/mobile/${{ matrix.target }}" >> "$GITHUB_ENV"
+
+      - name: SwiftUI · typecheck against the iOS SDK
+        if: matrix.target == 'swiftui'
+        run: |
+          cd "$OUT"
+          swiftc -typecheck -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" -target arm64-apple-ios16.0-simulator \
+            DSTheme.swift DSComponents.swift icons/DSIcon.swift
+
+      - name: React Native · tsc --strict with RN types
+        if: matrix.target == 'react-native'
+        run: |
+          mkdir -p /tmp/rn/src && cp "$OUT"/*.ts* "$OUT"/icons/*.tsx /tmp/rn/src/ && cd /tmp/rn
+          npm init -y > /dev/null
+          npm i --no-audit --no-fund typescript@5 @types/react@19 react@19 react-native@0.81 react-native-svg react-native-view-shot > /dev/null
+          echo '{"compilerOptions":{"strict":true,"jsx":"react-jsx","module":"esnext","moduleResolution":"bundler","target":"es2022","noEmit":true,"skipLibCheck":true,"types":["react-native"]},"include":["src"]}' > tsconfig.json
+          npx tsc -p .
+
+      - uses: subosito/flutter-action@v2
+        if: matrix.target == 'flutter'
+        with: { channel: stable }
+      - name: Flutter · analyze + run the golden tests (layout errors fail)
+        if: matrix.target == 'flutter'
+        run: |
+          flutter create --project-name dscheck /tmp/dscheck > /dev/null
+          cd /tmp/dscheck && flutter pub add flutter_svg > /dev/null
+          mkdir -p lib/ds && cp "$OUT"/*.dart "$OUT"/icons/*.dart lib/ds/ && cp "$OUT"/test/ds_golden_test.dart test/
+          flutter analyze --no-fatal-infos --no-fatal-warnings lib/ds test/ds_golden_test.dart
+          flutter test --update-goldens test/ds_golden_test.dart
+
+      - uses: actions/setup-java@v4
+        if: matrix.target == 'compose'
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+        if: matrix.target == 'compose'
+        with: { gradle-version: "8.14.3" }
+      - name: Compose · compile main + snapshot test sources
+        if: matrix.target == 'compose'
+        run: |
+          P=/tmp/dscompose && mkdir -p $P/src/main/kotlin/design/system $P/src/test/kotlin/design/system
+          cp "$OUT"/DsTheme.kt "$OUT"/DsComponents.kt "$OUT"/icons/DsIcons.kt $P/src/main/kotlin/design/system/
+          cp "$OUT"/test/DsSnapshotTest.kt $P/src/test/kotlin/design/system/
+          cat > $P/settings.gradle.kts <<'KTS'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name = "dscompose"
+          KTS
+          cat > $P/build.gradle.kts <<'KTS'
+          plugins {
+              id("com.android.library") version "8.12.0"
+              id("org.jetbrains.kotlin.android") version "2.2.20"
+              id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
+          }
+          android {
+              namespace = "design.system"
+              compileSdk = 36
+              defaultConfig { minSdk = 24 }
+              buildFeatures { compose = true }
+              compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+          }
+          kotlin { jvmToolchain(17) }
+          dependencies {
+              implementation(platform("androidx.compose:compose-bom:2025.09.00"))
+              implementation("androidx.compose.foundation:foundation")
+              implementation("androidx.compose.material3:material3")
+              testImplementation(platform("androidx.compose:compose-bom:2025.09.00"))
+              testImplementation("androidx.compose.ui:ui-test-junit4")
+              testImplementation("androidx.test.ext:junit:1.3.0")
+              testImplementation("org.robolectric:robolectric:4.15")
+              testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.50.0")
+          }
+          KTS
+          echo "android.useAndroidX=true" > $P/gradle.properties
+          cd $P && gradle --no-daemon -q compileDebugKotlin compileDebugUnitTestKotlin

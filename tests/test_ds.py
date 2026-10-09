@@ -329,6 +329,133 @@ class TestGenerators(Temp):
         self.assertIn("extracted", data["suggested_tokens"]["color"])
 
 
+class TestMobile(Temp):
+    """Spec → scaffold → lint → verify, and the icon pipeline. No network, no native SDKs."""
+
+    def setUp(self):
+        super().setUp()
+        self.root = self.tmp / "ds"
+        run("init", self.root, "--tier", "core")
+
+    def test_spec_tokens_and_scaffold_all_targets(self):
+        run("mobile", "spec", self.root, "--tokens-only")
+        spec = json.loads((self.root / "dist" / "mobile" / "spec.json").read_text(encoding="utf-8"))
+        light = spec["tokens"]["light"]
+        self.assertIn("color.action.primary.bg", light["color"])
+        self.assertNotIn("color.gray.500", light["color"])           # primitives stay out of native themes
+        self.assertEqual(light["typography"]["body"]["size"], 16)
+        self.assertGreater(light["typography"]["body"]["lineHeight"], 16)   # absolute line height, not a ratio
+        out = run("mobile", "scaffold", self.root, "--target", "all").stdout
+        self.assertNotIn("missing tokens", out)
+        m = self.root / "dist" / "mobile"
+        for rel in ("swiftui/DSTheme.swift", "swiftui/DSComponents.swift", "swiftui/Tests/DSSnapshotTests.swift",
+                    "compose/DsTheme.kt", "compose/DsComponents.kt", "compose/test/DsSnapshotTest.kt",
+                    "flutter/ds_theme.dart", "flutter/ds_components.dart", "flutter/test/ds_golden_test.dart",
+                    "react-native/theme.ts", "react-native/DsComponents.tsx", "react-native/DsSnapshots.tsx",
+                    "maui/DsTokens.xaml", "web-mobile/web-mobile.css", "swiftui/FIDELITY.md"):
+            self.assertTrue((m / rel).exists(), rel)
+        for f in m.rglob("*"):
+            if f.is_file():
+                self.assertNotRegex(f.read_text(encoding="utf-8"), r"@[CDWTE]\(|MISSING_", f.name)   # every marker filled
+        # The generated components pass the bad-migration linter they ship with.
+        self.assertIn("0 issue(s)", run("mobile", "lint", m).stdout)
+        self.assertIn("Color(0xFF", (m / "compose" / "DsTheme.kt").read_text(encoding="utf-8"))
+        self.assertIn("leadingDistribution: TextLeadingDistribution.even", (m / "flutter" / "ds_theme.dart").read_text(encoding="utf-8"))
+
+    def test_calibrate_snaps_measurements_to_tokens(self):
+        tokens = ds.ensure_mobile_defaults(ds.mobile_tokens(self.root))
+        spec = {"button": {"variant:primary+state:default": {"light": {"height": 40, "padding": [0, 12, 0, 12], "radius": 3.0}}}}
+        r = ds.calibrate(tokens, spec)["button"]
+        self.assertEqual(r["paddingX"]["token"], "space.3")                  # measured 12 px → the token with that value
+        self.assertEqual((r["radius"]["value"], r["radius"]["token"]), (3.0, None))   # no token: literal, flagged
+        self.assertEqual(r["heightSm"]["source"], "token")                   # not measured → default token
+
+    def test_mobile_lint_rules(self):
+        bad = {"View.swift": 'Text("x").font(.system(size: 14)).padding(12).foregroundColor(Color(red: 1, green: 0, blue: 0))\nImage(systemName: "star")',
+               "Screen.kt": "Box(Modifier.padding(16.dp).background(Color(0xFF0F766E))) { Icon(Icons.Default.Star, null) }",
+               "screen.dart": "Container(color: Colors.red, padding: EdgeInsets.all(8), child: Icon(Icons.star))",
+               "Screen.tsx": "<View style={{ backgroundColor: '#ff0000', padding: 12 }} />"}
+        for name, code in bad.items():
+            (self.tmp / name).write_text(code, encoding="utf-8")
+        (self.tmp / "ok.swift").write_text("Text(title).dsText(DSType.body) // ds-lint: ignore\nImage(systemName: \"x\") // ds-lint: ignore", encoding="utf-8")
+        out = run("mobile", "lint", self.tmp, "--strict", check=False)
+        self.assertNotEqual(out.returncode, 0)
+        for msg in ("raw color", "Dynamic Type", "SF Symbol", "Material icon", "magic padding", "framework icon"):
+            self.assertIn(msg, out.stdout)
+        self.assertNotIn("ok.swift", out.stdout)
+
+    def test_png_roundtrip_and_verify(self):
+        refs = self.root / "dist" / "mobile" / "reference"
+        refs.mkdir(parents=True)
+        nat = self.tmp / "native"
+        nat.mkdir()
+        rows = [[(15, 118, 110)] * 30 for _ in range(10)]
+        ds.use_root(self.root)
+        ds.png_write(refs / "button--state_default--light.png", 30, 10, rows)
+        ds.png_write(refs / "badge--variant_neutral--light.png", 30, 10, rows)
+        w, h, back = ds.png_read(refs / "button--state_default--light.png")
+        self.assertEqual((w, h, back[0][0]), (30, 10, (15, 118, 110)))
+        shutil.copy(refs / "button--state_default--light.png", nat / "testCore.button--state_default--light.png")  # tool prefix
+        out = run("mobile", "verify", self.root, "--native", nat).stdout
+        self.assertIn("1/1 snapshots within tolerance", out)
+        ds.png_write(nat / "badge--variant_neutral--light.png", 30, 10, [[(255, 0, 0)] * 30 for _ in range(10)])
+        self.assertEqual(run("mobile", "verify", self.root, "--native", nat, check=False).returncode, 1)
+        self.assertTrue((self.root / "dist" / "mobile" / "diff" / "badge--variant_neutral--light.png").exists())
+
+    def test_icons_add_style_lint_platforms(self):
+        mirror = self.tmp / "mirror" / "lucide-static@9.9.9" / "icons"
+        mirror.mkdir(parents=True)
+        (mirror / "truck.svg").write_text('<!-- @license lucide-static ISC --><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" '
+                                          'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+                                          'stroke-linejoin="round"><path d="M3 6h11v10H3z"/><circle cx="17" cy="17" r="2"/>'
+                                          '<rect x="14" y="9" width="7" height="7" rx="1"/></svg>', encoding="utf-8")
+        env = {"DS_ICON_CDN": (self.tmp / "mirror").as_uri()}
+        run("icons-add", "truck", "--set", "lucide", "--version", "9.9.9", "--dir", self.root, "--platforms", "all", env=env)
+        self.assertIn("lucide-static@9.9.9 | ISC", (self.root / "icons" / "LICENSES.md").read_text(encoding="utf-8"))
+        self.assertIn('id="icon-truck"', (self.root / "dist" / "icons.svg").read_text(encoding="utf-8"))
+        icons = self.root / "dist" / "icons"
+        self.assertIn('case truck = "truck"', (icons / "swiftui" / "DSIcon.swift").read_text(encoding="utf-8"))
+        vd = (icons / "compose" / "drawable" / "ds_icon_truck.xml").read_text(encoding="utf-8")
+        self.assertIn('android:pathData="M15 17A2 2 0 1 0 19 17A2 2 0 1 0 15 17Z"', vd)   # circle → arcs
+        self.assertIn("addPathNodes", (icons / "compose" / "DsIcons.kt").read_text(encoding="utf-8"))
+        self.assertIn("SvgPicture.string", (icons / "flutter" / "ds_icons.dart").read_text(encoding="utf-8"))
+        self.assertIn("SvgXml", (icons / "react-native" / "DsIcon.tsx").read_text(encoding="utf-8"))
+        run("icons-style", self.root / "icons" / "src", "--dir", self.root)
+        style = json.loads((self.root / "icons" / "style.json").read_text(encoding="utf-8"))
+        self.assertEqual((style["model"], style["strokeWidth"], style["linecap"]), ("stroke", 2, "round"))
+        good, bad = self.tmp / "good.svg", self.tmp / "bad.svg"
+        good.write_text('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+                        'stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>', encoding="utf-8")
+        bad.write_text('<svg viewBox="0 0 24 24" fill="#f00" stroke-width="1"><path d="M-2 0h30"/><text>x</text></svg>', encoding="utf-8")
+        self.assertEqual(run("icons-lint", good, "--dir", self.root).returncode, 0)
+        out = run("icons-lint", bad, "--dir", self.root, check=False)
+        self.assertEqual(out.returncode, 1)
+        for msg in ("hard-coded paint", "not allowed: text", "outside the viewBox"):
+            self.assertIn(msg, out.stdout)
+        ds_style = ds.icon_style_from_ds(self.root)                          # no icons yet: derived from tokens
+        self.assertEqual((ds_style["grid"], ds_style["model"]), (24, "stroke"))
+
+    def test_svg_geometry(self):
+        pts, n = ds.path_points("M2 12a10 10 0 1 0 20 0a10 10 0 1 0-20 0")   # full circle, r=10 around (12,12)
+        ys = [p[1] for p in pts]
+        self.assertAlmostEqual(min(ys), 2, delta=0.2)
+        self.assertAlmostEqual(max(ys), 22, delta=0.2)
+        self.assertEqual(n, 3)
+        self.assertEqual(ds.shape_to_d(ds._svg_root('<polygon points="1,2 3,4 5,6"/>')), "M1 2L3 4L5 6Z")
+
+    def test_native_hook(self):
+        app = self.tmp / "app"
+        run("mobile", "scaffold", self.root, "--target", "swiftui", "--out", app)
+        self.assertTrue((app / ".ds-mobile.json").exists())
+        screen = app / "Screen.swift"
+        screen.write_text("Text(\"x\").font(.system(size: 13))", encoding="utf-8")
+        out = run("hook-post-edit", stdin=json.dumps({"tool_input": {"file_path": str(screen)}})).stdout
+        self.assertIn("Dynamic Type", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+        outside = self.tmp / "elsewhere.swift"
+        outside.write_text("Text(\"x\").font(.system(size: 13))", encoding="utf-8")
+        self.assertEqual(run("hook-post-edit", stdin=json.dumps({"tool_input": {"file_path": str(outside)}})).stdout, "")
+
+
 class TestDocsTooling(Temp):
     def test_playwright_suite_and_status(self):
         root = self.tmp / "ds"

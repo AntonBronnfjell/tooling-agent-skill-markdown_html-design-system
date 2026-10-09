@@ -192,10 +192,33 @@ Every system it builds is readable by other AI tools, not just people:
 | `ds.py palette '#0f766e' --name teal --dir ds --primary` | An 11-step OKLCH ramp from one brand color. Primary, link, focus and selected are mapped to the steps that measurably pass contrast in light, dark and high-contrast. Add `--brand acme` for white-label brands; every brand × theme is contrast-checked |
 | `ds.py scale type --dir ds` · `scale space` | Fluid type and space scales (Utopia formulas) as `clamp()` tokens that still respect browser zoom |
 | `ds.py export ds --target all` | Tailwind v4 `@theme`, shadcn/ui variables, Figma Variables (API body with real aliases + DTCG per mode), SwiftUI/UIKit, Android XML, Jetpack Compose and Flutter — no Style Dictionary needed ([adapters](references/adapters.md)) |
-| `ds.py icons ./svg ds` | An optimized SVG sprite (`currentColor`) and an icon gallery page |
+| `ds.py icons ./svg ds --platforms all` | An optimized SVG sprite (`currentColor`), an icon gallery page, and native icon components for SwiftUI, Compose, Flutter and React Native |
+| `ds.py icons-add truck wrench --set lucide --dir ds` | Icons from Lucide, Tabler, Phosphor, Heroicons or Material Symbols at a pinned version, license recorded ([icons](references/icons.md)) |
+| `ds.py icons-style icons/src --dir ds` · `icons-lint new.svg --dir ds` | The set's measured style (grid, stroke, caps, padding, complexity), or one derived from tokens; then a check for icons drawn from scratch |
 | `ds.py audit --url https://your-site.com` | The de-facto design system of a live site, with suggested primitive tokens |
 | `ds.py taste ds --strict` | Fails on the generic "AI look": purple gradients, glassmorphism, buzzwords, emoji UI, placeholder copy, vague CTAs ([rules](references/taste.md)) |
 | `ds.py playwright ds` | A free visual-regression + axe + keyboard-focus suite for every page × theme × desktop/mobile + RTL |
+
+## Take it to mobile without losing fidelity
+
+Ported design systems drift because values get re-guessed, CSS is translated literally, states get dropped and nobody measures. Here the web system becomes a **measured spec**, native code is **generated** from it, and native snapshots are **diffed** back against web references ([mobile guide](references/mobile.md)).
+
+```bash
+ds.py mobile spec ds            # tokens per theme + computed boxes of every demo at 390 px + @3x reference PNGs
+ds.py mobile scaffold ds --target all          # or swiftui,compose,flutter,react-native,maui,web-mobile; --out <app>
+ds.py mobile lint ios/App --strict             # raw colors, magic numbers, fixed fonts, hover, small targets, SF Symbols…
+ds.py mobile verify ds --native snapshots/     # pixel + size diff per snapshot → fidelity-report.md, exit 1 on drift
+```
+
+| Target | Generated | Snapshot tests |
+|---|---|---|
+| SwiftUI | `DSTheme.swift` (light/dark/Increase Contrast colors, Dynamic Type styles with CSS line height), 10 core components | swift-snapshot-testing |
+| Jetpack Compose | `DsTheme.kt` (`DsTheme { }`, sp type with half-leading), 10 core components | Roborazzi + Robolectric |
+| Flutter | `ds_theme.dart` (`DsTheme` InheritedWidget, even leading, CSS-matched shadows), 10 core widgets | `matchesGoldenFile` |
+| React Native | `theme.ts`, `DsComponents.tsx` (`hitSlop` touch targets, `boxShadow`), Expo-friendly | react-native-view-shot screen |
+| .NET MAUI · Ionic/Capacitor/PWA | `DsTokens.xaml` · `web-mobile.css` | — |
+
+Core components: Button (variants × sizes × pressed/disabled/loading), TextField, Checkbox, Switch, Card, Badge, Alert, Avatar, Tag, Divider. Their numbers come from the web measurement, snapped to the token that has that value; `FIDELITY.md` lists the source of every number and every color the web paints differently from the default role. CI compiles the generated code on the real SDKs.
 
 ## See it independently of your app
 
@@ -352,7 +375,14 @@ $DS palette '#0f766e' --name teal --dir ./design-system --primary   # OKLCH ramp
 $DS palette '#c2410c' --name blue --dir ./design-system --brand ember  # white-label brand override
 $DS scale type --dir ./design-system     # fluid type scale (also: scale space)
 $DS export ./design-system --target all  # tailwind, shadcn, figma, ios, android, compose, flutter
-$DS icons ./svg ./design-system          # SVG sprite + icon gallery
+$DS icons ./svg ./design-system --platforms all   # SVG sprite + gallery + SwiftUI/Compose/Flutter/RN icon components
+$DS icons-add truck wrench --set lucide --dir ./design-system   # fetch icons (lucide|tabler|phosphor|heroicons|material-symbols)
+$DS icons-style ./design-system/icons/src --dir ./design-system # icons/style.json (or derive from tokens without a folder)
+$DS icons-lint new-icon.svg --dir ./design-system              # check a hand-drawn icon against the style
+$DS mobile spec ./design-system          # dist/mobile/spec.json + reference PNGs (--tokens-only without Playwright)
+$DS mobile scaffold ./design-system --target all --out ../app/ds   # native theme + core components + snapshot tests
+$DS mobile lint ../app/src --strict      # bad-migration linter for Swift, Kotlin, Dart, TS/TSX
+$DS mobile verify ./design-system --native ../app/snapshots        # diff against the web references
 $DS build ./design-system                # tokens.css/json/scss, ds.css bundle, index.html
 $DS check ./design-system --strict       # token validity, contrast in every theme, lint, coverage
 $DS coverage ./design-system             # per component: which demos/doc sections/CSS are missing
@@ -388,12 +418,13 @@ $DS status                               # one-line state of the nearest design 
 │   ├── manifest.json            306 components · 16 categories · 3 tiers · 5 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
-│                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai tokens, email starter), mcp_server.py
+│                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai tokens, email starter), mcp_server.py,
+│                                mobile/ (measure.mjs, SwiftUI/Compose/Flutter/RN component templates, web-mobile.css)
 ├── scripts/ds.py                the CLI above + hook entry points
 ├── references/                  decision guide · tokens · component contract · per-category specs · motion ·
 │                                css-architecture · conventions · performance · storybook · testing · packaging ·
 │                                governance · email-build · adapters · content · imagery · taste · companion skills ·
-│                                builder brief
+│                                builder brief · mobile · icons
 ├── hooks/settings.example.json  manual Claude hook snippet (install.py --claude-hooks does this for you)
 ├── examples/fleetline/          a complete core-tier design system built with this skill (live on GitHub Pages)
 ├── tests/                       stdlib unit tests + golden outputs (python3 -m unittest discover -s tests)
@@ -414,6 +445,7 @@ $DS status                               # one-line state of the nearest design 
 > - The backend route sketches in `references/storybook.md` are outlines. Server mode has been tested end to end against the reference backend (`ds.py serve`), not against real Laravel, Django or Rails apps.
 > - The generated CI files for *your* design system (`ds.py ci`) are templates that haven't been run on every provider; this repo's own CI runs on every push.
 > - Plugin eval cases that need Bash or Write must run where Claude Code's sandbox works (CI, Linux with bubblewrap, macOS without symlinks in `~/.docker`). The negative cases pass locally.
+> - `ds.py mobile scaffold` generates the theme and 10 core components; the rest of the catalog is built by the agent from `spec.json`. CI compiles the generated Swift, Kotlin, Dart and TSX, but doesn't run device snapshots; pixel diffs depend on matching fonts and a fixed simulator/emulator image.
 > - `ds.py icons` does light optimization (metadata, editor attributes, precision, `currentColor`); it isn't a full SVGO.
 > - Figma Variables export targets the REST API body; posting it needs an Enterprise full seat, and re-posting creates duplicates.
 > - The example system implements the **core tier** of app UI. The other tiers and the AI, commerce, marketing and email scopes are specified (a spec for every component) but have no reference implementation yet; `ds.py email` ships one starter template.

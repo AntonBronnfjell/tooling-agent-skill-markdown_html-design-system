@@ -52,3 +52,6 @@ Semantic colors only (primitive ramps are left out on purpose: apps should use r
 
 ## When to use Style Dictionary instead
 Use Style Dictionary (v5) or Terrazzo when you need custom transforms, many more platforms, or a JS build pipeline. They read the same `tokens/*.json` and `tokens/resolver.json`. Style Dictionary's DTCG 2025.10 support was still marked "work in progress" in its v5 docs, so check color-object support before switching.
+
+## Full mobile apps
+These exports are token files only. To ship components on iOS, Android, Flutter, React Native or MAUI with measured fidelity, use `ds.py mobile spec` + `ds.py mobile scaffold` (`references/mobile.md`).

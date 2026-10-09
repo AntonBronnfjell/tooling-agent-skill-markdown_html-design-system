@@ -1,6 +1,6 @@
 {
   "name": "html-design-system",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 306 components, Storybook, DESIGN.md, MCP server, npm package and CI.",
   "author": {
     "name": "Antonio Escalante"
