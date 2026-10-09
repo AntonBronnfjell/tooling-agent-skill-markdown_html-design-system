@@ -225,6 +225,31 @@ ds.py mobile verify ds --native snapshots/     # pixel + size diff per snapshot 
 | React Native | `theme.ts`, `DsComponents.tsx` (`hitSlop` touch targets, `boxShadow`), Expo-friendly | react-native-view-shot screen |
 | .NET MAUI · Ionic/Capacitor/PWA | `DsTokens.xaml` · `web-mobile.css` | — |
 
+<details>
+<summary><b>How the migration works under the hood</b></summary>
+
+```mermaid
+flowchart LR
+    W["Web system"] --> M["1 · Measure<br/>Chromium at 390 px, 3×"]
+    M --> S["spec.json + reference PNGs"]
+    S --> C["2 · Calibrate<br/>numbers → tokens"]
+    C --> G["3 · Generate<br/>theme · components · tests"]
+    G --> A["App"]
+    A --> L["4 · Lint each edit"]
+    A --> V["5 · Verify<br/>snapshots vs references"]
+    V -- "drift" --> A
+```
+
+1. **Measure.** Every token is resolved per theme to absolute values (px, RGBA, absolute line heights, shadow layers, ms). Then a headless browser opens each component page at phone size and records what it actually *computed* for every demo × theme (size, padding, gap, border, radius, colors, font, text), and screenshots it as the reference PNG.
+2. **Calibrate.** Each measured number is mapped back to the token that has that value (24 px → `icon.size.lg`). Values without a token are kept and flagged; colors follow the token the web really paints with.
+3. **Generate.** Native theme files with platform-correct conversions (Dynamic Type / sp with the CSS line height, light/dark/contrast colors, shadows), core components where every value is a theme name and every state exists, hit areas grown to 44 pt / 48 dp without changing the visible size, and snapshot tests named exactly like the references.
+4. **Lint.** Each native edit is checked for re-typed values, fixed fonts, hover, small targets and foreign icons.
+5. **Verify.** Native snapshots are matched to references by name, compared on size, then pixel by pixel in OKLab (perceptual color distance). Drift writes a red diff image and fails the run; you fix and repeat.
+
+A full walkthrough with a real example (the Fleetline checkbox, where measuring caught a 24 px box and 2 px border the defaults would have missed) is in [references/mobile.md §3](references/mobile.md#3-how-the-migration-works-step-by-step).
+
+</details>
+
 Core components: Button (variants × sizes × pressed/disabled/loading), TextField, Checkbox, Switch, Card, Badge, Alert, Avatar, Tag, Divider. Their numbers come from the web measurement, snapped to the token that has that value; `FIDELITY.md` lists the source of every number and every color the web paints differently from the default role. CI compiles the generated code on the real SDKs.
 
 ## See it independently of your app

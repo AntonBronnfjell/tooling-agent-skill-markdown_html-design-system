@@ -5,11 +5,12 @@ Read this when the design system has to ship on iOS, Android, Flutter, React Nat
 ## Contents
 1. Why migrations drift
 2. The fidelity contract: what stays the same, what adapts
-3. Workflow: spec → scaffold → build the rest → lint → verify
-4. Unit and type conversion
-5. Component mapping per platform
-6. Anti-patterns the linter catches
-7. Limits
+3. How the migration works, step by step (with a worked example)
+4. Workflow: the commands
+5. Unit and type conversion
+6. What the scaffold gives you per target
+7. Anti-patterns the linter catches
+8. Limits
 
 ## 1. Why migrations drift
 
@@ -53,7 +54,70 @@ The cure is **spec first, verify after**: the web system is measured into number
 
 Record any other deliberate adaptation as an ADR in `ds.config.json → decisions`.
 
-## 3. Workflow
+## 3. How the migration works, step by step
+
+```mermaid
+flowchart LR
+    W["Web system<br/>tokens + component pages"] --> M["1 · Measure<br/>browser at phone size"]
+    M --> S["spec.json<br/>+ reference PNGs"]
+    S --> C["2 · Calibrate<br/>numbers → tokens"]
+    C --> G["3 · Generate<br/>theme + components + tests"]
+    G --> A["App code<br/>(agent builds the rest)"]
+    A --> L["4 · Lint<br/>every edit"]
+    A --> T["5 · Snapshot tests<br/>same names as references"]
+    T --> V["6 · Verify<br/>pixel + size diff"]
+    V -- "drift" --> A
+    V -- "pass" --> D["Done: fidelity-report.md"]
+```
+
+The idea: **never let anyone (human or AI) re-type a design value**. Every number comes from the web system by measurement, every native file is generated from those numbers, and the result is compared with pictures of the web.
+
+### Step 1 — Measure the web (`ds.py mobile spec`)
+- ds.py resolves every token for every theme into absolute values: colors as RGBA, `rem` → px, typography roles with an **absolute** line height (CSS `1.5` × 16 px = 24 px), shadows split into layers, durations in ms, easing curves.
+- If Node + Playwright are available, it starts the local docs server and opens each component page in Chromium at **390 × 844 px (a phone), 3× pixel density**, with animations and transitions switched off.
+- For every demo on the page (`data-demo="state:unchecked"` …) and every theme (light, dark, high contrast) it finds the actual component (skipping wrappers like a tag list, using the block class from the CSS header, e.g. `.btn` for button) and reads what the browser **computed**: width, height, padding, gap, border, radius, background, text color, font, size, weight, line height, min-height, the visible text, and the same for the form control inside (the `<input>` of a checkbox).
+- Inline components (badge, tag, button) are measured at their natural width, not stretched by the docs grid.
+- Each demo is screenshotted to `dist/mobile/reference/<file>--<demo>--<theme>.png`. These PNGs are the ground truth.
+
+### Step 2 — Calibrate: turn measurements back into tokens
+For each core component a small recipe says which measurement feeds which property (e.g. checkbox `size` ← the control's width). Then:
+- a measured value that equals a token is written **as that token** (24 px → `icon.size.lg`), so the native code stays themeable;
+- a value no token has is kept as a literal and **flagged** in `FIDELITY.md`, so you can add a token or fix the web;
+- nothing measured → the default token is used and the report says "not measured";
+- colors: if the web paints a component with a different token than the expected role (the badge uses `bg.subtle`, not `bg.muted`), the generated code follows the web. A candidate must match in **every** theme, so a coincidence (white = white) doesn't count.
+
+### Step 3 — Generate (`ds.py mobile scaffold`)
+- **Theme file** per platform, with platform-correct conversions (section 5): colors per theme (iOS resolves light / dark / Increase Contrast at runtime), type styles that keep the CSS line height and still follow Dynamic Type / font scale, shadows, motion, a 44 pt / 48 dp touch-target constant.
+- **10 core components** from templates in which every value is a theme name. States are built in: pressed replaces hover, disabled, loading, error text. Touch targets grow the **hit area** to 44/48 while the visible box keeps the web size (iOS `contentShape`, Android a layout modifier that snapshot tests can turn off, React Native `hitSlop`).
+- **Snapshot tests** that render each component with the same copy, width and theme as the web demo, at 3×, and save it with the **same file name** as the reference.
+- **Icons** from the system sprite as native components (`references/icons.md`), so nobody substitutes SF Symbols or Material icons.
+- **`FIDELITY.md`**: where every number came from, color checks, and the adaptation checklist.
+
+### Step 4 — Lint while building (`ds.py mobile lint` + hook)
+The agent builds the remaining screens and components from `spec.json`. Each Swift / Kotlin / Dart / TSX edit is checked for the classic drift: literal colors, numeric padding/radius, fixed font sizes, hover handlers, targets under 44/48, foreign icons. With `--out`, the scaffold drops `.ds-mobile.json` in the app, and the Claude Code hook reports problems right after each edit.
+
+### Step 5 — Verify (`ds.py mobile verify`)
+- Each native snapshot is matched to its reference by name (prefixes added by snapshot tools, like `testCore.`, are ignored).
+- Sizes are compared first (default ±3 %): a wrong padding or font shows up here.
+- Then pixels: the native image is scaled to the reference size and every pixel pair is compared in **OKLab**, a color space where distance ≈ perceived difference. Pixels with ΔE > 3 count as drift; more than 1 % drifting pixels fails (both thresholds adjustable).
+- Failures produce `dist/mobile/diff/<name>.png` (drifting pixels in red over a faded reference) and a row in `fidelity-report.md`; the command exits 1, so CI can gate on it. Fix and repeat until it passes.
+- Optional `--measurements`: native tests can dump their own numbers (width, radius, colors…) and ds.py compares them with the spec within ±1 px.
+
+### Worked example: the Fleetline checkbox
+1. **Measured** (light theme, `state:unchecked`): control 24 × 24 px, radius 4, border 2 px `rgb(100,116,139)`, gap 12, label "Tyres checked for wear and pressure".
+2. **Calibrated:** 24 → `icon.size.lg`, 4 → `radius.sm`, 2 → `border.width.thick`, 12 → `space.3`, border color = `input.border`. The template defaults were 20 px and a 1 px border; without measuring, the port would have been visibly lighter and smaller.
+3. **Generated** (SwiftUI):
+   ```swift
+   RoundedRectangle(cornerRadius: DSDimension.radiusSm)
+       .strokeBorder(on ? DSColor.actionPrimaryBg : DSColor.inputBorder, lineWidth: DSDimension.borderWidthThick)
+   // …
+   .frame(width: DSDimension.iconSizeLg, height: DSDimension.iconSizeLg)
+   ```
+   `FIDELITY.md` records: `checkbox | size | 24 | web measurement → icon.size.lg`.
+4. **Tested:** `DSSnapshotTests` renders `Toggle("Tyres checked for wear and pressure", …).toggleStyle(DSCheckboxStyle())` at the web width as `checkbox--state_unchecked--light.png`.
+5. **Verified:** `ds.py mobile verify` compares it with `dist/mobile/reference/checkbox--state_unchecked--light.png`; if someone later hard-codes `lineWidth: 1`, the size and pixel diff fail and the linter flags the edit.
+
+## 4. Workflow: the commands
 
 ```bash
 ds.py playwright <ds> && (cd <ds> && npm install && npx playwright install chromium)   # once, for measurement
@@ -70,7 +134,7 @@ ds.py mobile scaffold <ds> --target swiftui,compose,flutter,react-native,maui,we
 
 Fonts must be the real ones on both sides (bundle the DS fonts in the app and load them in golden tests), or text pixels will drift even when the layout is right.
 
-## 4. Conversion
+## 5. Conversion
 
 | Token | SwiftUI | Compose | Flutter | React Native |
 |---|---|---|---|---|
@@ -81,7 +145,7 @@ Fonts must be the real ones on both sides (bundle the DS fonts in the app and lo
 | box-shadow | `.shadow(radius: blur/2)`, no spread | elevation ≈ blur/2 dp | `BoxShadow` with blur sigma matched to CSS | `boxShadow` string (RN 0.76+, New Architecture) |
 | duration / easing | `.timingCurve(…, duration:)` | `tween` + `CubicBezierEasing` | `Duration` + `Cubic` | ms + `Easing.bezier` |
 
-## 5. What the scaffold gives you per target
+## 6. What the scaffold gives you per target
 
 | Target | Files | Needs |
 |---|---|---|
@@ -94,7 +158,7 @@ Fonts must be the real ones on both sides (bundle the DS fonts in the app and lo
 
 UIKit and Android Views: use `ds.py export --target ios|android` (`references/adapters.md`) for colors and dimensions, and the spec for everything else.
 
-## 6. Anti-patterns (`ds.py mobile lint`)
+## 7. Anti-patterns (`ds.py mobile lint`)
 
 | Platform | Flags |
 |---|---|
@@ -105,7 +169,7 @@ UIKit and Android Views: use `ds.py export --target ios|android` (`references/ad
 
 Theme and icon files are exempt. Silence a deliberate exception with a `ds-lint: ignore` comment on that line, and say why.
 
-## 7. Limits
+## 8. Limits
 - Measurement needs Node + Playwright; without them the scaffold uses token defaults and `FIDELITY.md` says so.
 - The 10 core components are generated; the rest of the catalog is built by the agent from the spec (the scaffold is the pattern, not the whole library).
 - Snapshot pixels depend on fonts and OS text rendering: compare on a fixed simulator/emulator image, raise `--max-diff` slightly for text-heavy components, and keep `--size-tolerance` strict.
