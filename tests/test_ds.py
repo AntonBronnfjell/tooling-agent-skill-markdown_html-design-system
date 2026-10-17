@@ -109,6 +109,9 @@ class TestScopes(unittest.TestCase):
             self.assertEqual(ds.expand_scopes(["product", "video", "live"]), ["product", "video", "live", "playback"])
             self.assertEqual(ds.expand_scopes(["product"]), ["product"])
 
+    def test_live_pulls_video_and_playback(self):
+        self.assertEqual(ds.expand_scopes(["product", "live"]), ["product", "live", "video", "playback"])
+
     def test_requires_scopes_gates_component(self):
         comp = {"id": "x-landing", "name": "X", "tier": "core", "file": "x-landing", "demos": ["state:default"],
                 "aria": None, "native": "main", "desc": "", "requires_scopes": ["marketing"]}

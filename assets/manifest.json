@@ -19,11 +19,15 @@
   "commerce": "Commerce UI: product cards, variant pickers, cart, checkout, orders, reviews, PLP/PDP/cart/checkout pages (add for stores and marketplaces)",
   "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)",
   "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player",
-  "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)"
+  "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)",
+  "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)"
  },
  "scope_requires": {
   "video": [
    "playback"
+  ],
+  "live": [
+   "video"
   ]
  },
  "token_groups_required": {
@@ -5309,6 +5313,198 @@
      "aria": null,
      "native": "main",
      "desc": "Marketing landing page for a video product composed from marketing sections.",
+     "requires_scopes": [
+      "marketing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "live",
+   "name": "Live",
+   "scope": "live",
+   "components": [
+    {
+     "id": "live-badge",
+     "name": "Live Badge",
+     "tier": "core",
+     "file": "live-badge",
+     "demos": [
+      "state:live",
+      "state:starting-soon",
+      "state:ended",
+      "state:offline",
+      "variant:with-viewers"
+     ],
+     "aria": null,
+     "native": "span",
+     "desc": "Stream status badge; the word LIVE is always present, with viewer count as text."
+    },
+    {
+     "id": "live-player",
+     "name": "Live Player",
+     "tier": "core",
+     "file": "live-player",
+     "demos": [
+      "state:live-edge",
+      "state:behind-live",
+      "state:reconnecting",
+      "state:offline",
+      "variant:dvr",
+      "variant:latency-indicator"
+     ],
+     "aria": "region",
+     "native": "video + track",
+     "desc": "Live stream player composing video-player; behind the live edge it shows a Go live button."
+    },
+    {
+     "id": "live-chat",
+     "name": "Live Chat",
+     "tier": "core",
+     "file": "live-chat",
+     "demos": [
+      "state:default",
+      "state:paused-scroll",
+      "variant:pinned",
+      "variant:slow-mode",
+      "variant:members-only",
+      "variant:moderation",
+      "state:collapsed"
+     ],
+     "aria": "log",
+     "native": "ol + form",
+     "desc": "Broadcast audience chat in a log region with throttled or opt-in announcements and an N new messages pill."
+    },
+    {
+     "id": "live-reactions",
+     "name": "Live Reactions",
+     "tier": "standard",
+     "file": "live-reactions",
+     "demos": [
+      "state:default",
+      "state:reduced-motion"
+     ],
+     "aria": "group",
+     "native": "button",
+     "desc": "Reaction buttons with floating emoji; reduced motion shows a static count."
+    },
+    {
+     "id": "stream-schedule",
+     "name": "Stream Schedule",
+     "tier": "standard",
+     "file": "stream-schedule",
+     "demos": [
+      "variant:week",
+      "variant:list",
+      "state:reminder-set",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "ol + time",
+     "desc": "Upcoming streams by week or list with set-reminder toggles."
+    },
+    {
+     "id": "live-poll",
+     "name": "Live Poll",
+     "tier": "enterprise",
+     "file": "live-poll",
+     "demos": [
+      "state:open",
+      "state:voted",
+      "state:closed-results"
+     ],
+     "aria": "radiogroup",
+     "native": "form + fieldset + progress",
+     "desc": "Audience poll during a stream with vote and results states."
+    },
+    {
+     "id": "tip-message",
+     "name": "Tip Message",
+     "tier": "enterprise",
+     "file": "tip-message",
+     "demos": [
+      "variant:tiers",
+      "state:pinned"
+     ],
+     "aria": null,
+     "native": "li",
+     "desc": "Paid chat highlight; amount shown as text, optionally pinned."
+    },
+    {
+     "id": "go-live-panel",
+     "name": "Go Live Panel",
+     "tier": "enterprise",
+     "file": "go-live-panel",
+     "demos": [
+      "state:preview",
+      "state:live",
+      "state:health-warning",
+      "variant:stream-key"
+     ],
+     "aria": "region",
+     "native": "form + button",
+     "desc": "Broadcaster panel with preview, health, go-live control and masked stream key with copy button."
+    }
+   ]
+  },
+  {
+   "id": "live-pages",
+   "name": "Live Pages",
+   "scope": "live",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "live-page",
+     "name": "Live Page",
+     "tier": "core",
+     "file": "live-page",
+     "demos": [
+      "variant:with-chat",
+      "variant:theater",
+      "variant:mobile-overlay-chat",
+      "state:offline"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Live player with chat, streamer header and offline state."
+    },
+    {
+     "id": "live-directory",
+     "name": "Live Directory",
+     "tier": "standard",
+     "file": "live-directory",
+     "demos": [
+      "variant:grid",
+      "variant:category",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Directory of live streams as a grid, by category."
+    },
+    {
+     "id": "live-studio",
+     "name": "Live Studio",
+     "tier": "enterprise",
+     "file": "live-studio",
+     "demos": [
+      "variant:dashboard"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Broadcaster dashboard with go-live panel, chat, health and polls."
+    },
+    {
+     "id": "live-landing",
+     "name": "Live Landing",
+     "tier": "standard",
+     "file": "live-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a livestreaming product composed from marketing sections.",
      "requires_scopes": [
       "marketing"
      ]
