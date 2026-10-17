@@ -1,0 +1,27 @@
+[
+  [
+    "color.media.fg",
+    "color.media.surface",
+    4.5
+  ],
+  [
+    "color.media.fg",
+    "color.media.scrim",
+    4.5
+  ],
+  [
+    "color.media.live",
+    "color.media.surface",
+    3
+  ],
+  [
+    "color.media.track.played",
+    "color.media.track.rail",
+    3
+  ],
+  [
+    "color.media.focus",
+    "color.media.surface",
+    3
+  ]
+]

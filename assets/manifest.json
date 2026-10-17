@@ -17,7 +17,8 @@
   "marketing": "Website / landing UI: hero, pricing, testimonials, FAQ, footers, marketing pages (add when the product has a public site)",
   "ai": "AI & chat UI: conversation, streaming, tools, approvals, citations, AI labelling, assistant layouts (add when the product ships an assistant or agent)",
   "commerce": "Commerce UI: product cards, variant pickers, cart, checkout, orders, reviews, PLP/PDP/cart/checkout pages (add for stores and marketplaces)",
-  "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)"
+  "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)",
+  "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player"
  },
  "scope_requires": {},
  "token_groups_required": {
@@ -4888,6 +4889,174 @@
      "aria": "presentation",
      "native": "email-shell",
      "desc": "Grouped activity items with counts, deep links, 'manage notifications' prominent in footer."
+    }
+   ]
+  },
+  {
+   "id": "playback",
+   "name": "Playback",
+   "scope": "playback",
+   "components": [
+    {
+     "id": "play-toggle",
+     "name": "Play Toggle",
+     "tier": "core",
+     "file": "play-toggle",
+     "demos": [
+      "state:play",
+      "state:pause",
+      "state:loading",
+      "state:replay"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Play/pause button whose accessible name changes with state; not aria-pressed."
+    },
+    {
+     "id": "seek-bar",
+     "name": "Seek Bar",
+     "tier": "core",
+     "file": "seek-bar",
+     "demos": [
+      "state:default",
+      "state:buffering",
+      "variant:chapters",
+      "variant:hover-preview",
+      "state:live-edge",
+      "state:disabled"
+     ],
+     "aria": "slider",
+     "native": "input[type=range]",
+     "desc": "Scrubber with buffered and played ranges, chapter ticks and hover preview; aria-valuetext reads \"1:23 of 4:56\"."
+    },
+    {
+     "id": "volume-control",
+     "name": "Volume Control",
+     "tier": "core",
+     "file": "volume-control",
+     "demos": [
+      "state:default",
+      "state:muted",
+      "variant:vertical-popover"
+     ],
+     "aria": "slider",
+     "native": "button + input[type=range]",
+     "desc": "Mute button with volume slider, optionally in a vertical popover."
+    },
+    {
+     "id": "time-display",
+     "name": "Time Display",
+     "tier": "core",
+     "file": "time-display",
+     "demos": [
+      "variant:elapsed-duration",
+      "variant:remaining",
+      "variant:live"
+     ],
+     "aria": null,
+     "native": "time",
+     "desc": "Elapsed/duration, remaining or live time readout."
+    },
+    {
+     "id": "playback-speed",
+     "name": "Playback Speed",
+     "tier": "core",
+     "file": "playback-speed",
+     "demos": [
+      "variant:menu",
+      "variant:stepper"
+     ],
+     "aria": "menu",
+     "native": "button + [popover] menu",
+     "desc": "Speed control from 0.5 to 3x with the current value in the accessible name."
+    },
+    {
+     "id": "captions-menu",
+     "name": "Captions Menu",
+     "tier": "standard",
+     "file": "captions-menu",
+     "demos": [
+      "state:off",
+      "state:on",
+      "variant:tracks",
+      "variant:caption-style"
+     ],
+     "aria": "menu",
+     "native": "button + [popover] menu",
+     "desc": "Caption track picker and caption style (size, background, font) as FCC-style user settings."
+    },
+    {
+     "id": "transcript-panel",
+     "name": "Transcript Panel",
+     "tier": "standard",
+     "file": "transcript-panel",
+     "demos": [
+      "state:synced",
+      "variant:search",
+      "variant:click-to-seek",
+      "state:auto-scroll-paused"
+     ],
+     "aria": "region",
+     "native": "section + ol",
+     "desc": "Searchable transcript synced to playback, with click-to-seek and pausable auto-scroll."
+    },
+    {
+     "id": "media-queue",
+     "name": "Media Queue",
+     "tier": "standard",
+     "file": "media-queue",
+     "demos": [
+      "state:now-playing",
+      "state:empty",
+      "variant:reorder",
+      "variant:up-next"
+     ],
+     "aria": "listbox",
+     "native": "ol",
+     "desc": "Playback queue with now-playing, up-next and reorder (composes sortable-list)."
+    },
+    {
+     "id": "mini-player",
+     "name": "Mini Player",
+     "tier": "standard",
+     "file": "mini-player",
+     "demos": [
+      "variant:bottom-bar",
+      "variant:floating",
+      "state:expanded"
+     ],
+     "aria": "region",
+     "native": "aside",
+     "desc": "Persistent compact player as a bottom bar or floating, expandable to full."
+    },
+    {
+     "id": "sleep-timer",
+     "name": "Sleep Timer",
+     "tier": "enterprise",
+     "file": "sleep-timer",
+     "demos": [
+      "variant:minutes",
+      "variant:end-of-chapter",
+      "state:active"
+     ],
+     "aria": "menu",
+     "native": "button + [popover] menu",
+     "desc": "Stops playback after a set time or at end of chapter, with a visible active state."
+    },
+    {
+     "id": "cast-button",
+     "name": "Cast Button",
+     "tier": "enterprise",
+     "file": "cast-button",
+     "demos": [
+      "state:available",
+      "state:connecting",
+      "state:connected",
+      "state:unavailable"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Remote Playback API / AirPlay device picker with connection states."
     }
    ]
   }

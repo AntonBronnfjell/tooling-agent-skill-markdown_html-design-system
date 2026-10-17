@@ -1,0 +1,105 @@
+{
+  "color": {
+    "$type": "color",
+    "media": {
+      "surface": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hex": "#000000"
+        },
+        "$description": "Player surface: always dark in every theme (video letterbox, control bar)."
+      },
+      "scrim": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hex": "#000000"
+        },
+        "$description": "Caption/control scrim behind text. Opaque here; apply alpha in CSS only when the measured result still meets 4.5:1."
+      },
+      "fg": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Icons and text on the player. 21.0:1 on surface, 21.0:1 on scrim."
+      },
+      "track": {
+        "rail": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.3137,
+              0.3137,
+              0.3765
+            ],
+            "hex": "#505060"
+          },
+          "$description": "Seek/volume track rail."
+        },
+        "buffered": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.6039,
+              0.6039,
+              0.6588
+            ],
+            "hex": "#9a9aa8"
+          },
+          "$description": "Buffered range."
+        },
+        "played": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.6157,
+              0.7529,
+              1.0
+            ],
+            "hex": "#9dc0ff"
+          },
+          "$description": "Played range; 4.3:1 against rail (3:1 UI minimum)."
+        }
+      },
+      "live": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.3529,
+            0.3529
+          ],
+          "hex": "#ff5a5a"
+        },
+        "$description": "LIVE badge/edge marker; 6.86:1 on surface. Always with the text LIVE."
+      },
+      "focus": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            0.8392,
+            0.0392
+          ],
+          "hex": "#ffd60a"
+        },
+        "$description": "Focus ring on media controls; 14.87:1 on surface."
+      }
+    }
+  }
+}
