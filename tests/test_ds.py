@@ -146,6 +146,17 @@ class TestBuild(Temp):
         self.assertTrue(css.startswith("@layer reset, tokens, base, components, patterns, utilities;"))
         self.assertTrue((root / "tokens" / "resolver.json").exists())
 
+    def test_init_expands_required_scopes(self):
+        root = self.init("--scopes", "product,video")
+        cfg = json.loads((root / "ds.config.json").read_text(encoding="utf-8"))
+        self.assertEqual(cfg["scopes"], ["product", "video", "playback"])
+        self.assertTrue((root / "tokens" / "scopes" / "playback.json").exists())
+        ids = {c["id"] for _, c in ds.components({**cfg, "tier": "standard"})}
+        self.assertIn("seek-bar", ids)
+        self.assertNotIn("video-landing", ids)  # requires marketing
+        self.assertIn("video-landing", {c["id"] for _, c in ds.components({**cfg, "tier": "standard",
+                                                                            "scopes": cfg["scopes"] + ["marketing"]})})
+
     def test_golden_outputs(self):
         root = self.init()
         run("build", root)

@@ -18,9 +18,14 @@
   "ai": "AI & chat UI: conversation, streaming, tools, approvals, citations, AI labelling, assistant layouts (add when the product ships an assistant or agent)",
   "commerce": "Commerce UI: product cards, variant pickers, cart, checkout, orders, reviews, PLP/PDP/cart/checkout pages (add for stores and marketplaces)",
   "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)",
-  "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player"
+  "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player",
+  "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)"
  },
- "scope_requires": {},
+ "scope_requires": {
+  "video": [
+   "playback"
+  ]
+ },
  "token_groups_required": {
   "core": [
    "color",
@@ -5057,6 +5062,256 @@
      "aria": null,
      "native": "button",
      "desc": "Remote Playback API / AirPlay device picker with connection states."
+    }
+   ]
+  },
+  {
+   "id": "video",
+   "name": "Video",
+   "scope": "video",
+   "components": [
+    {
+     "id": "video-player",
+     "name": "Video Player",
+     "tier": "core",
+     "file": "video-player",
+     "demos": [
+      "variant:inline",
+      "variant:theater",
+      "variant:fullscreen",
+      "variant:with-chapters",
+      "state:loading",
+      "state:buffering",
+      "state:error",
+      "state:ended"
+     ],
+     "aria": "region",
+     "native": "video + track",
+     "desc": "Player shell composing the playback controls; no autoplay with sound, captions on by preference."
+    },
+    {
+     "id": "video-card",
+     "name": "Video Card",
+     "tier": "core",
+     "file": "video-card",
+     "demos": [
+      "variant:grid",
+      "variant:list",
+      "variant:compact",
+      "state:watched-progress",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "article + a",
+     "desc": "Thumbnail, duration, title, channel and stats linking to the watch page; watched progress shown as bar plus text."
+    },
+    {
+     "id": "video-end-screen",
+     "name": "Video End Screen",
+     "tier": "standard",
+     "file": "video-end-screen",
+     "demos": [
+      "state:countdown",
+      "state:cancelled",
+      "variant:suggestions"
+     ],
+     "aria": "region",
+     "native": "section + button",
+     "desc": "Post-playback overlay with suggestions; the autoplay countdown is cancelable and never starts under reduced motion without a visible control."
+    },
+    {
+     "id": "video-quality-menu",
+     "name": "Video Quality Menu",
+     "tier": "standard",
+     "file": "video-quality-menu",
+     "demos": [
+      "variant:auto",
+      "variant:manual",
+      "state:data-saver"
+     ],
+     "aria": "menu",
+     "native": "[popover] + menu",
+     "desc": "Menu button for resolution choice with Auto, manual levels and a data-saver mode."
+    },
+    {
+     "id": "playlist-panel",
+     "name": "Playlist Panel",
+     "tier": "standard",
+     "file": "playlist-panel",
+     "demos": [
+      "state:current-item",
+      "variant:collapsible",
+      "variant:shuffle-loop"
+     ],
+     "aria": null,
+     "native": "ol + button",
+     "desc": "Ordered list of playlist videos with the current item marked, collapsible, with shuffle and loop toggles."
+    },
+    {
+     "id": "creator-header",
+     "name": "Creator Header",
+     "tier": "standard",
+     "file": "creator-header",
+     "demos": [
+      "variant:banner",
+      "variant:compact",
+      "state:subscribed"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Channel identity with avatar, name, stats and subscribe button, as a banner or compact bar."
+    },
+    {
+     "id": "subscribe-button",
+     "name": "Subscribe Button",
+     "tier": "core",
+     "file": "subscribe-button",
+     "demos": [
+      "state:subscribe",
+      "state:subscribed",
+      "variant:with-notifications-bell"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Toggle button whose name flips between Subscribe and Subscribed, with optional notifications bell menu."
+    },
+    {
+     "id": "content-warning",
+     "name": "Content Warning",
+     "tier": "standard",
+     "file": "content-warning",
+     "demos": [
+      "variant:age-gate",
+      "variant:sensitive",
+      "state:revealed"
+     ],
+     "aria": null,
+     "native": "section + button",
+     "desc": "Interstitial that hides age-restricted or sensitive media until the viewer confirms."
+    },
+    {
+     "id": "video-upload",
+     "name": "Video Upload",
+     "tier": "enterprise",
+     "file": "video-upload",
+     "demos": [
+      "state:uploading",
+      "state:processing",
+      "state:ready",
+      "state:failed",
+      "variant:metadata-form",
+      "variant:thumbnail-picker"
+     ],
+     "aria": null,
+     "native": "input[type=file] + progress",
+     "desc": "Upload flow with progress, processing and failure states, a metadata form and a thumbnail picker."
+    }
+   ]
+  },
+  {
+   "id": "video-pages",
+   "name": "Video Pages",
+   "scope": "video",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "watch-page",
+     "name": "Watch Page",
+     "tier": "core",
+     "file": "watch-page",
+     "demos": [
+      "variant:default",
+      "variant:theater",
+      "variant:with-playlist",
+      "variant:mobile"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Player with title, creator header, description, comments and related videos."
+    },
+    {
+     "id": "video-home",
+     "name": "Video Home",
+     "tier": "core",
+     "file": "video-home",
+     "demos": [
+      "variant:grid",
+      "variant:category-chips",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Home feed of video cards with optional category chips."
+    },
+    {
+     "id": "channel-page",
+     "name": "Channel Page",
+     "tier": "standard",
+     "file": "channel-page",
+     "demos": [
+      "variant:videos",
+      "variant:about",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Creator header with tabs for videos and about."
+    },
+    {
+     "id": "video-library",
+     "name": "Video Library",
+     "tier": "standard",
+     "file": "video-library",
+     "demos": [
+      "variant:history",
+      "variant:watch-later",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Viewer history and watch-later lists."
+    },
+    {
+     "id": "video-search-results",
+     "name": "Video Search Results",
+     "tier": "standard",
+     "file": "video-search-results",
+     "demos": [
+      "variant:filters",
+      "state:no-results"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Search results of video cards with filters and a no-results state."
+    },
+    {
+     "id": "video-studio",
+     "name": "Video Studio",
+     "tier": "enterprise",
+     "file": "video-studio",
+     "demos": [
+      "variant:content-list",
+      "variant:edit-video"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Creator back office: content list table and video editing form."
+    },
+    {
+     "id": "video-landing",
+     "name": "Video Landing",
+     "tier": "standard",
+     "file": "video-landing",
+     "demos": [
+      "variant:default",
+      "variant:with-pricing"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a video product composed from marketing sections.",
+     "requires_scopes": [
+      "marketing"
+     ]
     }
    ]
   }
