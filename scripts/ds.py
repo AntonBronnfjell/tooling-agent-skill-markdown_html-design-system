@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """html-design-system CLI. Stdlib only.
 
-  ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing] [--force]
+  ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing,...] [--force]
   ds.py audit [path] [--url URL] [--json]   inventory the de-facto design system of a codebase or a live site
   ds.py build <dir>                  tokens -> dist/tokens.css, bundle dist/ds.css, docs index.html
   ds.py check <dir> [--strict]       validate tokens + contrast, lint CSS/HTML, coverage summary
@@ -213,12 +213,22 @@ def page_dir(cat_id):
     return "patterns" if cat_id in PAGE_CATS else "components"
 
 
+def expand_scopes(scopes):
+    """Add the base scopes each scope needs (manifest scope_requires), transitively; requested order first."""
+    out = list(dict.fromkeys(scopes))
+    for s in out:  # out grows while iterating -> fixed point
+        out += [r for r in MANIFEST.get("scope_requires", {}).get(s, []) if r not in out]
+    return out
+
+
 def components(cfg=None, all_tiers=False):
-    scopes = set((cfg or {}).get("scopes") or ["product"])
+    scopes = set(expand_scopes((cfg or {}).get("scopes") or ["product"]))
     for cat in MANIFEST["categories"]:
         if cfg is not None and cat.get("scope", "product") not in scopes:
             continue  # e.g. marketing sections only when "marketing" is in ds.config.json scopes
         for c in cat["components"]:
+            if cfg is not None and not set(c.get("requires_scopes", ())) <= scopes:
+                continue  # e.g. a scope's landing page only when marketing is on too
             if all_tiers or cfg is None or in_tier(c["tier"], cfg["tier"]):
                 yield cat, c
 
@@ -742,6 +752,10 @@ def cmd_init(a):
     bad = [x for x in cfg["scopes"] if x not in MANIFEST["scopes"]]
     if bad:
         sys.exit(f"unknown scope(s) {bad}; known: {list(MANIFEST['scopes'])}")
+    asked = list(cfg["scopes"])
+    cfg["scopes"] = expand_scopes(asked)
+    if len(cfg["scopes"]) > len(asked):
+        print(f"scopes: {', '.join(asked)} (+ {', '.join(cfg['scopes'][len(asked):])}, required)")
     for scope in cfg.get("scopes", []):
         sdir = SKILL / "assets" / "templates" / "scopes" / scope
         if not sdir.exists():
@@ -4525,7 +4539,7 @@ def main():
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("init"); p.add_argument("dir"); p.add_argument("--name"); p.add_argument("--force", action="store_true")
     p.add_argument("--tier", choices=TIERS, help="default: enterprise (or the existing system's tier)")
-    p.add_argument("--scopes", help="comma list, default product: product (app UI), marketing, ai, commerce, email")
+    p.add_argument("--scopes", help="comma list, default product. Known: " + ", ".join(MANIFEST["scopes"]))
     p.add_argument("--project", help="host project root: records stack + sync targets from `ds.py detect`")
     p.add_argument("--adopt", action="store_true", help="allow a non-empty folder; existing files are never overwritten")
     p = sp.add_parser("audit"); p.add_argument("path", nargs="?", default=".")

@@ -12,6 +12,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO = Path(__file__).resolve().parent.parent
 DS = REPO / "scripts" / "ds.py"
@@ -47,7 +48,8 @@ class TestManifest(unittest.TestCase):
                 "email-templates": "email"}
         for cat in m["categories"]:
             self.assertIn(cat.get("scope", "product"), m["scopes"], cat["id"])
-            text = (REPO / "references" / "components" / f"{docs[cat['id']]}.md").read_text(encoding="utf-8")
+            doc = docs.get(cat["id"], cat.get("scope", "product"))  # opt-in scopes: references/components/<scope>.md
+            text = (REPO / "references" / "components" / f"{doc}.md").read_text(encoding="utf-8")
             for c in cat["components"]:
                 self.assertNotIn(c["id"], ids, f"duplicate id {c['id']}")
                 ids.add(c["id"])
@@ -57,7 +59,11 @@ class TestManifest(unittest.TestCase):
                 for marker in c["demos"]:
                     self.assertRegex(marker, r"^(state|variant|size):[\w./-]+$", c["id"])
                 self.assertTrue(c["id"] in text or c["file"] in text or c["name"].split(" (")[0] in text,
-                                f"{c['id']} has no spec in references/components/{docs[cat['id']]}.md")
+                                f"{c['id']} has no spec in references/components/{doc}.md")
+        for k, reqs in m.get("scope_requires", {}).items():
+            self.assertIn(k, m["scopes"])
+            for r in reqs:
+                self.assertIn(r, m["scopes"], f"scope_requires[{k}] -> unknown {r}")
         self.assertGreaterEqual(len(ids), 306)
 
     def test_skill_frontmatter(self):
@@ -96,6 +102,29 @@ class TestColorsAndTokens(unittest.TestCase):
         self.assertEqual(tree["color"]["b"]["$value"], "{color.a}")
 
 
+class TestScopes(unittest.TestCase):
+    def test_expand_scopes_transitive_and_ordered(self):
+        with mock.patch.dict(ds.MANIFEST, {"scope_requires": {"live": ["video"], "video": ["playback"]}}):
+            self.assertEqual(ds.expand_scopes(["product", "live"]), ["product", "live", "video", "playback"])
+            self.assertEqual(ds.expand_scopes(["product", "video", "live"]), ["product", "video", "live", "playback"])
+            self.assertEqual(ds.expand_scopes(["product"]), ["product"])
+
+    def test_requires_scopes_gates_component(self):
+        comp = {"id": "x-landing", "name": "X", "tier": "core", "file": "x-landing", "demos": ["state:default"],
+                "aria": None, "native": "main", "desc": "", "requires_scopes": ["marketing"]}
+        cats = [{"id": "x", "name": "X", "scope": "product", "components": [comp]}]
+        with mock.patch.dict(ds.MANIFEST, {"categories": cats}):
+            self.assertEqual(list(ds.components({"tier": "core", "scopes": ["product"]})), [])
+            self.assertEqual(len(list(ds.components({"tier": "core", "scopes": ["product", "marketing"]}))), 1)
+
+    def test_hand_edited_config_gets_required_scopes(self):
+        cats = [{"id": "p", "name": "P", "scope": "playback",
+                 "components": [{"id": "p1", "name": "P1", "tier": "core", "file": "p1", "demos": ["state:default"],
+                                 "aria": None, "native": "button", "desc": ""}]}]
+        with mock.patch.dict(ds.MANIFEST, {"categories": cats, "scope_requires": {"music": ["playback"]}}):
+            self.assertEqual(len(list(ds.components({"tier": "core", "scopes": ["product", "music"]}))), 1)
+
+
 class TestBuild(Temp):
     def _write(self, root, name, text):
         p_ = root / "components" / name
@@ -132,7 +161,7 @@ class TestBuild(Temp):
             self.assertEqual(got, gold.read_text(encoding="utf-8"), f"{rel} changed — review, then UPDATE_GOLDEN=1")
 
     def test_all_scopes(self):
-        root = self.init("--scopes", "product,marketing,ai,commerce,email")
+        root = self.init("--scopes", ",".join(ds.MANIFEST["scopes"]))
         out = run("check", root).stdout
         self.assertIn("- ok", out)
         self.assertRegex(out, r"Coverage: 0/\d+")

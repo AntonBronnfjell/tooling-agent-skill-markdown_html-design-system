@@ -19,6 +19,7 @@
   "commerce": "Commerce UI: product cards, variant pickers, cart, checkout, orders, reviews, PLP/PDP/cart/checkout pages (add for stores and marketplaces)",
   "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)"
  },
+ "scope_requires": {},
  "token_groups_required": {
   "core": [
    "color",
