@@ -96,7 +96,7 @@ Sources are named as rules: ARIA APG `log` role, WCAG 2.2.2, 2.3.3, 4.1.3 and 1.
 - Mobile keeps the player pinned and the composer above the keyboard.
 
 ### live-directory
-- Composition: heading, category chips (a toolbar, single-select as `menuitemradio` or `aria-pressed` toggles per the video conventions) and a responsive grid of live stream cards (`video-card` with `live-badge` and viewer count).
+- Composition: heading, category chips (a `role="toolbar"` of `<button aria-pressed>` toggles, only one pressed at a time and the pressed chip with a check, as in video-home) and a responsive grid of live stream cards (`video-card` with `live-badge` and viewer count).
 - `variant:grid`: 1 to 5 columns sorted by viewers. `variant:category`: one category with a header and sort menu. `state:empty`: "No one is live in {category}" with the schedule link. Viewer counts refresh without moving the cards under the pointer (re-sort on request only).
 
 ### live-studio
