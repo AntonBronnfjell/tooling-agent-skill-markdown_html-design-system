@@ -84,7 +84,7 @@ Sources are named as rules, not numbers: WCAG 2.2, WebVTT, Media Session API, Re
 ## 4. Queue & presence
 
 ### media-queue
-- An `<ol>` of items (artwork, title, creator, duration) in a labelled region "Queue"; the playing item has `aria-current="true"` and a "Now playing" text label with an equalizer glyph that is static under reduced motion.
+- A plain list (`<ol>`, implicit `list` role, not a listbox, since items hold buttons and menus) of items (artwork, title, creator, duration) inside a labelled region "Queue"; the playing item has `aria-current="true"` and a "Now playing" text label with an equalizer glyph that is static under reduced motion.
 - `state:now-playing`: current item pinned at the top. `state:empty`: "Nothing queued" with an action to browse.
 - `variant:reorder`: composes `sortable-list` (drag handle plus keyboard Up/Down move buttons, live announcement "Moved to position 3 of 8"); remove has Undo.
 - `variant:up-next`: compact view showing the next 1-3 items with "Play next"/"Add to queue" in the item menu.

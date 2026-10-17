@@ -5011,8 +5011,8 @@
       "variant:reorder",
       "variant:up-next"
      ],
-     "aria": "listbox",
-     "native": "ol",
+     "aria": "list",
+     "native": "ol + button (move/remove)",
      "desc": "Playback queue with now-playing, up-next and reorder (composes sortable-list)."
     },
     {
