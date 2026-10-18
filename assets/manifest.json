@@ -26,7 +26,8 @@
   "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages",
   "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages",
   "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages",
-  "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages"
+  "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages",
+  "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages"
  },
  "scope_requires": {
   "video": [
@@ -7405,6 +7406,247 @@
      "aria": null,
      "native": "main",
      "desc": "Report builder with preview, save, schedule and export actions."
+    }
+   ]
+  },
+  {
+   "id": "erp",
+   "name": "ERP",
+   "scope": "erp",
+   "components": [
+    {
+     "id": "record-header",
+     "name": "Record Header",
+     "tier": "core",
+     "file": "record-header",
+     "demos": [
+      "variant:status-actions",
+      "variant:prev-next",
+      "state:locked"
+     ],
+     "aria": "region",
+     "native": "header + h1 + button",
+     "desc": "Object-page header with title, key facts, status and primary actions; prev/next record navigation; locked state names who holds the lock."
+    },
+    {
+     "id": "line-item-editor",
+     "name": "Line Item Editor",
+     "tier": "core",
+     "file": "line-item-editor",
+     "demos": [
+      "state:default",
+      "state:editing-cell",
+      "state:invalid-cell",
+      "variant:totals",
+      "variant:add-row"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Editable line grid that behaves like a spreadsheet (arrows, Enter/F2, Escape, Tab leaves) with per-cell validation and polite totals."
+    },
+    {
+     "id": "status-workflow",
+     "name": "Status Workflow",
+     "tier": "core",
+     "file": "status-workflow",
+     "demos": [
+      "state:draft",
+      "state:submitted",
+      "state:approved",
+      "state:posted",
+      "state:rejected"
+     ],
+     "aria": null,
+     "native": "ol + button",
+     "desc": "Record status as text plus icon with transitions as action-named buttons; irreversible posting requires a review and confirm step."
+    },
+    {
+     "id": "master-data-lookup",
+     "name": "Master Data Lookup",
+     "tier": "core",
+     "file": "master-data-lookup",
+     "demos": [
+      "variant:code-name-columns",
+      "state:no-match",
+      "variant:create-new"
+     ],
+     "aria": "combobox",
+     "native": "input[role=combobox] + [popover] table",
+     "desc": "Lookup of a master record by code or name with a multi-column result list, an explicit no-match state and an optional create-new action."
+    },
+    {
+     "id": "approval-panel",
+     "name": "Approval Panel",
+     "tier": "standard",
+     "file": "approval-panel",
+     "demos": [
+      "state:pending",
+      "state:approved",
+      "state:rejected",
+      "variant:chain",
+      "variant:delegated"
+     ],
+     "aria": "region",
+     "native": "section + ol + button",
+     "desc": "Approver decision panel with approve/reject, required reject reason, approval chain and delegation shown as text."
+    },
+    {
+     "id": "audit-log",
+     "name": "Audit Log",
+     "tier": "standard",
+     "file": "audit-log",
+     "demos": [
+      "variant:field-changes",
+      "variant:filters",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "table",
+     "desc": "Who changed what and when, with old and new field values, filters and an empty state."
+    },
+    {
+     "id": "inventory-level",
+     "name": "Inventory Level",
+     "tier": "standard",
+     "file": "inventory-level",
+     "demos": [
+      "state:in-stock",
+      "state:low",
+      "state:out",
+      "variant:by-location"
+     ],
+     "aria": null,
+     "native": "meter + table",
+     "desc": "Stock quantity with status text and icon (in stock, low, out) and a per-location breakdown."
+    },
+    {
+     "id": "print-layout",
+     "name": "Print Layout",
+     "tier": "standard",
+     "file": "print-layout",
+     "demos": [
+      "variant:invoice",
+      "variant:purchase-order"
+     ],
+     "aria": null,
+     "native": "article + @page",
+     "desc": "Printable document layout with @page rules and a print stylesheet that removes all interactive chrome."
+    },
+    {
+     "id": "batch-edit",
+     "name": "Batch Edit",
+     "tier": "enterprise",
+     "file": "batch-edit",
+     "demos": [
+      "state:preview",
+      "state:applying",
+      "state:partial-failure"
+     ],
+     "aria": "dialog",
+     "native": "dialog + table",
+     "desc": "Edit one field across many selected records with a before/after preview, progress and per-record failure report."
+    },
+    {
+     "id": "import-wizard",
+     "name": "Import Wizard",
+     "tier": "enterprise",
+     "file": "import-wizard",
+     "demos": [
+      "state:mapping",
+      "state:validation-report",
+      "state:dry-run",
+      "state:imported"
+     ],
+     "aria": null,
+     "native": "ol + select + table",
+     "desc": "Multi-step file import: column mapping, validation report, dry run and final result."
+    }
+   ]
+  },
+  {
+   "id": "erp-pages",
+   "name": "ERP Pages",
+   "scope": "erp",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "record-list-page",
+     "name": "Record List Page",
+     "tier": "core",
+     "file": "record-list-page",
+     "demos": [
+      "variant:dense",
+      "variant:saved-views",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "List of records with filters, saved views and bulk actions."
+    },
+    {
+     "id": "record-form-page",
+     "name": "Record Form Page",
+     "tier": "core",
+     "file": "record-form-page",
+     "demos": [
+      "variant:header-tabs-lines",
+      "state:dirty",
+      "state:readonly"
+     ],
+     "aria": null,
+     "native": "main + form",
+     "desc": "Record header, tabbed sections and line items with dirty-state guard and read-only mode."
+    },
+    {
+     "id": "purchase-order-page",
+     "name": "Purchase Order Page",
+     "tier": "standard",
+     "file": "purchase-order-page",
+     "demos": [
+      "variant:draft",
+      "variant:approved"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Purchase order record with lines, status workflow, approval and print."
+    },
+    {
+     "id": "inventory-page",
+     "name": "Inventory Page",
+     "tier": "standard",
+     "file": "inventory-page",
+     "demos": [
+      "variant:stock-list",
+      "variant:item-detail"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Stock list and item detail with levels by location and movement history."
+    },
+    {
+     "id": "approvals-inbox",
+     "name": "Approvals Inbox",
+     "tier": "standard",
+     "file": "approvals-inbox",
+     "demos": [
+      "state:with-items",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Queue of items awaiting the user's decision, with inline approve and reject."
+    },
+    {
+     "id": "import-page",
+     "name": "Import Page",
+     "tier": "enterprise",
+     "file": "import-page",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Page hosting the import-wizard for bulk data load."
     }
    ]
   }
