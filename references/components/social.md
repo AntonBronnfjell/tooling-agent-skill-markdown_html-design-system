@@ -52,7 +52,7 @@ Sources: WCAG 2.2 (2.2.2 Pause, Stop, Hide; 2.5.3 Label in Name; 2.5.8 Target Si
 
 ### people-suggestions
 - Markup: a labelled `<section>` with `<h2>` "Suggested for you" containing a `ul` of `user-row` or cards with a visible reason ("Followed by Sam", "Based on people you follow"), a `follow-button` and a Dismiss button ("Dismiss Ana Ruiz"). A "Why am I seeing this?" link explains the signals.
-- `variant:carousel`: wraps product `carousel` with Previous and Next buttons, scroll-snap, no auto-advance, and a visible "See all" link; every card is reachable by keyboard without the arrows. `variant:list`: a plain vertical list of `user-row variant:with-follow`.
+- `variant:carousel`: wraps product `carousel` with Previous and Next buttons, scroll-snap, no auto-advance, and a visible "See all" link; every card is reachable by keyboard without the arrows. `variant:list`: a plain vertical list of `user-row variant:with-follow`. When placed inside a `feed` (as on `home-feed-page`) the block is an `<article aria-label="Suggested people">` counted in `aria-setsize` and `aria-posinset`, not a bare section; outside a feed it is the labelled `<section>`.
 - `state:empty`: `empty-state` "No suggestions right now" with "Find people" linking to `explore-page`; never an empty gap. Dismissing removes the item and moves focus to the next one, announcing "Suggestion dismissed".
 - Failure: the section hides itself rather than showing an error. Reduced motion: scroll without smooth animation. Never pre-follow anyone or use contact-import data without explicit consent.
 
@@ -91,7 +91,7 @@ Sources: WCAG 2.2 (2.2.2 Pause, Stop, Hide; 2.5.3 Label in Name; 2.5.8 Target Si
 - `state:playing`: items advance after 5 seconds (images) or at the video end. Under WCAG 2.2.2 a visible Pause button is always present; auto-advance also pauses on pointer hold (press and hold), on hover, and while any control or the reply field has focus, and resumes on release or blur.
 - `state:paused`: the control flips its visible label and accessible name together from "Pause" to "Play" (icon plus text, no `aria-pressed`) and the current segment stops filling. `state:reduced-motion`: `prefers-reduced-motion: reduce` means no auto-advance and no progress animation; the user moves with Next and Previous, and video does not autoplay.
 - `variant:reply`: a `<form>` with a labelled field ("Reply to Ana") and Send, plus quick emoji buttons; focusing the field pauses the story; sent state is announced ("Reply sent").
-- Keyboard: Left and Right arrows go to previous and next item, Space toggles pause (when focus is not in the reply field), Esc closes and returns focus to the tray item, Tab is trapped inside the dialog. Tap zones on touch are supplements to the buttons, never the only way. Captions are available for video and are on by default when the user has enabled captions in the product.
+- Keyboard: Left and Right arrows (previous and next item) and Space (toggle pause) are shortcuts that apply only when focus is on the dialog itself or the media or progress area; they never fire in the reply field (arrows move the caret, Space types) or on a focused button, where native Enter and Space activation of Pause, Previous, Next and Close is left alone so nothing double-fires. Esc closes and returns focus to the tray item, Tab is trapped inside the dialog. Tap zones on touch are supplements to the buttons, never the only way. Captions are available for video and are on by default when the user has enabled captions in the product.
 - Safety: the viewer's header has the "More actions" menu (Report, Mute, Block) reachable with the keyboard. Failure: a media error shows "Couldn't load this story" with a Next button.
 
 ## 5. Safety
@@ -118,7 +118,7 @@ Sources: WCAG 2.2 (2.2.2 Pause, Stop, Hide; 2.5.3 Label in Name; 2.5.8 Target Si
 - Mobile: header stacks, counts in a row, tabs scroll horizontally with visible scroll cues, the safety menu remains in the header.
 
 ### home-feed-page
-- Composition: `<main>` with `<h1>` (visually hidden "Home"), `stories-tray`, `post-composer`, a tab group (Following, For you) and the `feed` of `post-card`s with `reaction-bar`; `people-suggestions` inserted after the first screenful (a labelled section inside the feed, not an article).
+- Composition: `<main>` with `<h1>` (visually hidden "Home"), `stories-tray`, `post-composer`, a tab group (Following, For you) and the `feed` of `post-card`s with `reaction-bar`; `people-suggestions` inserted after the first screenful as an `<article aria-label="Suggested people">` inside the feed (APG `feed` children must be articles), counted in `aria-setsize` and `aria-posinset` like any post.
 - `variant:following`: chronological posts from followed accounts, with a "New posts" button instead of automatically shifting the list. `variant:for-you`: ranked posts with a "Why am I seeing this?" per post and a control to see less of a topic; the tab's name states the order.
 - `state:loading`: `skeleton` post cards and `aria-busy="true"` on the feed; the feed keeps existing posts while loading more; a "Load more" button is the fallback to infinite scroll; a polite status announces "10 more posts loaded".
 - Mobile: single column, the composer collapses to a button opening a full-screen `post-composer`, tab bar remains reachable, no scroll hijack.
