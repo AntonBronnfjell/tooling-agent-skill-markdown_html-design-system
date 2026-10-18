@@ -44,13 +44,13 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.2902,
-              0.2902,
-              0.3373
+              0.4314,
+              0.4314,
+              0.4784
             ],
-            "hex": "#4a4a56"
+            "hex": "#6e6e7a"
           },
-          "$description": "Seek/volume track rail; darkened so the played range keeps >=3:1 against it."
+          "$description": "Seek/volume track rail; 4.17:1 on surface (3:1 UI), played range 5.03:1 against it."
         },
         "buffered": {
           "$value": {

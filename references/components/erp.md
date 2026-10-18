@@ -1,6 +1,6 @@
 # ERP components & pages — specs
 
-Scope `erp` (enable with `ds.py init --scopes product,erp` or add `"erp"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). Components live in `components/<file>.html` (category **ERP**); full pages in `patterns/<file>.html` (category **ERP Pages**). ERP components compose product components (`data-table`, `combobox`, `stepper`, `timeline`, `file-upload`, `saved-filters`, `modal`, `error-summary`, `button-primary`) — wrap them, never re-style them.
+Scope `erp` (enable with `ds.py init --scopes product,erp` or add `"erp"` to `ds.config.json → scopes`). Components live in `components/<file>.html` (category **ERP**); full pages in `patterns/<file>.html` (category **ERP Pages**). ERP components compose product components (`data-table`, `combobox`, `stepper`, `timeline`, `file-upload`, `saved-filters`, `modal`, `error-summary`, `button-primary`) — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every ERP surface

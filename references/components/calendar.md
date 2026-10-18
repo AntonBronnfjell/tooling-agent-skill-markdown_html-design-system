@@ -1,6 +1,6 @@
 # Calendar components & pages — specs
 
-Scope `calendar` (enable with `ds.py init --scopes product,calendar` or add `"calendar"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). Components live in `components/<file>.html` (category **Calendar**); full pages in `patterns/<file>.html` (category **Calendar Pages**). Calendar components compose product components (`date-field`, `time-picker`, `calendar`, `combobox`, `modal`, `popover`, `badge`, `button-primary`, `segmented-control`) — wrap them, never re-style them. Component ids are `calendar-month`, `calendar-week` and so on; they do not collide with the product component `calendar` (a date picker whose file is `date-picker`).
+Scope `calendar` (enable with `ds.py init --scopes product,calendar` or add `"calendar"` to `ds.config.json → scopes`). Components live in `components/<file>.html` (category **Calendar**); full pages in `patterns/<file>.html` (category **Calendar Pages**). Calendar components compose product components (`date-field`, `time-picker`, `calendar`, `combobox`, `modal`, `popover`, `badge`, `button-primary`, `segmented-control`) — wrap them, never re-style them. Component ids are `calendar-month`, `calendar-week` and so on; they do not collide with the product component `calendar` (a date picker whose file is `date-picker`).
 
 ## Contents
 1. Rules for every calendar surface

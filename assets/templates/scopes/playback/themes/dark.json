@@ -86,7 +86,7 @@
           ],
           "hex": "#c62828"
         },
-        "$description": "LIVE badge/edge marker fill; 3.49:1 on surface (3:1 UI), white live-fg text on it 5.62:1. Always with the text LIVE."
+        "$description": "LIVE badge/edge marker fill; 3.74:1 on surface (3:1 UI), white live-fg text on it 5.62:1. Always with the text LIVE."
       },
       "live-fg": {
         "$value": {

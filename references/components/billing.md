@@ -1,6 +1,6 @@
 # Billing components & pages — specs
 
-Scope `billing` (enable with `ds.py init --scopes product,billing` or add `"billing"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). It has no required scopes. Components live in `components/<file>.html` (category **Billing**); full pages in `patterns/<file>.html` (category **Billing Pages**). Billing components compose product components — `payment-card-entry`, `data-table`, `meter`, `alert`, `modal`, `delete-with-confirmation`, `button-primary`, `form-field`, `badge` — wrap them, never re-style them. This is in-app account billing, not storefront checkout and not a marketing page.
+Scope `billing` (enable with `ds.py init --scopes product,billing` or add `"billing"` to `ds.config.json → scopes`). It has no required scopes. Components live in `components/<file>.html` (category **Billing**); full pages in `patterns/<file>.html` (category **Billing Pages**). Billing components compose product components — `payment-card-entry`, `data-table`, `meter`, `alert`, `modal`, `delete-with-confirmation`, `button-primary`, `form-field`, `badge` — wrap them, never re-style them. This is in-app account billing, not storefront checkout and not a marketing page.
 
 ## Contents
 1. Rules for every billing surface

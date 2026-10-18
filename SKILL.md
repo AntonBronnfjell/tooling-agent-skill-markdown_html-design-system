@@ -5,7 +5,7 @@ description: >
   system like Carbon/Material/Fluent/Polaris, or create a new direction) and builds a
   COMPLETE HTML/CSS design system: DTCG 2025.10 tokens with light/dark/high-contrast
   themes and up to 532 components (controls, navigation, data, overlays, feedback, app
-  patterns, plus 17 opt-in scopes: marketing, AI chat, commerce, email, media, reading,
+  patterns, plus 17 opt-in scopes: marketing, AI chat, commerce, email, video/live/music/podcast, reading,
   messaging, billing, analytics, ERP, calendar, maps, social), each with every state,
   WCAG 2.2 AA accessibility and a docs page, plus
   Storybook, DESIGN.md, llms.txt, MCP, npm packaging and CI. Ports it to mobile (SwiftUI,
