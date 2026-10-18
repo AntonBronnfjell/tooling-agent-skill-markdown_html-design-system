@@ -1,7 +1,7 @@
 # Overlays & feedback — specs
 
 Overlay files: `modal` (modal, alert-dialog), `drawer` (drawer, bottom-sheet), `popover`, `tooltip`, `menu` (context menu — see actions.md), `coachmark`, `lightbox`.
-Feedback files: `alert` (alert, callout, global-banner), `toast`, `progress` (progress-bar, meter), `spinner` (spinner, inline-spinner), `skeleton`, `notification-center`.
+Feedback files: `alert` (alert, callout, global-banner), `toast`, `progress` (progress-bar, meter), `spinner` (spinner, inline-spinner), `skeleton`, `notification-center`, `notification-permission-prompt`.
 
 ## Layering
 All overlays use the browser **top layer** (`dialog.showModal()` / `popover`) so z-index wars disappear; tokens `--z-*` remain for non-top-layer fixed elements (sticky headers, FAB). Backdrop via `::backdrop` with `--color-bg-overlay`. Entry/exit animations with `@starting-style` + `transition-behavior: allow-discrete`, durations from motion tokens.
@@ -50,6 +50,12 @@ All overlays use the browser **top layer** (`dialog.showModal()` / `popover`) so
 
 ## notification-center (enterprise)
 - Bell icon button with unread count in its name → popover/drawer listing notifications (`<ul>` feed), unread indicator (dot + "Unread" text), mark-as-read / mark-all, filters (All/Unread), empty state, links to settings.
+
+### notification-permission-prompt
+- Two-step ask: an in-page soft ask first (a `callout`-style card: why you want notifications and what they will be, "Turn on notifications" and "Not now"). Call `Notification.requestPermission()` only from the click handler of that button; never on page load, on focus or on a timer (browsers may suppress it, and WCAG 3.2.1/3.2.2 forbid surprise).
+- `state:soft-ask`: the card above; "Not now" dismisses and remembers for a while. `state:granted`: confirmation with icon and text ("Notifications are on") and a "Send a test" button; status via `role="status"`.
+- `state:denied-help`: states that the browser blocked it, then per-browser steps for re-enabling (site settings or the address-bar lock icon), as text in a list; the page cannot re-open the prompt. Include a fallback (email or in-app) so the user is not stuck.
+- `state:unsupported`: when `"Notification" in window` is false (or push is unavailable), say so in text and offer the fallback channel; never show a dead button. Check `Notification.permission` on load to pick the state.
 
 ## Layer order (z-index)
 Native `dialog`/`popover` live in the top layer and ignore z-index. For fixed or JS-positioned layers the token order is: sticky < fixed < overlay < **modal < dropdown/popover** < toast < tooltip — anything that can open *from* a dialog must sit above it.

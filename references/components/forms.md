@@ -161,3 +161,9 @@ Files added: `date-field`, `choice-card`, `input-mask`, `tree-select`, `attribut
 - **Tab trapping:** if Tab inserts indentation, provide and document an escape (CodeMirror: Esc then Tab; or a toggle "Tab moves focus") — WCAG 2.1.2.
 - Labelled region, read-only state (focusable, copyable), invalid state with linked diagnostics list (not just squiggles: text + line numbers), toolbar (format, copy, language select).
 - Pitfalls: syntax colors need 4.5:1 against the editor bg in every theme (add pairs); don't lazy-load the engine on focus without a skeleton.
+
+### preference-matrix
+- Event by channel grid (email, push, in-app, SMS) as a real `<table>`: caption names the purpose, `th scope="col"` for channels, `th scope="row"` for events (with a one-line description in the row header), one `<input type="checkbox">` per cell labelled by `aria-label` "Comment replies, Email" (or `variant:switches`: `role="switch"` per cell). Not an ARIA `grid`; Tab visits each control, no arrow-key model.
+- Column "all" control: a checkbox in the column header cell, tri-state (`indeterminate` when some rows are on); toggling it sets every enabled cell in that column. A row-level "all" is optional and follows the same rule.
+- `state:all-off`: every cell off, a status line says "All notifications are off" (text, not only the empty grid); security alerts are shown as locked on.
+- Disabled cells say why: use `disabled` plus visible text or a described-by note ("Push is blocked in your browser", "Add a phone number to use SMS"), with a link to fix it; never a bare greyed box. Changes follow the page's save model (see Account settings suite); on mobile the table scrolls inside a labelled region or reflows to one fieldset per event.

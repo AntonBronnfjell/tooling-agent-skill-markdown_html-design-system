@@ -1,6 +1,6 @@
 # Layout patterns (macro-components) — specs
 
-Files in `patterns/`: `app-shell`, `form-layout`, `dashboard`, `empty-state`, `error-page`, `auth`, `settings`, `list-detail`, `detail-page`, `wizard`, `onboarding`.
+Files in `patterns/`: `app-shell`, `form-layout`, `dashboard`, `empty-state`, `error-page`, `auth`, `settings`, `list-detail`, `detail-page`, `wizard`, `onboarding`; account settings suite pages (`settings-*`, `notification-inbox`) in the Account settings suite section.
 
 ## Contents
 - app-shell
@@ -10,6 +10,7 @@ Files in `patterns/`: `app-shell`, `form-layout`, `dashboard`, `empty-state`, `e
 - error-page
 - auth
 - settings
+- Account settings suite (settings-profile … notification-inbox)
 - list-detail
 - detail-page
 - wizard (enterprise)
@@ -57,6 +58,57 @@ Patterns are **compositions of existing components only** — if a pattern needs
 
 ## settings
 - Side-nav (or tabs) of sections + content column; each section a form card. Choose and document a save model: immediate (switches, with toast) vs explicit Save per section (with unsaved-changes guard). Danger zone section at bottom with destructive actions + alert dialog.
+
+## Account settings suite
+Ten pages on the `settings` shell: `settings-profile`, `settings-account`, `settings-security`, `settings-notifications`, `settings-privacy`, `settings-appearance`, `settings-sessions`, `settings-connected-apps`, `settings-data`, plus the full-page `notification-inbox`. Sources: WCAG 2.2 (3.3.4 error prevention, 3.3.7 redundant entry, 3.3.8 accessible authentication, 4.1.3 status messages), WebAuthn, OWASP authentication cheat sheet.
+- **One shell.** Side-nav (`nav` with `aria-current="page"`; tabs on mobile) plus a content column of form cards; each page is a `<form>` or several, one `h1` plus an `h2` per card.
+- **One save model per section.** Explicit Save per section (guarded by `unsaved-changes`), or auto-save with a polite `role="status"` message ("Saved"); never both on one card. Switches (see `switch`) save immediately; text fields do not.
+- **Destructive actions last, separated.** Own card at the bottom (danger zone) with a heading and `alert-dialog` or type-to-confirm; never beside Save.
+- **Re-authenticate before security changes.** Password, 2FA, passkeys, recovery codes, email, deletion and token creation ask for the current password or a passkey first (recent sign-in within a few minutes); the prompt is a `modal` that returns focus to the trigger.
+- **Email change verifies the new address before switching.** The old address stays active and a notice goes to it; show "Pending: new@example.com" with Resend and Cancel until the link is used.
+- **Errors and status.** `error-summary` on submit, field errors linked with `aria-describedby`, never color alone; async results announced via `role="status"`. Keep entered data on failure (3.3.7).
+
+### settings-profile
+- Card of `text-field`s (display name, headline), `textarea` (bio, with counter), links list. `variant:default` is the plain form; `variant:avatar-upload` adds a preview image with alt text, a `file-upload` button "Change photo" (type and size limits stated in text), crop in a `modal`, and "Remove photo".
+- `state:saving`: Save button shows `inline-spinner`, stays focusable with `aria-disabled`, and a status message follows. `state:invalid`: `error-summary` above the card, fields marked `aria-invalid`.
+
+### settings-account
+- `variant:email-change-verify`: current address read-only with "Change email"; new address field, password re-entry, then the pending state described above. `variant:username`: availability check is debounced and announced politely ("Available" / "Taken", text plus icon); state the format rules before typing; changing it warns that old links stop working.
+- `variant:language-region-timezone`: native `select`s (language, region, timezone with search via `combobox` when long); show a live preview of date and number format ("17/10/2026, 1.234,5"); timezone defaults to the detected one with "Detected: ..." text.
+
+### settings-security
+- `variant:password`: current, new (`autocomplete="new-password"`, paste allowed, `password-input` with requirements list) and confirm; success signs out other sessions only if stated up front.
+- `variant:2fa-setup`: steps in order: choose method (authenticator app, security key, SMS as least preferred), show QR plus the manual key as text, confirm with `otp-input`, then show recovery codes. `variant:passkeys`: list of passkeys (name, created, last used) with rename and remove; "Add a passkey" calls WebAuthn from the button click only.
+- `variant:recovery-codes`: monospace list in a `ul`, Copy / Download / Print buttons, "Generate new codes" invalidates the old set (confirm first); codes shown once, state that. `state:2fa-enabled`: status as text with icon ("Two-factor authentication is on"), method list, "Turn off" in a destructive style needing re-authentication.
+
+### settings-notifications
+- Composes `preference-matrix` for event by channel, plus a "Pause all" `switch`. `variant:channel-matrix`: matrix with channel descriptions above; push column shows `notification-permission-prompt` state when permission is missing.
+- `variant:quiet-hours`: `switch` plus two `time-picker`s and day checkboxes (`checkbox-group`); times overnight ("22:00 to 07:00") are read as such; urgent security alerts are stated as exempt. `variant:digest`: `radio-group` (instant, daily, weekly) plus a delivery time; the choice applies to the email channel only, and says so.
+
+### settings-privacy
+- `variant:visibility`: `radio-group` per audience (public, followers, only me) with a one-line consequence under each option. `variant:blocked-users`: `ul` of people with an "Unblock" button whose name includes the person ("Unblock Ana"), `search-input`, empty text.
+- `variant:data-sharing`: `switch` per purpose (analytics, personalization, partners) with plain-language descriptions, default off where consent is required; link to the policy and to `settings-data`.
+
+### settings-appearance
+- Wired to `js/theme.js` (created by `ds.py init`). Theme: `radio-group` or `segmented-control` of "System / Light / Dark / ..." calling `setTheme(name)` on change (it persists to `localStorage["ds-theme"]` and sets `data-theme` on `<html>`; "system" removes the attribute); read the current value with `getTheme()` on load, subscribe with `onThemeChange(fn)` so a header toggle (`<button data-theme-cycle data-themes="system light dark">`, enabled by `init()`) and this control stay in sync; call `initTheme()` once and use the no-flash inline snippet in the `<head>`. A theme-named option is a radio, not a button that flips its label.
+- Density (`variant:density`): radios "Comfortable / Compact / Spacious" set `data-density` on `<html>` (see conventions.md). Motion (`variant:motion`): `switch` "Reduce motion" sets or removes `data-reduced-motion` on `<html>`, which `base.css` and motion.md honor alongside `prefers-reduced-motion`; the initial state follows the OS media query when nothing is saved.
+- Text size (`variant:text-size`): `radio-group` or `slider` that sets the root `font-size` percentage (components use `rem`, so they scale); never fixed `px` text; a live preview sentence sits beside it.
+- `theme.js` only manages theme. Density, motion and text size are persisted by the page itself in its own `localStorage` keys (try/catch like `theme.js`) and applied with the same no-flash inline pattern; they apply instantly and need no Save button.
+
+### settings-sessions
+- `variant:devices`: `ul` of sessions (device and browser, approximate location, last active, "This device" badge as text). Each row has "Sign out" with the device in its name ("Sign out Chrome on Mac"); the current session's button reads "Sign out of this device". `state:sign-out-others`: "Sign out of all other devices" with `alert-dialog` stating the count, then a status message and the list updates.
+
+### settings-connected-apps
+- `variant:oauth-apps`: `ul` of authorized apps (name, scopes as text list, authorized date, last used) with "Revoke access" naming the app via `alert-dialog`. `variant:api-tokens`: `data-table` (name, scopes, created, last used, expires) with "Create token"; the secret is shown once in a read-only field with a Copy button and a warning; revoke needs confirmation. `state:empty`: `empty-state` with a "Create token" or "Browse integrations" action.
+
+### settings-data
+- `variant:export`: choose scope (checkbox group) and format, "Request export"; the file is prepared async, with a `progress-bar` or a status line, and delivered by an emailed link or a download button; say how long the link lasts.
+- `variant:delete-account`: danger card last; explain what is deleted, what is kept and the grace period, then reuse `delete-with-confirmation` type-to-confirm (type the username; button enabled on exact match; paste allowed) after re-authentication. Offer export first as a link.
+
+### notification-inbox
+- Full page (not the popover `notification-center`): `h1`, a filter group of `<button aria-pressed>` or tabs (All, Unread, Mentions, one pressed) with counts in the name, then a `ul` of notifications; each item has an unread indicator (dot plus visually hidden "Unread"), text, time (`<time>`) and a link; the filter result count is announced via `role="status"`.
+- `variant:bulk-mark-read`: select-all `checkbox` (tri-state) plus per-item checkboxes reveal a bulk bar ("3 selected", "Mark as read"); "Mark all as read" is always available and announces "All notifications marked as read".
+- `state:empty`: `empty-state` per filter ("You're all caught up", "No mentions yet") with a link to `settings-notifications`. Pagination or "Load more" (not infinite scroll with no footer access); focus stays on the trigger after load.
 
 ## list-detail
 - Collection page: page header with primary create action, filter bar (search input, filter chips/selects, "Clear all", result count), list or data table, pagination, bulk actions on selection, faceted filters in a drawer on mobile. No-results state demo.

@@ -1266,6 +1266,20 @@
      "aria": "alert",
      "native": "div[role=alert] + links",
      "desc": "Form-level list of errors linking to fields. Core: the form-layout pattern's invalid state depends on it."
+    },
+    {
+     "id": "preference-matrix",
+     "name": "Preference Matrix",
+     "tier": "standard",
+     "file": "preference-matrix",
+     "demos": [
+      "variant:switches",
+      "variant:checkboxes",
+      "state:all-off"
+     ],
+     "aria": null,
+     "native": "table + input[type=checkbox]",
+     "desc": "Event by channel (email, push, in-app, SMS) table with row and column headers and per-column select-all."
     }
    ],
    "scope": "product"
@@ -2410,6 +2424,21 @@
      "aria": "dialog + feed",
      "native": "[popover] + ul",
      "desc": "Inbox of notifications."
+    },
+    {
+     "id": "notification-permission-prompt",
+     "name": "Notification Permission Prompt",
+     "tier": "standard",
+     "file": "notification-permission-prompt",
+     "demos": [
+      "state:soft-ask",
+      "state:granted",
+      "state:denied-help",
+      "state:unsupported"
+     ],
+     "aria": null,
+     "native": "div + button",
+     "desc": "In-page soft ask before the browser prompt, which only appears after a user action."
     }
    ],
    "scope": "product"
@@ -2839,6 +2868,150 @@
      "aria": "menu-button / listbox",
      "native": "form + select/menu + dialog",
      "desc": "Save, name, share and reapply filter + sort + column sets on collection pages."
+    },
+    {
+     "id": "settings-profile",
+     "name": "Settings: Profile",
+     "tier": "standard",
+     "file": "settings-profile",
+     "demos": [
+      "variant:default",
+      "variant:avatar-upload",
+      "state:saving",
+      "state:invalid"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Profile section of the settings shell: name, bio, avatar upload, per-section save."
+    },
+    {
+     "id": "settings-account",
+     "name": "Settings: Account",
+     "tier": "standard",
+     "file": "settings-account",
+     "demos": [
+      "variant:email-change-verify",
+      "variant:username",
+      "variant:language-region-timezone"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Account section: email change that verifies the new address first, username, language, region and timezone."
+    },
+    {
+     "id": "settings-security",
+     "name": "Settings: Security",
+     "tier": "standard",
+     "file": "settings-security",
+     "demos": [
+      "variant:password",
+      "variant:2fa-setup",
+      "variant:passkeys",
+      "variant:recovery-codes",
+      "state:2fa-enabled"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Security section: password, two-factor setup, passkeys and recovery codes, behind re-authentication."
+    },
+    {
+     "id": "settings-notifications",
+     "name": "Settings: Notifications",
+     "tier": "standard",
+     "file": "settings-notifications",
+     "demos": [
+      "variant:channel-matrix",
+      "variant:quiet-hours",
+      "variant:digest"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Notification settings composing preference-matrix, with quiet hours and digest frequency."
+    },
+    {
+     "id": "settings-privacy",
+     "name": "Settings: Privacy",
+     "tier": "standard",
+     "file": "settings-privacy",
+     "demos": [
+      "variant:visibility",
+      "variant:blocked-users",
+      "variant:data-sharing"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Privacy section: profile visibility, blocked users and data-sharing choices."
+    },
+    {
+     "id": "settings-appearance",
+     "name": "Settings: Appearance",
+     "tier": "standard",
+     "file": "settings-appearance",
+     "demos": [
+      "variant:theme",
+      "variant:density",
+      "variant:motion",
+      "variant:text-size"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Appearance section wired to js/theme.js: theme, density, reduced motion and text size."
+    },
+    {
+     "id": "settings-sessions",
+     "name": "Settings: Sessions",
+     "tier": "enterprise",
+     "file": "settings-sessions",
+     "demos": [
+      "variant:devices",
+      "state:sign-out-others"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Signed-in devices list with per-device sign-out and sign out of all others."
+    },
+    {
+     "id": "settings-connected-apps",
+     "name": "Settings: Connected Apps",
+     "tier": "enterprise",
+     "file": "settings-connected-apps",
+     "demos": [
+      "variant:oauth-apps",
+      "variant:api-tokens",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Authorized OAuth apps and API tokens with scopes, last use and revoke."
+    },
+    {
+     "id": "settings-data",
+     "name": "Settings: Data",
+     "tier": "enterprise",
+     "file": "settings-data",
+     "demos": [
+      "variant:export",
+      "variant:delete-account"
+     ],
+     "aria": null,
+     "native": "form",
+     "desc": "Data export and account deletion; reuses delete-with-confirmation type-to-confirm."
+    },
+    {
+     "id": "notification-inbox",
+     "name": "Notification Inbox (full page)",
+     "tier": "enterprise",
+     "file": "notification-inbox",
+     "demos": [
+      "variant:all",
+      "variant:unread",
+      "variant:mentions",
+      "state:empty",
+      "variant:bulk-mark-read"
+     ],
+     "aria": null,
+     "native": "main + ul",
+     "desc": "Full-page notification list with filters and bulk mark-as-read; notification-center stays the popover."
     }
    ],
    "scope": "product",
