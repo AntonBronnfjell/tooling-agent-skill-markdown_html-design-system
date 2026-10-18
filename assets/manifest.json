@@ -21,7 +21,8 @@
   "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player",
   "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)",
   "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)",
-  "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages"
+  "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages",
+  "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages"
  },
  "scope_requires": {
   "video": [
@@ -31,6 +32,9 @@
    "video"
   ],
   "music": [
+   "playback"
+  ],
+  "podcast": [
    "playback"
   ]
  },
@@ -5766,6 +5770,188 @@
      "aria": null,
      "native": "main",
      "desc": "Marketing landing page for a music product composed from marketing sections.",
+     "requires_scopes": [
+      "marketing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "podcast",
+   "name": "Podcast",
+   "scope": "podcast",
+   "components": [
+    {
+     "id": "podcast-player",
+     "name": "Podcast Player",
+     "tier": "core",
+     "file": "podcast-player",
+     "demos": [
+      "variant:full",
+      "variant:compact",
+      "variant:skip-15-30",
+      "variant:chapter-art"
+     ],
+     "aria": "region",
+     "native": "section",
+     "desc": "Spoken-word player composing seek bar, skip back/forward buttons, playback speed, sleep timer and chapters; chapter art follows the playhead."
+    },
+    {
+     "id": "episode-row",
+     "name": "Episode Row",
+     "tier": "core",
+     "file": "episode-row",
+     "demos": [
+      "state:unplayed",
+      "state:in-progress",
+      "state:played",
+      "state:downloaded",
+      "variant:compact"
+     ],
+     "aria": null,
+     "native": "li",
+     "desc": "Episode list item with title, date, duration or time left, progress, play and download actions; status always has text."
+    },
+    {
+     "id": "show-card",
+     "name": "Show Card",
+     "tier": "core",
+     "file": "show-card",
+     "demos": [
+      "variant:grid",
+      "variant:list"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Podcast show cover card with title, publisher and a link to the show page."
+    },
+    {
+     "id": "show-header",
+     "name": "Show Header",
+     "tier": "standard",
+     "file": "show-header",
+     "demos": [
+      "state:following",
+      "variant:with-rating",
+      "variant:rss-link"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Show page header with cover, title, publisher, Follow button, optional rating text and RSS link."
+    },
+    {
+     "id": "episode-notes",
+     "name": "Episode Notes",
+     "tier": "standard",
+     "file": "episode-notes",
+     "demos": [
+      "variant:timestamps-seek",
+      "variant:chapters",
+      "variant:links"
+     ],
+     "aria": null,
+     "native": "section",
+     "desc": "Show notes with timestamps that seek the player, a chapter list and external links."
+    },
+    {
+     "id": "download-button",
+     "name": "Download Button",
+     "tier": "standard",
+     "file": "download-button",
+     "demos": [
+      "state:idle",
+      "state:downloading",
+      "state:downloaded",
+      "state:error"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Offline download control with idle, progress, done and error states; the name states the action and episode."
+    },
+    {
+     "id": "clip-share",
+     "name": "Clip Share",
+     "tier": "enterprise",
+     "file": "clip-share",
+     "demos": [
+      "variant:at-timestamp",
+      "variant:clip-range"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Share dialog that links to an episode at a timestamp or a start-end clip range."
+    }
+   ]
+  },
+  {
+   "id": "podcast-pages",
+   "name": "Podcast Pages",
+   "scope": "podcast",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "podcast-home",
+     "name": "Podcast Home",
+     "tier": "core",
+     "file": "podcast-home",
+     "demos": [
+      "variant:shelves",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Home with continue-listening, new episodes and show shelves."
+    },
+    {
+     "id": "show-page",
+     "name": "Show Page",
+     "tier": "core",
+     "file": "show-page",
+     "demos": [
+      "variant:episodes",
+      "variant:about"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Show page with header and an episodes list or an about panel."
+    },
+    {
+     "id": "episode-page",
+     "name": "Episode Page",
+     "tier": "core",
+     "file": "episode-page",
+     "demos": [
+      "variant:default",
+      "variant:with-transcript"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Episode page with player, notes, chapters and an optional transcript."
+    },
+    {
+     "id": "podcast-queue",
+     "name": "Podcast Queue",
+     "tier": "standard",
+     "file": "podcast-queue",
+     "demos": [
+      "state:with-items",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Up-next queue page with reorderable episodes."
+    },
+    {
+     "id": "podcast-landing",
+     "name": "Podcast Landing",
+     "tier": "standard",
+     "file": "podcast-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a podcast app.",
      "requires_scopes": [
       "marketing"
      ]
