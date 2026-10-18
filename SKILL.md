@@ -21,11 +21,11 @@ hooks:
     - matcher: "Write|Edit|MultiEdit"
       hooks:
         - type: command
-          command: python3 "${CLAUDE_SKILL_DIR}/scripts/ds.py" hook-post-edit
+          command: 'd="${CLAUDE_SKILL_DIR:-${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/skills/html-design-system}}"; [ -f "$d/scripts/ds.py" ] || exit 0; python3 "$d/scripts/ds.py" hook-post-edit'
   Stop:
     - hooks:
         - type: command
-          command: python3 "${CLAUDE_SKILL_DIR}/scripts/ds.py" hook-stop
+          command: 'd="${CLAUDE_SKILL_DIR:-${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/skills/html-design-system}}"; [ -f "$d/scripts/ds.py" ] || exit 0; python3 "$d/scripts/ds.py" hook-stop'
 ---
 
 # HTML Design System

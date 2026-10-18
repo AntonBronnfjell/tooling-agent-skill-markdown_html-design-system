@@ -19,6 +19,7 @@ All notable changes to this skill. Format: [Keep a Changelog](https://keepachang
 
 ### Fixed
 - `ds.py` category titles fall back to manifest names, so Storybook works for the new categories.
+- Skill hooks no longer fail when `CLAUDE_SKILL_DIR` is unset (plugin installs, other tools): they fall back to `CLAUDE_PLUGIN_ROOT`, then `~/.claude/skills/html-design-system`, and exit quietly if `ds.py` is not found. Before, the missing path made python exit 2, which Claude Code treats as a blocking hook error (a Stop hook could keep the session from ending).
 
 ## [1.1.0] - 2026-10-08
 
