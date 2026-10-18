@@ -22,7 +22,8 @@
   "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)",
   "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)",
   "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages",
-  "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages"
+  "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages",
+  "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages"
  },
  "scope_requires": {
   "video": [
@@ -35,6 +36,9 @@
    "playback"
   ],
   "podcast": [
+   "playback"
+  ],
+  "reading": [
    "playback"
   ]
  },
@@ -5952,6 +5956,324 @@
      "aria": null,
      "native": "main",
      "desc": "Marketing landing page for a podcast app.",
+     "requires_scopes": [
+      "marketing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reading",
+   "name": "Reading",
+   "scope": "reading",
+   "components": [
+    {
+     "id": "reader-viewport",
+     "name": "Reader Viewport",
+     "tier": "core",
+     "file": "reader-viewport",
+     "demos": [
+      "variant:paged",
+      "variant:scroll",
+      "variant:two-column",
+      "variant:rtl",
+      "variant:vertical-writing",
+      "state:loading"
+     ],
+     "aria": "region",
+     "native": "section",
+     "desc": "Book content surface in paged, scroll or two-column flow, with RTL and vertical writing via writing-mode and logical properties."
+    },
+    {
+     "id": "reader-toolbar",
+     "name": "Reader Toolbar",
+     "tier": "core",
+     "file": "reader-toolbar",
+     "demos": [
+      "state:visible",
+      "state:auto-hidden",
+      "variant:mobile"
+     ],
+     "aria": null,
+     "native": "header + button",
+     "desc": "Top and bottom reader chrome that can auto-hide but always returns on focus or tap."
+    },
+    {
+     "id": "reader-settings",
+     "name": "Reader Settings",
+     "tier": "core",
+     "file": "reader-settings",
+     "demos": [
+      "variant:typography",
+      "variant:theme",
+      "variant:layout"
+     ],
+     "aria": "dialog",
+     "native": "dialog + fieldset",
+     "desc": "Font, size, leading, margins, paper/sepia/night, paged/scroll and justify, saved per user (Readium CSS user settings)."
+    },
+    {
+     "id": "reader-toc",
+     "name": "Reader TOC",
+     "tier": "core",
+     "file": "reader-toc",
+     "demos": [
+      "state:current-chapter",
+      "variant:nested"
+     ],
+     "aria": null,
+     "native": "nav + ol",
+     "desc": "Table of contents with the current chapter marked by aria-current and nested sections."
+    },
+    {
+     "id": "reading-progress",
+     "name": "Reading Progress",
+     "tier": "core",
+     "file": "reading-progress",
+     "demos": [
+      "variant:percent",
+      "variant:location",
+      "variant:time-left",
+      "variant:jump-slider"
+     ],
+     "aria": "slider",
+     "native": "progress + input[type=range]",
+     "desc": "Progress as percent, location or time left, with a jump slider whose aria-valuetext reads the chapter and percent."
+    },
+    {
+     "id": "book-card",
+     "name": "Book Card",
+     "tier": "core",
+     "file": "book-card",
+     "demos": [
+      "variant:grid",
+      "variant:list",
+      "state:in-progress",
+      "state:finished",
+      "variant:format-badges"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Cover, title, author and progress, with text format badges (Ebook, Audiobook, Comic)."
+    },
+    {
+     "id": "highlight-menu",
+     "name": "Highlight Menu",
+     "tier": "standard",
+     "file": "highlight-menu",
+     "demos": [
+      "state:open",
+      "variant:colors-labelled",
+      "variant:note",
+      "variant:define"
+     ],
+     "aria": "menu",
+     "native": "[popover] + menu",
+     "desc": "Selection menu that highlights through the CSS Custom Highlight API; every color carries a name."
+    },
+    {
+     "id": "notes-panel",
+     "name": "Notes Panel",
+     "tier": "standard",
+     "file": "notes-panel",
+     "demos": [
+      "variant:highlights",
+      "variant:notes",
+      "variant:export",
+      "state:empty"
+     ],
+     "aria": "complementary",
+     "native": "aside + ul",
+     "desc": "List of highlights and notes that jump to their location, with export."
+    },
+    {
+     "id": "bookmark-toggle",
+     "name": "Bookmark Toggle",
+     "tier": "standard",
+     "file": "bookmark-toggle",
+     "demos": [
+      "state:set",
+      "state:unset"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Icon toggle with a stable name and aria-pressed that bookmarks the current location."
+    },
+    {
+     "id": "in-book-search",
+     "name": "In-Book Search",
+     "tier": "standard",
+     "file": "in-book-search",
+     "demos": [
+      "state:results",
+      "state:no-results"
+     ],
+     "aria": "search",
+     "native": "search + input[type=search]",
+     "desc": "Search within the book with results as a list of snippets and locations."
+    },
+    {
+     "id": "bookshelf",
+     "name": "Bookshelf",
+     "tier": "standard",
+     "file": "bookshelf",
+     "demos": [
+      "variant:collections",
+      "variant:sort",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "section + ul",
+     "desc": "Library shelves with collections and sort."
+    },
+    {
+     "id": "audiobook-player",
+     "name": "Audiobook Player",
+     "tier": "standard",
+     "file": "audiobook-player",
+     "demos": [
+      "variant:chapters",
+      "variant:follow-along",
+      "state:sleep-timer"
+     ],
+     "aria": "region",
+     "native": "section",
+     "desc": "Audiobook player composing playback controls, sleep-timer and playback-speed; follow-along highlights the current sentence from EPUB Media Overlays."
+    },
+    {
+     "id": "comic-viewer",
+     "name": "Comic Viewer",
+     "tier": "standard",
+     "file": "comic-viewer",
+     "demos": [
+      "variant:single",
+      "variant:spread",
+      "variant:rtl-manga",
+      "variant:webtoon-scroll",
+      "variant:fit-width",
+      "state:zoomed"
+     ],
+     "aria": "region",
+     "native": "section + img",
+     "desc": "Page-by-page or webtoon-scroll viewer for comics and manga with spreads, RTL order, fit and zoom."
+    },
+    {
+     "id": "article-reader",
+     "name": "Article Reader",
+     "tier": "standard",
+     "file": "article-reader",
+     "demos": [
+      "variant:default",
+      "variant:reading-time",
+      "variant:with-tts"
+     ],
+     "aria": null,
+     "native": "article",
+     "desc": "Long-form article reading mode with reading time and optional text-to-speech."
+    },
+    {
+     "id": "dictionary-popover",
+     "name": "Dictionary Popover",
+     "tier": "enterprise",
+     "file": "dictionary-popover",
+     "demos": [
+      "state:found",
+      "state:not-found"
+     ],
+     "aria": "dialog",
+     "native": "[popover]",
+     "desc": "Definition popover for a selected word with found and not-found results."
+    },
+    {
+     "id": "tts-control",
+     "name": "TTS Control",
+     "tier": "enterprise",
+     "file": "tts-control",
+     "demos": [
+      "state:speaking",
+      "state:paused",
+      "variant:voice-rate",
+      "variant:word-highlight"
+     ],
+     "aria": "group",
+     "native": "button + select + input[type=range]",
+     "desc": "Text-to-speech controls over speechSynthesis with voice, rate and word highlighting."
+    }
+   ]
+  },
+  {
+   "id": "reading-pages",
+   "name": "Reading Pages",
+   "scope": "reading",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "library-page",
+     "name": "Library Page",
+     "tier": "core",
+     "file": "library-page",
+     "demos": [
+      "variant:shelves",
+      "variant:continue-reading",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Library with shelves, continue reading and an empty state."
+    },
+    {
+     "id": "book-detail-page",
+     "name": "Book Detail Page",
+     "tier": "core",
+     "file": "book-detail-page",
+     "demos": [
+      "variant:ebook",
+      "variant:audiobook",
+      "variant:series"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Book page with formats, sample, description and series."
+    },
+    {
+     "id": "reader-page",
+     "name": "Reader Page",
+     "tier": "core",
+     "file": "reader-page",
+     "demos": [
+      "variant:paged",
+      "variant:scroll",
+      "variant:comic",
+      "variant:audiobook"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Full reading screen for paged, scroll, comic and audiobook content."
+    },
+    {
+     "id": "read-later-page",
+     "name": "Read Later Page",
+     "tier": "standard",
+     "file": "read-later-page",
+     "demos": [
+      "variant:list",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Saved articles list with an empty state."
+    },
+    {
+     "id": "reading-landing",
+     "name": "Reading Landing",
+     "tier": "standard",
+     "file": "reading-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a reading app.",
      "requires_scopes": [
       "marketing"
      ]

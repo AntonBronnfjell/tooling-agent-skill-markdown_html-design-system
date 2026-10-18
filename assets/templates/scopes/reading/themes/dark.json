@@ -1,0 +1,57 @@
+{
+  "color": {
+    "$type": "color",
+    "reader": {
+      "highlight": {
+        "yellow": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.902,
+              0.7843,
+              0.2902
+            ],
+            "hex": "#e6c84a"
+          },
+          "$description": "Yellow highlight for dark app surfaces (richer so it reads against the dark chrome); 10.55:1 with paper.fg, 12.73:1 with black."
+        },
+        "green": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.498,
+              0.8118,
+              0.5255
+            ],
+            "hex": "#7fcf86"
+          },
+          "$description": "Green highlight for dark app surfaces (richer so it reads against the dark chrome); 9.26:1 with paper.fg, 11.17:1 with black."
+        },
+        "blue": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.4784,
+              0.7059,
+              0.9412
+            ],
+            "hex": "#7ab4f0"
+          },
+          "$description": "Blue highlight for dark app surfaces (richer so it reads against the dark chrome); 7.97:1 with paper.fg, 9.61:1 with black."
+        },
+        "pink": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9412,
+              0.5608,
+              0.7059
+            ],
+            "hex": "#f08fb4"
+          },
+          "$description": "Pink highlight for dark app surfaces (richer so it reads against the dark chrome); 7.7:1 with paper.fg, 9.29:1 with black."
+        }
+      }
+    }
+  }
+}

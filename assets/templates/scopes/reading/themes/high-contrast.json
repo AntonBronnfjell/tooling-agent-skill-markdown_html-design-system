@@ -1,0 +1,57 @@
+{
+  "color": {
+    "$type": "color",
+    "reader": {
+      "paper": {
+        "bg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "hex": "#ffffff"
+          },
+          "$description": "Pure white page."
+        },
+        "fg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "hex": "#000000"
+          },
+          "$description": "Pure black text; 21.0:1."
+        },
+        "link": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.9333
+            ],
+            "hex": "#0000ee"
+          },
+          "$description": "Classic link blue; 9.4:1 on white, underlined."
+        },
+        "selection": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.6,
+              0.7843,
+              1.0
+            ],
+            "hex": "#99c8ff"
+          },
+          "$description": "Selection; 12.06:1 with black text."
+        }
+      }
+    }
+  }
+}
