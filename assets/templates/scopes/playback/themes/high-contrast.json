@@ -44,25 +44,25 @@
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.4314,
-              0.4314,
-              0.4784
+              0.2902,
+              0.2902,
+              0.3373
             ],
-            "hex": "#6e6e7a"
+            "hex": "#4a4a56"
           },
-          "$description": "Seek/volume track rail."
+          "$description": "Seek/volume track rail; darkened so the played range keeps >=3:1 against it."
         },
         "buffered": {
           "$value": {
             "colorSpace": "srgb",
             "components": [
-              0.6902,
-              0.6902,
-              0.7373
+              0.5412,
+              0.5412,
+              0.5961
             ],
-            "hex": "#b0b0bc"
+            "hex": "#8a8a98"
           },
-          "$description": "Buffered range."
+          "$description": "Buffered range, kept between rail and played; 3.4:1 against played and 3.4:1 against the white thumb (3:1 UI minimum each)."
         },
         "played": {
           "$value": {
@@ -74,20 +74,32 @@
             ],
             "hex": "#ffffff"
           },
-          "$description": "Played range; 5.03:1 against rail (3:1 UI minimum)."
+          "$description": "Played range; 8.73:1 against rail, 3.4:1 against buffered (3:1 UI minimum)."
         }
       },
       "live": {
         "$value": {
           "colorSpace": "srgb",
           "components": [
-            1.0,
-            0.4784,
-            0.4784
+            0.8275,
+            0.1843,
+            0.1843
           ],
-          "hex": "#ff7a7a"
+          "hex": "#d32f2f"
         },
-        "$description": "LIVE badge/edge marker; 8.32:1 on surface. Always with the text LIVE."
+        "$description": "LIVE badge/edge marker fill; 4.22:1 on surface (3:1 UI), white live-fg text on it 4.98:1. Always with the text LIVE."
+      },
+      "live-fg": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "hex": "#ffffff"
+        },
+        "$description": "Text on the LIVE badge (color.media.live); 4.98:1."
       },
       "focus": {
         "$value": {

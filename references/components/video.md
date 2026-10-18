@@ -94,7 +94,7 @@ Sources are named as rules: WCAG 2.2, `prefers-reduced-motion`, browser autoplay
 - `variant:default`: two columns. `variant:theater`: player spans full width, content below. `variant:with-playlist`: `playlist-panel` above the related list. `variant:mobile`: player pinned at the top, content scrolls beneath, related and comments in tabs, `mini-player` when scrolled away or navigating.
 
 ### video-home
-- Composition: optional `tag` chip row (category filter, a toolbar) above a responsive grid of `video-card`.
+- Composition: optional `tag` chip row (category filter) above a responsive grid of `video-card`. The chips are a `role="group"` with an `aria-label` of `<button aria-pressed>` (one pressed at a time).
 - `variant:grid`: 1 to 4 columns. `variant:category-chips`: horizontally scrolling chips, the selected chip with `aria-pressed` and a check; scrolling has buttons, not just swipe. `state:loading`: skeleton cards with `aria-busy`. First row eager, the rest lazy.
 
 ### channel-page

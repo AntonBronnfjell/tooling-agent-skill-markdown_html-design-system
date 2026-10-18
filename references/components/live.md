@@ -26,15 +26,15 @@ Sources are named as rules: ARIA APG `log` role, WCAG 2.2.2, 2.3.3, 4.1.3 and 1.
 - **Moderation is server-enforced**: slow mode, members-only and bans are checked server-side; the client only reflects them and says why input is disabled.
 - **Secrets are masked**: stream keys are hidden by default, revealed on request, copied with a button, and never put in URLs, logs or analytics.
 - **Touch and RTL**: 44 px targets (24 px minimum, WCAG 2.5.8); logical properties; the chat input does not hide behind the on-screen keyboard.
-- **Tokens**: composes `color.media.*` (notably `live`) from `playback` and product tokens only; no new tokens.
+- **Tokens**: composes `color.media.*` (notably `live` and `live-fg`) from `playback` and product tokens only; no new tokens.
 - **vs.** `live-chat` is a broadcast audience stream with many senders and a moderator, not a conversation; messaging `message-thread` is a person-to-person or group conversation with read state, and ai `conversation` is a single-user exchange with an assistant. `live-player` is a `video-player` for streams (live edge, DVR); use `video-player` for on-demand video. `stream-schedule` lists future streams; `live-directory` lists those on air now.
 
 ## 2. Status and player
 
 ### live-badge
-- `<span>` (not interactive) with a dot icon and text, on `color.media.live` for live, neutral styles for the rest; viewer count is a separate text node.
+- `<span>` (not interactive) with a dot icon and text, on `color.media.live` with text in `color.media.live-fg` (4.5:1 pair) for live, neutral styles for the rest; viewer count is a separate text node.
 - `state:live`: dot and "LIVE". `state:starting-soon`: clock icon and "Starting soon", optionally a `<time>` with the start. `state:ended`: "Ended" with the duration. `state:offline`: "Offline". `variant:with-viewers`: "LIVE" plus "12.4K watching" (compact number, full number in the accessible name).
-- Viewer count updates are not announced; the dot pulse is decorative and stops under reduced motion. Color pairs meet 4.5:1 for text, 3:1 for the dot.
+- Viewer count updates are not announced; the dot pulse is decorative and stops under reduced motion. The badge text pair `live-fg` on `live` meets 4.5:1; the dot and badge fill meet 3:1 on the surface.
 - RTL: dot and text order mirror; digits stay logical.
 
 ### live-player
@@ -48,10 +48,10 @@ Sources are named as rules: ARIA APG `log` role, WCAG 2.2.2, 2.3.3, 4.1.3 and 1.
 ## 3. Audience
 
 ### live-chat
-- `<section aria-label="Live chat">` with a header (title, viewer count, collapse button), a message list `<ol role="log" aria-label="Chat messages">`, and a composer `<form>` (a text input with Send; an emoji popover menu). Each message is `<li>` with author, badge text (Mod, Member), time and text.
+- `<section aria-label="Live chat">` with a header (title, viewer count, collapse button), a message list `<ol role="log" aria-live="off" aria-label="Chat messages">` (the explicit `off` overrides the implicit polite of `log`), one sibling `<p role="status">` for batched summaries, and a composer `<form>` (a text input with Send; an emoji popover menu). Each message is `<li>` with author, badge text (Mod, Member), time and text.
 - `state:default`: auto-scrolling, newest at the end. `state:paused-scroll`: the viewer scrolled up; the list stops and a button "3 new messages" appears at the end and returns to it (focus not moved). `state:collapsed`: only the header, a "Show chat" button with `aria-expanded="false"`.
 - `variant:pinned`: a pinned message (`<aside>` with Pin icon and "Pinned by {name}") above the log with dismiss. `variant:slow-mode`: composer shows "Slow mode: 10 s between messages" and a countdown as text; Send is `aria-disabled` until ready. `variant:members-only`: composer replaced by "Chat is for members" with a Join link. `variant:moderation`: moderators get a per-message menu (Delete, Timeout, Ban) with confirmation, deleted messages read "Message removed".
-- Announcements are throttled or opt-in: the log announces batches ("12 new messages") or nothing by default; an "Announce new messages" switch turns on full reading. Mentions of the viewer and moderation notices are always announced.
+- Announcements are throttled by mechanism, same as messaging `message-thread`: the log has `aria-live="off"`, so messages are not read one by one; the sibling `role="status"` carries a merged summary ("12 new messages", at most once every few seconds). An opt-in "Announce every message" switch sets the log to `aria-live="polite"` (full reading). Mentions of the viewer and moderation notices are always announced through a separate `role="alert"`/status.
 - Keyboard: Tab to the composer; Shift+Tab reaches the new-messages button and message menus; Enter sends, Shift+Enter is a newline when multi-line. Messages are plain text, links get `rel="noopener nofollow ugc"`.
 - Failure: a failed send stays in place with "Not sent" and Retry; disconnected shows "Chat reconnecting". The list is capped (older nodes removed) to keep the DOM small. RTL: per-message `dir="auto"`.
 
@@ -96,7 +96,7 @@ Sources are named as rules: ARIA APG `log` role, WCAG 2.2.2, 2.3.3, 4.1.3 and 1.
 - Mobile keeps the player pinned and the composer above the keyboard.
 
 ### live-directory
-- Composition: heading, category chips (a `role="toolbar"` of `<button aria-pressed>` toggles, only one pressed at a time and the pressed chip with a check, as in video-home) and a responsive grid of live stream cards (`video-card` with `live-badge` and viewer count).
+- Composition: heading, category chips (a `role="group"` with an `aria-label` of `<button aria-pressed>` toggles, only one pressed at a time and the pressed chip with a check, as in video-home; no roving tabindex, each chip is a tab stop) and a responsive grid of live stream cards (`video-card` with `live-badge` and viewer count).
 - `variant:grid`: 1 to 5 columns sorted by viewers. `variant:category`: one category with a header and sort menu. `state:empty`: "No one is live in {category}" with the schedule link. Viewer counts refresh without moving the cards under the pointer (re-sort on request only).
 
 ### live-studio

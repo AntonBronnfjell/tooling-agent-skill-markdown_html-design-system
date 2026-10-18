@@ -23,5 +23,20 @@
     "color.media.focus",
     "color.media.surface",
     3
+  ],
+  [
+    "color.media.live-fg",
+    "color.media.live",
+    4.5
+  ],
+  [
+    "color.media.track.played",
+    "color.media.track.buffered",
+    3
+  ],
+  [
+    "color.media.fg",
+    "color.media.track.buffered",
+    3
   ]
 ]

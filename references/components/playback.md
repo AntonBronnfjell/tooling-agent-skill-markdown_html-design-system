@@ -1,6 +1,6 @@
 # Playback components — specs
 
-Scope `playback` is a **base scope**: you rarely enable it by hand. `ds.py init --scopes product,video` (or `live`, `music`, `podcast`, `reading`, `messaging`) adds it automatically, and `ds.config.json → scopes` is expanded the same way on load. Components live in `components/<file>.html` (category **Playback**); there are no pages. Playback components compose product components (button, slider, popover menu, sortable-list, tooltip) — wrap them, never re-style them.
+Scope `playback` is a **base scope**: you rarely enable it by hand. `ds.py init --scopes product,video` (or `live`, `music`, `podcast`, `reading`, `messaging`) adds it automatically, and `ds.config.json → scopes` is expanded the same way on load for components. Scope tokens are copied only by `init`: after adding scopes to `ds.config.json` by hand, run `ds.py init <dir> --force` (not `--adopt`, which exits when `ds.config.json` exists) to copy `tokens/scopes/playback.json` and its themes. Components live in `components/<file>.html` (category **Playback**); there are no pages. Playback components compose product components (button, slider, popover menu, sortable-list, tooltip) — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every playback surface (including `js/lib/media.js`)
@@ -16,16 +16,16 @@ Sources are named as rules, not numbers: WCAG 2.2, WebVTT, Media Session API, Re
 - **Caption styling is a user setting** (FCC caption display rules as precedent): size, text color, background color/opacity, edge style and font family are user-controlled and never overridden by the author. Captions render as WebVTT cues (`<track kind="captions">`) over `color.media.scrim`; cue text meets 4.5:1.
 - **Nothing moving without a way to stop it** (WCAG 2.2 2.2.2 pause, stop, hide): any auto-updating or auto-playing element has a visible pause control.
 - **Audio never starts on its own** (WCAG 2.2 1.4.2 audio control): no autoplay with sound for more than 3 s without a visible pause/mute control; autoplay, when allowed, starts muted.
-- **Seek bar is a native range slider** (ARIA APG slider): `input[type=range]` with `aria-valuetext` like "1:23 of 4:56"; Arrow keys step 5 s, PageUp/PageDown 10%, Home/End jump to ends.
+- **Seek bar is a native range slider** (ARIA APG slider): `input[type=range]` with `aria-valuetext` like "1:23 of 4:56"; Arrow keys step 5 s (the markup says `step="1"`, so a `keydown` handler steps 5 s and calls `preventDefault`), PageUp/PageDown 10%, Home/End jump to ends.
 - **Speed and caption pickers are menu buttons** (ARIA APG menu button): a `button` with `aria-haspopup`/`aria-expanded` opening a `[popover]` menu; the button's name carries the current value ("Playback speed, 1.5x").
 - **Transport buttons change their name, not `aria-pressed`.** "Play" becomes "Pause"; "Mute" becomes "Unmute". The icon swap is paired with the name swap.
-- **Keyboard map** (`js/lib/media.js`, active when the player or its container has focus): Space or K play/pause; J / L back/forward 10 s; Left / Right arrows seek 5 s; M mute; C captions; F fullscreen. Shortcuts never fire while typing in an input, and never capture Space on a focused button.
+- **Keyboard map** (`js/lib/media.js`, active when the player or its container has focus): Space or K play/pause; Left / Right arrows seek 5 s everywhere; J / L skip back/forward by the player's configured skip intervals (default 10 s; podcast and audiobook players rebind them to their 15 s back / 30 s forward buttons); M mute; C captions; F fullscreen. Shortcuts never fire while typing in an input, and never capture Space on a focused button.
 - **Media Session API.** `js/lib/media.js` sets `navigator.mediaSession.metadata` (title, artist/channel, album, artwork sizes 96-512) and registers `play`, `pause`, `seekbackward`, `seekforward`, `previoustrack`, `nexttrack`, `seekto`, and keeps `playbackState` and `setPositionState` current, so lock-screen and headset controls work.
-- **One polite live region.** `media.js` owns a single `role="status"` region that announces state changes ("Paused", "Captions on", "Speed 1.5x", "Buffering"). Time ticks are never announced; `aria-live` is never put on the time or the seek bar.
+- **One polite live region.** `media.js` announces through `js/lib/live-region.js` (one polite region per page, never its own `role="status"`): state changes ("Paused", "Captions on", "Speed 1.5x", "Buffering"). Time ticks are never announced; `aria-live` is never put on the time or the seek bar.
 - **Remote playback is feature-detected** (Remote Playback API; AirPlay via `webkitShowPlaybackTargetPicker`): `cast-button` is hidden or `state:unavailable` when no target exists, never a dead button.
 - **Reduced motion and no motion-only cues.** Buffering spinner, hover previews and expand animations respect `prefers-reduced-motion`; live, buffering and error states always have text, not only color (WCAG 1.4.1).
 - **Touch targets** are at least 44 px (24 px WCAG 2.5.8 minimum); controls stay reachable with one thumb in the mini-player.
-- **Tokens.** `color.media.surface` (always dark), `scrim`, `fg`, `track.rail|buffered|played`, `live`, `focus`. Contrast pairs: fg on surface 4.5, fg on scrim 4.5 (captions), live on surface 3, played on rail 3, focus on surface 3. The surface stays dark in every theme; high-contrast raises rail and focus.
+- **Tokens.** `color.media.surface` (always dark), `scrim`, `fg`, `track.rail|buffered|played`, `live`, `live-fg` (text on the LIVE badge), `focus`. Contrast pairs: fg on surface 4.5, fg on scrim 4.5 (captions), live-fg on live 4.5, live on surface 3, played on rail 3, played on buffered 3, fg (thumb) on buffered 3, focus on surface 3. The surface stays dark in every theme; buffered sits between rail and played; high-contrast raises focus and separation.
 - **vs.** `media-stage` (product) is a static hero surface, not a player. `video-section` (marketing) is a page section; when interactive it embeds `video-player`. Players built on this scope (video, music, podcast) compose these controls rather than redefining them.
 
 ## 2. Transport
@@ -43,7 +43,7 @@ Sources are named as rules, not numbers: WCAG 2.2, WebVTT, Media Session API, Re
 - `variant:chapters`: ticks at chapter starts; the chapter title is part of the value text ("Intro, 0:42 of 4:56").
 - `variant:hover-preview`: a time (and optional thumbnail) tooltip on hover and keyboard focus; thumbnails are decorative, the time text is the content.
 - `state:live-edge`: for live streams; shows a "LIVE" button to jump to the edge, and valuetext "Live" or "30 seconds behind live".
-- `state:disabled`: `aria-disabled` with a reason in `title` or adjacent text ("Seeking unavailable").
+- `state:disabled`: native `disabled` on the range plus adjacent visible reason text ("Seeking unavailable"), not `title` only.
 - Keyboard: Arrows 5 s, PageUp/PageDown 10%, Home/End. The bar is mirrored under `[dir=rtl]` for the visual fill, but the time order remains logical. Failure state: unknown duration shows the elapsed time only and a non-seekable state.
 
 ### volume-control

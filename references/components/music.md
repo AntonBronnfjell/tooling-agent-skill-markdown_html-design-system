@@ -115,7 +115,7 @@ Sources are named as rules: Media Session API, ARIA APG `table` and `grid` patte
 - `variant:popular`: top tracks first. `variant:discography`: tabs (Albums, Singles, EPs) as `tabs`, sorted by date with a view toggle.
 
 ### music-library
-- Composition: heading, filter chips (a `role="toolbar"` of `<button aria-pressed>` toggles, one pressed at a time with a check), sort menu, view toggle and the collection.
+- Composition: heading, filter chips (a `role="group"` with an `aria-label` of `<button aria-pressed>` toggles, one pressed at a time with a check; each chip is a tab stop), sort menu, view toggle and the collection.
 - `variant:grid`: `artwork-card` grid. `variant:list`: compact rows with art, name, type and date. `state:empty`: `empty-state` "Save music you like to see it here" with a Browse link.
 
 ### music-search
