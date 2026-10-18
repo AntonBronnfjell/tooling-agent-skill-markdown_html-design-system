@@ -967,6 +967,8 @@ def cmd_check(a):
     lint = []
     for p in sorted(list(root.glob("css/**/*.css")) + list(root.glob("components/*.html")) + list(root.glob("patterns/*.html"))):
         lint += lint_file(p)
+    warns += [f"scope '{s}' tokens missing (tokens/scopes/{s}.json): run `ds.py init {root} --force`" for s in expand_scopes(cfg.get("scopes") or ["product"])
+              if (SKILL / "assets" / "templates" / "scopes" / s / "tokens.json").exists() and not (root / "tokens" / "scopes" / f"{s}.json").exists()]
     report = coverage(root, cfg)
     done, total = summarize(report)
     print("## Tokens")

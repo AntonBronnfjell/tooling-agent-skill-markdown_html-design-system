@@ -1,6 +1,6 @@
 # Commerce components & pages — specs
 
-Scope `commerce` (enable with `ds.py init --scopes product,commerce` or add `"commerce"` to `ds.config.json → scopes`). Components live in `components/<file>.html` (category **Commerce**); full pages in `patterns/<file>.html` (category **Commerce Pages**). Commerce components compose product components (button, radio, checkbox, form-field, select, combobox, drawer, modal, badge, rating, accordion, stepper, table) — never re-style a radio inside a shipping method card; wrap it.
+Scope `commerce` (enable with `ds.py init --scopes product,commerce` or add `"commerce"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). Components live in `components/<file>.html` (category **Commerce**); full pages in `patterns/<file>.html` (category **Commerce Pages**). Commerce components compose product components (button, radio, checkbox, form-field, select, combobox, drawer, modal, badge, rating, accordion, stepper, table) — never re-style a radio inside a shipping method card; wrap it.
 
 ## Contents
 1. Rules for every commerce surface

@@ -167,7 +167,7 @@ design-system/
 > [!TIP]
 > **Tiers:** across app UI, **core** has 68 components (what every product needs), **standard** adds 78 and **enterprise** adds 46. Ask for "complete" and you get enterprise.
 >
-> **Scopes:** add them with `ds.py init --scopes product,marketing,ai,commerce,email,video,music,…` (any subset; run `ds.py init --help` for the full list). Media and messaging scopes pull in `playback` automatically, and `live` pulls in `video`; consumer landing pages also need `marketing`. Each brings its own specs and rules: landing-page performance, SEO and honest consent for `marketing`; streaming accessibility, AI labelling and human-in-the-loop approvals for `ai`; Baymard checkout rules for `commerce`; table layouts, dark-mode quirks and client checks for `email`.
+> **Scopes:** add them with `ds.py init --scopes product,marketing,ai,commerce,email,video,music,…` (any subset; run `ds.py init --help` for the full list). Media and messaging scopes pull in `playback` automatically, and `live` pulls in `video`. If you add scopes by hand to `ds.config.json`, components are planned but scope tokens are not copied: run `ds.py init <dir> --force` (not `--adopt`) to copy them; `ds.py check` warns when they are missing. Consumer landing pages also need `marketing`. Each brings its own specs and rules: landing-page performance, SEO and honest consent for `marketing`; streaming accessibility, AI labelling and human-in-the-loop approvals for `ai`; Baymard checkout rules for `commerce`; table layouts, dark-mode quirks and client checks for `email`.
 
 ### What "done" means for each component
 
@@ -466,7 +466,7 @@ $DS status                               # one-line state of the nearest design 
 │   ├── manifest.json            532 components · 41 categories · 3 tiers · 18 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
-│                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai tokens, email starter), mcp_server.py,
+│                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai, playback, reading, messaging, maps, analytics token templates; email starter), mcp_server.py,
 │                                mobile/ (measure.mjs, SwiftUI/Compose/Flutter/RN component templates, web-mobile.css)
 ├── scripts/ds.py                the CLI above + hook entry points
 ├── references/                  decision guide · tokens · component contract · per-category specs · motion ·

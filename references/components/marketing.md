@@ -1,6 +1,6 @@
 # Marketing sections & pages — specs
 
-Scope `marketing` (enable with `ds.py init --scopes product,marketing` or add `"marketing"` to `ds.config.json → scopes`). Sections live in `components/<file>.html` (category **Marketing Sections**); full pages in `patterns/<file>.html` (category **Marketing Pages**). Pages compose sections; sections compose product components (buttons, cards, accordion, form fields, avatar, badge) — never re-style a button inside a hero.
+Scope `marketing` (enable with `ds.py init --scopes product,marketing` or add `"marketing"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). Sections live in `components/<file>.html` (category **Marketing Sections**); full pages in `patterns/<file>.html` (category **Marketing Pages**). Pages compose sections; sections compose product components (buttons, cards, accordion, form fields, avatar, badge) — never re-style a button inside a hero.
 
 ## Contents
 1. Rules for every marketing surface

@@ -71,12 +71,13 @@ Borrow **structure and behavior** (inventory, states, ARIA, token tiers, naming)
 Batch these into one AskUserQuestion round, max 4:
 - Product type & primary users (enterprise data tool? consumer? public service?)
 - Existing assets: repo / Figma / brand guide / none
-- Scope tier (app UI): core (68) · standard (138) · enterprise (all 180) — default **enterprise** when the user asks for "complete"
+- Scope tier (app UI): core (68) · standard (146) · enterprise (all 192) — default **enterprise** when the user asks for "complete"
 - Optional scopes (any subset; each brings specs, tokens or tooling):
   - Public website → `marketing` (+46: hero, pricing, testimonials, FAQ, footer, landing/pricing/blog/legal pages)
   - Assistant, chat or agent features → `ai` (+29: conversation, streaming, tool calls, approvals, citations, AI label)
   - Store, marketplace or checkout → `commerce` (+31: product card, variant picker, cart, checkout, orders, reviews)
   - Sends transactional or marketing email → `email` (+20: table-based templates rendered by `ds.py email`)
+  - Other opt-in scopes (full list and counts in SKILL.md Phase 1 and `assets/manifest.json`): `playback`, `video`, `live`, `music`, `podcast`, `reading`, `messaging`, `billing`, `analytics`, `erp`, `calendar`, `maps`, `social`
 - Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React/Vue/Svelte/Angular wrappers, web components, backend templates (Blade, Twig, Django/Jinja, ERB/ViewComponent, Thymeleaf, Razor), Figma variables — this also picks the workbench strategy in `storybook.md` §4
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support
 

@@ -1,6 +1,6 @@
 # Analytics components & pages — specs
 
-Scope `analytics` (enable with `ds.py init --scopes product,analytics` or add `"analytics"` to `ds.config.json → scopes`). It has no required scopes. Components live in `components/<file>.html` (category **Analytics**); full pages in `patterns/<file>.html` (category **Analytics Pages**). Analytics components compose product components — `stat`, `chart-container`, `chart-legend`, `chart-tooltip`, `chart-axis`, `sparkline`, `data-table`, `date-range-picker`, `saved-filters`, `hover-card`, `menu-button`, `badge`, `empty-state`, `skeleton` — wrap them, never re-style them. This scope ships no landing page; B2B marketing uses `landing-page variant:saas`.
+Scope `analytics` (enable with `ds.py init --scopes product,analytics` or, in an existing system, add `"analytics"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens; hand-editing alone plans components but copies no tokens). It has no required scopes. Components live in `components/<file>.html` (category **Analytics**); full pages in `patterns/<file>.html` (category **Analytics Pages**). Analytics components compose product components — `stat`, `chart-container`, `chart-legend`, `chart-tooltip`, `chart-axis`, `sparkline`, `data-table`, `date-range-picker`, `saved-filters`, `hover-card`, `menu-button`, `badge`, `empty-state`, `skeleton` — wrap them, never re-style them. This scope ships no landing page; B2B marketing uses `landing-page variant:saas`.
 
 ## Contents
 1. Rules for every analytics surface

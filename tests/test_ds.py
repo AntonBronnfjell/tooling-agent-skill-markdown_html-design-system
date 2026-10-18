@@ -109,6 +109,10 @@ class TestScopes(unittest.TestCase):
             self.assertEqual(ds.expand_scopes(["product", "video", "live"]), ["product", "video", "live", "playback"])
             self.assertEqual(ds.expand_scopes(["product"]), ["product"])
 
+    def test_expand_scopes_cycle_terminates(self):
+        with mock.patch.dict(ds.MANIFEST, {"scope_requires": {"a": ["b"], "b": ["a"]}}):
+            self.assertEqual(ds.expand_scopes(["a"]), ["a", "b"])
+
     def test_live_pulls_video_and_playback(self):
         self.assertEqual(ds.expand_scopes(["product", "live"]), ["product", "live", "video", "playback"])
 
@@ -148,6 +152,13 @@ class TestBuild(Temp):
         css = (root / "dist" / "ds.css").read_text(encoding="utf-8")
         self.assertTrue(css.startswith("@layer reset, tokens, base, components, patterns, utilities;"))
         self.assertTrue((root / "tokens" / "resolver.json").exists())
+
+    def test_check_warns_when_scope_tokens_missing(self):
+        root = self.init()
+        cfg = json.loads((root / "ds.config.json").read_text())
+        cfg["scopes"] = ["product", "playback"]
+        (root / "ds.config.json").write_text(json.dumps(cfg))
+        self.assertIn("scope 'playback' tokens missing", run("check", root).stdout)
 
     def test_init_expands_required_scopes(self):
         root = self.init("--scopes", "product,video")

@@ -9,6 +9,7 @@ All notable changes to this skill. Format: [Keep a Changelog](https://keepachang
 - **Scope dependencies:** `scope_requires` in the manifest (`video`, `music`, `podcast`, `reading`, `messaging` require `playback`; `live` requires `video`), resolved by `expand_scopes()` in `ds.py`.
 - **`requires_scopes` gating:** landing pages of consumer scopes (video, live, music, podcast, reading, messaging, social) carry `requires_scopes: [marketing]` and are only planned when `marketing` is on.
 - **Product additions** (`product` 180 to 192): settings suite (profile, account, security, notifications, privacy, appearance, sessions, connected apps, data), `notification-inbox`, `preference-matrix`, `notification-permission-prompt`. Tiers across app UI: core 68, standard 78, enterprise 46.
+- **Upgrade note:** existing standard/enterprise systems gain 8/12 new uncovered product pages (settings suite and related); `ds.py plan` lists them. After adding scopes by hand to `ds.config.json`, run `ds.py init <dir> --force` to copy scope tokens; `ds.py check` warns when they are missing.
 - Plugin eval case 4 (podcast app with marketing site: scopes, auto-added playback, build plan).
 
 ### Changed
