@@ -1,0 +1,95 @@
+{
+  "color": {
+    "$type": "color",
+    "map": {
+      "pin": {
+        "default": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.3765,
+              0.6471,
+              0.9804
+            ],
+            "hex": "#60a5fa"
+          },
+          "$description": "Default pin; 7.02:1 against color.bg.surface (#0f172a); 7.02:1 with pin.fg. Always a circle with the place label or glyph."
+        },
+        "selected": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.9725,
+              0.4431,
+              0.4431
+            ],
+            "hex": "#f87171"
+          },
+          "$description": "Selected pin; 6.45:1 against color.bg.surface (#0f172a); 6.45:1 with pin.fg. Also larger, with a ring and a check glyph; aria-pressed."
+        },
+        "visited": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.7529,
+              0.5176,
+              0.9882
+            ],
+            "hex": "#c084fc"
+          },
+          "$description": "Visited pin; 6.76:1 against color.bg.surface (#0f172a); 6.76:1 with pin.fg. Also a different glyph (check mark) and the text Visited."
+        },
+        "fg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0588,
+              0.0902,
+              0.1647
+            ],
+            "hex": "#0f172a"
+          },
+          "$description": "Label or glyph on any pin; 6.45:1 minimum across the three pin backgrounds."
+        }
+      },
+      "route": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1333,
+            0.8275,
+            0.9333
+          ],
+          "hex": "#22d3ee"
+        },
+        "$description": "Route line; 9.88:1 against color.bg.surface (#0f172a). Dashed or labelled by mode as well as colored."
+      },
+      "cluster": {
+        "bg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.5765,
+              0.7725,
+              0.9922
+            ],
+            "hex": "#93c5fd"
+          },
+          "$description": "Cluster bubble background; 9.9:1 with cluster.fg; 9.9:1 against color.bg.surface (#0f172a)."
+        },
+        "fg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0588,
+              0.0902,
+              0.1647
+            ],
+            "hex": "#0f172a"
+          },
+          "$description": "Count text on cluster bubbles; 9.9:1."
+        }
+      }
+    }
+  }
+}

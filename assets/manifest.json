@@ -28,7 +28,8 @@
   "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages",
   "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages",
   "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages",
-  "calendar": "Calendar & scheduling UI: month/week/day/agenda views, event chip and editor, slot picker, recurrence, availability, time zones, resource scheduler; calendar/booking/availability/event pages"
+  "calendar": "Calendar & scheduling UI: month/week/day/agenda views, event chip and editor, slot picker, recurrence, availability, time zones, resource scheduler; calendar/booking/availability/event pages",
+  "maps": "Maps & location UI: accessible map container, markers, clusters, popups, controls, location search/picker, map-list sync, directions, area selection; store locator, map search, directions pages"
  },
  "scope_requires": {
   "video": [
@@ -7871,6 +7872,200 @@
      "aria": null,
      "native": "main",
      "desc": "Single event page for organizers and RSVPing guests."
+    }
+   ]
+  },
+  {
+   "id": "maps",
+   "name": "Maps",
+   "scope": "maps",
+   "components": [
+    {
+     "id": "map-container",
+     "name": "Map Container",
+     "tier": "core",
+     "file": "map-container",
+     "demos": [
+      "state:loading",
+      "state:error",
+      "state:static-fallback",
+      "variant:with-attribution"
+     ],
+     "aria": null,
+     "native": "section[aria-label] + ul/table alternative",
+     "desc": "Labelled map region with keyboard pan and zoom, no scroll hijack (two-finger or Ctrl/Cmd to zoom), pan buttons and a list as the text alternative; attribution always visible."
+    },
+    {
+     "id": "map-marker",
+     "name": "Map Marker",
+     "tier": "core",
+     "file": "map-marker",
+     "demos": [
+      "state:default",
+      "state:selected",
+      "state:visited",
+      "variant:with-label"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Marker as a real button named by place and status, selected via aria-pressed; shape and label as well as color."
+    },
+    {
+     "id": "map-popup",
+     "name": "Map Popup",
+     "tier": "core",
+     "file": "map-popup",
+     "demos": [
+      "state:open",
+      "variant:card"
+     ],
+     "aria": "dialog",
+     "native": "[popover] / dialog",
+     "desc": "Non-modal place details anchored to a marker, with a close button and focus returned to the marker."
+    },
+    {
+     "id": "map-controls",
+     "name": "Map Controls",
+     "tier": "core",
+     "file": "map-controls",
+     "demos": [
+      "variant:zoom",
+      "variant:locate",
+      "variant:layers",
+      "variant:fullscreen"
+     ],
+     "aria": null,
+     "native": "[role=group] of button",
+     "desc": "Zoom, locate, layers and fullscreen buttons with stable names; the locate button is the only trigger for geolocation."
+    },
+    {
+     "id": "location-search",
+     "name": "Location Search",
+     "tier": "core",
+     "file": "location-search",
+     "demos": [
+      "state:suggestions",
+      "state:no-results"
+     ],
+     "aria": "combobox",
+     "native": "input[type=search]",
+     "desc": "Place search with a suggestion list and a no-results state; composes combobox and falls back to address entry."
+    },
+    {
+     "id": "location-picker",
+     "name": "Location Picker",
+     "tier": "standard",
+     "file": "location-picker",
+     "demos": [
+      "state:drop-pin",
+      "state:locating",
+      "state:permission-denied",
+      "state:selected"
+     ],
+     "aria": null,
+     "native": "form + button",
+     "desc": "Choose a location by dropping a pin, searching or using the device position on a button press, with a permission-denied recovery and a manual address fallback."
+    },
+    {
+     "id": "marker-cluster",
+     "name": "Marker Cluster",
+     "tier": "standard",
+     "file": "marker-cluster",
+     "demos": [
+      "state:collapsed",
+      "state:expanded"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Cluster bubble button named by count and area that expands or zooms in; count text on a pair-checked background."
+    },
+    {
+     "id": "map-list-sync",
+     "name": "Map List Sync",
+     "tier": "standard",
+     "file": "map-list-sync",
+     "demos": [
+      "variant:split",
+      "variant:mobile-toggle",
+      "state:hover-sync"
+     ],
+     "aria": null,
+     "native": "ul + button",
+     "desc": "Results list and map kept in sync: selecting either highlights the other; mobile toggles between list and map."
+    },
+    {
+     "id": "directions-panel",
+     "name": "Directions Panel",
+     "tier": "enterprise",
+     "file": "directions-panel",
+     "demos": [
+      "variant:modes",
+      "variant:steps",
+      "state:no-route"
+     ],
+     "aria": null,
+     "native": "form + ol",
+     "desc": "Origin, destination and mode inputs with an ordered list of turn-by-turn steps and a no-route state."
+    },
+    {
+     "id": "area-selector",
+     "name": "Area Selector",
+     "tier": "enterprise",
+     "file": "area-selector",
+     "demos": [
+      "variant:radius",
+      "variant:polygon"
+     ],
+     "aria": null,
+     "native": "input[type=range] + button",
+     "desc": "Radius or polygon area selection with numeric and keyboard alternatives to drawing by dragging."
+    }
+   ]
+  },
+  {
+   "id": "maps-pages",
+   "name": "Maps Pages",
+   "scope": "maps",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "store-locator",
+     "name": "Store Locator",
+     "tier": "core",
+     "file": "store-locator",
+     "demos": [
+      "variant:split",
+      "variant:mobile",
+      "state:no-results"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Search plus map and results list for finding nearby locations."
+    },
+    {
+     "id": "map-search-page",
+     "name": "Map Search Page",
+     "tier": "standard",
+     "file": "map-search-page",
+     "demos": [
+      "variant:search-as-move",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Full-screen map search where results update as the map moves, with an explicit opt-out and list alternative."
+    },
+    {
+     "id": "directions-page",
+     "name": "Directions Page",
+     "tier": "enterprise",
+     "file": "directions-page",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Route planning page with directions panel, map and route summary."
     }
    ]
   }
