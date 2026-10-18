@@ -24,7 +24,8 @@
   "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages",
   "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages",
   "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages",
-  "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages"
+  "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages",
+  "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages"
  },
  "scope_requires": {
   "video": [
@@ -6882,6 +6883,282 @@
      "requires_scopes": [
       "marketing"
      ]
+    }
+   ]
+  },
+  {
+   "id": "billing",
+   "name": "Billing",
+   "scope": "billing",
+   "components": [
+    {
+     "id": "current-plan",
+     "name": "Current Plan",
+     "tier": "core",
+     "file": "current-plan",
+     "demos": [
+      "state:active",
+      "state:trial",
+      "state:past-due",
+      "state:cancelled-until"
+     ],
+     "aria": "region",
+     "native": "section + dl",
+     "desc": "Plan name, price, renewal date and status with the next action; trial, past-due and cancelled-until states say what happens and when."
+    },
+    {
+     "id": "plan-picker",
+     "name": "Plan Picker",
+     "tier": "core",
+     "file": "plan-picker",
+     "demos": [
+      "variant:monthly-annual",
+      "state:proration-preview",
+      "state:downgrade-warning"
+     ],
+     "aria": "radiogroup",
+     "native": "fieldset + input[type=radio]",
+     "desc": "In-app plan change with a billing-interval toggle, a proration preview and a plain-language downgrade warning."
+    },
+    {
+     "id": "payment-method-list",
+     "name": "Payment Method List",
+     "tier": "core",
+     "file": "payment-method-list",
+     "demos": [
+      "state:default",
+      "state:expired",
+      "state:empty",
+      "variant:add"
+     ],
+     "aria": null,
+     "native": "ul + button",
+     "desc": "Saved payment methods with default marker, expiry status, per-item actions and an add entry point."
+    },
+    {
+     "id": "add-payment-method",
+     "name": "Add Payment Method",
+     "tier": "core",
+     "file": "add-payment-method",
+     "demos": [
+      "variant:card",
+      "variant:bank-debit-mandate",
+      "variant:wallet"
+     ],
+     "aria": "landmarks",
+     "native": "form + fieldset",
+     "desc": "Add a card (composing payment-card-entry), a SEPA/ACH debit with mandate text, or a wallet."
+    },
+    {
+     "id": "invoice-list",
+     "name": "Invoice List",
+     "tier": "core",
+     "file": "invoice-list",
+     "demos": [
+      "state:paid",
+      "state:open",
+      "state:overdue",
+      "state:void",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "table",
+     "desc": "Invoices with number, date, amount, status text and download; a table that becomes stacked cards on mobile."
+    },
+    {
+     "id": "invoice-detail",
+     "name": "Invoice Detail",
+     "tier": "standard",
+     "file": "invoice-detail",
+     "demos": [
+      "variant:line-items-tax",
+      "state:pay-now"
+     ],
+     "aria": null,
+     "native": "article + table",
+     "desc": "Invoice with issuer and customer details, line items, tax breakdown, totals and a pay-now action."
+    },
+    {
+     "id": "billing-usage",
+     "name": "Billing Usage",
+     "tier": "standard",
+     "file": "billing-usage",
+     "demos": [
+      "state:under",
+      "state:near-limit",
+      "state:over"
+     ],
+     "aria": "meter",
+     "native": "meter",
+     "desc": "Metered plan usage against an included allowance with overage cost; differs from the ai usage-meter, which measures tokens."
+    },
+    {
+     "id": "billing-alert",
+     "name": "Billing Alert",
+     "tier": "standard",
+     "file": "billing-alert",
+     "demos": [
+      "variant:payment-failed",
+      "variant:card-expiring",
+      "variant:trial-ending"
+     ],
+     "aria": "alert",
+     "native": "div[role=alert|status] + a",
+     "desc": "Persistent billing notice with the cause, the deadline and one fix action."
+    },
+    {
+     "id": "cancel-flow",
+     "name": "Cancel Flow",
+     "tier": "standard",
+     "file": "cancel-flow",
+     "demos": [
+      "state:reason",
+      "state:offer",
+      "state:confirm",
+      "state:done"
+     ],
+     "aria": "dialog",
+     "native": "dialog + form",
+     "desc": "Honest cancellation: optional reason, a skippable retention offer, confirmation with end date, and a done state; no confirmshaming and no more steps than sign-up."
+    },
+    {
+     "id": "transaction-list",
+     "name": "Transaction List",
+     "tier": "standard",
+     "file": "transaction-list",
+     "demos": [
+      "variant:filters",
+      "variant:export",
+      "state:pending",
+      "state:refunded"
+     ],
+     "aria": null,
+     "native": "table",
+     "desc": "Transactions with signed amounts, status text, filters and export; pending and refunded rows are marked in text."
+    },
+    {
+     "id": "payout-summary",
+     "name": "Payout Summary",
+     "tier": "enterprise",
+     "file": "payout-summary",
+     "demos": [
+      "variant:balance",
+      "variant:schedule",
+      "state:on-hold"
+     ],
+     "aria": "region",
+     "native": "section + dl",
+     "desc": "Available and pending balance, payout schedule and next payout; on-hold states say why and what to do."
+    },
+    {
+     "id": "wallet-balance",
+     "name": "Wallet Balance",
+     "tier": "enterprise",
+     "file": "wallet-balance",
+     "demos": [
+      "variant:credits",
+      "state:top-up"
+     ],
+     "aria": "region",
+     "native": "section + dl + form",
+     "desc": "Prepaid or credit balance with a top-up action and expiry information."
+    },
+    {
+     "id": "tax-info-form",
+     "name": "Tax Info Form",
+     "tier": "enterprise",
+     "file": "tax-info-form",
+     "demos": [
+      "variant:vat-id",
+      "state:invalid",
+      "state:verified"
+     ],
+     "aria": "landmarks",
+     "native": "form + fieldset",
+     "desc": "Tax and VAT identifier form with format validation and a verified state that shows the registered name."
+    },
+    {
+     "id": "refund-dialog",
+     "name": "Refund Dialog",
+     "tier": "enterprise",
+     "file": "refund-dialog",
+     "demos": [
+      "variant:full",
+      "variant:partial"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Issue a full or partial refund with amount, reason and an irreversible-action confirmation."
+    }
+   ]
+  },
+  {
+   "id": "billing-pages",
+   "name": "Billing Pages",
+   "scope": "billing",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "billing-page",
+     "name": "Billing Page",
+     "tier": "core",
+     "file": "billing-page",
+     "demos": [
+      "variant:overview",
+      "state:past-due"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Billing overview with current-plan, payment methods, usage and recent invoices; a past-due state leads with the fix."
+    },
+    {
+     "id": "plans-page",
+     "name": "Plans Page",
+     "tier": "core",
+     "file": "plans-page",
+     "demos": [
+      "variant:in-app",
+      "state:current-highlighted"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "In-app plan comparison with plan-picker and the current plan marked in text."
+    },
+    {
+     "id": "invoice-page",
+     "name": "Invoice Page",
+     "tier": "standard",
+     "file": "invoice-page",
+     "demos": [
+      "variant:printable"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Invoice detail page with print styles for a clean paper or PDF copy."
+    },
+    {
+     "id": "transactions-page",
+     "name": "Transactions Page",
+     "tier": "standard",
+     "file": "transactions-page",
+     "demos": [
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Transaction history with filters and export, plus an empty state."
+    },
+    {
+     "id": "payouts-page",
+     "name": "Payouts Page",
+     "tier": "enterprise",
+     "file": "payouts-page",
+     "demos": [
+      "variant:history"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Payout summary and payout history."
     }
    ]
   }
