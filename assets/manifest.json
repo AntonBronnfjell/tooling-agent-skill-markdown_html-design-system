@@ -6456,9 +6456,9 @@
       "variant:dm",
       "variant:group-avatars"
      ],
-     "aria": "status",
-     "native": "span",
-     "desc": "Seen/delivered text and small avatars for DMs and groups, announced politely and throttled."
+     "aria": null,
+     "native": "p",
+     "desc": "Seen/delivered text and small avatars for DMs and groups; plain text, not a live region, with any summary carried by the thread's batched status."
     },
     {
      "id": "message-search",
