@@ -1049,6 +1049,7 @@ CAT_TITLES = {"foundations": "Foundations", "actions": "Actions", "forms": "Form
               "data-display": "Data Display", "overlays": "Overlays", "feedback": "Feedback", "patterns": "Patterns",
               "marketing": "Marketing", "marketing-pages": "Marketing Pages", "ai": "AI", "ai-patterns": "AI Patterns",
               "commerce": "Commerce", "commerce-pages": "Commerce Pages", "email": "Email", "email-templates": "Email Templates"}
+CAT_TITLES.update({c["id"]: c["name"] for c in MANIFEST["categories"] if c["id"] not in CAT_TITLES})  # opt-in scopes: manifest names are short titles
 SB_VERSION = "^10.6.1"
 
 

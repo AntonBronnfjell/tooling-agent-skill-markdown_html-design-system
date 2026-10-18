@@ -198,6 +198,15 @@ class TestBuild(Temp):
                        "invoker commands"):
             self.assertIn(needle, out)
 
+    def test_storybook_handles_new_scope_categories(self):
+        root = self.init("--scopes", "product,video")
+        page = root / "components" / "seek-bar.html"
+        page.write_text('<main><section id="examples"><div data-demo="state:default"><input type="range" aria-label="Seek"></div></section></main>',
+                        encoding="utf-8")
+        run("storybook", root)
+        self.assertTrue(list((root / "stories").rglob("seek-bar.stories.*")), "no story written for a playback page")
+        self.assertTrue(all(c["id"] in ds.CAT_TITLES for c in ds.MANIFEST["categories"]))
+
 
 class TestSafety(Temp):
     def test_refuses_occupied_folder_and_adopt_keeps_files(self):
