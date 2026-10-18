@@ -25,7 +25,8 @@
   "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages",
   "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages",
   "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages",
-  "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages"
+  "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages",
+  "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages"
  },
  "scope_requires": {
   "video": [
@@ -7159,6 +7160,251 @@
      "aria": null,
      "native": "main",
      "desc": "Payout summary and payout history."
+    }
+   ]
+  },
+  {
+   "id": "analytics",
+   "name": "Analytics",
+   "scope": "analytics",
+   "components": [
+    {
+     "id": "analytics-filter-bar",
+     "name": "Analytics Filter Bar",
+     "tier": "core",
+     "file": "analytics-filter-bar",
+     "demos": [
+      "variant:date-presets",
+      "variant:compare-to",
+      "variant:segments",
+      "state:applied"
+     ],
+     "aria": null,
+     "native": "form + fieldset + button",
+     "desc": "Date range (with presets and stated time zone), compare-to and segment filters that apply on submit and show applied filters as removable text chips."
+    },
+    {
+     "id": "report-table",
+     "name": "Report Table",
+     "tier": "core",
+     "file": "report-table",
+     "demos": [
+      "variant:totals-row",
+      "variant:drill-down",
+      "state:loading",
+      "state:no-data"
+     ],
+     "aria": null,
+     "native": "table + caption + tfoot",
+     "desc": "Read-only report table over data-table with a tfoot totals row, drill-down links and loading and no-data states that say why."
+    },
+    {
+     "id": "export-menu",
+     "name": "Export Menu",
+     "tier": "core",
+     "file": "export-menu",
+     "demos": [
+      "variant:csv-xlsx-pdf",
+      "state:preparing",
+      "state:ready"
+     ],
+     "aria": "menu",
+     "native": "button + [popover] + menu",
+     "desc": "Format menu (CSV, XLSX, PDF) that exports the current filters and announces preparing and ready states with a download link."
+    },
+    {
+     "id": "data-freshness",
+     "name": "Data Freshness",
+     "tier": "core",
+     "file": "data-freshness",
+     "demos": [
+      "state:fresh",
+      "state:stale",
+      "state:refreshing"
+     ],
+     "aria": null,
+     "native": "p + time",
+     "desc": "As-of timestamp with fresh, stale and refreshing states stated in text, plus a refresh button when allowed."
+    },
+    {
+     "id": "metric-definition",
+     "name": "Metric Definition",
+     "tier": "standard",
+     "file": "metric-definition",
+     "demos": [
+      "variant:hover-card",
+      "variant:glossary"
+     ],
+     "aria": "dialog (non-modal)",
+     "native": "button + [popover] / dl",
+     "desc": "Formula, source, owner and caveats for a metric, as a hover-card reached by a button or as a glossary list."
+    },
+    {
+     "id": "scorecard",
+     "name": "Scorecard",
+     "tier": "standard",
+     "file": "scorecard",
+     "demos": [
+      "variant:target",
+      "variant:vs-previous",
+      "state:missed"
+     ],
+     "aria": null,
+     "native": "stat + meter",
+     "desc": "Metric tile composing stat with a target or previous-period comparison; missed states target, gap and direction in text."
+    },
+    {
+     "id": "funnel-chart",
+     "name": "Funnel Chart",
+     "tier": "standard",
+     "file": "funnel-chart",
+     "demos": [
+      "variant:steps",
+      "variant:with-dropoff",
+      "state:loading"
+     ],
+     "aria": "img",
+     "native": "svg + table",
+     "desc": "Ordered steps with counts and conversion; drop-off between steps is stated as numbers; table alternative always present."
+    },
+    {
+     "id": "cohort-table",
+     "name": "Cohort Table",
+     "tier": "enterprise",
+     "file": "cohort-table",
+     "demos": [
+      "variant:retention",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "table",
+     "desc": "Retention heatmap table that always prints the numbers; cell shade is a sequential ramp, never the only signal."
+    },
+    {
+     "id": "pivot-table",
+     "name": "Pivot Table",
+     "tier": "enterprise",
+     "file": "pivot-table",
+     "demos": [
+      "variant:row-col-groups",
+      "state:empty"
+     ],
+     "aria": "grid",
+     "native": "table + th[scope]",
+     "desc": "Cross-tab with row and column groups, subtotals and grand totals; grid pattern only when cells are interactive."
+    },
+    {
+     "id": "report-builder",
+     "name": "Report Builder",
+     "tier": "enterprise",
+     "file": "report-builder",
+     "demos": [
+      "state:empty",
+      "state:configured",
+      "variant:chart-type"
+     ],
+     "aria": null,
+     "native": "form + fieldset",
+     "desc": "Pick metrics, dimensions, filters and chart type with a live preview and a table alternative."
+    },
+    {
+     "id": "scheduled-report",
+     "name": "Scheduled Report",
+     "tier": "enterprise",
+     "file": "scheduled-report",
+     "demos": [
+      "variant:schedule-form",
+      "state:active",
+      "state:paused"
+     ],
+     "aria": null,
+     "native": "form + fieldset + switch",
+     "desc": "Schedule form (frequency, time, time zone, recipients, format) and active or paused state with the next run time."
+    },
+    {
+     "id": "chart-annotation",
+     "name": "Chart Annotation",
+     "tier": "enterprise",
+     "file": "chart-annotation",
+     "demos": [
+      "variant:event-marker",
+      "state:editing"
+     ],
+     "aria": null,
+     "native": "button + [popover] + form",
+     "desc": "Event markers on a time axis with text notes, listed in a table alternative; editing happens in a labelled form."
+    },
+    {
+     "id": "alert-rule",
+     "name": "Alert Rule",
+     "tier": "enterprise",
+     "file": "alert-rule",
+     "demos": [
+      "variant:threshold",
+      "state:triggered"
+     ],
+     "aria": null,
+     "native": "form + fieldset + select",
+     "desc": "Metric alert with condition, threshold, window and recipients; triggered state shows value, threshold and time in text."
+    }
+   ]
+  },
+  {
+   "id": "analytics-pages",
+   "name": "Analytics Pages",
+   "scope": "analytics",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "analytics-overview",
+     "name": "Analytics Overview Page",
+     "tier": "core",
+     "file": "analytics-overview",
+     "demos": [
+      "variant:kpi-row-charts",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "KPI scorecards over charts with a filter bar and freshness; loading keeps layout with skeletons."
+    },
+    {
+     "id": "report-page",
+     "name": "Report Page",
+     "tier": "core",
+     "file": "report-page",
+     "demos": [
+      "variant:chart-table",
+      "variant:shared-readonly"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "One report as chart plus table with filters and export; shared read-only hides editing and states the applied filters."
+    },
+    {
+     "id": "reports-library",
+     "name": "Reports Library Page",
+     "tier": "standard",
+     "file": "reports-library",
+     "demos": [
+      "variant:list",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Searchable list of saved and scheduled reports with owner and last-run; empty state offers creating a report."
+    },
+    {
+     "id": "report-builder-page",
+     "name": "Report Builder Page",
+     "tier": "enterprise",
+     "file": "report-builder-page",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Report builder with preview, save, schedule and export actions."
     }
    ]
   }
