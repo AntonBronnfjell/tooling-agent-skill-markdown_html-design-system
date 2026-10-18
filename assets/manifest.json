@@ -20,7 +20,8 @@
   "email": "HTML email: table layouts, bulletproof buttons, dark-mode-safe templates for transactional and marketing email (add when the product sends email)",
   "playback": "Base scope (added automatically by video/live/music/podcast/reading/messaging): transport, seek, volume, speed, captions, transcript, queue, mini-player",
   "video": "Video UI: player, cards, chapters, end screen, creator header, upload; watch/home/channel/library/search/studio pages (add for video platforms)",
-  "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)"
+  "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)",
+  "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages"
  },
  "scope_requires": {
   "video": [
@@ -28,6 +29,9 @@
   ],
   "live": [
    "video"
+  ],
+  "music": [
+   "playback"
   ]
  },
  "token_groups_required": {
@@ -5505,6 +5509,263 @@
      "aria": null,
      "native": "main",
      "desc": "Marketing landing page for a livestreaming product composed from marketing sections.",
+     "requires_scopes": [
+      "marketing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "music",
+   "name": "Music",
+   "scope": "music",
+   "components": [
+    {
+     "id": "now-playing-bar",
+     "name": "Now Playing Bar",
+     "tier": "core",
+     "file": "now-playing-bar",
+     "demos": [
+      "state:playing",
+      "state:paused",
+      "state:empty",
+      "variant:mobile"
+     ],
+     "aria": "region",
+     "native": "section + button",
+     "desc": "Persistent bar with art, title, controls, seek, volume and queue/lyrics toggles; composes playback controls."
+    },
+    {
+     "id": "track-row",
+     "name": "Track Row",
+     "tier": "core",
+     "file": "track-row",
+     "demos": [
+      "state:default",
+      "state:playing",
+      "state:unavailable",
+      "variant:explicit",
+      "variant:with-album",
+      "variant:compact"
+     ],
+     "aria": null,
+     "native": "tr",
+     "desc": "Track row with index/play, title, artist, duration and actions; explicit shown as text, playing state as text and icon."
+    },
+    {
+     "id": "track-list",
+     "name": "Track List",
+     "tier": "core",
+     "file": "track-list",
+     "demos": [
+      "variant:album",
+      "variant:playlist",
+      "variant:search",
+      "state:loading"
+     ],
+     "aria": "table",
+     "native": "table",
+     "desc": "Track table with column headers; Enter on a row plays it."
+    },
+    {
+     "id": "artwork-card",
+     "name": "Artwork Card",
+     "tier": "core",
+     "file": "artwork-card",
+     "demos": [
+      "variant:album",
+      "variant:playlist",
+      "variant:artist-round",
+      "state:playing"
+     ],
+     "aria": null,
+     "native": "article + a + button",
+     "desc": "Cover art card whose play overlay is a real button reachable by keyboard."
+    },
+    {
+     "id": "save-toggle",
+     "name": "Save Toggle",
+     "tier": "core",
+     "file": "save-toggle",
+     "demos": [
+      "state:saved",
+      "state:unsaved"
+     ],
+     "aria": "button",
+     "native": "button[aria-pressed]",
+     "desc": "Heart or plus toggle with aria-pressed and a stable save/unsave name."
+    },
+    {
+     "id": "artist-header",
+     "name": "Artist Header",
+     "tier": "standard",
+     "file": "artist-header",
+     "demos": [
+      "variant:hero",
+      "state:following",
+      "variant:verified"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Artist hero with name, listeners, follow toggle and a text-labelled verified badge."
+    },
+    {
+     "id": "lyrics-view",
+     "name": "Lyrics View",
+     "tier": "standard",
+     "file": "lyrics-view",
+     "demos": [
+      "variant:synced",
+      "variant:static",
+      "state:unavailable",
+      "state:reduced-motion"
+     ],
+     "aria": "region",
+     "native": "section",
+     "desc": "Static or time-synced lyrics; auto-scroll can be paused and stops under reduced motion."
+    },
+    {
+     "id": "now-playing-view",
+     "name": "Now Playing View",
+     "tier": "standard",
+     "file": "now-playing-view",
+     "demos": [
+      "variant:full-screen",
+      "variant:lyrics-tab",
+      "variant:queue-tab",
+      "variant:mobile"
+     ],
+     "aria": "tablist",
+     "native": "dialog + tabs",
+     "desc": "Full-screen player with art, controls and lyrics/queue tabs."
+    },
+    {
+     "id": "playlist-editor",
+     "name": "Playlist Editor",
+     "tier": "standard",
+     "file": "playlist-editor",
+     "demos": [
+      "state:editing",
+      "variant:reorder",
+      "variant:cover-description"
+     ],
+     "aria": null,
+     "native": "form + ul",
+     "desc": "Edit playlist name, cover and description; tracks reorder via move buttons."
+    },
+    {
+     "id": "equalizer",
+     "name": "Equalizer",
+     "tier": "enterprise",
+     "file": "equalizer",
+     "demos": [
+      "variant:presets",
+      "variant:bands",
+      "state:off"
+     ],
+     "aria": "group",
+     "native": "fieldset + input[type=range]",
+     "desc": "Preset select and per-band sliders with dB values as text and an on/off switch."
+    }
+   ]
+  },
+  {
+   "id": "music-pages",
+   "name": "Music Pages",
+   "scope": "music",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "music-home",
+     "name": "Music Home",
+     "tier": "core",
+     "file": "music-home",
+     "demos": [
+      "variant:shelves",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Home with shelves of artwork cards and recent items."
+    },
+    {
+     "id": "album-page",
+     "name": "Album Page",
+     "tier": "core",
+     "file": "album-page",
+     "demos": [
+      "variant:default",
+      "variant:multi-disc"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Album header with play/save actions and track list, grouped by disc when needed."
+    },
+    {
+     "id": "playlist-page",
+     "name": "Playlist Page",
+     "tier": "core",
+     "file": "playlist-page",
+     "demos": [
+      "variant:own",
+      "variant:followed",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Playlist header and track list with owner or follower actions."
+    },
+    {
+     "id": "artist-page",
+     "name": "Artist Page",
+     "tier": "standard",
+     "file": "artist-page",
+     "demos": [
+      "variant:popular",
+      "variant:discography"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Artist header, popular tracks and discography shelves."
+    },
+    {
+     "id": "music-library",
+     "name": "Music Library",
+     "tier": "standard",
+     "file": "music-library",
+     "demos": [
+      "variant:grid",
+      "variant:list",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Saved playlists, albums and artists as grid or list."
+    },
+    {
+     "id": "music-search",
+     "name": "Music Search",
+     "tier": "standard",
+     "file": "music-search",
+     "demos": [
+      "variant:top-result",
+      "state:no-results"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Search results with a top result and grouped tracks, artists and albums."
+    },
+    {
+     "id": "music-landing",
+     "name": "Music Landing",
+     "tier": "standard",
+     "file": "music-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a music product composed from marketing sections.",
      "requires_scopes": [
       "marketing"
      ]
