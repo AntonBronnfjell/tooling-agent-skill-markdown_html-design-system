@@ -3,7 +3,7 @@ name: example-site
 on:
   push:
     branches: [main]
-    paths: ["examples/**", "scripts/**", "assets/templates/**", ".github/workflows/pages.yml"]
+    paths: ["examples/**", "scripts/**", "assets/templates/**", "assets/manifest.json", ".github/scopes_page.py", ".github/workflows/pages.yml"]
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
@@ -32,6 +32,7 @@ jobs:
           cd examples/fleetline
           cp -r index.html components patterns docs dist css js DESIGN.md llms.txt llms ../../_site/ 2>/dev/null || true
           cp -r storybook-static ../../_site/storybook
+          cd ../.. && python .github/scopes_page.py assets/manifest.json _site
       - uses: actions/upload-pages-artifact@v3
         with: { path: _site }
   deploy:
