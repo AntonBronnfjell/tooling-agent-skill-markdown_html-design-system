@@ -32,4 +32,6 @@ Do not edit files outside your list. If you need a new semantic token, don't inv
 Report back: files written, coverage lines for your components, tokens you added, and any requested semantic tokens or open questions.
 ```
 
+Opt-in scope categories read `references/components/<scope>.md`; landing pages (`requires_scopes`) compose marketing sections — build those first.
+
 After all subagents finish: merge requested semantic tokens (main thread only), run `ds.py build` and `ds.py check`, and review a sample page from each category for consistency with the reference implementation.

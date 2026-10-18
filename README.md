@@ -4,10 +4,10 @@
 
 **An agent skill that turns your AI coding assistant into a design-system team.**
 
-Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 306 components (app UI plus opt-in **marketing**, **AI chat**, **commerce** and **email**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project. Then it ports the system to **SwiftUI, Jetpack Compose, Flutter and React Native** from a measured spec, with snapshot checks against the web, and builds a consistent **icon set**.
+Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 532 components (app UI plus 17 opt-in scopes: **marketing**, **AI chat**, **commerce**, **email**, media (**video, live, music, podcast**), **reading**, **messaging**, **billing**, **analytics**, **ERP**, **calendar**, **maps** and **social**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project. Then it ports the system to **SwiftUI, Jetpack Compose, Flutter and React Native** from a measured spec, with snapshot checks against the web, and builds a consistent **icon set**.
 
 [![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
-[![Components](https://img.shields.io/badge/components-306-2563eb)](#component-coverage-306)
+[![Components](https://img.shields.io/badge/components-532-2563eb)](#component-coverage-532)
 [![WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG_2.2_AA-15803d)](references/component-contract.md)
 [![Design tokens](https://img.shields.io/badge/tokens-DTCG_2025.10-0891b2)](references/tokens.md)
 [![MCP](https://img.shields.io/badge/MCP-server-111827)](#agents-can-query-your-system)
@@ -58,7 +58,7 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 | Failure | How the skill prevents it |
 |---|---|
 | **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds.py audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
-| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **306 components** (180 for app UI, plus 46 marketing, 29 AI, 31 commerce and 20 email), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **532 components** (192 for app UI, plus 340 across 17 opt-in scopes: marketing, AI, commerce, email, playback, video, live, music, podcast, reading, messaging, billing, analytics, ERP, calendar, maps and social), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
 
 ## Quick start
 
@@ -84,7 +84,7 @@ flowchart LR
     A["🔍 Discover<br/>audit · graphify · Figma"] --> B["🧭 Decide<br/>extend · adopt · new"]
     B --> C["🎨 Tokens<br/>DTCG · themes · contrast"]
     C --> D["🗺️ Plan<br/>build queue · approval"]
-    D --> E["🧱 Build<br/>up to 306 components · subagents"]
+    D --> E["🧱 Build<br/>up to 532 components · subagents"]
     E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
     F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
     G --> H["📱 Mobile<br/>spec · scaffold · verify"]
@@ -127,22 +127,22 @@ design-system/
 └── .ds-owned.json        ownership ledger: what ds.py created (it never overwrites anything else)
 ```
 
-### Component coverage (306)
+### Component coverage (532)
 
-**App UI (`product` scope, always on) — 180**
+**App UI (`product` scope, always on) — 192**
 
 | Category | Count | Examples |
 |---|---|---|
 | Foundations & primitives | 20 | box, stack, cluster, grid, container, splitter, icon, type scale, highlight, code, kbd, prose, divider, image, scroll area |
 | Actions | 19 | primary/secondary/ghost/destructive buttons, icon button, link, toggle, segmented control, split button, menu, overflow menu, selection action bar, FAB, theme toggle, copy, toolbar |
-| Forms | 38 | field wrapper, text/password/search/number inputs, input mask, date field (memorable date), checkbox, radio, choice cards, switch, select, combobox, listbox, tree select, transfer list, upload, slider, date/time/range pickers, color picker, OTP, tag input, rating, attribute editor, code editor, rich-text shell, inline edit, composer, error summary |
+| Forms | 39 | field wrapper, text/password/search/number inputs, input mask, date field (memorable date), checkbox, radio, choice cards, switch, select, combobox, listbox, tree select, transfer list, upload, slider, date/time/range pickers, color picker, OTP, tag input, rating, attribute editor, code editor, rich-text shell, inline edit, composer, error summary, preference matrix |
 | Navigation | 19 | top nav, side nav, app rail, app switcher, menubar, bottom nav, breadcrumbs, tabs, pagination, stepper, command palette, skip link, tree view, TOC, page/section headers, footer |
 | Data display | 32 | table, data table, tree table, card, card collection, post card, sortable list, board, accordion, avatar, badge, tag, lists, comment thread, timeline, carousel, media stage, stat, formatters, QR code, chart container, legend, tooltip, axis, sparkline |
 | Overlays | 12 | modal, alert dialog, drawer, side panel, floating panel, bottom sheet, popover, tooltip, toggletip, context menu, coachmark, lightbox |
-| Feedback | 11 | alerts, callout, toast, progress, meter, spinner, skeleton, result panel, notification center |
-| Patterns | 29 | app shell, form layout, dashboard, empty/error pages, auth, settings, list/detail, wizard, onboarding, feed, start page, question page, check answers, confirmation, task list, step-by-step, service unavailable, session timeout, exit quickly, address/name/phone/card entry, unsaved changes, create resource, delete with confirmation, saved filters |
+| Feedback | 12 | alerts, callout, toast, progress, meter, spinner, skeleton, result panel, notification center, notification permission prompt |
+| Patterns | 39 | app shell, form layout, dashboard, empty/error pages, auth, settings, list/detail, wizard, onboarding, feed, start page, question page, check answers, confirmation, task list, step-by-step, service unavailable, session timeout, exit quickly, address/name/phone/card entry, unsaved changes, create resource, delete with confirmation, saved filters, settings suite (profile, account, security, notifications, privacy, appearance, sessions, connected apps, data), notification inbox |
 
-**Opt-in scopes — 126**
+**Opt-in scopes — 340**
 
 | Scope | Count | Examples |
 |---|---|---|
@@ -150,11 +150,24 @@ design-system/
 | `ai` | 29 | conversation, chat message, streaming response, reasoning, task steps, tool-call card, approval card, sources and citations, prompt input with model picker, suggestions, message actions, feedback, AI label and disclaimer, artifact panel, conversation history, context meter, MCP App widget shell · chat app, copilot panel, agent run pages |
 | `commerce` | 31 | product card and gallery, price, variant picker, quantity stepper, stock and delivery, add to cart, mini cart, cart line, order summary, promo code, shipping and payment methods, address form, checkout steps, reviews, facets and sort · product list, product detail, cart, checkout, order confirmation, account orders pages |
 | `email` | 20 | email shell, header, hero, bulletproof button, text, image, columns, product row, receipt, social, footer with unsubscribe, OTP · verify, password reset, receipt, invite, newsletter, digest templates |
+| `playback` | 11 | play toggle, seek bar, volume control, time display, speed and caption controls (base for video, music, podcast, reading and messaging; added automatically) |
+| `video` | 16 | video player, video card, end screen, quality menu · watch, video home, channel, library pages |
+| `live` | 12 | live badge, live player, live chat, live reactions · live page, directory, studio, landing pages |
+| `music` | 17 | now-playing bar, track row and list, artwork card · music home, album, playlist, artist pages |
+| `podcast` | 12 | podcast player, episode row, show card and header · podcast home, show, episode, queue pages |
+| `reading` | 21 | reader viewport, toolbar, settings, table of contents · library, book detail, reader, read-later pages |
+| `messaging` | 28 | message bubble and thread, conversation row, presence indicator · inbox, workspace, call, support widget pages |
+| `billing` | 19 | current plan, plan picker, payment method list, add payment method · billing, plans, invoice, transactions pages |
+| `analytics` | 17 | filter bar, report table, export menu, data freshness · overview, report, reports library, report builder pages |
+| `erp` | 16 | record header, line item editor, status workflow, master data lookup · record list and form, purchase order, inventory pages |
+| `calendar` | 15 | month, week, day and agenda views · calendar, booking, availability, event detail pages |
+| `maps` | 13 | map container, marker, popup, controls · store locator, map search, directions pages |
+| `social` | 17 | profile header, follow button, user row, reaction bar · profile, home feed, post detail, followers pages |
 
 > [!TIP]
-> **Tiers:** across app UI, **core** has 68 components (what every product needs), **standard** adds 70 and **enterprise** adds 42. Ask for "complete" and you get enterprise.
+> **Tiers:** across app UI, **core** has 68 components (what every product needs), **standard** adds 78 and **enterprise** adds 46. Ask for "complete" and you get enterprise.
 >
-> **Scopes:** add them with `ds.py init --scopes product,marketing,ai,commerce,email` (any subset). Each brings its own specs and rules: landing-page performance, SEO and honest consent for `marketing`; streaming accessibility, AI labelling and human-in-the-loop approvals for `ai`; Baymard checkout rules for `commerce`; table layouts, dark-mode quirks and client checks for `email`.
+> **Scopes:** add them with `ds.py init --scopes product,marketing,ai,commerce,email,video,music,…` (any subset; run `ds.py init --help` for the full list). Media and messaging scopes pull in `playback` automatically, and `live` pulls in `video`; consumer landing pages also need `marketing`. Each brings its own specs and rules: landing-page performance, SEO and honest consent for `marketing`; streaming accessibility, AI labelling and human-in-the-loop approvals for `ai`; Baymard checkout rules for `commerce`; table layouts, dark-mode quirks and client checks for `email`.
 
 ### What "done" means for each component
 
@@ -450,7 +463,7 @@ $DS status                               # one-line state of the nearest design 
 ├── .claude-plugin/              plugin.json (7 commands, evals dir) + marketplace.json — Claude Code plugin
 ├── .cursor-plugin/ .codex-plugin/ .agents/plugins/   Cursor and Codex plugin manifests
 ├── assets/
-│   ├── manifest.json            306 components · 16 categories · 3 tiers · 5 scopes
+│   ├── manifest.json            532 components · 41 categories · 3 tiers · 18 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
 │                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai tokens, email starter), mcp_server.py,

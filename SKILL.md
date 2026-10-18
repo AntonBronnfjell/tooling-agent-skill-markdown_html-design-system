@@ -4,15 +4,16 @@ description: >
   Decides which design system to build (extend an existing design, adopt a reference
   system like Carbon/Material/Fluent/Polaris, or create a new direction) and builds a
   COMPLETE HTML/CSS design system: DTCG 2025.10 tokens with light/dark/high-contrast
-  themes and up to 306 components (every control, navigation, data, overlay, feedback
-  and app pattern, plus opt-in scopes: marketing/landing pages, AI chat UI, commerce,
-  HTML email), each with every state, WCAG 2.2 AA accessibility and a docs page, plus
+  themes and up to 532 components (controls, navigation, data, overlays, feedback, app
+  patterns, plus 17 opt-in scopes: marketing, AI chat, commerce, email, media, reading,
+  messaging, billing, analytics, ERP, calendar, maps, social), each with every state,
+  WCAG 2.2 AA accessibility and a docs page, plus
   Storybook, DESIGN.md, llms.txt, MCP, npm packaging and CI. Ports it to mobile (SwiftUI,
   Compose, Flutter, React Native) from a measured spec with snapshot checks, and builds
-  icon sets. Safe in existing projects (never overwrites your files). Use whenever the
+  icon sets. Safe in existing projects. Use whenever the
   user wants to create, audit, extend, finish or document a design system, UI kit,
   component library, style guide, Storybook or design tokens, even if they only say
-  "build our components", "we need consistent UI" or list components to build.
+  "build our components" or "we need consistent UI".
 license: MIT
 argument-hint: "[new|extend <path>|adopt <system>|audit <path>|resume] [core|standard|enterprise]"
 hooks:
@@ -38,7 +39,7 @@ Build a complete, accessible, token-driven HTML/CSS design system — and first,
 
 ## Why this skill is structured the way it is
 
-A design system fails in two ways: it looks wrong for the product (wrong *direction*), or it has holes — a missing invalid state, a modal with no focus return, a dark theme where muted text is illegible (incomplete *coverage*). The direction is a judgment call, so it gets an explicit decision phase with research companions. Coverage is mechanical, so it's enforced by a machine-readable manifest (`assets/manifest.json`, 306 components across 16 categories, 3 tiers and 5 scopes — `product` app UI always; opt-in `marketing`, `ai`, `commerce`, `email`) plus scripts and hooks that tell you exactly what's missing. Trust the tools for coverage and spend your thinking on quality.
+A design system fails in two ways: it looks wrong for the product (wrong *direction*), or it has holes — a missing invalid state, a modal with no focus return, a dark theme where muted text is illegible (incomplete *coverage*). The direction is a judgment call, so it gets an explicit decision phase with research companions. Coverage is mechanical, so it's enforced by a machine-readable manifest (`assets/manifest.json`, 532 components across 41 categories, 3 tiers and 18 scopes — `product` app UI always; opt-in `marketing`, `ai`, `commerce`, `email`, `playback`, `video`, `live`, `music`, `podcast`, `reading`, `messaging`, `billing`, `analytics`, `erp`, `calendar`, `maps`, `social`) plus scripts and hooks that tell you exactly what's missing. Trust the tools for coverage and spend your thinking on quality.
 
 ## Toolkit
 
@@ -98,7 +99,7 @@ Every write goes through an ownership ledger (`<ds>/.ds-owned.json`): ds.py **ne
 
 ### Phase 1 — Decide (which design system?)
 Read `references/decision-guide.md`. Choose **extend**, **adopt** (name the reference system) or **new**; hybrids allowed.
-- Ask the user only what discovery couldn't answer (one AskUserQuestion round: product/users, assets, tier, extra targets). If the user asked for "complete", the tier is `enterprise`. Scopes (`--scopes product,…`): add `marketing` for a public website/landing pages/pricing/blog; `ai` for assistants, chat or agents; `commerce` for stores and checkout; `email` when the product sends email.
+- Ask the user only what discovery couldn't answer (one AskUserQuestion round: product/users, assets, tier, extra targets). If the user asked for "complete", the tier is `enterprise`. Scopes (`--scopes product,…`): add `marketing` for a public website/landing pages/pricing/blog; `ai` for assistants, chat or agents; `commerce` for stores and checkout; `email` when the product sends email; `video`/`live`/`music`/`podcast` for media products (the base `playback` scope is added automatically; `live` also adds `video`); `reading` for books, comics and articles; `messaging` for person-to-person chat, channels, calls and a support widget; `billing` for in-app subscriptions and payments; `analytics` for reports and metrics; `erp` for back-office records; `calendar` for scheduling; `maps` for location; `social` for profiles and following. Landing pages of consumer scopes need `marketing` too.
 - For a new or re-skinned direction, invoke **/ui-ux-pro-max** and run its `--design-system` generator with the product context; deep-dive color/typography/ux domains as needed.
 - `ds.py init <project>/design-system --name "<Name>" --tier <tier>`, then fill `ds.config.json` `brief`, `direction` and an ADR in `decisions`. `ds.py phase <dir> decide`.
 
@@ -154,6 +155,7 @@ design-system/
 - `references/builder-brief.md` — subagent prompt for parallel category builds
 - `references/companion-skills.md` — when to use /graphify, /ui-ux-pro-max, /plan, /ponytail, /ui-styling and others, with fallbacks
 - `references/components/{ai,commerce,email}.md` — opt-in scopes (AI chat UI, commerce, HTML email) · `references/email-build.md`
+- `references/components/{playback,video,live,music,podcast,reading,messaging,billing,analytics,erp,calendar,maps,social}.md` — opt-in scopes (media playback, video, live, music, podcast, reading, messaging, billing, analytics, ERP, calendar, maps, social)
 - `references/css-architecture.md` — cascade layers, @scope, invoker commands, anchor positioning, progressive-enhancement matrix with Baseline status
 - `references/conventions.md` — elevation pairs, state layers, appearances, tone × variant, input widths, data-state hooks, density
 - `references/performance.md` — INP budget, content-visibility, font loading

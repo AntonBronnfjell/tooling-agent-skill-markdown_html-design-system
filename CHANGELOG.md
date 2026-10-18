@@ -2,6 +2,23 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [1.2.0] - 2026-10-17
+
+### Added
+- **13 new opt-in scopes** (manifest now 532 components in 41 categories, 3 tiers and 18 scopes; 340 components in opt-in scopes, 192 in `product`): `playback` 11 (base for media, added automatically), `video` 16, `live` 12, `music` 17, `podcast` 12, `reading` 21, `messaging` 28, `billing` 19, `analytics` 17, `erp` 16, `calendar` 15, `maps` 13, `social` 17. Each has a spec in `references/components/<scope>.md`.
+- **Scope dependencies:** `scope_requires` in the manifest (`video`, `music`, `podcast`, `reading`, `messaging` require `playback`; `live` requires `video`), resolved by `expand_scopes()` in `ds.py`.
+- **`requires_scopes` gating:** landing pages of consumer scopes (video, live, music, podcast, reading, messaging, social) carry `requires_scopes: [marketing]` and are only planned when `marketing` is on.
+- **Product additions** (`product` 180 to 192): settings suite (profile, account, security, notifications, privacy, appearance, sessions, connected apps, data), `notification-inbox`, `preference-matrix`, `notification-permission-prompt`. Tiers across app UI: core 68, standard 78, enterprise 46.
+- Plugin eval case 4 (podcast app with marketing site: scopes, auto-added playback, build plan).
+
+### Changed
+- `ds.py init --scopes` help lists the manifest's scopes.
+- `test_all_scopes` covers every scope; the manifest component floor is raised to 532.
+- README, SKILL.md, plugin manifests and builder brief updated for the new counts and scopes.
+
+### Fixed
+- `ds.py` category titles fall back to manifest names, so Storybook works for the new categories.
+
 ## [1.1.0] - 2026-10-08
 
 ### Added

@@ -64,7 +64,7 @@ class TestManifest(unittest.TestCase):
             self.assertIn(k, m["scopes"])
             for r in reqs:
                 self.assertIn(r, m["scopes"], f"scope_requires[{k}] -> unknown {r}")
-        self.assertGreaterEqual(len(ids), 306)
+        self.assertGreaterEqual(len(ids), 532)
 
     def test_skill_frontmatter(self):
         s = (REPO / "SKILL.md").read_text(encoding="utf-8")
