@@ -148,12 +148,31 @@ Sources: Baymard Institute and GOV.UK payment-card patterns (field order, autofi
 
 ## 7. Pages (patterns/)
 
-Realistic data (several currencies, a past-due case, a trial case), light/dark, mobile/desktop. Pages include account-shell navigation from the product `side-nav`/`settings` patterns.
+Realistic data (several currencies, a past-due case, a trial case), light/dark, mobile/desktop. Pages use the account-shell navigation from the product `side-nav`/`settings` patterns and one `<main>` with one `<h1>`.
 
-| Page | Composition |
-|---|---|
-| **billing-page** | Account shell → `<h1>` Billing → (state:past-due: `billing-alert` payment-failed first) → current-plan · payment-method-list · billing-usage → recent invoice-list (5 rows, "View all invoices") → tax-info link → cancel entry in current-plan. `variant:overview` is the healthy state; `state:past-due` leads with the fix and the amount due. Mobile: single column in that order, alert first. |
-| **plans-page** | Account shell → `<h1>` Plans → interval choice → plan-picker comparison with the current plan marked "Current plan" in text (`state:current-highlighted`, with a heading-level mark, not color only) → feature comparison table → proration preview and confirm. In-app variant: no marketing hero, no testimonials; link to marketing `pricing-table` is not used. Mobile: stacked cards, current plan first. |
-| **invoice-page** | Account shell (hidden in print) → breadcrumb back to invoices → invoice-detail → actions (Download PDF, Print, Pay now if open). `variant:printable` documents the `@media print` rules: shell and actions hidden, light theme, tables don't break inside rows, URLs expanded where useful, page margins via `@page`. |
-| **transactions-page** | Account shell → `<h1>` Transactions → transaction-list with filters and export; `state:empty`: "No transactions yet" with what will appear here and a link to billing. Mobile: filters in a collapsible group, cards. |
-| **payouts-page** | Account shell → `<h1>` Payouts → payout-summary (balance + schedule, on-hold when relevant) → wallet-balance (if used) → payout history (`variant:history`, `data-table`: date, amount, destination, status, arrival date, download statement) → tax-info-form link. |
+### billing-page
+- Composition: account shell → `<h1>` Billing → `billing-alert` (only when something needs fixing) → `current-plan` · `payment-method-list` · `billing-usage` → recent `invoice-list` (5 rows, "View all invoices") → tax-info link. The "Cancel plan" entry sits in `current-plan`, visible without searching.
+- `variant:overview`: the healthy state; no alert, renewal date and next charge in `current-plan`.
+- `state:past-due`: leads with `billing-alert` `variant:payment-failed` (cause, amount due, retry date, "Update payment method"); `current-plan` shows `state:past-due`; the page itself stays fully reachable.
+- Mobile: single column in the same order, alert first; invoice rows become cards.
+
+### plans-page
+- Composition: account shell → `<h1>` Plans → interval choice → `plan-picker` comparison → feature comparison table → proration preview and confirm. No marketing hero or testimonials; marketing `pricing-table` is not used.
+- `variant:in-app`: comparison tied to the signed-in account, with proration and downgrade warnings from `plan-picker`.
+- `state:current-highlighted`: the current plan is marked with the text "Current plan" (plus a border), its radio disabled with an explanation; not color-only.
+- Mobile: stacked plan cards, current plan first, sticky confirm button stating the plan and amount.
+
+### invoice-page
+- Composition: account shell (hidden in print) → breadcrumb back to invoices → `invoice-detail` → actions (Download PDF, Print, Pay now if open).
+- `variant:printable`: documents the `@media print` rules: shell and actions hidden, light high-contrast theme, no page breaks inside table rows, repeated table head, expanded URLs where useful, margins via `@page`.
+- Mobile: line items become a definition list per item; actions wrap full width.
+
+### transactions-page
+- Composition: account shell → `<h1>` Transactions → `transaction-list` with `variant:filters` and `variant:export`, result count announced politely.
+- `state:empty`: "No transactions yet", what will appear here and when, and a link back to billing; filters and export are hidden or disabled with explanation.
+- Mobile: filters in a collapsible group with applied chips; rows as cards with signed amounts and status text.
+
+### payouts-page
+- Composition: account shell → `<h1>` Payouts → `payout-summary` (balance, schedule, on-hold when relevant) → `wallet-balance` (if used) → payout history `data-table` → tax-info link.
+- `variant:history`: table with date, amount, destination (last digits), status text, arrival date and statement download; sortable by date, newest first, announced pagination.
+- Mobile: summary first, history rows as cards; the on-hold reason and action stay above the fold.
