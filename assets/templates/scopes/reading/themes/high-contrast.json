@@ -51,6 +51,20 @@
           },
           "$description": "Selection; 12.06:1 with black text."
         }
+      },
+      "highlight": {
+        "fg": {
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "hex": "#000000"
+          },
+          "$description": "Pure black text on highlights; 21.0:1 on white, 18.6/16.68/14.9/14.57:1 on the light highlights."
+        }
       }
     }
   }
