@@ -20,14 +20,14 @@ Sources are named as rules: Media Session API, ARIA APG `table` and `grid` patte
 - **Row action on Enter.** Enter or double-click on a focused row plays it; a visible play button in the first cell does the same for single-click and touch. Row actions (save, more menu) are separate buttons and never trigger the row action.
 - **Explicit is text.** Explicit content is labelled with the word "Explicit" (a visible "E" glyph with `aria-label`/visually hidden text "Explicit"), never only an icon or color (WCAG 1.4.1). Unavailable tracks say "Unavailable" and are skipped by next/previous.
 - **Playing is more than color.** The current track shows an animated or static equalizer icon, the text "Now playing" (visually hidden is acceptable in a table row) and `aria-current="true"`; the accent color only reinforces.
-- **Synced lyrics move, so they are pausable** (WCAG 2.2.2): auto-scroll follows the playhead, stops when the user scrolls or presses "Stop following", and resumes only on request. Under `prefers-reduced-motion: reduce` the active line is highlighted without scrolling animation (WCAG 2.3.3).
-- **Toggles are `aria-pressed` with a stable name.** Save, follow, shuffle and repeat keep their label ("Save {title}") and flip `aria-pressed`; the name never flips together with the state (double negation).
+- **Synced lyrics move, so they are pausable** (WCAG 2.2.2): auto-scroll follows the playhead, stops when the user scrolls or unpresses "Follow lyrics", and resumes only on request. Under `prefers-reduced-motion: reduce` the active line is highlighted without scrolling animation (WCAG 2.3.3).
+- **One toggle pattern, Label in Name (WCAG 2.5.3).** Icon-only toggles (save, shuffle, repeat, queue, lyrics) have no visible label, so they keep a stable accessible name ("Save {title}") and flip `aria-pressed`. Text-labelled toggles (follow) flip the visible label and the accessible name together ("Follow" / "Following") and do not use `aria-pressed`, as `subscribe-button` does in video.md. A button with a visible label and `aria-pressed` keeps that label constant. The accessible name always contains the visible text.
 - **Artwork is decorative or labelled once.** In a card the image has `alt=""` when the title is adjacent text; the album art in the bar and view has `alt` only if it adds information. Provide a placeholder with initials/icon when art fails to load.
 - **Targets and touch.** 44 px targets in bars and rows on touch (24 px minimum, WCAG 2.5.8); swipe gestures have button equivalents; the bar never covers the last row (bottom padding equals bar height).
 - **Loading and failure.** Lists show `skeleton` rows with `aria-busy="true"` on the table and a polite "Loading tracks" status; a failed stream shows "Can't play this track" with Retry and skips after a limit. Offline shows downloaded items only, with text.
 - **RTL and logical properties.** Controls keep media-standard order (previous, play, next) as in `playback`; text and progress fill follow the logical direction; track times stay LTR digits.
 - **Tokens**: composes `color.media.*` from `playback` and product tokens only; no new tokens.
-- **vs.** `artwork-card` is a media cover card with a play overlay for albums, playlists and artists; `card` is a generic container, and `video-card` is a thumbnail with duration for video. `save-toggle` is a specialised `toggle-button` (`aria-pressed`) with a save/unsave name and heart or plus icon; use `toggle-button` for other binary actions. `track-list` is a table of songs; `media-queue` (playback) is the reorderable upcoming list inside the player; `data-table` is generic tabular data.
+- **vs.** `artwork-card` is a media cover card with a play overlay for albums, playlists and artists; `card` is a generic container, and `video-card` is a thumbnail with duration for video. `save-toggle` is a specialised `toggle-button` (`aria-pressed`) (icon-only, stable name) with heart or plus icon; use `toggle-button` for other binary actions. `track-list` is a table of songs; `media-queue` (playback) is the reorderable upcoming list inside the player; `data-table` is generic tabular data.
 
 ## 2. Playback chrome
 
@@ -59,7 +59,7 @@ Sources are named as rules: Media Session API, ARIA APG `table` and `grid` patte
 - Long lists virtualise with `aria-rowcount`/`aria-rowindex`. Empty list shows `empty-state`. RTL: columns mirror, durations align to the logical end.
 
 ### save-toggle
-- A `<button aria-pressed>` (composes `toggle-button`) with heart or plus icon and an accessible name that does not change: "Save {title} to Your Library" (the pressed state carries saved/unsaved).
+- A `<button aria-pressed>` (composes `toggle-button`) with heart or plus icon and no visible text, so the accessible name is stable: "Save {title} to Your Library" (`aria-pressed` carries saved/unsaved). If a visible text label is added, keep it constant and make it part of the name.
 - `state:unsaved`: outline icon, `aria-pressed="false"`. `state:saved`: filled icon and check, `aria-pressed="true"`; the icon shape differs, not only the color (WCAG 1.4.1).
 - Toggling is optimistic with a polite status "Saved to Your Library" / "Removed from Your Library" and an Undo in the toast; on failure it reverts with "Couldn't save". Reduced motion: no pop animation. Target 44 px on touch.
 
@@ -72,13 +72,13 @@ Sources are named as rules: Media Session API, ARIA APG `table` and `grid` patte
 
 ### artist-header
 - `<header>` with `<h1>` artist name, monthly listeners as text, a Play button (`button-primary`), a follow `toggle-button` and a "More" menu. Background image is decorative with a scrim for 4.5:1 text.
-- `variant:hero`: large banner with the name over the image. `state:following`: the button reads "Following" with a check and `aria-pressed="true"` (stable name "Follow {artist}" in the accessible name). `variant:verified`: a badge with the text "Verified artist" (icon plus text, or an icon with an accessible name), never only a blue tick.
+- `variant:hero`: large banner with the name over the image. `state:following`: the button visible label and accessible name flip together from "Follow" to "Following" (with a check icon), no `aria-pressed`, as `subscribe-button` in video.md; the artist is named by context (`aria-describedby` pointing to the `<h1>`). `variant:verified`: a badge with the text "Verified artist" (icon plus text, or an icon with an accessible name), never only a blue tick.
 - Mobile: banner shrinks, actions wrap below the name.
 
 ## 5. Lyrics and editing
 
 ### lyrics-view
-- `<section aria-label="Lyrics">` with lines as `<p>` (or `<ol>` of `<li>` for synced); the active line has `aria-current="true"` and a visual emphasis plus larger weight, not only color. A "Stop following" / "Follow lyrics" button (`aria-pressed`) controls auto-scroll.
+- `<section aria-label="Lyrics">` with lines as `<p>` (or `<ol>` of `<li>` for synced); the active line has `aria-current="true"` and a visual emphasis plus larger weight, not only color. A button with the constant visible label "Follow lyrics" and `aria-pressed` controls auto-scroll (pressed = following the playhead).
 - `variant:synced`: lines carry start times; clicking a line seeks (it is a `<button>` styled as text). Auto-scroll pauses when the user scrolls manually or tabs into the lyrics (WCAG 2.2.2). `variant:static`: plain text, no seeking, no scrolling.
 - `state:unavailable`: "Lyrics aren't available for this song" with a link to provide feedback. `state:reduced-motion`: the active line changes by highlight without smooth scrolling, scrolling by line jumps only on request.
 - Active line changes are not announced (the song is the live content); the `transcript-panel` is the accessible equivalent for speech. Source credit ("Lyrics by {provider}") is text. RTL: `dir="auto"` per line.
@@ -108,7 +108,7 @@ Sources are named as rules: Media Session API, ARIA APG `table` and `grid` patte
 
 ### playlist-page
 - Composition: header with cover, name, description, owner and stats, actions, and `track-list` variant playlist.
-- `variant:own`: Edit (opens `playlist-editor`), reorder and remove actions. `variant:followed`: Follow `save-toggle`, no editing. `state:empty`: `empty-state` "Let's find something for your playlist" with a search field.
+- `variant:own`: Edit (opens `playlist-editor`), reorder and remove actions. `variant:followed`: a Follow button (label and name flip "Follow"/"Following", no `aria-pressed`), no editing. `state:empty`: `empty-state` "Let's find something for your playlist" with a search field.
 
 ### artist-page
 - Composition: `artist-header`, "Popular" `track-list` (five rows with "Show more" button toggling `aria-expanded`), discography shelves of `artwork-card`, "Appears on" and related artists.
