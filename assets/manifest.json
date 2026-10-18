@@ -29,7 +29,8 @@
   "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages",
   "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages",
   "calendar": "Calendar & scheduling UI: month/week/day/agenda views, event chip and editor, slot picker, recurrence, availability, time zones, resource scheduler; calendar/booking/availability/event pages",
-  "maps": "Maps & location UI: accessible map container, markers, clusters, popups, controls, location search/picker, map-list sync, directions, area selection; store locator, map search, directions pages"
+  "maps": "Maps & location UI: accessible map container, markers, clusters, popups, controls, location search/picker, map-list sync, directions, area selection; store locator, map search, directions pages",
+  "social": "Social UI: profile header, follow, user rows, reactions, post composer, share sheet, stories, suggestions, report/block; profile/feed/post/followers/explore pages"
  },
  "scope_requires": {
   "video": [
@@ -8066,6 +8067,261 @@
      "aria": null,
      "native": "main",
      "desc": "Route planning page with directions panel, map and route summary."
+    }
+   ]
+  },
+  {
+   "id": "social",
+   "name": "Social",
+   "scope": "social",
+   "components": [
+    {
+     "id": "profile-header",
+     "name": "Profile Header",
+     "tier": "core",
+     "file": "profile-header",
+     "demos": [
+      "variant:own",
+      "variant:other",
+      "state:private",
+      "state:blocked",
+      "variant:verified"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Profile identity header with avatar, counts and actions; \"Verified\" is in the accessible name and blocked or private states have explicit copy."
+    },
+    {
+     "id": "follow-button",
+     "name": "Follow Button",
+     "tier": "core",
+     "file": "follow-button",
+     "demos": [
+      "state:follow",
+      "state:following",
+      "state:requested",
+      "state:follows-you"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Text-labelled follow toggle whose visible label and accessible name flip together; unfollow goes through a menu or confirm, never a hover-only label swap."
+    },
+    {
+     "id": "user-row",
+     "name": "User Row",
+     "tier": "core",
+     "file": "user-row",
+     "demos": [
+      "variant:with-follow",
+      "variant:compact"
+     ],
+     "aria": null,
+     "native": "li",
+     "desc": "Avatar, name, handle and optional follow button for lists of people."
+    },
+    {
+     "id": "reaction-bar",
+     "name": "Reaction Bar",
+     "tier": "core",
+     "file": "reaction-bar",
+     "demos": [
+      "state:default",
+      "state:liked",
+      "state:saved",
+      "variant:counts"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Like, reply, share and save actions on a post with counts as text and stable names."
+    },
+    {
+     "id": "post-composer",
+     "name": "Post Composer",
+     "tier": "core",
+     "file": "post-composer",
+     "demos": [
+      "state:empty",
+      "state:with-media",
+      "state:over-limit",
+      "variant:audience"
+     ],
+     "aria": null,
+     "native": "form + textarea",
+     "desc": "Post authoring with media, character limit and audience choice; composes composer."
+    },
+    {
+     "id": "share-sheet",
+     "name": "Share Sheet",
+     "tier": "standard",
+     "file": "share-sheet",
+     "demos": [
+      "variant:web-share",
+      "variant:fallback-copy-link"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Share action using the Web Share API with a copy-link and targets fallback."
+    },
+    {
+     "id": "stories-tray",
+     "name": "Stories Tray",
+     "tier": "standard",
+     "file": "stories-tray",
+     "demos": [
+      "state:unseen",
+      "state:seen"
+     ],
+     "aria": null,
+     "native": "ul",
+     "desc": "Horizontal row of story avatars with a ring plus text state, not color alone."
+    },
+    {
+     "id": "story-viewer",
+     "name": "Story Viewer",
+     "tier": "standard",
+     "file": "story-viewer",
+     "demos": [
+      "state:playing",
+      "state:paused",
+      "state:reduced-motion",
+      "variant:reply"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Full-screen story player with pausable auto-advance, segment progress and keyboard next/previous."
+    },
+    {
+     "id": "people-suggestions",
+     "name": "People Suggestions",
+     "tier": "standard",
+     "file": "people-suggestions",
+     "demos": [
+      "variant:carousel",
+      "variant:list",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "section + ul",
+     "desc": "Suggested accounts to follow as a carousel or list with dismiss and an explanation."
+    },
+    {
+     "id": "report-dialog",
+     "name": "Report Dialog",
+     "tier": "standard",
+     "file": "report-dialog",
+     "demos": [
+      "state:reasons",
+      "state:submitted",
+      "variant:with-block"
+     ],
+     "aria": "dialog",
+     "native": "dialog",
+     "desc": "Report flow with reasons, optional detail, confirmation and an optional block step."
+    },
+    {
+     "id": "block-mute-menu",
+     "name": "Block Mute Menu",
+     "tier": "standard",
+     "file": "block-mute-menu",
+     "demos": [
+      "variant:mute",
+      "variant:block",
+      "state:confirm"
+     ],
+     "aria": "menu",
+     "native": "[popover] + menu",
+     "desc": "Menu with mute, block and report plus a neutral confirmation step."
+    }
+   ]
+  },
+  {
+   "id": "social-pages",
+   "name": "Social Pages",
+   "scope": "social",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "profile-page",
+     "name": "Profile Page",
+     "tier": "core",
+     "file": "profile-page",
+     "demos": [
+      "variant:posts",
+      "variant:media",
+      "state:private",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Profile with header, tabs and post grid or list."
+    },
+    {
+     "id": "home-feed-page",
+     "name": "Home Feed Page",
+     "tier": "core",
+     "file": "home-feed-page",
+     "demos": [
+      "variant:following",
+      "variant:for-you",
+      "state:loading"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Home feed with stories tray, composer and a feed of posts."
+    },
+    {
+     "id": "post-detail-page",
+     "name": "Post Detail Page",
+     "tier": "standard",
+     "file": "post-detail-page",
+     "demos": [
+      "variant:with-replies"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Single post with reactions and a threaded reply list."
+    },
+    {
+     "id": "followers-page",
+     "name": "Followers Page",
+     "tier": "standard",
+     "file": "followers-page",
+     "demos": [
+      "variant:followers",
+      "variant:following",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Followers or following list of user rows."
+    },
+    {
+     "id": "explore-page",
+     "name": "Explore Page",
+     "tier": "standard",
+     "file": "explore-page",
+     "demos": [
+      "variant:trending",
+      "variant:search"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Discovery page with search, trending topics and people suggestions."
+    },
+    {
+     "id": "social-landing",
+     "name": "Social Landing",
+     "tier": "standard",
+     "file": "social-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a social product composed from marketing sections.",
+     "requires_scopes": [
+      "marketing"
+     ]
     }
    ]
   }
