@@ -81,13 +81,15 @@ Sources: SAP Fiori and Oracle Redwood object-page conventions (cited as preceden
 - Failure: save conflict or server error shows `role="alert"` once and keeps edits.
 
 ### master-data-lookup
-- Markup: `<input role="combobox" aria-expanded aria-controls aria-autocomplete="list" aria-haspopup="grid">` with a visible `<label>`. Because results have several columns (code, name, extra), the popup is a **grid** (APG combobox with grid popup), not a `listbox` of options, so columns are announced. The popup is a `[popover]` anchored to the input.
+- Markup: `<input role="combobox" aria-expanded aria-controls aria-autocomplete="list" aria-haspopup="grid" aria-activedescendant>` with a visible `<label>`. Because results have several columns (code, name, extra), the popup is `role="grid"` (APG combobox with grid popup), not a `listbox`, so columns are announced. The popup is a `[popover]` anchored to the input.
+- Focus model: DOM focus always stays on the input, so typing keeps filtering. `aria-activedescendant` on the combobox points at the active gridcell (set to empty when none is active). Down opens the popup (activating the first row) or moves to the next row; Up moves to the previous row; Right and Left move between cells of the active row (RTL swaps them). Enter accepts the active row. Escape closes the popup and keeps the typed text (a second Escape clears it). Typing, Backspace, Home and End act on the input text.
+- Tab with the popup open closes it. If a row is active, Tab accepts that row and moves on; if no row is active, the typed text is kept and validated on blur (the field is invalid until a record is picked). Shift+Tab behaves the same.
 - `variant:code-name-columns`: rows show code and name (e.g. "10042 — Hex bolt M8"); the input shows "10042 Hex bolt M8" once selected; matched text is highlighted with `<mark>` and is never the only cue.
-- `state:no-match`: popup shows "No match for 'xyz'" (also in a polite status) and, if allowed, the create-new button; never an empty popup. Free text is not accepted silently; the field stays invalid until a record is picked.
-- `variant:create-new`: a final button "Create vendor 'Acme'" opens a `modal` with a short form; on success the new record is selected and a status announces it.
-- Keyboard: Down opens and moves into the grid, arrows navigate rows, Enter selects, Escape closes and returns to the input, typing filters (debounced about 250 ms). It never opens on focus alone (WCAG 3.2.1). The result count is announced politely ("5 results").
-- A "Browse all" button opens an advanced search `modal` with filters for large tables.
-- Loading: `aria-busy` on the popup with "Searching" text. Failure: "Could not load results" with a Retry button.
+- `state:no-match`: the grid has no data rows; a polite status says "No match for 'xyz'" and, if allowed, the single row is the create-new row. Never an empty popup. Free text is not accepted silently; the field stays invalid until a record is picked.
+- `variant:create-new`: "Create vendor 'Acme'" is the final grid row, one `gridcell` spanning the columns (`aria-colspan`), reachable with Down like any row and the active-descendant target; Enter creates (no nested button, since a button is not a valid grid child). It opens a `modal` with a short form; on success the new record is selected and a status announces it.
+- The result count is announced politely ("5 results"). The popup never opens on focus alone (WCAG 3.2.1); filtering is debounced about 250 ms.
+- A "Browse all" button sits outside the popup, beside the input, and opens an advanced search `modal` with filters for large tables.
+- Loading: `aria-busy` on the popup with "Searching" text. Failure: a polite status "Could not load results" and a Retry button beside the input (not in the grid).
 
 ## 4. Inventory and output
 
