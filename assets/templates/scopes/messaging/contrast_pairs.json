@@ -1,0 +1,32 @@
+[
+ [
+  "color.message.own.fg",
+  "color.message.own.bg",
+  4.5
+ ],
+ [
+  "color.message.other.fg",
+  "color.message.other.bg",
+  4.5
+ ],
+ [
+  "color.presence.online",
+  "color.bg.surface",
+  3
+ ],
+ [
+  "color.presence.away",
+  "color.bg.surface",
+  3
+ ],
+ [
+  "color.presence.busy",
+  "color.bg.surface",
+  3
+ ],
+ [
+  "color.presence.offline",
+  "color.bg.surface",
+  3
+ ]
+]

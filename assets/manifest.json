@@ -23,7 +23,8 @@
   "live": "Livestreaming UI: live player, live badge, live chat, reactions, schedule, polls, tips, go-live panel; live/directory/studio pages (requires video)",
   "music": "Music UI: now-playing bar and view, track rows/lists, artwork cards, lyrics, playlists, equalizer; home/album/playlist/artist/library/search pages",
   "podcast": "Podcast UI: podcast player, episodes, shows, show notes, downloads, clips; home/show/episode/queue pages",
-  "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages"
+  "reading": "Reading UI: ebook reader (paged/scroll, settings, TOC, highlights, notes), audiobooks, comics/manga, long-form articles, TTS; library/book/reader/read-later pages",
+  "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages"
  },
  "scope_requires": {
   "video": [
@@ -39,6 +40,9 @@
    "playback"
   ],
   "reading": [
+   "playback"
+  ],
+  "messaging": [
    "playback"
   ]
  },
@@ -6274,6 +6278,434 @@
      "aria": null,
      "native": "main",
      "desc": "Marketing landing page for a reading app.",
+     "requires_scopes": [
+      "marketing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "messaging",
+   "name": "Messaging",
+   "scope": "messaging",
+   "components": [
+    {
+     "id": "message-bubble",
+     "name": "Message Bubble (person-to-person)",
+     "tier": "core",
+     "file": "message-bubble",
+     "demos": [
+      "variant:own",
+      "variant:other",
+      "variant:grouped-first",
+      "variant:grouped-middle",
+      "variant:grouped-last",
+      "variant:with-avatar",
+      "variant:reply-quote",
+      "state:sending",
+      "state:sent",
+      "state:delivered",
+      "state:read",
+      "state:failed-retry",
+      "state:edited",
+      "state:deleted"
+     ],
+     "aria": null,
+     "native": "li + article",
+     "desc": "Single chat message with own/other styling, grouping, reply quote and delivery states; sender is conveyed by text, not alignment or color alone."
+    },
+    {
+     "id": "message-thread",
+     "name": "Message Thread",
+     "tier": "core",
+     "file": "message-thread",
+     "demos": [
+      "variant:day-dividers",
+      "state:unread-divider",
+      "state:jump-to-latest",
+      "state:loading-older",
+      "state:empty"
+     ],
+     "aria": "log",
+     "native": "ol",
+     "desc": "Scrolling conversation list using role=log with throttled announcements, day dividers and an unread divider."
+    },
+    {
+     "id": "conversation-row",
+     "name": "Conversation Row",
+     "tier": "core",
+     "file": "conversation-row",
+     "demos": [
+      "state:unread",
+      "state:muted",
+      "state:pinned",
+      "state:typing",
+      "variant:group"
+     ],
+     "aria": null,
+     "native": "a",
+     "desc": "Inbox row with avatar, title, preview, time and unread/muted/pinned/typing states."
+    },
+    {
+     "id": "presence-indicator",
+     "name": "Presence Indicator",
+     "tier": "core",
+     "file": "presence-indicator",
+     "demos": [
+      "state:online",
+      "state:away",
+      "state:busy",
+      "state:offline"
+     ],
+     "aria": "img",
+     "native": "span",
+     "desc": "Presence dot with a visible or visually hidden text alternative (Online, Away, Busy, Offline)."
+    },
+    {
+     "id": "typing-indicator",
+     "name": "Typing Indicator",
+     "tier": "core",
+     "file": "typing-indicator",
+     "demos": [
+      "state:one",
+      "state:several",
+      "state:reduced-motion"
+     ],
+     "aria": "status",
+     "native": "p",
+     "desc": "Typing line (\"Ana is typing\") with animated dots that stop under reduced motion; announcements are throttled."
+    },
+    {
+     "id": "attachment-preview",
+     "name": "Attachment Preview",
+     "tier": "core",
+     "file": "attachment-preview",
+     "demos": [
+      "variant:image",
+      "variant:file",
+      "variant:video",
+      "state:uploading",
+      "state:failed"
+     ],
+     "aria": null,
+     "native": "figure",
+     "desc": "Image, file or video attachment in a message or composer with upload progress and failure retry."
+    },
+    {
+     "id": "message-reactions",
+     "name": "Message Reactions",
+     "tier": "standard",
+     "file": "message-reactions",
+     "demos": [
+      "state:default",
+      "state:own-reacted",
+      "variant:picker-open"
+     ],
+     "aria": null,
+     "native": "button[aria-pressed]",
+     "desc": "Reaction chips with emoji, count and aria-pressed; opens emoji-picker."
+    },
+    {
+     "id": "emoji-picker",
+     "name": "Emoji Picker",
+     "tier": "standard",
+     "file": "emoji-picker",
+     "demos": [
+      "variant:search",
+      "variant:skin-tone",
+      "variant:recent"
+     ],
+     "aria": "grid",
+     "native": "[popover] + table",
+     "desc": "Searchable emoji grid with category tabs, skin-tone choice and recents, following the APG grid pattern."
+    },
+    {
+     "id": "voice-note",
+     "name": "Voice Note",
+     "tier": "standard",
+     "file": "voice-note",
+     "demos": [
+      "state:recording",
+      "state:permission-denied",
+      "state:recorded",
+      "state:playing"
+     ],
+     "aria": null,
+     "native": "button + audio",
+     "desc": "Record, review and play voice messages; playback composes playback controls and microphone permission is explained first."
+    },
+    {
+     "id": "mention-autocomplete",
+     "name": "Mention Autocomplete",
+     "tier": "standard",
+     "file": "mention-autocomplete",
+     "demos": [
+      "state:open",
+      "state:no-match"
+     ],
+     "aria": "combobox",
+     "native": "input + [popover]",
+     "desc": "@mention suggestions inside composer, as an APG combobox with a listbox popup."
+    },
+    {
+     "id": "read-receipts",
+     "name": "Read Receipts",
+     "tier": "standard",
+     "file": "read-receipts",
+     "demos": [
+      "variant:dm",
+      "variant:group-avatars"
+     ],
+     "aria": "status",
+     "native": "span",
+     "desc": "Seen/delivered text and small avatars for DMs and groups, announced politely and throttled."
+    },
+    {
+     "id": "message-search",
+     "name": "Message Search",
+     "tier": "standard",
+     "file": "message-search",
+     "demos": [
+      "state:results",
+      "state:no-results",
+      "variant:filters"
+     ],
+     "aria": "search",
+     "native": "search + form",
+     "desc": "Search across conversations with filters, highlighted matches and result count status."
+    },
+    {
+     "id": "channel-list",
+     "name": "Channel List",
+     "tier": "standard",
+     "file": "channel-list",
+     "demos": [
+      "state:unread",
+      "state:mention",
+      "variant:private",
+      "variant:muted",
+      "variant:sections"
+     ],
+     "aria": null,
+     "native": "nav + ul",
+     "desc": "Workspace channel navigation with sections, unread and mention badges (with text), private and muted variants."
+    },
+    {
+     "id": "channel-header",
+     "name": "Channel Header (messaging)",
+     "tier": "standard",
+     "file": "channel-header",
+     "demos": [
+      "variant:topic",
+      "variant:members",
+      "variant:call-actions"
+     ],
+     "aria": null,
+     "native": "header",
+     "desc": "Channel or DM header with name, topic, member count and call actions; not the video creator-header."
+    },
+    {
+     "id": "thread-panel",
+     "name": "Thread Panel",
+     "tier": "standard",
+     "file": "thread-panel",
+     "demos": [
+      "state:open",
+      "state:empty"
+     ],
+     "aria": "complementary",
+     "native": "aside",
+     "desc": "Side panel with the parent message and its replies and a reply composer."
+    },
+    {
+     "id": "member-list",
+     "name": "Member List",
+     "tier": "standard",
+     "file": "member-list",
+     "demos": [
+      "variant:by-role",
+      "variant:with-presence"
+     ],
+     "aria": null,
+     "native": "ul",
+     "desc": "Channel members grouped by role, optionally with presence-indicator."
+    },
+    {
+     "id": "pinned-messages",
+     "name": "Pinned Messages",
+     "tier": "enterprise",
+     "file": "pinned-messages",
+     "demos": [
+      "state:with-items",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "section + ul",
+     "desc": "List of pinned messages with jump-to-message and unpin for permitted members."
+    },
+    {
+     "id": "call-controls",
+     "name": "Call Controls",
+     "tier": "enterprise",
+     "file": "call-controls",
+     "demos": [
+      "state:in-call",
+      "state:muted",
+      "state:camera-off",
+      "state:sharing",
+      "variant:mobile"
+     ],
+     "aria": null,
+     "native": "button group",
+     "desc": "Mute, camera, share, raise hand and Leave (danger style) with toggle buttons and 44 px targets."
+    },
+    {
+     "id": "participant-tile",
+     "name": "Participant Tile",
+     "tier": "enterprise",
+     "file": "participant-tile",
+     "demos": [
+      "state:speaking",
+      "state:muted",
+      "state:camera-off",
+      "state:hand-raised",
+      "state:poor-connection"
+     ],
+     "aria": null,
+     "native": "figure",
+     "desc": "Call participant video or avatar tile; speaking shown by border and text, not color alone."
+    },
+    {
+     "id": "incoming-call",
+     "name": "Incoming Call",
+     "tier": "enterprise",
+     "file": "incoming-call",
+     "demos": [
+      "state:ringing",
+      "state:missed"
+     ],
+     "aria": "alertdialog",
+     "native": "dialog",
+     "desc": "Incoming call prompt with Accept and Decline using role=alertdialog; missed state leaves a call-back row."
+    },
+    {
+     "id": "device-check",
+     "name": "Device Check",
+     "tier": "enterprise",
+     "file": "device-check",
+     "demos": [
+      "state:preview",
+      "state:permission-denied",
+      "state:no-devices"
+     ],
+     "aria": null,
+     "native": "select + video + meter",
+     "desc": "Pre-join camera and microphone check with preview, level meter and permission recovery."
+    },
+    {
+     "id": "support-launcher",
+     "name": "Support Launcher",
+     "tier": "standard",
+     "file": "support-launcher",
+     "demos": [
+      "state:closed",
+      "state:unread",
+      "state:open"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Floating support chat button with unread count text and aria-expanded."
+    },
+    {
+     "id": "support-panel",
+     "name": "Support Panel",
+     "tier": "standard",
+     "file": "support-panel",
+     "demos": [
+      "state:bot",
+      "state:agent-handoff",
+      "state:offline-form",
+      "state:csat",
+      "variant:reply-time"
+     ],
+     "aria": "dialog",
+     "native": "section",
+     "desc": "Support chat widget panel with bot, human handoff, offline form and satisfaction survey."
+    }
+   ]
+  },
+  {
+   "id": "messaging-pages",
+   "name": "Messaging Pages",
+   "scope": "messaging",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "inbox-page",
+     "name": "Inbox Page",
+     "tier": "core",
+     "file": "inbox-page",
+     "demos": [
+      "variant:two-pane",
+      "variant:mobile-list",
+      "state:no-selection",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Conversation list and thread in two panes, a mobile list-to-thread flow, and empty states."
+    },
+    {
+     "id": "workspace-page",
+     "name": "Workspace Page",
+     "tier": "standard",
+     "file": "workspace-page",
+     "demos": [
+      "variant:three-pane",
+      "variant:with-thread"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Channels, thread and members or thread-panel in a three-pane workspace."
+    },
+    {
+     "id": "call-page",
+     "name": "Call Page",
+     "tier": "enterprise",
+     "file": "call-page",
+     "demos": [
+      "variant:grid",
+      "variant:speaker",
+      "variant:screen-share"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Video call with participant grid, speaker or screen-share layout and call-controls."
+    },
+    {
+     "id": "support-widget-page",
+     "name": "Support Widget Page",
+     "tier": "standard",
+     "file": "support-widget-page",
+     "demos": [
+      "variant:on-marketing-page",
+      "variant:in-app"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Support launcher and panel shown over a marketing page or inside the app."
+    },
+    {
+     "id": "messaging-landing",
+     "name": "Messaging Landing",
+     "tier": "standard",
+     "file": "messaging-landing",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Marketing landing page for a messaging product.",
      "requires_scopes": [
       "marketing"
      ]
