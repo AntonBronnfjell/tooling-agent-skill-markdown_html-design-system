@@ -27,7 +27,8 @@
   "messaging": "Messaging UI (person-to-person): DMs and groups, channels and threads, voice/video calls, support chat widget; inbox/workspace/call/support pages",
   "billing": "Billing & payments UI (in-app): current plan, plan change, payment methods, invoices, usage, cancel flow, transactions, payouts, wallet, tax info; billing/plans/invoice/transactions/payouts pages",
   "analytics": "Reports & metrics UI: filter bar, report tables, export, freshness, metric definitions, scorecards, funnel/cohort/pivot, report builder, scheduled reports, alerts; overview/report/library/builder pages",
-  "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages"
+  "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages",
+  "calendar": "Calendar & scheduling UI: month/week/day/agenda views, event chip and editor, slot picker, recurrence, availability, time zones, resource scheduler; calendar/booking/availability/event pages"
  },
  "scope_requires": {
   "video": [
@@ -7647,6 +7648,229 @@
      "aria": null,
      "native": "main",
      "desc": "Page hosting the import-wizard for bulk data load."
+    }
+   ]
+  },
+  {
+   "id": "calendar",
+   "name": "Calendar",
+   "scope": "calendar",
+   "components": [
+    {
+     "id": "calendar-month",
+     "name": "Calendar Month",
+     "tier": "core",
+     "file": "calendar-month",
+     "demos": [
+      "state:today",
+      "state:selected-day",
+      "variant:overflow-more"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Month grid with APG date-grid keys; events inside a day are buttons reached with Enter; overflow becomes a \"+3 more\" popover."
+    },
+    {
+     "id": "calendar-week",
+     "name": "Calendar Week",
+     "tier": "core",
+     "file": "calendar-week",
+     "demos": [
+      "variant:time-grid",
+      "state:now-line",
+      "variant:overlapping"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Seven-day time grid with all-day row, now line and side-by-side overlapping events."
+    },
+    {
+     "id": "calendar-day",
+     "name": "Calendar Day",
+     "tier": "standard",
+     "file": "calendar-day",
+     "demos": [
+      "variant:time-grid",
+      "variant:resources"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Single-day time grid, optionally with one column per resource."
+    },
+    {
+     "id": "calendar-agenda",
+     "name": "Calendar Agenda",
+     "tier": "core",
+     "file": "calendar-agenda",
+     "demos": [
+      "variant:grouped-by-day",
+      "state:empty"
+     ],
+     "aria": null,
+     "native": "ol + time",
+     "desc": "Chronological list of events grouped under day headings; the accessible-first calendar view."
+    },
+    {
+     "id": "event-chip",
+     "name": "Event Chip",
+     "tier": "core",
+     "file": "event-chip",
+     "demos": [
+      "state:default",
+      "state:tentative",
+      "state:declined",
+      "state:cancelled",
+      "variant:all-day"
+     ],
+     "aria": null,
+     "native": "button",
+     "desc": "Compact event with time, title and category name beside its color; status shown as text and icon."
+    },
+    {
+     "id": "event-editor",
+     "name": "Event Editor",
+     "tier": "core",
+     "file": "event-editor",
+     "demos": [
+      "variant:quick",
+      "variant:full",
+      "state:conflict",
+      "state:invalid"
+     ],
+     "aria": "dialog",
+     "native": "dialog + form",
+     "desc": "Create/edit event form composing date-field, time-picker and timezone-select; quick popover or full dialog."
+    },
+    {
+     "id": "time-slot-picker",
+     "name": "Time Slot Picker",
+     "tier": "core",
+     "file": "time-slot-picker",
+     "demos": [
+      "variant:by-day",
+      "state:no-slots",
+      "variant:timezone-switch"
+     ],
+     "aria": null,
+     "native": "fieldset + input[type=radio]",
+     "desc": "Bookable slots as a radio group per day, shown in the viewer's time zone with a switch."
+    },
+    {
+     "id": "recurrence-picker",
+     "name": "Recurrence Picker",
+     "tier": "standard",
+     "file": "recurrence-picker",
+     "demos": [
+      "variant:presets",
+      "variant:custom-rrule"
+     ],
+     "aria": null,
+     "native": "select + fieldset",
+     "desc": "Preset repeat options plus a custom RRULE builder (RFC 5545) with a plain-language summary."
+    },
+    {
+     "id": "availability-editor",
+     "name": "Availability Editor",
+     "tier": "standard",
+     "file": "availability-editor",
+     "demos": [
+      "variant:weekly-hours",
+      "variant:date-overrides"
+     ],
+     "aria": null,
+     "native": "fieldset + time-picker",
+     "desc": "Weekly working hours per weekday plus date-specific overrides."
+    },
+    {
+     "id": "timezone-select",
+     "name": "Timezone Select",
+     "tier": "standard",
+     "file": "timezone-select",
+     "demos": [
+      "variant:search",
+      "variant:detected"
+     ],
+     "aria": "combobox",
+     "native": "input + datalist",
+     "desc": "Searchable IANA time zone picker with detected zone and live local time."
+    },
+    {
+     "id": "resource-scheduler",
+     "name": "Resource Scheduler",
+     "tier": "enterprise",
+     "file": "resource-scheduler",
+     "demos": [
+      "variant:rooms",
+      "variant:people",
+      "state:drag-reschedule"
+     ],
+     "aria": "grid",
+     "native": "table",
+     "desc": "Resource-by-time timeline; drag to reschedule with a keyboard and Move dialog alternative (WCAG 2.5.7)."
+    }
+   ]
+  },
+  {
+   "id": "calendar-pages",
+   "name": "Calendar Pages",
+   "scope": "calendar",
+   "page_dir": "patterns",
+   "components": [
+    {
+     "id": "calendar-page",
+     "name": "Calendar Page",
+     "tier": "core",
+     "file": "calendar-page",
+     "demos": [
+      "variant:month",
+      "variant:week",
+      "variant:day",
+      "variant:agenda",
+      "variant:mobile"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Full calendar app page with view switcher, date navigation and event creation."
+    },
+    {
+     "id": "booking-page",
+     "name": "Booking Page",
+     "tier": "core",
+     "file": "booking-page",
+     "demos": [
+      "state:select-slot",
+      "state:details",
+      "state:confirmed",
+      "state:no-availability"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Public booking flow: pick a slot, enter details, confirmation, or no-availability fallback."
+    },
+    {
+     "id": "availability-page",
+     "name": "Availability Page",
+     "tier": "standard",
+     "file": "availability-page",
+     "demos": [
+      "variant:default"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Settings page for weekly hours, overrides and time zone."
+    },
+    {
+     "id": "event-detail-page",
+     "name": "Event Detail Page",
+     "tier": "standard",
+     "file": "event-detail-page",
+     "demos": [
+      "variant:organizer",
+      "variant:guest-rsvp"
+     ],
+     "aria": null,
+     "native": "main",
+     "desc": "Single event page for organizers and RSVPing guests."
     }
    ]
   }
