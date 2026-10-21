@@ -309,9 +309,29 @@ class TestInstaller(Temp):
         self.assertNotIn("hooks:", fm)
         self.assertIn("license: MIT", fm)
         self.assertFalse((home / ".agents" / "skills" / "html-design-system" / "tests").exists())
+        cli = home / ".local" / "bin" / ("ds.cmd" if os.name == "nt" else "ds")
+        self.assertIn(str(home / ".claude" / "skills" / "html-design-system"), cli.read_text(encoding="utf-8"))
+        if os.name != "nt":
+            out = subprocess.run([str(cli), "--help"], capture_output=True, text=True, check=True).stdout
+            self.assertIn("html-design-system CLI", out)
         subprocess.run([sys.executable, str(REPO / "install.py"), "--uninstall"], env={**os.environ, **env},
                        capture_output=True, text=True, check=True)
         self.assertFalse(portable.exists())
+        self.assertFalse(cli.exists())
+
+    def test_cli_never_overwrites_a_foreign_ds(self):
+        home = self.tmp / "home"
+        cli = home / ".local" / "bin" / ("ds.cmd" if os.name == "nt" else "ds")
+        cli.parent.mkdir(parents=True)
+        cli.write_text("someone else's ds\n", encoding="utf-8")
+        env = {"HOME": str(home), "USERPROFILE": str(home)}
+        p = subprocess.run([sys.executable, str(REPO / "install.py"), "--tools", "agents"], env={**os.environ, **env},
+                           capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("wasn't created by this installer", p.stdout)
+        subprocess.run([sys.executable, str(REPO / "install.py"), "--uninstall"], env={**os.environ, **env},
+                       capture_output=True, text=True, check=True)
+        self.assertEqual(cli.read_text(encoding="utf-8"), "someone else's ds\n")
 
 
 class TestGenerators(Temp):

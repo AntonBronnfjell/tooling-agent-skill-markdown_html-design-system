@@ -72,9 +72,9 @@ curl -fsSL https://raw.githubusercontent.com/AntonBronnfjell/tooling-agent-skill
 # 2. In your project, ask your agent:
 #    "Build a complete design system for <your product> in ./design-system"
 
-# 3. Look at the result without touching your app
-python3 ~/.agents/skills/html-design-system/scripts/ds.py serve ./design-system      # docs site
-python3 ~/.agents/skills/html-design-system/scripts/ds.py storybook ./design-system  # then: cd design-system && npm i && npm run storybook
+# 3. Look at the result without touching your app (the installer adds the `ds` command to ~/.local/bin)
+ds serve ./design-system      # docs site
+ds storybook ./design-system  # then: cd design-system && npm i && npm run storybook
 ```
 
 ## What it does, step by step
@@ -357,8 +357,15 @@ python3 install.py --list       # see every supported agent, its path and status
 | `--project <dir>` | install into a repo (`.claude/skills`, `.agents/skills`, …) so the team gets it on clone |
 | `--link` | dev mode: Claude Code symlinks to this repo, so edits are live |
 | `--claude-hooks` | also register the lint/coverage hooks in Claude `settings.json` (always-on; see below) |
+| `--no-cli` | skip the `ds` command. By default, user-level installs add `~/.local/bin/ds` (`ds.cmd` on Windows), which runs the installed `scripts/ds.py`. An existing `ds` the installer didn't create is left alone |
 | `--uninstall` | remove everything the installer created (only its own files and hooks) |
 | `--dry-run` | preview |
+
+Only the `ds` command, with Homebrew (macOS / Linux). Add the skill to your agents afterwards with the line `brew` prints:
+
+```bash
+brew install AntonBronnfjell/tap/html-design-system
+```
 
 Without cloning:
 
@@ -410,6 +417,8 @@ When these skills are installed, it uses them. All are optional, with fallbacks 
 
 <details>
 <summary>Show all commands</summary>
+
+Installed with the installer, every command below is just `ds …` (e.g. `ds build ./design-system`). From a clone:
 
 ```bash
 DS="python3 scripts/ds.py"

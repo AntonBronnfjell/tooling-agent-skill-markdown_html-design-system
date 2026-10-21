@@ -7,6 +7,7 @@
   python3 install.py --project .          # project-level (commit the result to share with your team)
   python3 install.py --link               # dev mode: Claude Code gets a symlink to this repo (edits are live)
   python3 install.py --claude-hooks       # also add the lint/coverage hooks to Claude settings.json (always-on)
+  python3 install.py --no-cli             # skip the `ds` command (installed in ~/.local/bin by default)
   python3 install.py --uninstall          # remove everything this installer created
   python3 install.py --list               # show agents, paths and detection status
   add --dry-run to any command to preview.
@@ -18,6 +19,7 @@ Layout it creates:
   Own folders      Kiro, Roo Code, Cline                  symlink → shared copy (copy if symlinks unavailable)
   Rule pointer     Continue (~/.continue/rules)           a rule telling the agent to read the skill
   Aider            no skill support: prints the `read:` line to add to .aider.conf.yml
+  CLI              ~/.local/bin/ds (ds.cmd on Windows)    runs the installed scripts/ds.py, so `ds build ./design-system`
 """
 import argparse, glob, json, os, re, shutil, sys
 from pathlib import Path
@@ -169,6 +171,36 @@ def claude_hooks(ctx, settings_path, skill_dir, remove=False):
     ctx.do(f"{'remove' if remove else 'add'} design-system hooks in {settings_path} (backup: .json.bak)", write)
 
 
+# ---------- `ds` command on PATH ----------
+BIN = HOME / ".local" / "bin"
+CLI = BIN / ("ds.cmd" if os.name == "nt" else "ds")
+
+
+def cli_text(skill_dir):
+    ds = skill_dir / "scripts" / "ds.py"
+    if os.name == "nt":
+        return f'@echo off\r\nrem {MARKER}\r\n"{sys.executable}" "{ds}" %*\r\n'
+    return f'#!/bin/sh\n# {MARKER}\nexec python3 "{ds}" "$@"\n'
+
+
+def install_cli(ctx, skill_dir):
+    if CLI.exists() and MARKER not in CLI.read_text(encoding="utf-8", errors="replace"):
+        print(f"- cli: skipped, {CLI} exists and wasn't created by this installer. Run: python3 {skill_dir}/scripts/ds.py")
+        return
+
+    def write():
+        BIN.mkdir(parents=True, exist_ok=True)
+        CLI.write_text(cli_text(skill_dir), encoding="utf-8", newline="")
+        CLI.chmod(0o755)
+    print("- cli: `ds` command")
+    ctx.do(f"  write {CLI} -> {skill_dir}/scripts/ds.py", write)
+    found = shutil.which(CLI.name)
+    if found and Path(found).resolve() != CLI.resolve():
+        print(f"  note: {found} comes first on PATH, so `ds` runs that instead. Use {CLI} directly.")
+    elif not found:
+        print(f"  note: {BIN} is not on PATH. Add it (e.g. export PATH=\"$HOME/.local/bin:$PATH\" in your shell profile).")
+
+
 # ---------- main ----------
 def resolve(a):
     names = list(AGENTS)
@@ -223,6 +255,10 @@ def install(a):
         elif spec["kind"] == "rule":
             skill_dir = portable_dir if not a.project else Path(AGENTS["agents"]["project"]) / NAME
             ctx.do(f"  write {dst}", lambda d=dst, s=skill_dir: (d.parent.mkdir(parents=True, exist_ok=True), d.write_text(rule_text(s), encoding="utf-8")))
+    if not a.no_cli and not a.project:
+        installed = [n for n in ("claude", "agents") if n in chosen]
+        if installed:
+            install_cli(ctx, base_for(a, installed[0]) / NAME)
     if a.claude_hooks:
         settings = (Path(a.project).resolve() / ".claude/settings.json") if a.project else HOME / ".claude/settings.json"
         skill_dir = base_for(a, "claude") / NAME
@@ -237,6 +273,8 @@ def uninstall(a):
         dst = base_for(a, agent) / (f"{NAME}.md" if spec["kind"] == "rule" else NAME)
         if dst.is_symlink() or (dst.is_file() and spec["kind"] == "rule") or (dst.exists() and is_ours(dst)):
             clear(ctx, dst)
+    if not a.project and CLI.exists() and MARKER in CLI.read_text(encoding="utf-8", errors="replace"):
+        ctx.do(f"  remove {CLI}", CLI.unlink)
     settings = (Path(a.project).resolve() / ".claude/settings.json") if a.project else HOME / ".claude/settings.json"
     if settings.exists() and any(our_hook(e) for v in json.loads(settings.read_text(encoding="utf-8")).get("hooks", {}).values() for e in v):
         claude_hooks(ctx, settings, "", remove=True)
@@ -262,6 +300,7 @@ def main():
     ap.add_argument("--project", metavar="DIR", help="install into a project instead of your user profile")
     ap.add_argument("--link", action="store_true", help="symlink Claude Code install to this repo (live edits)")
     ap.add_argument("--claude-hooks", action="store_true", help="also register hooks in Claude settings.json")
+    ap.add_argument("--no-cli", action="store_true", help="don't install the `ds` command in ~/.local/bin")
     ap.add_argument("--uninstall", action="store_true")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--dry-run", action="store_true")

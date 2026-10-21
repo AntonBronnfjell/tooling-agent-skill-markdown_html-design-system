@@ -2,6 +2,12 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [1.3.0] - 2026-10-21
+
+### Added
+- **Homebrew:** `brew install AntonBronnfjell/tap/html-design-system` installs the `ds` command. The `homebrew` workflow points the tap's formula at each published release, and the tap's CI installs and tests it.
+- **`ds` command:** user-level installs put a launcher at `~/.local/bin/ds` (`ds.cmd` on Windows) that runs the installed `scripts/ds.py`, so `ds build ./design-system` works from anywhere. The installer warns when `~/.local/bin` isn't on PATH or another `ds` comes first, never overwrites a `ds` it didn't create, and `--uninstall` removes it. Skip it with `--no-cli`.
+
 ## [1.2.0] - 2026-10-17
 
 ### Added

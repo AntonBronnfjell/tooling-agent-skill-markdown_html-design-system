@@ -1,6 +1,6 @@
 {
   "name": "html-design-system",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 532 components, Storybook, DESIGN.md, MCP server, npm package and CI. Ports it to SwiftUI, Compose, Flutter and React Native from a measured spec, and builds icon sets.",
   "author": {
     "name": "Antonio Escalante"

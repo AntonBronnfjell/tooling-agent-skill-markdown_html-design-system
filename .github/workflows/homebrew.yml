@@ -1,0 +1,33 @@
+name: homebrew
+# Points the Homebrew formula (AntonBronnfjell/homebrew-tap) at each published release; the tap's own CI then
+# installs and tests it. Needs secret HOMEBREW_TAP_DEPLOY_KEY: the private half of a write deploy key on the tap.
+on:
+  release: { types: [published] }
+  workflow_dispatch:
+    inputs:
+      tag: { description: "Release tag to publish, e.g. v1.3.0", required: true }
+permissions: { contents: read }
+concurrency: { group: homebrew }
+
+jobs:
+  bump:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      FORMULA: Formula/html-design-system.rb
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: AntonBronnfjell/homebrew-tap
+          ssh-key: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
+      - name: Update url and sha256
+        run: |
+          url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${TAG}.tar.gz"
+          sha=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          sed -i -E "s|^(  url \").*(\")|\1${url}\2|; s|^(  sha256 \").*(\")|\1${sha}\2|" "$FORMULA"
+          git diff --exit-code --quiet && { echo "Formula already points at ${TAG}"; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "html-design-system ${TAG#v}"
+          git push
