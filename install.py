@@ -190,7 +190,7 @@ def install_cli(ctx, skill_dir):
 
     def write():
         BIN.mkdir(parents=True, exist_ok=True)
-        CLI.write_text(cli_text(skill_dir), encoding="utf-8", newline="")
+        CLI.write_bytes(cli_text(skill_dir).encode("utf-8"))  # keep \r\n in ds.cmd as written
         CLI.chmod(0o755)
     print("- cli: `ds` command")
     ctx.do(f"  write {CLI} -> {skill_dir}/scripts/ds.py", write)
