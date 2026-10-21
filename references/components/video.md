@@ -1,6 +1,6 @@
 # Video components & pages — specs
 
-Scope `video` (enable with `ds.py init --scopes product,video`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Video**); full pages in `patterns/<file>.html` (category **Video Pages**). Video components compose the `playback` controls (play-toggle, seek-bar, volume-control, time-display, playback-speed, captions-menu, transcript-panel, media-queue, mini-player, cast-button) and product components (button, badge, tabs, table, progress, dialog, popover menu) — wrap them, never re-style or respecify them.
+Scope `video` (enable with `ds init --scopes product,video`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Video**); full pages in `patterns/<file>.html` (category **Video Pages**). Video components compose the `playback` controls (play-toggle, seek-bar, volume-control, time-display, playback-speed, captions-menu, transcript-panel, media-queue, mini-player, cast-button) and product components (button, badge, tabs, table, progress, dialog, popover menu) — wrap them, never re-style or respecify them.
 
 ## Contents
 1. Rules for every video surface

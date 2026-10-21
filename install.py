@@ -93,7 +93,7 @@ def strip_frontmatter(text):
             out.append(line)
     fm = "\n".join(out)
     if "compatibility:" not in fm:
-        fm += "\ncompatibility: Requires Python 3.8+ for scripts/ds.py. Hooks are Claude Code only; other agents run ds.py check/coverage manually."
+        fm += "\ncompatibility: Requires Python 3.8+ for the ds command (scripts/ds.py). Hooks are Claude Code only; other agents run ds check/coverage manually."
     return f"---\n{fm}\n---\n" + text[m.end():]
 
 
@@ -137,7 +137,7 @@ description: Use when the user wants to create, extend, audit or finish a design
 alwaysApply: false
 ---
 
-The full skill is installed at `{skill_dir}`. Before doing any design-system work, read `{skill_dir}/SKILL.md` and follow its workflow; its scripts run as `python3 {skill_dir}/scripts/ds.py`.
+The full skill is installed at `{skill_dir}`. Before doing any design-system work, read `{skill_dir}/SKILL.md` and follow its workflow; run its commands as `ds …`, or as `python3 {skill_dir}/scripts/ds.py …` when `ds` isn't on PATH.
 """
 
 

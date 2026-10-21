@@ -289,7 +289,7 @@
         <li>Loading: the label stays in the accessibility tree (hidden with <code>opacity</code>, not <code>visibility</code>), so the name doesn't change. Announce progress and the result in a <code>role="status"</code> region.</li>
         <li>Focus: 2px teal ring with 2px offset from <code>--focus-ring-*</code> (≥ 3:1 in every theme). It is never removed.</li>
         <li>Target size: smallest button is 32px high and at least 32px wide (WCAG 2.5.8 needs 24px). Use <code>.btn--lg</code> (48px) on tablet screens mechanics use with gloves.</li>
-        <li>Contrast: label/background pairs <code>color.action.*.fg</code> on <code>color.action.*.bg</code> are checked at 4.5:1 by <code>ds.py check</code>. Disabled buttons are exempt but still readable.</li>
+        <li>Contrast: label/background pairs <code>color.action.*.fg</code> on <code>color.action.*.bg</code> are checked at 4.5:1 by <code>ds check</code>. Disabled buttons are exempt but still readable.</li>
         <li>Forced colors: every variant keeps a 1px border so buttons stay visible when backgrounds are removed.</li>
       </ul>
     </section>

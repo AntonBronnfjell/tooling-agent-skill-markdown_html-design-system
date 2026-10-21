@@ -1,6 +1,6 @@
 # Motion
 
-Motion is part of the brand and the most common source of accessibility failures. Decide it explicitly in Phase 1 and record it in `ds.config.json → motion`, which `ds.py design-md` publishes:
+Motion is part of the brand and the most common source of accessibility failures. Decide it explicitly in Phase 1 and record it in `ds.config.json → motion`, which `ds design-md` publishes:
 
 ```json
 "motion": {

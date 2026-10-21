@@ -1,6 +1,6 @@
 # Playback components — specs
 
-Scope `playback` is a **base scope**: you rarely enable it by hand. `ds.py init --scopes product,video` (or `live`, `music`, `podcast`, `reading`, `messaging`) adds it automatically, and `ds.config.json → scopes` is expanded the same way on load for components. Scope tokens are copied only by `init`: after adding scopes to `ds.config.json` by hand, run `ds.py init <dir> --force` (not `--adopt`, which exits when `ds.config.json` exists) to copy `tokens/scopes/playback.json` and its themes. Components live in `components/<file>.html` (category **Playback**); there are no pages. Playback components compose product components (button, slider, popover menu, sortable-list, tooltip) — wrap them, never re-style them.
+Scope `playback` is a **base scope**: you rarely enable it by hand. `ds init --scopes product,video` (or `live`, `music`, `podcast`, `reading`, `messaging`) adds it automatically, and `ds.config.json → scopes` is expanded the same way on load for components. Scope tokens are copied only by `init`: after adding scopes to `ds.config.json` by hand, run `ds init <dir> --force` (not `--adopt`, which exits when `ds.config.json` exists) to copy `tokens/scopes/playback.json` and its themes. Components live in `components/<file>.html` (category **Playback**); there are no pages. Playback components compose product components (button, slider, popover menu, sortable-list, tooltip) — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every playback surface (including `js/lib/media.js`)

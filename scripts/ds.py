@@ -1,51 +1,52 @@
 #!/usr/bin/env python3
 """html-design-system CLI. Stdlib only.
 
-  ds.py init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing,...] [--force]
-  ds.py audit [path] [--url URL] [--json]   inventory the de-facto design system of a codebase or a live site
-  ds.py build <dir>                  tokens -> dist/tokens.css, bundle dist/ds.css, docs index.html
-  ds.py check <dir> [--strict]       validate tokens + contrast, lint CSS/HTML, coverage summary
-  ds.py coverage <dir> [--json] [--all]
-  ds.py plan <dir>                   ordered build queue (markdown checklist) of what is missing
-  ds.py phase <dir> <discover|decide|plan|build|done>
-  ds.py storybook <dir> [--renderer html|server] [--server-url URL] [--force]
+  ds init <dir> [--name N] [--tier core|standard|enterprise] [--scopes product,marketing,...] [--force]
+  ds audit [path] [--url URL] [--json]   inventory the de-facto design system of a codebase or a live site
+  ds build <dir>                  tokens -> dist/tokens.css, bundle dist/ds.css, docs index.html
+  ds check <dir> [--strict]       validate tokens + contrast, lint CSS/HTML, coverage summary
+  ds coverage <dir> [--json] [--all]
+  ds plan <dir>                   ordered build queue (markdown checklist) of what is missing
+  ds phase <dir> <discover|decide|plan|build|done>
+  ds storybook <dir> [--renderer html|server] [--server-url URL] [--force]
                                      standalone Storybook from the component pages (html-vite, or @storybook/server
                                      so PHP/Python/Ruby/Java/.NET backends render their own templates)
-  ds.py serve <dir> [--port 8000]    build and preview the docs site with no dependencies
-  ds.py design-md <dir>              write DESIGN.md: the one-file contract (themes, type, scales, rules, inventory)
-  ds.py package <dir>                npm-ready package.json (exports css/tokens/js, files, sideEffects)
-  ds.py ci <dir> [--provider github|gitlab]   pipeline: check -> Storybook to Pages -> idempotent npm publish
-  ds.py detect [project] [--json]    read an existing project (stack, monorepo, styles, Storybook, CI) and propose a
+  ds serve <dir> [--port 8000]    build and preview the docs site with no dependencies
+  ds design-md <dir>              write DESIGN.md: the one-file contract (themes, type, scales, rules, inventory)
+  ds package <dir>                npm-ready package.json (exports css/tokens/js, files, sideEffects)
+  ds ci <dir> [--provider github|gitlab]   pipeline: check -> Storybook to Pages -> idempotent npm publish
+  ds detect [project] [--json]    read an existing project (stack, monorepo, styles, Storybook, CI) and propose a
                                      non-conflicting location + sync targets — writes nothing
-  ds.py migrate-colors <dir>         convert legacy hex-string color tokens to DTCG 2025.10 color objects
-  ds.py email <dir> [--strict]       render email/src templates with literal token values (light + dark) into dist/email
+  ds migrate-colors <dir>         convert legacy hex-string color tokens to DTCG 2025.10 color objects
+  ds email <dir> [--strict]       render email/src templates with literal token values (light + dark) into dist/email
                                      and check client safety (tables, no var()/flex/rem, alt, lang, size, plain text)
-  ds.py llms <dir>                   llms.txt, llms-full.txt, llms/<file>.md per component, dist/ds-index.json (for agents)
-  ds.py mcp <dir>                    MCP server (stdio, stdlib) so any agent can query components, tokens and DESIGN.md
-  ds.py palette <hex> [--name N] [--mode curve|contrast] [--dir D] [--primary] [--brand B]
+  ds llms <dir>                   llms.txt, llms-full.txt, llms/<file>.md per component, dist/ds-index.json (for agents)
+  ds mcp <dir>                    MCP server (stdio, stdlib) so any agent can query components, tokens and DESIGN.md
+  ds palette <hex> [--name N] [--mode curve|contrast] [--dir D] [--primary] [--brand B]
                                      OKLCH ramp (50–950) from one color + contrast-checked primary mapping per theme
-  ds.py scale type|space [--dir D] [--min-size/--max-size/--min-ratio/--max-ratio/--min-vw/--max-vw]
+  ds scale type|space [--dir D] [--min-size/--max-size/--min-ratio/--max-ratio/--min-vw/--max-vw]
                                      Utopia fluid type/space scales as clamp() tokens
-  ds.py export <dir> [--target tailwind,shadcn,figma,ios,android,compose,flutter|all]
+  ds export <dir> [--target tailwind,shadcn,figma,ios,android,compose,flutter|all]
                                      framework/platform outputs in dist/exports (no dependencies)
-  ds.py icons <svg-dir> <dir> [--platforms web,swiftui,compose,flutter,react-native|all]
+  ds icons <svg-dir> <dir> [--platforms web,swiftui,compose,flutter,react-native|all]
                                      optimized SVG sprite (currentColor) + gallery + native icon components
-  ds.py icons-add <names…> --set lucide|tabler|phosphor|heroicons|material-symbols --dir D
+  ds icons-add <names…> --set lucide|tabler|phosphor|heroicons|material-symbols --dir D
                                      fetch icons from a library (pinned version, license recorded), rebuild the sprite
-  ds.py icons-style [svg-dir] --dir D   icons/style.json: grid, stroke, caps/joins, padding, complexity (from a set or tokens)
-  ds.py icons-lint <svg…> --dir D    check icons (e.g. drawn from scratch) against icons/style.json
-  ds.py mobile spec <dir> [--tokens-only]     dist/mobile/spec.json: tokens per theme + measured web boxes + @3x reference PNGs
-  ds.py mobile scaffold <dir> --target swiftui,compose,flutter,react-native,maui,web-mobile|all [--out PATH]
+  ds icons-style [svg-dir] --dir D   icons/style.json: grid, stroke, caps/joins, padding, complexity (from a set or tokens)
+  ds icons-lint <svg…> --dir D    check icons (e.g. drawn from scratch) against icons/style.json
+  ds mobile spec <dir> [--tokens-only]     dist/mobile/spec.json: tokens per theme + measured web boxes + @3x reference PNGs
+  ds mobile scaffold <dir> --target swiftui,compose,flutter,react-native,maui,web-mobile|all [--out PATH]
                                      native theme + 10 core components + snapshot tests + FIDELITY.md from the spec
-  ds.py mobile verify <dir> --native <png-dir>   diff native snapshots against the web references (exit 1 on drift)
-  ds.py mobile lint <path…>          catch bad migrations: raw colors, magic numbers, fixed fonts, hover, small targets
-  ds.py playwright <dir>             free visual regression + axe + keyboard-focus suite (Playwright) for every page
-  ds.py taste [path] [--strict]      lint for the generic "AI look" (purple gradients, glass, buzzwords, emoji UI, …)
-  ds.py sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
+  ds mobile verify <dir> --native <png-dir>   diff native snapshots against the web references (exit 1 on drift)
+  ds mobile lint <path…>          catch bad migrations: raw colors, magic numbers, fixed fonts, hover, small targets
+  ds playwright <dir>             free visual regression + axe + keyboard-focus suite (Playwright) for every page
+  ds taste [path] [--strict]      lint for the generic "AI look" (purple gradients, glass, buzzwords, emoji UI, …)
+  ds sync <dir>                   copy built CSS/tokens/js into the host project's own folders (owned files only)
   Global: --dry-run (print every planned write) · --force-all (overwrite even files you created or edited)
-  Files ds.py didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
-  ds.py status [path]                one-paragraph state of the nearest design system (for context injection)
-  ds.py hook-post-edit | hook-stop   Claude Code hook entry points (read JSON on stdin)
+  Files ds didn't create, and files you edited after it created them, are never overwritten (ledger: .ds-owned.json)
+  ds status [path]                one-paragraph state of the nearest design system (for context injection)
+  ds hook-post-edit | hook-stop   Claude Code hook entry points (read JSON on stdin)
+  Without the `ds` command (not installed, or blocked): python3 <skill-dir>/scripts/ds.py <command> …
 """
 import argparse, atexit, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
@@ -56,10 +57,10 @@ TIERS = ["core", "standard", "enterprise"]
 SKIP_DIRS = {"node_modules", ".git", "dist", "build", ".next", "vendor", "graphify-out", "__pycache__", "storybook-static"}
 
 
-# ---------- safe writes: never clobber files ds.py didn't create ----------
-# Every file ds.py writes is recorded in <ds root>/.ds-owned.json with its hash. A path that already exists
+# ---------- safe writes: never clobber files ds didn't create ----------
+# Every file ds writes is recorded in <ds root>/.ds-owned.json with its hash. A path that already exists
 # and is not in the ledger belongs to the user/project and is never overwritten (unless --force). Files that
-# ds.py *owns* but the user edited are also kept for "owned" writes (templates, config, CI); "generated"
+# ds *owns* but the user edited are also kept for "owned" writes (templates, config, CI); "generated"
 # outputs (dist/, stories/, index.html) are rebuilt. --dry-run prints every planned write instead.
 STATE = {"dry_run": False, "force": False, "root": None, "ledger": None, "dirty": False, "skipped": []}
 LEDGER = ".ds-owned.json"
@@ -95,8 +96,8 @@ def use_root(root):
 
 def _save_ledger():
     if STATE["root"] is not None and STATE["dirty"] and not STATE["dry_run"] and STATE["root"].exists():
-        (STATE["root"] / LEDGER).write_text(json.dumps({"version": 1, "note": "Files created by ds.py (html-design-system). "
-                                                        "ds.py never overwrites files missing from this list.",
+        (STATE["root"] / LEDGER).write_text(json.dumps({"version": 1, "note": "Files created by ds (html-design-system). "
+                                                        "ds never overwrites files missing from this list.",
                                                         "files": dict(sorted(STATE["ledger"].items()))}, indent=1) + "\n", encoding="utf-8")
 
 
@@ -108,7 +109,7 @@ def _rel(path):
 
 
 def safe_write(path, data, kind="generated"):
-    """Write text/bytes to path unless that would clobber a file ds.py doesn't own. Returns True if written."""
+    """Write text/bytes to path unless that would clobber a file ds doesn't own. Returns True if written."""
     path = Path(path)
     key, new = _rel(path), _sha(data)
     if path.exists():
@@ -119,9 +120,9 @@ def safe_write(path, data, kind="generated"):
         known = STATE["ledger"].get(key) if STATE["ledger"] is not None else None
         if not STATE["force"]:
             if known is None:
-                return _skip(path, "exists and was not created by ds.py")
+                return _skip(path, "exists and was not created by ds")
             if kind == "owned" and known != cur:
-                return _skip(path, "was edited after ds.py created it")
+                return _skip(path, "was edited after ds created it")
     if STATE["dry_run"]:
         print(f"[dry-run] {'update' if path.exists() else 'create'} {key}")
         return True
@@ -156,7 +157,7 @@ def safe_remove_owned(directory):
 
 
 def merge_json(path, update, describe):
-    """Additive merge into a JSON file. Files ds.py doesn't own are left alone; the snippet is printed instead."""
+    """Additive merge into a JSON file. Files ds doesn't own are left alone; the snippet is printed instead."""
     path = Path(path)
     data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
     before = json.dumps(data, sort_keys=True)
@@ -170,7 +171,7 @@ def merge_json(path, update, describe):
 
 
 def append_lines(path, lines):
-    """Append missing lines (e.g. .gitignore). Never edits a file ds.py doesn't own; prints the lines instead."""
+    """Append missing lines (e.g. .gitignore). Never edits a file ds doesn't own; prints the lines instead."""
     path = Path(path)
     cur = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
     missing = [x for x in lines if x not in cur]
@@ -191,7 +192,7 @@ def _skip(path, why):
 def load_cfg(root):
     cfgp = Path(root) / "ds.config.json"
     if not cfgp.exists():
-        sys.exit(f"No design system at {root} (no ds.config.json). Run `ds.py detect` to find or place one, then `ds.py init`.")
+        sys.exit(f"No design system at {root} (no ds.config.json). Run `ds detect` to find or place one, then `ds init`.")
     use_root(root)
     return json.loads(cfgp.read_text(encoding="utf-8"))
 
@@ -461,8 +462,8 @@ def load_tokens(root):
     files = [t / n for n in ("primitive.json", "semantic.json", "component.json")]
     files += sorted((t / "components").glob("*.json"))  # one file per component: parallel-safe
     files += sorted((t / "scopes").glob("*.json"))      # tokens added by optional scopes (ai, commerce, ...)
-    files += sorted((t / "scales").glob("*.json"))      # ds.py scale (fluid type/space)
-    files += sorted((t / "palettes").glob("*.json"))    # ds.py palette (ramps; may remap primary/link/focus)
+    files += sorted((t / "scales").glob("*.json"))      # ds scale (fluid type/space)
+    files += sorted((t / "palettes").glob("*.json"))    # ds palette (ramps; may remap primary/link/focus)
     for f in files:
         if f.exists():
             try:
@@ -493,7 +494,7 @@ def decls(flat, keys):
 def build_tokens(root):
     base, themes = load_tokens(root)
     flat = flatten(base)
-    css = ["/* Generated by ds.py build — edit tokens/*.json, not this file. */",
+    css = ["/* Generated by ds build — edit tokens/*.json, not this file. */",
            ":root {\n  color-scheme: light dark;\n" + decls(flat, list(flat)) + "\n}"]
     for name, tree in themes.items():
         tflat = flatten(tree)
@@ -548,7 +549,7 @@ def write_token_modules(root, flat):
             continue
     dist = Path(root) / "dist"
     safe_write(dist / "tokens.json", json.dumps(resolved, indent=1) + "\n")
-    scss = ["// Generated by ds.py build — static values (default theme). Use CSS vars at runtime; these are for",
+    scss = ["// Generated by ds build — static values (default theme). Use CSS vars at runtime; these are for",
             "// media queries and build-time math only."]
     scss += [f"${k.replace('.', '-')}: {v};" for k, v in resolved.items()]
     bps = {k.split(".", 1)[1]: v for k, v in resolved.items() if k.startswith("breakpoint.")}
@@ -593,7 +594,7 @@ def check_tokens(root, cfg):
     legacy = [k for k, v in flat.items() if v["type"] == "color" and isinstance(v["value"], str) and v["value"].startswith("#")]
     if legacy:
         warns.append(f"{len(legacy)} color tokens use hex strings — not DTCG 2025.10 (needs {{colorSpace, components}}); "
-                     f"run `ds.py migrate-colors <dir>` (e.g. {legacy[0]})")
+                     f"run `ds migrate-colors <dir>` (e.g. {legacy[0]})")
     groups = {k.split(".")[0] for k in flat}
     need = [g for t in TIERS if in_tier(t, cfg["tier"]) for g in MANIFEST["token_groups_required"][t]]
     for g in need:
@@ -656,7 +657,7 @@ def lint_file(path):
     except OSError:
         return issues
     if path.suffix == ".css" and "email" in path.stem:
-        return issues   # email CSS must use literal values and !important (client quirks) — checked by `ds.py email`
+        return issues   # email CSS must use literal values and !important (client quirks) — checked by `ds email`
     if path.suffix == ".css" and "dist" not in path.parts and path.name != "base.css" and "docs" not in path.parts:
         stripped = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
         # token fallbacks inside var() are fine: var(--x, #fff)
@@ -726,7 +727,7 @@ def cmd_init(a):
         sys.exit(f"{root}/ds.config.json exists. --force re-runs init: missing templates are restored, files you "
                  "edited are kept (only the global --force-all overwrites them).")
     if root.exists() and any(root.iterdir()) and not (root / "ds.config.json").exists() and not a.adopt:
-        sys.exit(f"{root} already has files that aren't a design system. Pick another folder (`ds.py detect` suggests one) "
+        sys.exit(f"{root} already has files that aren't a design system. Pick another folder (`ds detect` suggests one) "
                  "or pass --adopt to add the system alongside them — existing files are never overwritten.")
     use_root(root)
     tpl = SKILL / "assets" / "templates"
@@ -780,7 +781,7 @@ def cmd_init(a):
         return
     build_tokens(root)
     print(f"Initialized design system '{cfg['name']}' (tier {cfg['tier']}) in {root}")
-    print("Next: fill ds.config.json brief/direction, edit tokens/*.json, then `ds.py build` and `ds.py plan`.")
+    print("Next: fill ds.config.json brief/direction, edit tokens/*.json, then `ds build` and `ds plan`.")
 
 
 AUDIT_PATTERNS = {
@@ -967,7 +968,7 @@ def cmd_check(a):
     lint = []
     for p in sorted(list(root.glob("css/**/*.css")) + list(root.glob("components/*.html")) + list(root.glob("patterns/*.html"))):
         lint += lint_file(p)
-    warns += [f"scope '{s}' tokens missing (tokens/scopes/{s}.json): run `ds.py init {root} --force`" for s in expand_scopes(cfg.get("scopes") or ["product"])
+    warns += [f"scope '{s}' tokens missing (tokens/scopes/{s}.json): run `ds init {root} --force`" for s in expand_scopes(cfg.get("scopes") or ["product"])
               if (SKILL / "assets" / "templates" / "scopes" / s / "tokens.json").exists() and not (root / "tokens" / "scopes" / f"{s}.json").exists()]
     report = coverage(root, cfg)
     done, total = summarize(report)
@@ -977,7 +978,7 @@ def cmd_check(a):
         print(f"- warn {w}")
     print(f"\n## Lint ({len(lint)} issues)")
     print("\n".join(f"- {i}" for i in lint[:200]) or "- ok")
-    print(f"\n## Coverage: {done}/{total} complete (tier {cfg['tier']}) — run `ds.py coverage` for details")
+    print(f"\n## Coverage: {done}/{total} complete (tier {cfg['tier']}) — run `ds coverage` for details")
     if errs or (a.strict and (lint or done < total)):
         sys.exit(1)
 
@@ -1171,7 +1172,7 @@ def cmd_storybook(a):
     safe_remove_owned(stories)  # stories are fully generated from the pages; files you added there are kept
     safe_copy(tpl / "render.js", stories / "_render.js")
     _, themes = load_tokens(root)
-    safe_write(stories / "_meta.js", "// GENERATED by ds.py storybook — do not edit.\nexport const themes = "
+    safe_write(stories / "_meta.js", "// GENERATED by ds storybook — do not edit.\nexport const themes = "
                + json.dumps(["light", *[t for t in themes if t != "light"]]) + ";\n")
 
     total = 0
@@ -1182,7 +1183,7 @@ def cmd_storybook(a):
             continue
         js = root / "js" / f"{page.stem}.js"
         depth = "../../"
-        out = [f"// GENERATED by ds.py storybook from {sub}/{page.name} — edit the page, then re-run `ds.py storybook`.",
+        out = [f"// GENERATED by ds storybook from {sub}/{page.name} — edit the page, then re-run `ds storybook`.",
                f"import {{ render }} from '../_render.js';"]
         out.append(f"import * as behavior from '{depth}js/{page.stem}.js';" if js.exists() else "const behavior = null;")
         usage = " ".join(ex.usage)[:600]
@@ -1211,7 +1212,7 @@ def cmd_storybook(a):
              "stories": [{"name": "All tokens"}]}, indent=1) + "\n")
     else:
         safe_write(stories / "foundations" / "tokens.stories.js",
-        "// GENERATED by ds.py storybook — token catalog. Values are read live from CSS, so themes apply.\n"
+        "// GENERATED by ds storybook — token catalog. Values are read live from CSS, so themes apply.\n"
         f"const tokens = {json.dumps(rows)};\n" + TOKENS_STORY)
     reports = coverage(root, cfg)
     done, tot = summarize(reports)
@@ -1226,12 +1227,12 @@ def cmd_storybook(a):
           f"  cd {root} && npm install && npm run storybook      (static site: npm run build-storybook)")
     if cfg.get("project", {}).get("storybook") == "compose":
         print("  Your project already has a Storybook — compose this one into it instead of merging configs.\n"
-              "  Add to your .storybook/main.* (ds.py does not edit it):\n"
+              "  Add to your .storybook/main.* (ds does not edit it):\n"
               "    refs: { 'design-system': { title: 'Design System', url: 'http://localhost:6006' } },\n"
               "  (in production point url at the deployed design-system Storybook, e.g. its GitHub Pages URL)")
     if server:
         port = re.search(r":(\d+)", a.server_url.split("//", 1)[-1])
-        print(f"  Backend: stories fetch {a.server_url}/<id>. Reference backend: `ds.py serve {root} --port {port.group(1) if port else 80}`.\n"
+        print(f"  Backend: stories fetch {a.server_url}/<id>. Reference backend: `ds serve {root} --port {port.group(1) if port else 80}`.\n"
               f"  Your stack: implement GET <url>/<sub>/<file>/<n> returning the fragment — references/storybook.md §4.")
 
 
@@ -1470,7 +1471,7 @@ def cmd_design_md(a):
     theme_flats = {"light": flat, **{n: {**flat, **flatten(t)} for n, t in themes.items()}}
     d, brief = cfg.get("direction", {}), cfg.get("brief", {})
     md = [design_md_frontmatter(root, cfg, flat),
-          f"<!-- Generated by `ds.py design-md` from ds.config.json and tokens/ — edit those, then regenerate. "
+          f"<!-- Generated by `ds design-md` from ds.config.json and tokens/ — edit those, then regenerate. "
           f"Validate with `npx @google/design.md lint DESIGN.md`. -->", "",
           "## Overview", "",
           f"{d.get('style') or 'Token-driven, accessible HTML/CSS design system.'} "
@@ -1549,8 +1550,8 @@ def write_a11y_statement(root, cfg):
     brief = cfg.get("brief", {})
     text = f"""# Accessibility statement — {cfg['name']}
 
-> Template generated by `ds.py design-md`. Fill the bracketed parts, have it reviewed, then publish it with the product.
-> Once you edit this file, ds.py will not overwrite it.
+> Template generated by `ds design-md`. Fill the bracketed parts, have it reviewed, then publish it with the product.
+> Once you edit this file, ds will not overwrite it.
 
 ## Commitment
 [Organization] wants [product] to be usable by everyone. The {cfg['name']} design system targets **{brief.get('a11y_target', 'WCAG 2.2 AA')}**.
@@ -1566,7 +1567,7 @@ def write_a11y_statement(root, cfg):
 - [Component/page] — [issue] — [workaround] — [planned fix date]
 
 ## How it's tested
-- Automated: axe on every Storybook story and every docs page in light, dark and high-contrast themes; contrast pairs for every token combination (`ds.py check`).
+- Automated: axe on every Storybook story and every docs page in light, dark and high-contrast themes; contrast pairs for every token combination (`ds check`).
 - Manual: keyboard-only walkthrough, screen readers ([NVDA + Firefox], [VoiceOver + Safari], [TalkBack + Chrome]), 200% zoom and 320px reflow, reduced motion, forced colors.
 - Last full audit: [date] by [auditor].
 
@@ -1604,7 +1605,7 @@ def cmd_package(a):
         pkg["sideEffects"] = ["*.css"]
         pkg.setdefault("publishConfig", {"access": "public"})
         pkg.setdefault("scripts", {})["prepack"] = ("python3 tools/ds/scripts/ds.py build . && python3 tools/ds/scripts/ds.py design-md ."
-                                                   if vendored else "echo 'run ds.py build + design-md before packing'")
+                                                   if vendored else "echo 'run ds build + design-md before packing'")
         update.result = pkg
 
     merge_json(root / "package.json", update, "npm package fields")
@@ -1614,7 +1615,7 @@ def cmd_package(a):
 
 
 def vendor_tools(root):
-    """Copy ds.py + manifest + templates into <root>/tools/ds so CI and teammates don't need the skill installed."""
+    """Copy scripts/ds.py + manifest + templates into <root>/tools/ds so CI and teammates don't need the skill installed."""
     dst = Path(root) / "tools" / "ds"
     for base in ("scripts", "assets"):
         for f in sorted((SKILL / base).rglob("*")):
@@ -1808,7 +1809,7 @@ def write_resolver(root, themes):
     contexts = {"light": []}
     contexts.update({n: [{"$ref": f"themes/{n}.json"}] for n in themes if n != "light"})
     brands = sorted(p_.stem for p_ in (t / "brands").glob("*.json")) if (t / "brands").exists() else []
-    doc = {"name": "Generated by ds.py build", "version": "2025-11-01",
+    doc = {"name": "Generated by ds build", "version": "2025-11-01",
            "description": "Base sets, then the theme modifier. CSS: [data-theme=<context>] / .theme-<context>.",
            "sets": {"base": {"sources": sources}},
            "modifiers": {"theme": {"description": "Color theme", "contexts": contexts, "default": "light"}},
@@ -1837,33 +1838,33 @@ def cmd_detect(a):
     print(f"\n## Recommended plan (nothing has been written)\n")
     print(f"- Design system folder: `{r['location']}` (self-contained; never mixed into your source folders)")
     if r["sync"]:
-        print("- After each build, `ds.py sync` copies outputs into your app's own folders:")
+        print("- After each build, `ds sync` copies outputs into your app's own folders:")
         for src, dst in r["sync"].items():
             print(f"    {src} → {dst}")
     print(f"- Apps consume it via: {r['consume']}")
     print(f"- Storybook: {'compose into your existing Storybook via `refs` (your config is not edited)' if r['storybook'] == 'compose' else 'its own Storybook inside the design-system folder'}")
     print(f"- CI: {r['ci']} ({'separate include file; your .gitlab-ci.yml is not edited' if r['ci'] == 'gitlab' else 'its own workflow file'})")
     if "tailwind" in info["css"] or "shadcn" in info["css"]:
-        print("- Tailwind/shadcn found: extend mode — map their theme into tokens (`ds.py audit`), then emit a Tailwind adapter via /ui-styling")
+        print("- Tailwind/shadcn found: extend mode — map their theme into tokens (`ds audit`), then emit a Tailwind adapter via /ui-styling")
     if info["git_dirty"]:
-        print("- ⚠ Uncommitted changes: commit or stash first so every ds.py change is easy to review and revert")
-    print(f"\nNext: ds.py init {r['location']} --project {info['project']} --dry-run   (preview), then without --dry-run")
+        print("- ⚠ Uncommitted changes: commit or stash first so every ds change is easy to review and revert")
+    print(f"\nNext: ds init {r['location']} --project {info['project']} --dry-run   (preview), then without --dry-run")
 
 
 def cmd_sync(a):
-    """Copy build outputs into the host project's conventional folders (only files ds.py owns there)."""
+    """Copy build outputs into the host project's conventional folders (only files ds owns there)."""
     root = Path(a.dir).resolve()
     cfg = load_cfg(root)
     proj = (root / cfg.get("project", {}).get("root", "..")).resolve()
     mapping = cfg.get("project", {}).get("sync") or {}
     if not mapping:
-        print("No sync targets in ds.config.json → project.sync (run `ds.py detect` for suggestions).")
+        print("No sync targets in ds.config.json → project.sync (run `ds detect` for suggestions).")
         return
     n = 0
     for src, dst in mapping.items():
         s_ = root / src
         if not s_.exists():
-            print(f"skip {src} — not built yet (run ds.py build)", file=sys.stderr)
+            print(f"skip {src} — not built yet (run ds build)", file=sys.stderr)
             continue
         n += bool(safe_copy(s_, proj / dst, kind="owned"))  # inside your app: once you edit it, it's yours
     skipped = f"; kept {len(STATE['skipped'])} file(s) you edited" if STATE["skipped"] else ""
@@ -1914,7 +1915,7 @@ def cmd_email(a):
     load_cfg(root)
     src = root / "email" / "src"
     if not src.exists():
-        sys.exit(f"No {_rel(src)}/ — add the email scope (`ds.py init {root} --force --scopes ...,email`) or create templates there.")
+        sys.exit(f"No {_rel(src)}/ — add the email scope (`ds init {root} --force --scopes ...,email`) or create templates there.")
     light = email_profile(root)
     dark = {f"dark_{k}": v for k, v in email_profile(root, "dark").items()}
     values = {**light, **dark}
@@ -2098,7 +2099,7 @@ def cmd_mcp(a):
   Claude Code:  claude mcp add design-system -- python3 {server}
   Cursor / VS Code / others (mcp.json):
     {{"mcpServers": {{"design-system": {{"command": "python3", "args": ["{server}"]}}}}}}
-Tools: list_components, get_component, search, get_tokens, get_design_md. Re-run `ds.py llms` after changes.""")
+Tools: list_components, get_component, search, get_tokens, get_design_md. Re-run `ds llms` after changes.""")
 
 
 # ---------- generators: palette, scale ----------
@@ -2210,7 +2211,7 @@ def cmd_palette(a):
     light, dark, hc = map_semantics(name, ramp)
     primitive = {"color": {"$type": "color", name: {s: {"$value": v} for s, v in ramp.items()}}}
     if not a.dir:
-        print("\nPreview only. To write it: ds.py palette <hex> --name <name> --dir <ds> [--primary] [--brand <brand>]")
+        print("\nPreview only. To write it: ds palette <hex> --name <name> --dir <ds> [--primary] [--brand <brand>]")
         return
     root = Path(a.dir)
     load_cfg(root)
@@ -2328,7 +2329,7 @@ def _theme_values(root):
 
 
 def export_tailwind(root, flat):
-    lines = ["/* Generated by ds.py export --target tailwind. Use with Tailwind CSS v4:", "   @import \"tailwindcss\";",
+    lines = ["/* Generated by ds export --target tailwind. Use with Tailwind CSS v4:", "   @import \"tailwindcss\";",
              "   @import \"<design-system>/dist/ds.css\";              (tokens + components; its layers come after Tailwind's)",
              "   @import \"<design-system>/dist/exports/tailwind.css\";",
              "   Same-named theme variables (--radius-*, --shadow-*, --breakpoint-*) are overridden by ds tokens automatically;",
@@ -2347,7 +2348,7 @@ def export_shadcn(root, flat, themes):
     def block(sel, tf, keys):
         rows = [f"  --{n}: var({var_name(k)});" for n, k in SHADCN_MAP.items() if k in tf and k in keys]
         return f"{sel} {{\n" + "\n".join(rows) + "\n}"
-    head = ("/* Generated by ds.py export --target shadcn — shadcn/ui variable names pointing at design-system tokens.\n"
+    head = ("/* Generated by ds export --target shadcn — shadcn/ui variable names pointing at design-system tokens.\n"
             "   Import after dist/ds.css. Theme switching stays on the design system: [data-theme=dark] or .dark both work. */\n")
     root_block = block(":root", flat, set(SHADCN_MAP.values())) .replace("}", f"  --radius: var(--radius-md);\n}}")
     dark = ""
@@ -2415,23 +2416,23 @@ def export_native(values, target):
                 f"UIColor(red: {dark.get(k, light[k])[1][0]:.4f}, green: {dark.get(k, light[k])[1][1]:.4f}, blue: {dark.get(k, light[k])[1][2]:.4f}, alpha: {dark.get(k, light[k])[1][3]:.3f}) : "
                 f"UIColor(red: {light[k][1][0]:.4f}, green: {light[k][1][1]:.4f}, blue: {light[k][1][2]:.4f}, alpha: {light[k][1][3]:.3f}) }})" for k in colors]
         dims_rows = [f"    static let {_camel(k)}: CGFloat = {light[k][1]:g}" for k in dims]
-        return {"DesignTokens.swift": "// Generated by ds.py export --target ios. Light/dark resolve at runtime.\nimport SwiftUI\nimport UIKit\n\n"
+        return {"DesignTokens.swift": "// Generated by ds export --target ios. Light/dark resolve at runtime.\nimport SwiftUI\nimport UIKit\n\n"
                 "public enum DSColor {\n" + "\n".join(rows) + "\n}\n\npublic enum DSDimension {\n" + "\n".join(dims_rows) + "\n}\n"}
     if target == "android":
-        res = lambda vals: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generated by ds.py export --target android -->\n<resources>\n" + "\n".join(
+        res = lambda vals: "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<!-- Generated by ds export --target android -->\n<resources>\n" + "\n".join(
             f"    <color name=\"ds_{re.sub(r'[.-]', '_', k)}\">#{h8(vals.get(k, light[k])[1])}</color>" for k in colors) + "\n</resources>\n"
         dimens = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n" + "\n".join(
             f"    <dimen name=\"ds_{re.sub(r'[.-]', '_', k)}\">{light[k][1]:g}{'sp' if k.startswith('font.size') else 'dp'}</dimen>" for k in dims) + "\n</resources>\n"
         return {"values/ds_colors.xml": res(light), "values-night/ds_colors.xml": res(dark), "values/ds_dimens.xml": dimens}
     if target == "compose":
         obj = lambda name, vals: f"object {name} {{\n" + "\n".join(f"    val {_camel(k)} = Color(0x{h8(vals.get(k, light[k])[1])})" for k in colors) + "\n}"
-        return {"DesignTokens.kt": "// Generated by ds.py export --target compose\npackage design.system\n\nimport androidx.compose.ui.graphics.Color\n"
+        return {"DesignTokens.kt": "// Generated by ds export --target compose\npackage design.system\n\nimport androidx.compose.ui.graphics.Color\n"
                 "import androidx.compose.ui.unit.dp\n\n" + obj("DsColorsLight", light) + "\n\n" + obj("DsColorsDark", dark)
                 + "\n\nobject DsDimensions {\n" + "\n".join(f"    val {_camel(k)} = {light[k][1]:g}.dp" for k in dims) + "\n}\n"}
     if target == "flutter":
         cls = lambda name, vals: f"class {name} {{\n  {name}._();\n" + "\n".join(
             f"  static const Color {_camel(k)} = Color(0x{h8(vals.get(k, light[k])[1])});" for k in colors) + "\n}"
-        return {"ds_tokens.dart": "// Generated by ds.py export --target flutter\nimport 'package:flutter/painting.dart';\n\n"
+        return {"ds_tokens.dart": "// Generated by ds export --target flutter\nimport 'package:flutter/painting.dart';\n\n"
                 + cls("DsColorsLight", light) + "\n\n" + cls("DsColorsDark", dark) + "\n\nclass DsDimensions {\n  DsDimensions._();\n"
                 + "\n".join(f"  static const double {_camel(k)} = {light[k][1]:g};" for k in dims) + "\n}\n"}
     raise ValueError(target)
@@ -2685,17 +2686,17 @@ def cmd_mobile_spec(a):
                     with socket.socket() as probe:
                         if probe.connect_ex(("127.0.0.1", port)) == 0:
                             break
-                # ESM resolves @playwright/test from the script's folder upward: <ds root>/node_modules (ds.py playwright + npm install).
+                # ESM resolves @playwright/test from the script's folder upward: <ds root>/node_modules (ds playwright + npm install).
                 r = subprocess.run(["node", str((out / "measure.mjs").resolve()), f"http://127.0.0.1:{port}", str(out.resolve()),
                                     json.dumps(list(tokens)), a.only or ""],
                                    cwd=str(root), capture_output=True, text=True)
                 if r.returncode:
                     tail = (r.stderr.strip().splitlines() or r.stdout.strip().splitlines() or [f"exit {r.returncode}"])[-1]
-                    print(f"measurement failed ({tail}). Needs @playwright/test: `ds.py playwright {root}` then "
+                    print(f"measurement failed ({tail}). Needs @playwright/test: `ds playwright {root}` then "
                           "`npm install && npx playwright install chromium`, or pass --tokens-only.", file=sys.stderr)
             finally:
                 server.terminate()
-    spec = {"$note": "Generated by ds.py mobile spec. 1 CSS px = 1 pt = 1 dp. tokens: resolved per theme. components: computed "
+    spec = {"$note": "Generated by ds mobile spec. 1 CSS px = 1 pt = 1 dp. tokens: resolved per theme. components: computed "
                      "boxes of each docs demo at 390px wide (root + first form control), per theme; reference PNGs at @3x in "
                      "dist/mobile/reference/<file>--<demo>--<theme>.png. Build native from these numbers, never from memory.",
             "name": cfg["name"], "touchTarget": {"ios": 44, "android": 48}, "scale": 3, "tokens": tokens,
@@ -2837,7 +2838,7 @@ def cmd_mobile_verify(a):
     for nat in sorted(nat_dir.glob("*.png")):
         ref = match_reference(ref_dir, nat.name)
         if not ref:
-            lines.append(f"| {nat.stem} | | | | no reference with this name (run `ds.py mobile spec`; names must match) |")
+            lines.append(f"| {nat.stem} | | | | no reference with this name (run `ds mobile spec`; names must match) |")
             continue
         stats, diff = png_compare(ref, nat)
         compared += 1
@@ -3205,7 +3206,7 @@ def _themes_by_role(tokens):
     return names[0] if "light" not in names else "light", dark, contrast
 
 
-HEAD = "Generated by ds.py mobile scaffold from the {name} design system. Do not edit: change tokens, re-run the scaffold."
+HEAD = "Generated by ds mobile scaffold from the {name} design system. Do not edit: change tokens, re-run the scaffold."
 
 
 # ---------- SwiftUI ----------
@@ -3301,7 +3302,7 @@ def swift_snapshots(cases, em):
     return f"""// {HEAD.format(name='this')}
 // Snapshot names match dist/mobile/reference/<file>--<demo>--<theme>.png, rendered at @3x like the references.
 // Setup: add https://github.com/pointfreeco/swift-snapshot-testing to the test target and `@testable import` your app.
-// Then: python3 ds.py mobile verify <ds-dir> --native <path to __Snapshots__/DSSnapshotTests>
+// Then: ds mobile verify <ds-dir> --native <path to __Snapshots__/DSSnapshotTests>
 import SnapshotTesting
 import SwiftUI
 import XCTest
@@ -3407,9 +3408,9 @@ def compose_snapshots(cases, pkg, tokens):
         fn = re.sub(r"\W", "_", name[:-4])
         mod = f"Modifier.testTag(\"snap\").width({_lit(width)}.dp)" if width and file in SIZED_SNAPS else "Modifier.testTag(\"snap\")"
         tests.append(f"    @Test\n    fun `{fn}`() = snap(\"{name}\", \"{theme}\") {{\n        Box({mod}) {{ {view(file, texts)} }}\n    }}\n")
-    return f"""// Generated by ds.py mobile scaffold. Roborazzi + Robolectric at xxhdpi (3x) = the web references' @3x.
+    return f"""// Generated by ds mobile scaffold. Roborazzi + Robolectric at xxhdpi (3x) = the web references' @3x.
 // Files land in build/ds-snapshots/<file>--<demo>--<theme>.png; then:
-//   python3 ds.py mobile verify <ds-dir> --native app/build/ds-snapshots
+//   ds mobile verify <ds-dir> --native app/build/ds-snapshots
 // Gradle: testImplementation of io.github.takahirom.roborazzi:roborazzi (+ roborazzi-compose), robolectric,
 // androidx.compose.ui:ui-test-junit4 and androidx.test.ext:junit; set unitTests.isIncludeAndroidResources = true.
 package {pkg}
@@ -3525,10 +3526,10 @@ def flutter_goldens(cases, tokens):
         name = ref_name(file, demo, theme)[:-4]
         w = f", width: {_lit(width)}" if width and file in SIZED_SNAPS else ""
         rows.append(f"  testWidgets('{name}', (t) => snap(t, '{name}', '{theme}', {view(file, texts)}{w}));")
-    return f"""// Generated by ds.py mobile scaffold. Goldens at devicePixelRatio 3 = the web references' @3x, same names.
+    return f"""// Generated by ds mobile scaffold. Goldens at devicePixelRatio 3 = the web references' @3x, same names.
 // Load the real fonts first (flutter_test renders Ahem boxes otherwise), e.g. with FontLoader in setUpAll.
 //   flutter test --update-goldens test/ds_golden_test.dart
-//   python3 ds.py mobile verify <ds-dir> --native test/goldens
+//   ds mobile verify <ds-dir> --native test/goldens
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -3619,9 +3620,9 @@ def rn_snapshots(cases, tokens):
             continue
         w = _lit(width) if width and file in SIZED_SNAPS else "undefined"
         rows.append(f"  {{ name: '{ref_name(file, demo, theme)}', theme: '{theme}', width: {w}, node: {view(file, texts)} }},")
-    return f"""// Generated by ds.py mobile scaffold. A dev-only screen: renders each core component like the web reference
+    return f"""// Generated by ds mobile scaffold. A dev-only screen: renders each core component like the web reference
 // and captures it at the device scale with react-native-view-shot (use a 3x device, e.g. iPhone 15, for @3x parity).
-// Copy the files it logs into one folder, then: python3 ds.py mobile verify <ds-dir> --native <folder>
+// Copy the files it logs into one folder, then: ds mobile verify <ds-dir> --native <folder>
 import React, {{ useRef }} from 'react';
 import {{ Button, ScrollView, Text, View }} from 'react-native';
 import {{ captureRef }} from 'react-native-view-shot';
@@ -3705,16 +3706,16 @@ def fidelity_md(target, recipes, tokens, components_spec, missing, name):
     measured = bool(components_spec)
     return "\n".join([
         f"# {name}: {target} fidelity checklist", "",
-        "Generated by `ds.py mobile scaffold`. The web system is the source of truth; this file says where each native number came from.", "",
+        "Generated by `ds mobile scaffold`. The web system is the source of truth; this file says where each native number came from.", "",
         "## Status", "",
-        f"- Measured spec: {'yes, numbers below come from the web' if measured else '**no**: run `ds.py mobile spec <dir>` (needs Playwright), then re-scaffold'}.",
+        f"- Measured spec: {'yes, numbers below come from the web' if measured else '**no**: run `ds mobile spec <dir>` (needs Playwright), then re-scaffold'}.",
         f"- Missing tokens: {', '.join('`' + m + '`' for m in sorted(set(missing))) if missing else 'none'}.", "",
         "## Same as web (never adapt)", "",
         "- [ ] Every color, size, radius, border, type style and shadow comes from the generated theme. No literals in screens.",
         "- [ ] Anatomy, variants, states, copy and icons match the web component page.",
         "- [ ] Disabled, loading, error, empty and selected states exist; error is never color alone.",
         "- [ ] Text uses the theme roles; line height matches (the theme already converts CSS line-height).",
-        "- [ ] Icons come from the DS icon set (`ds.py icons ... --platforms`), not SF Symbols / Material icons.", "",
+        "- [ ] Icons come from the DS icon set (`ds icons ... --platforms`), not SF Symbols / Material icons.", "",
         "## Platform idioms (adapt on purpose)", "",
         "- [ ] Hover → pressed state. No hover-only affordances.",
         "- [ ] Touch targets ≥ 44 pt (iOS) / 48 dp (Android): hit area grows, the visual box keeps the web size.",
@@ -3724,8 +3725,8 @@ def fidelity_md(target, recipes, tokens, components_spec, missing, name):
         "- [ ] Safe areas, keyboard avoidance, dark mode and increased contrast.", "",
         "## Verify", "",
         "1. Run the generated snapshot tests (same names as `dist/mobile/reference/*.png`).",
-        "2. `python3 ds.py mobile verify <ds-dir> --native <snapshot folder>` → `dist/mobile/fidelity-report.md`; fix drift until it passes.",
-        "3. `python3 ds.py mobile lint <native src>` → 0 issues (raw colors, magic numbers, fixed fonts, hover, small targets, foreign icons).", "",
+        "2. `ds mobile verify <ds-dir> --native <snapshot folder>` → `dist/mobile/fidelity-report.md`; fix drift until it passes.",
+        "3. `ds mobile lint <native src>` → 0 issues (raw colors, magic numbers, fixed fonts, hover, small targets, foreign icons).", "",
         "## Where each number came from", "", "| Component | Prop | Value | Source |", "|---|---|---|---|", *rows, "",
         "## Web colors vs tokens (light)", "",
         *(["| Component | Measured | Web value | Token | |", "|---|---|---|---|---|", *checks] if checks else ["No measured spec yet."]), ""])
@@ -3756,7 +3757,7 @@ def cmd_mobile_scaffold(a):
     spec_path = root / "dist" / "mobile" / "spec.json"
     comps = json.loads(spec_path.read_text(encoding="utf-8")).get("components", {}) if spec_path.exists() else {}
     if not comps:
-        print("note: no measured spec, so values come from tokens only. For web-exact sizes run `ds.py mobile spec` first.", file=sys.stderr)
+        print("note: no measured spec, so values come from tokens only. For web-exact sizes run `ds mobile spec` first.", file=sys.stderr)
     recipes = calibrate(tokens, comps)
     targets = list(SCAFFOLD_GENERATORS) if a.target == "all" else a.target.split(",")
     icons = sprite_symbols(root)
@@ -3790,7 +3791,7 @@ def cmd_mobile_scaffold(a):
         report.append(f"{t}: {len(files)} files → {_rel(out)}" + (f" · missing tokens: {', '.join(sorted(set(missing)))}" if missing else "")
                       + (f" · lint: {len(issues)}" if issues else ""))
     print("\n".join(report))
-    print("Next: run the snapshot tests, then `ds.py mobile verify <dir> --native <snapshots>`. Build the other components "
+    print("Next: run the snapshot tests, then `ds mobile verify <dir> --native <snapshots>`. Build the other components "
           "from dist/mobile/spec.json the same way (references/mobile.md).")
 
 
@@ -3837,7 +3838,7 @@ def cmd_icons_add(a):
     others = [s for s in ICON_SETS if s != a.set and f"| {s} |" in existing and ICON_SETS[s][0] != pkg]
     if others:
         print(f"warning: icons/src already has icons from {', '.join(others)}. Mixing sets breaks stroke, corner and "
-              "proportion consistency; prefer one set, or check new icons with `ds.py icons-lint --style`.", file=sys.stderr)
+              "proportion consistency; prefer one set, or check new icons with `ds icons-lint --style`.", file=sys.stderr)
     got, failed = [], []
     for raw_name in a.names:
         name = raw_name.strip().lower()
@@ -3857,7 +3858,7 @@ def cmd_icons_add(a):
         safe_write(src / f"{name.replace('_', '-')}.svg", text, kind="owned")
         got.append(name)
     if got and f"| {a.set} |" not in existing:
-        head = "" if existing else ("# Icon licenses\n\nRecorded by `ds.py icons-add`. Keep this file with the icons.\n\n"
+        head = "" if existing else ("# Icon licenses\n\nRecorded by `ds icons-add`. Keep this file with the icons.\n\n"
                                     "| Set | Package | License | |\n|---|---|---|---|\n")
         safe_write(lic_file, existing + head + f"| {a.set} | {pkg}@{version} | {lic} | {lic_url} |\n", kind="owned")
     print(f"{len(got)} icon(s) from {a.set} ({pkg}@{version}, {lic}) → icons/src/" + (f"; failed: {'; '.join(failed)}" if failed else ""))
@@ -4125,7 +4126,7 @@ def icon_issues(text, style):
 def cmd_icons_lint(a):
     style_path = Path(a.style) if a.style else (Path(a.dir) / "icons" / "style.json" if a.dir else None)
     if not style_path or not style_path.exists():
-        sys.exit("needs a style: --style icons/style.json, or --dir <design system> (run `ds.py icons-style` first)")
+        sys.exit("needs a style: --style icons/style.json, or --dir <design system> (run `ds icons-style` first)")
     style = json.loads(style_path.read_text(encoding="utf-8"))
     files = [f for p_ in map(Path, a.paths) for f in ([p_] if p_.is_file() else sorted(p_.rglob("*.svg")))]
     n_err = 0
@@ -4206,7 +4207,7 @@ def platform_icons(symbols, platform, pkg="design.system"):
                 {"images": [{"filename": f"{name}.svg", "idiom": "universal"}], "info": {"author": "xcode", "version": 1},
                  "properties": {"preserves-vector-representation": True, "template-rendering-intent": "template"}}, indent=1) + "\n"
             cases.append(f'    case {_ident(name, "swift")} = "{name}"')
-        files["DSIcon.swift"] = ("// Generated by ds.py icons --platforms swiftui. Add Icons.xcassets to the app target.\nimport SwiftUI\n\n"
+        files["DSIcon.swift"] = ("// Generated by ds icons --platforms swiftui. Add Icons.xcassets to the app target.\nimport SwiftUI\n\n"
                                  "public enum DSIcon: String, CaseIterable {\n" + "\n".join(cases) + "\n\n"
                                  "    public var image: Image { Image(rawValue).renderingMode(.template) }\n}\n\n"
                                  "/// Decorative unless a label is given (then it is announced as an image).\n"
@@ -4236,14 +4237,14 @@ def platform_icons(symbols, platform, pkg="design.system"):
             files[f"drawable/ds_icon_{name.replace('-', '_')}.xml"] = "\n".join(vd) + "\n"
             vals.append(f"    val {_ident(name, 'kotlin')}: ImageVector by lazy {{\n        ImageVector.Builder(\"{name}\", {w}.dp, {h}.dp, {w}f, {h}f).apply {{\n"
                         + "\n".join(adds) + "\n        }.build()\n    }")
-        files["DsIcons.kt"] = (f"// Generated by ds.py icons --platforms compose. Tint with Icon(DsIcons.X, contentDescription, tint = ...).\n"
+        files["DsIcons.kt"] = (f"// Generated by ds icons --platforms compose. Tint with Icon(DsIcons.X, contentDescription, tint = ...).\n"
                                f"package {pkg}\n\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.graphics.SolidColor\n"
                                "import androidx.compose.ui.graphics.StrokeCap\nimport androidx.compose.ui.graphics.StrokeJoin\n"
                                "import androidx.compose.ui.graphics.vector.ImageVector\nimport androidx.compose.ui.graphics.vector.addPathNodes\n"
                                "import androidx.compose.ui.unit.dp\n\nobject DsIcons {\n" + "\n\n".join(vals) + "\n}\n")
     elif platform == "flutter":
         consts = [f"  static const {_ident(n, 'dart')} = r'''{_svg_doc(vb, at, inner)}''';" for n, vb, at, inner in symbols]
-        files["ds_icons.dart"] = ("// Generated by ds.py icons --platforms flutter. Needs flutter_svg.\n"
+        files["ds_icons.dart"] = ("// Generated by ds icons --platforms flutter. Needs flutter_svg.\n"
                                   "import 'package:flutter/widgets.dart';\nimport 'package:flutter_svg/flutter_svg.dart';\n\n"
                                   "class DsIcons {\n  DsIcons._();\n" + "\n".join(consts) + "\n\n  static const all = <String, String>{"
                                   + ", ".join(f"'{n}': {_ident(n, 'dart')}" for n, *_ in symbols) + "};\n}\n\n"
@@ -4257,7 +4258,7 @@ def platform_icons(symbols, platform, pkg="design.system"):
                                   "        semanticsLabel: semanticLabel, excludeFromSemantics: semanticLabel == null);\n  }\n}\n")
     elif platform == "react-native":
         rows = [f"  {json.dumps(n)}: {json.dumps(_svg_doc(vb, at, inner))}," for n, vb, at, inner in symbols]
-        files["DsIcon.tsx"] = ("// Generated by ds.py icons --platforms react-native. Needs react-native-svg.\n"
+        files["DsIcon.tsx"] = ("// Generated by ds icons --platforms react-native. Needs react-native-svg.\n"
                                "import React from 'react';\nimport { SvgXml } from 'react-native-svg';\n\n"
                                "const icons = {\n" + "\n".join(rows) + "\n} as const;\n\nexport type DsIconName = keyof typeof icons;\n\n"
                                "/** Decorative unless accessibilityLabel is set. color fills currentColor. */\n"
@@ -4336,7 +4337,7 @@ def cmd_taste(a):
 
 
 # ---------- playwright: visual regression + axe, free and local ----------
-PLAYWRIGHT_CONFIG = """// Generated by ds.py playwright — free visual regression + accessibility for every docs page.
+PLAYWRIGHT_CONFIG = """// Generated by ds playwright — free visual regression + accessibility for every docs page.
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
@@ -4350,7 +4351,7 @@ export default defineConfig({
 });
 """
 
-PLAYWRIGHT_SPEC = """// Generated by ds.py playwright. Baselines: npx playwright test --update-snapshots (commit tests/__screenshots__).
+PLAYWRIGHT_SPEC = """// Generated by ds playwright. Baselines: npx playwright test --update-snapshots (commit tests/__screenshots__).
 // Run baselines and checks on the same OS (use the Playwright Docker image in CI) — fonts render differently per OS.
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -4520,8 +4521,8 @@ def hook_stop():
             files.append(r["file"])
     reason = (f"Design system '{cfg['name']}' is in build phase but incomplete: {done}/{total} components ready, "
               f"{len(errs)} token errors. Next files to build: {', '.join(files[:8])}. "
-              f"Continue building (run `python3 {SKILL}/scripts/ds.py plan {root}`), or if you must stop to ask the user "
-              f"something, set `ds.py phase {root} plan` first.")
+              f"Continue building (run `ds plan {root}`, or `python3 {SKILL}/scripts/ds.py plan {root}` without `ds`), or if you must stop to ask the user "
+              f"something, set `ds phase {root} plan` first.")
     if cfg.get("gate", "block") == "warn":
         print(json.dumps({"systemMessage": reason}))
     else:
@@ -4538,12 +4539,12 @@ def main():
         if flag in sys.argv:
             sys.argv.remove(flag)
             STATE[key] = True
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(prog="ds", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     p = sp.add_parser("init"); p.add_argument("dir"); p.add_argument("--name"); p.add_argument("--force", action="store_true")
     p.add_argument("--tier", choices=TIERS, help="default: enterprise (or the existing system's tier)")
     p.add_argument("--scopes", help="comma list, default product. Known: " + ", ".join(MANIFEST["scopes"]))
-    p.add_argument("--project", help="host project root: records stack + sync targets from `ds.py detect`")
+    p.add_argument("--project", help="host project root: records stack + sync targets from `ds detect`")
     p.add_argument("--adopt", action="store_true", help="allow a non-empty folder; existing files are never overwritten")
     p = sp.add_parser("audit"); p.add_argument("path", nargs="?", default=".")
     p.add_argument("--url", help="audit a live site instead: fetches the page and its stylesheets (read-only)")

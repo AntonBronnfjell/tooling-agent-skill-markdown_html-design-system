@@ -32,9 +32,9 @@ W3C Design Tokens Community Group format (DTCG 2025.10): every token is an objec
     "text": { "default": { "$value": "{color.gray.900}" } } } }
 ```
 
-**Colors** are DTCG 2025.10 color objects: `colorSpace` + `components` (+ optional `alpha`, `hex` fallback). sRGB renders as hex; `oklch`, `oklab`, `lab`, `lch`, `hwb`, `hsl`, `display-p3`, `rec2020` and other spaces render as native CSS color functions, so wide-gamut brand colors are fine. Contrast is computed from the components (OKLCH and Display P3 are converted to sRGB), so every color can be checked. Older systems with hex-string colors still build, but `ds.py check` warns, and `ds.py migrate-colors <dir>` converts them in place.
+**Colors** are DTCG 2025.10 color objects: `colorSpace` + `components` (+ optional `alpha`, `hex` fallback). sRGB renders as hex; `oklch`, `oklab`, `lab`, `lch`, `hwb`, `hsl`, `display-p3`, `rec2020` and other spaces render as native CSS color functions, so wide-gamut brand colors are fine. Contrast is computed from the components (OKLCH and Display P3 are converted to sRGB), so every color can be checked. Older systems with hex-string colors still build, but `ds check` warns, and `ds migrate-colors <dir>` converts them in place.
 
-**Files and output.** `ds.py build` merges, in order, primitive, semantic, component, `components/*.json` and `scopes/*.json` into `:root`. Each theme is built from `tokens/themes/<name>.json` plus any `tokens/themes/<name>.<scope>.json` add-ons, and goes into `[data-theme="<name>"], .theme-<name>` (plus `prefers-color-scheme: dark` for `dark`, `prefers-contrast: more` for `high-contrast`). It writes:
+**Files and output.** `ds build` merges, in order, primitive, semantic, component, `components/*.json` and `scopes/*.json` into `:root`. Each theme is built from `tokens/themes/<name>.json` plus any `tokens/themes/<name>.<scope>.json` add-ons, and goes into `[data-theme="<name>"], .theme-<name>` (plus `prefers-color-scheme: dark` for `dark`, `prefers-contrast: more` for `high-contrast`). It writes:
 - `dist/tokens.css`;
 - `dist/tokens.json` and `dist/tokens.scss` with build-time values;
 - `tokens/resolver.json`, a [DTCG Resolver Module](https://www.w3.org/community/reports/design-tokens/CG-FINAL-resolver-20251028/) file (version `2025-11-01`) that describes the base set and the theme modifier, so Style Dictionary, Tokens Studio and similar tools combine the files the same way.
@@ -43,14 +43,14 @@ Composite `typography` tokens become sub-properties: `--typography-h1-font-size`
 
 Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier, shadow (single or list), border, transition, gradient (`[{color, position}]` → `linear-gradient(90deg, …)`), typography. Plain strings (e.g. `clamp(…)`) pass through unchanged. Load order: primitive, semantic, component, `components/*`, `scopes/*`, `scales/*`, `palettes/*` (later files win), then brands, then themes.
 
-**Opt-in scopes** add token files during `ds.py init --scopes …`. Example: `ai` adds a violet accent ramp, AI surfaces and shimmer tokens, plus dark and high-contrast add-ons and contrast pairs. They're separate files, so your own token files are never edited.
+**Opt-in scopes** add token files during `ds init --scopes …`. Example: `ai` adds a violet accent ramp, AI surfaces and shimmer tokens, plus dark and high-contrast add-ons and contrast pairs. They're separate files, so your own token files are never edited.
 
 **Generators** (write separate files, so your own token files are never edited):
-- `ds.py palette '#0f766e' --name teal --dir <ds> --primary` → `tokens/palettes/teal.json`: an 11-step OKLCH ramp (50–950) built from one color. The seed lands exactly on the nearest step; chroma is reduced (never clipped) to fit sRGB. `--mode contrast` places steps by WCAG contrast against white (Leonardo-style). `--primary` also maps primary, link, focus and selected in light, dark and high-contrast to the steps that measurably pass, and adds `themes/<theme>.palette-teal.json`.
-- `ds.py scale type|space --dir <ds>` → `tokens/scales/*.json`: Utopia fluid scales (`font.size.step-n2 … step-5`, `space.fluid-3xs … 3xl` plus one-up pairs) as `clamp()` with a `rem` term so text still zooms (WCAG 1.4.4). Map typography roles and spacing to them in `semantic.json` when ready.
-- `ds.py audit --url <site>` suggests primitive colors extracted from a live site (extend mode).
+- `ds palette '#0f766e' --name teal --dir <ds> --primary` → `tokens/palettes/teal.json`: an 11-step OKLCH ramp (50–950) built from one color. The seed lands exactly on the nearest step; chroma is reduced (never clipped) to fit sRGB. `--mode contrast` places steps by WCAG contrast against white (Leonardo-style). `--primary` also maps primary, link, focus and selected in light, dark and high-contrast to the steps that measurably pass, and adds `themes/<theme>.palette-teal.json`.
+- `ds scale type|space --dir <ds>` → `tokens/scales/*.json`: Utopia fluid scales (`font.size.step-n2 … step-5`, `space.fluid-3xs … 3xl` plus one-up pairs) as `clamp()` with a `rem` term so text still zooms (WCAG 1.4.4). Map typography roles and spacing to them in `semantic.json` when ready.
+- `ds audit --url <site>` suggests primitive colors extracted from a live site (extend mode).
 
-**Multi-brand.** `tokens/brands/<brand>.json` overrides primitives (ramps, fonts, radius) for one brand — create it with `ds.py palette <hex> --name <ramp> --dir <ds> --brand <brand>` or by hand. The build emits `[data-brand="<brand>"], .brand-<brand>` blocks that redeclare the overridden primitives **and every token that depends on them**, so set `data-brand` on `<html>` (the same element as `data-theme`). `ds.py check` runs every contrast pair for each brand × theme, and `resolver.json` gains a `brand` modifier (order: base → brand → theme).
+**Multi-brand.** `tokens/brands/<brand>.json` overrides primitives (ramps, fonts, radius) for one brand — create it with `ds palette <hex> --name <ramp> --dir <ds> --brand <brand>` or by hand. The build emits `[data-brand="<brand>"], .brand-<brand>` blocks that redeclare the overridden primitives **and every token that depends on them**, so set `data-brand` on `<html>` (the same element as `data-theme`). `ds check` runs every contrast pair for each brand × theme, and `resolver.json` gains a `brand` modifier (order: base → brand → theme).
 
 ## 3. Naming
 
@@ -75,7 +75,7 @@ Supported `$type`s: color, dimension, fontFamily, fontWeight, number, duration, 
 | Density (comfortable/compact) | `density.*` + `size.control.*` |
 | Existing CSS vars / Tailwind theme (extend mode) | Map 1:1 into primitives, keep their names in `$description` for traceability |
 
-## 5. Required groups (checked by `ds.py check`)
+## 5. Required groups (checked by `ds check`)
 
 - **core:** color, font, space, radius, shadow, border, motion, z, breakpoint, size, focus — themes: light (default) + dark
 - **standard:** + opacity, density, icon
@@ -88,9 +88,9 @@ Marketing scope: `section.padding-block.{sm,md,lg}`, `section.gap`, `section.max
 ## 6. Themes, density, RTL
 
 - **Themes** override semantic tokens only; never redefine primitives in a theme file.
-- Apply `data-theme` on `<html>` for the page. For a **subtree** (an always-dark media stage, an inverted promo band) use `class="theme-dark"` (or `data-theme` on the element): `ds.py build` emits every theme as `[data-theme=x], .theme-x` and redeclares the themed semantic tokens there, so they resolve against that subtree's theme. A `.theme-light` block is generated too, for light islands inside dark pages.
+- Apply `data-theme` on `<html>` for the page. For a **subtree** (an always-dark media stage, an inverted promo band) use `class="theme-dark"` (or `data-theme` on the element): `ds build` emits every theme as `[data-theme=x], .theme-x` and redeclares the themed semantic tokens there, so they resolve against that subtree's theme. A `.theme-light` block is generated too, for light islands inside dark pages.
 - Each theme sets `color-scheme`, so native controls and scrollbars match. Mark a custom dark theme with `"$extensions": {"color-scheme": "dark"}`.
-- Runtime switching, persistence and no-flash first paint: `js/theme.js` (copied by `ds.py init`).
+- Runtime switching, persistence and no-flash first paint: `js/theme.js` (copied by `ds init`).
 - **Elevation:** `color.elevation.surface.{sunken,default,raised,overlay}` pairs with `elevation.{raised,overlay}` shadows; dark themes lift the surface instead of relying on shadow (`references/conventions.md`).
 - **State layers:** `opacity.state.{hover,focus,pressed,dragged}` and `opacity.disabled.{container,content}` for translucent hover/press overlays on subtle controls.
 - **Density:** `[data-density="compact"|"spacious"]` swaps `--size-control-*` / padding vars in component CSS (`.btn { padding-inline: var(--density-comfortable-control-padding-x) }` and a compact override).
@@ -98,13 +98,13 @@ Marketing scope: `section.padding-block.{sm,md,lg}`, `section.gap`, `section.max
 
 ## 7. Contrast & validation
 
-`ds.config.json → contrast_pairs` lists `[fg, bg, min]`; `ds.py check` resolves each pair in every theme and fails below the minimum. Defaults cover text (4.5:1), UI boundaries & focus (3:1, WCAG 1.4.11), action fg/bg, feedback, selected. **Add a pair whenever you add a new fg/bg combination** (e.g. a badge, a tag color) — it's the cheapest a11y guarantee in the system.
+`ds.config.json → contrast_pairs` lists `[fg, bg, min]`; `ds check` resolves each pair in every theme and fails below the minimum. Defaults cover text (4.5:1), UI boundaries & focus (3:1, WCAG 1.4.11), action fg/bg, feedback, selected. **Add a pair whenever you add a new fg/bg combination** (e.g. a badge, a tag color) — it's the cheapest a11y guarantee in the system.
 
 ## 8. Gotchas
 
-- CSS custom properties cannot be used in `@media` queries — `ds.py build` also writes `dist/tokens.scss` (`$breakpoints`, `@include up(md)` / `down(md)`) and `dist/tokens.json` (resolved values for JS, charts, animations). Plain CSS: mirror the literal values or use container queries.
+- CSS custom properties cannot be used in `@media` queries — `ds build` also writes `dist/tokens.scss` (`$breakpoints`, `@include up(md)` / `down(md)`) and `dist/tokens.json` (resolved values for JS, charts, animations). Plain CSS: mirror the literal values or use container queries.
 - Renaming a token: add `"$deprecated": {"old.path": "new.path"}` to the token file; the build emits an alias var with a deprecation comment for one major version.
 - Fonts are part of the foundations: decide self-hosting and subsets in Phase 2 (see `packaging.md`).
 - Don't put `!important` or raw values in components to "fix" a token; fix the token.
 - Keep primitives exhaustive but semantic tokens *few*: if two semantic tokens always share a value and a meaning, merge them.
-- After editing any `tokens/*.json`, the PostToolUse hook rebuilds `dist/tokens.css` and reports errors; if hooks aren't active, run `ds.py build`.
+- After editing any `tokens/*.json`, the PostToolUse hook rebuilds `dist/tokens.css` and reports errors; if hooks aren't active, run `ds build`.

@@ -1,6 +1,6 @@
 # Email components & templates — specs
 
-Scope `email` (enable with `ds.py init --scopes product,email` or add `"email"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy the starter templates into `email/src/`). Components live in `components/<file>.html` (category **Email**); full templates in `patterns/<file>.html` (category **Email Templates**). **Email is a separate rendering target**: it does not link `css/`, does not use `var(--…)`, and does not load `js/`. The docs page for each email component is a normal web page that *embeds* the rendered email in an `<iframe srcdoc>` (so the docs CSS can't leak in) plus a "Source" code block. See `email-build.md` for how tokens become literal values.
+Scope `email` (enable with `ds init --scopes product,email` or add `"email"` to `ds.config.json → scopes` and run `ds init <dir> --force` to copy the starter templates into `email/src/`). Components live in `components/<file>.html` (category **Email**); full templates in `patterns/<file>.html` (category **Email Templates**). **Email is a separate rendering target**: it does not link `css/`, does not use `var(--…)`, and does not load `js/`. The docs page for each email component is a normal web page that *embeds* the rendered email in an `<iframe srcdoc>` (so the docs CSS can't leak in) plus a "Source" code block. See `email-build.md` for how tokens become literal values.
 
 ## Contents
 1. Rules for every email

@@ -1,6 +1,6 @@
 # AI & chat components — specs
 
-Scope `ai` (enable with `ds.py init --scopes product,ai` or add `"ai"` to `ds.config.json → scopes` and run `ds.py init <dir> --force` to copy scope tokens). Components live in `components/<file>.html` (category **AI & Chat**); full layouts in `patterns/<file>.html` (category **AI Patterns**). AI components compose product components — button, icon-button, copy-button, badge, popover, tooltip, details/accordion, tabs, drawer, meter, alert, avatar, `composer` — never restyle them; add AI tokens (`--color-ai-*`) only where content must read as AI.
+Scope `ai` (enable with `ds init --scopes product,ai` or add `"ai"` to `ds.config.json → scopes` and run `ds init <dir> --force` to copy scope tokens). Components live in `components/<file>.html` (category **AI & Chat**); full layouts in `patterns/<file>.html` (category **AI Patterns**). AI components compose product components — button, icon-button, copy-button, badge, popover, tooltip, details/accordion, tabs, drawer, meter, alert, avatar, `composer` — never restyle them; add AI tokens (`--color-ai-*`) only where content must read as AI.
 
 Practice distilled from Vercel AI Elements, assistant-ui, CopilotKit, PatternFly Chatbot, Carbon for AI, Cloudscape GenAI patterns, OpenAI Apps SDK UI guidelines, MCP Apps (SEP-1865) and Microsoft's HAX guidelines (cited as **HAX G1–G18**). See `sources.md`.
 

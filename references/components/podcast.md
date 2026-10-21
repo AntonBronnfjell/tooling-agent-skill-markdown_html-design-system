@@ -1,6 +1,6 @@
 # Podcast components & pages — specs
 
-Scope `podcast` (enable with `ds.py init --scopes product,podcast`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Podcast**); full pages in `patterns/<file>.html` (category **Podcast Pages**). Podcast components compose the `playback` controls by id (`play-toggle`, `seek-bar`, `volume-control`, `time-display`, `playback-speed`, `sleep-timer`, `transcript-panel`, `media-queue`, `mini-player`, `cast-button`) and product components (`button-primary`, `toggle-button`, `progress-bar`, `badge`, `modal`, `popover`, `tabs`, `carousel`, `sortable-list`, `skeleton`, `empty-state`, `toast`) — wrap them, never re-style or respecify them.
+Scope `podcast` (enable with `ds init --scopes product,podcast`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Podcast**); full pages in `patterns/<file>.html` (category **Podcast Pages**). Podcast components compose the `playback` controls by id (`play-toggle`, `seek-bar`, `volume-control`, `time-display`, `playback-speed`, `sleep-timer`, `transcript-panel`, `media-queue`, `mini-player`, `cast-button`) and product components (`button-primary`, `toggle-button`, `progress-bar`, `badge`, `modal`, `popover`, `tabs`, `carousel`, `sortable-list`, `skeleton`, `empty-state`, `toast`) — wrap them, never re-style or respecify them.
 
 ## Contents
 1. Rules for every podcast surface

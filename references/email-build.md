@@ -1,6 +1,6 @@
 # Email build — rendering templates from tokens (minimal approach)
 
-Goal: `ds.py email build <dir>` turns `patterns/email-*.html` sources into client-safe HTML + plain text, with **no new dependencies** (stdlib only). MJML export is optional.
+Goal: `ds email build <dir>` turns `patterns/email-*.html` sources into client-safe HTML + plain text, with **no new dependencies** (stdlib only). MJML export is optional.
 
 1. **Resolve tokens → literals.** Load the DS token JSON, resolve aliases, and flatten to an `email` profile: `{"color.bg.canvas": "#F5F6F8", "color.text": "#1A1C21", "font.size.body": "16px", …}` for `light` and `dark`. Convert any `oklch()/hsl()/rgb()` to 6-digit hex and `rem` → px (×16). Fail if a needed token has no literal value.
 2. **Author with placeholders, not `var()`.** Sources use `string.Template` syntax: `style="color:$color_text;font-size:$font_size_body"` (dots → underscores). Components are small Python functions returning strings (`button(href, label, tokens)`, `columns(cells)`, `receipt(rows)`), so VML/MSO blocks are generated, never hand-copied.

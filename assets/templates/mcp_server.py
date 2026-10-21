@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""MCP server for this design system (stdio, JSON-RPC 2.0, Python stdlib only). Created by `ds.py mcp`.
+"""MCP server for this design system (stdio, JSON-RPC 2.0, Python stdlib only). Created by `ds mcp`.
 
 Lets any MCP client (Claude, Cursor, VS Code, Codex, …) query the system instead of guessing:
   list_components · get_component · search · get_tokens · get_design_md
-It reads what `ds.py llms` generates (dist/ds-index.json, llms/*.md) and DESIGN.md — rerun `ds.py llms` after changes.
+It reads what `ds llms` generates (dist/ds-index.json, llms/*.md) and DESIGN.md — rerun `ds llms` after changes.
 """
 import json
 import sys
@@ -16,7 +16,7 @@ PROTOCOL = "2025-06-18"
 def index():
     p = ROOT / "dist" / "ds-index.json"
     if not p.exists():
-        raise RuntimeError("dist/ds-index.json missing — run `ds.py llms <design-system dir>` first")
+        raise RuntimeError("dist/ds-index.json missing — run `ds llms <design-system dir>` first")
     return json.loads(p.read_text(encoding="utf-8"))
 
 
@@ -69,7 +69,7 @@ def get_tokens(args):
 
 def get_design_md(_args):
     p = ROOT / "DESIGN.md"
-    return text(p.read_text(encoding="utf-8") if p.exists() else "DESIGN.md missing — run `ds.py design-md`.")
+    return text(p.read_text(encoding="utf-8") if p.exists() else "DESIGN.md missing — run `ds design-md`.")
 
 
 TOOLS = {

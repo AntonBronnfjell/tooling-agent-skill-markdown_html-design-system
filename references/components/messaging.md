@@ -1,6 +1,6 @@
 # Messaging components & pages — specs
 
-Scope `messaging` (enable with `ds.py init --scopes product,messaging`; it adds `playback` automatically, add `marketing` for `messaging-landing`). Components live in `components/<file>.html` (category **Messaging**); full pages in `patterns/<file>.html` (category **Messaging Pages**). Messaging components compose product components (`button-primary`, `button-destructive`, `avatar`, `badge`, `modal`, `popover`, `overflow-menu`, `tabs`, `composer`, `file-upload`, `progress-bar`, `empty-state`, `skeleton`, `toast`, `text-field`) and the `playback` controls by id (`play-toggle`, `seek-bar`, `time-display`, `playback-speed`) — wrap them, never re-style them.
+Scope `messaging` (enable with `ds init --scopes product,messaging`; it adds `playback` automatically, add `marketing` for `messaging-landing`). Components live in `components/<file>.html` (category **Messaging**); full pages in `patterns/<file>.html` (category **Messaging Pages**). Messaging components compose product components (`button-primary`, `button-destructive`, `avatar`, `badge`, `modal`, `popover`, `overflow-menu`, `tabs`, `composer`, `file-upload`, `progress-bar`, `empty-state`, `skeleton`, `toast`, `text-field`) and the `playback` controls by id (`play-toggle`, `seek-bar`, `time-display`, `playback-speed`) — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every messaging surface

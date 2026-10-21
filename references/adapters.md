@@ -1,6 +1,6 @@
 # Adapters and exports
 
-`ds.py export <dir> --target <targets>` writes framework and platform outputs to `dist/exports/` from the same DTCG tokens — no Style Dictionary or Node needed. Re-run after every token change (or add it to CI).
+`ds export <dir> --target <targets>` writes framework and platform outputs to `dist/exports/` from the same DTCG tokens — no Style Dictionary or Node needed. Re-run after every token change (or add it to CI).
 
 ## Contents
 - Tailwind CSS v4
@@ -46,12 +46,12 @@
 Semantic colors only (primitive ramps are left out on purpose: apps should use roles). Wide-gamut tokens are converted to sRGB. Fluid `clamp()` sizes have no native equivalent and are skipped.
 
 ## Multi-brand and palettes
-- `ds.py palette '#0f766e' --name teal --dir <ds> --primary` adds a ramp and remaps primary/link/focus/selected in every theme, choosing steps by measured contrast.
-- `ds.py palette '#c2410c' --name blue --dir <ds> --brand ember` writes `tokens/brands/ember.json`, overriding the `blue` ramp only for that brand. The build emits `[data-brand="ember"]` (set it on `<html>`, the same element as `data-theme`), the contrast check runs for every brand × theme, and `resolver.json` gains a `brand` modifier.
+- `ds palette '#0f766e' --name teal --dir <ds> --primary` adds a ramp and remaps primary/link/focus/selected in every theme, choosing steps by measured contrast.
+- `ds palette '#c2410c' --name blue --dir <ds> --brand ember` writes `tokens/brands/ember.json`, overriding the `blue` ramp only for that brand. The build emits `[data-brand="ember"]` (set it on `<html>`, the same element as `data-theme`), the contrast check runs for every brand × theme, and `resolver.json` gains a `brand` modifier.
 - Exports use the default brand; export per brand by building a copy with the brand file promoted (planned).
 
 ## When to use Style Dictionary instead
 Use Style Dictionary (v5) or Terrazzo when you need custom transforms, many more platforms, or a JS build pipeline. They read the same `tokens/*.json` and `tokens/resolver.json`. Style Dictionary's DTCG 2025.10 support was still marked "work in progress" in its v5 docs, so check color-object support before switching.
 
 ## Full mobile apps
-These exports are token files only. To ship components on iOS, Android, Flutter, React Native or MAUI with measured fidelity, use `ds.py mobile spec` + `ds.py mobile scaffold` (`references/mobile.md`).
+These exports are token files only. To ship components on iOS, Android, Flutter, React Native or MAUI with measured fidelity, use `ds mobile spec` + `ds mobile scaffold` (`references/mobile.md`).

@@ -1,6 +1,6 @@
 # Reading components & pages — specs
 
-Scope `reading` (enable with `ds.py init --scopes product,reading`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Reading**); full pages in `patterns/<file>.html` (category **Reading Pages**). Reading components compose product components (`button-primary`, `modal`, `popover`, `tabs`, `slider`, `progress-bar`, `sortable-list`, `empty-state`, `skeleton`, `toast`) and the `playback` controls by id (`play-toggle`, `seek-bar`, `time-display`, `playback-speed`, `sleep-timer`, `transcript-panel`) — wrap them, never re-style them.
+Scope `reading` (enable with `ds init --scopes product,reading`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Reading**); full pages in `patterns/<file>.html` (category **Reading Pages**). Reading components compose product components (`button-primary`, `modal`, `popover`, `tabs`, `slider`, `progress-bar`, `sortable-list`, `empty-state`, `skeleton`, `toast`) and the `playback` controls by id (`play-toggle`, `seek-bar`, `time-display`, `playback-speed`, `sleep-timer`, `transcript-panel`) — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every reading surface

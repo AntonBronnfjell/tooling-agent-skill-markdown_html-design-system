@@ -1,6 +1,6 @@
 # Taste: avoiding the generic AI look
 
-`ds.py taste [path] [--strict] [--min-score 80] [--json]` scans CSS, HTML and component files for the tells that make AI-built interfaces look interchangeable, and scores the result out of 100 (each distinct tell costs 5, plus a weight per occurrence). Run it on the design system and on product pages before release; `--strict` fails CI below the minimum score.
+`ds taste [path] [--strict] [--min-score 80] [--json]` scans CSS, HTML and component files for the tells that make AI-built interfaces look interchangeable, and scores the result out of 100 (each distinct tell costs 5, plus a weight per occurrence). Run it on the design system and on product pages before release; `--strict` fails CI below the minimum score.
 
 | Rule | Why it's flagged | What to do instead |
 |---|---|---|

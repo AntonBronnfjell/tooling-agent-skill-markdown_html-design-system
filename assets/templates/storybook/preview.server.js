@@ -1,4 +1,4 @@
-// Created by `ds.py storybook --renderer server`; safe to edit (only --force overwrites it).
+// Created by `ds storybook --renderer server`; safe to edit (only --force overwrites it).
 import { addons } from 'storybook/preview-api';
 import { themes } from '../stories/_meta.js';
 

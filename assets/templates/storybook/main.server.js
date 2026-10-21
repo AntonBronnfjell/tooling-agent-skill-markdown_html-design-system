@@ -1,6 +1,6 @@
-// Storybook (server renderer) — created by `ds.py storybook --renderer server`; safe to edit (only --force overwrites it).
+// Storybook (server renderer) — created by `ds storybook --renderer server`; safe to edit (only --force overwrites it).
 // Stories are JSON; each one asks a backend for its HTML: GET {server.url}/{story id}?{args}.
-// Default backend: `ds.py serve .` (renders the reference markup from the component pages). Point STORYBOOK_SERVER_URL
+// Default backend: `ds serve .` (renders the reference markup from the component pages). Point STORYBOOK_SERVER_URL
 // at Laravel/Django/Rails/Spring/ASP.NET to render your own templates — see references/storybook.md §4.
 import { existsSync } from 'node:fs';
 

@@ -1,8 +1,8 @@
 # Packaging & distribution
 
-A design system nobody can install is a style guide. `ds.py package <dir>` turns the folder into an npm package; `ds.py ci` adds the release pipeline.
+A design system nobody can install is a style guide. `ds package <dir>` turns the folder into an npm package; `ds ci` adds the release pipeline.
 
-## What the package exposes (`ds.py package`)
+## What the package exposes (`ds package`)
 | Export | File | Use |
 |---|---|---|
 | `.` / `./ds.css` | `dist/ds.css` | Everything: tokens + base + all components |
@@ -12,12 +12,12 @@ A design system nobody can install is a style guide. `ds.py package <dir>` turns
 | `./js/*` | `js/*.js` | Progressive-enhancement modules (`theme.js`, menus, combobox…) — each exports `init(root)` |
 | `./tokens/*` | DTCG sources | Style Dictionary / Tokens Studio / Figma variables |
 | `./DESIGN.md` | contract (Google DESIGN.md format) | Shipped so consuming apps and their AI agents can read the rules |
-| `./llms.txt` + `llms/` | agent docs | One Markdown page per component; generate with `ds.py llms` before publishing |
+| `./llms.txt` + `llms/` | agent docs | One Markdown page per component; generate with `ds llms` before publishing |
 
 `sideEffects: ["*.css"]` keeps bundlers from tree-shaking CSS imports; `files` whitelists what's published. `prepack` rebuilds `dist/` and `DESIGN.md` so a publish can't ship stale tokens.
 
 ## Agents and email
-- Run `ds.py llms` before publishing so `llms.txt`/`llms/` match the release; `ds.py mcp` adds `mcp/server.py` for teams who want agents to query the system live (not part of the npm `files` by default — add `"mcp"` if consumers should run it from `node_modules`).
+- Run `ds llms` before publishing so `llms.txt`/`llms/` match the release; `ds mcp` adds `mcp/server.py` for teams who want agents to query the system live (not part of the npm `files` by default — add `"mcp"` if consumers should run it from `node_modules`).
 - Email scope: `dist/email/*.html|txt` are build outputs for your email service provider, not for the npm package; publish them through your ESP or a template repo.
 
 ## Fonts

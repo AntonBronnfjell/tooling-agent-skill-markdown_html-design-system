@@ -11,11 +11,11 @@ Every design system needs a place to see every component, in every state and the
 6. Docs pages every workbench should have
 
 ## 1. Zero-dependency docs site
-`ds.py serve <dir>` builds and serves `index.html` + the component pages at `http://127.0.0.1:8000`. Theme, density, RTL and reduced-motion toggles are in every page header. This is the source of truth the other workbenches are generated from.
+`ds serve <dir>` builds and serves `index.html` + the component pages at `http://127.0.0.1:8000`. Theme, density, RTL and reduced-motion toggles are in every page header. This is the source of truth the other workbenches are generated from.
 
 ## 2. Generated Storybook (HTML/CSS system)
 ```bash
-python3 <skill-dir>/scripts/ds.py storybook <dir>   # writes package.json, .storybook/, stories/
+ds storybook <dir>   # writes package.json, .storybook/, stories/
 cd <dir> && npm install && npm run storybook        # http://localhost:6006
 npm run build-storybook                             # static site in storybook-static/ (deploy anywhere)
 ```
@@ -74,13 +74,13 @@ Storybook runs on Node and renders in the browser. Server-rendered templates (Bl
 Storybook is the UI shell; every story asks your backend for HTML: `GET {server.url}/{story id}?{args}`.
 
 ```bash
-ds.py storybook <dir> --renderer server --server-url http://localhost:8000/__stories
+ds storybook <dir> --renderer server --server-url http://localhost:8000/__stories
 STORYBOOK_SERVER_URL=http://localhost:3000/storybook npm run storybook   # point at your app instead
 ```
 - Generates `.stories.json` (framework `@storybook/server-webpack5`), one story per page demo, with id `<components|patterns>/<file>/<n>` and the demo's markers as args (`variant=primary&state=default&size=md`).
 - `.storybook/preview-head.html` links `dist/ds.css`; the backend returns **fragments only** (no `<html>`, no CSS).
 - Theme / density / direction / motion toolbar still works (preview listens to the globals channel and sets attributes on `<html>`); a11y addon audits the server HTML.
-- **Reference backend:** `ds.py serve <dir>` answers `/__stories/...` with the exact markup from the component pages (CORS enabled). Start there, then switch the URL to your app — the reference fragments are the contract your templates must match (diff them in tests).
+- **Reference backend:** `ds serve <dir>` answers `/__stories/...` with the exact markup from the component pages (CORS enabled). Start there, then switch the URL to your app — the reference fragments are the contract your templates must match (diff them in tests).
 
 Your backend implements one dev-only route. Shapes (render the template for `file` with `args`; `n` selects the demo when args aren't enough):
 

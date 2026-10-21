@@ -1,5 +1,5 @@
-// Storybook for the design system. Created by `ds.py storybook`; safe to edit (only --force overwrites it).
-// Stories in ../stories are regenerated from the component pages on every `ds.py storybook` run.
+// Storybook for the design system. Created by `ds storybook`; safe to edit (only --force overwrites it).
+// Stories in ../stories are regenerated from the component pages on every `ds storybook` run.
 import { existsSync } from 'node:fs';
 
 /** @type {import('@storybook/html-vite').StorybookConfig} */

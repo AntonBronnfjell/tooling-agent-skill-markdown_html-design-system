@@ -45,7 +45,7 @@ Pattern: **what happened → why (if useful) → how to fix it**, in that order,
 - No jokes in work tools when the user is blocked; a light touch is fine for "all caught up".
 
 ## Buttons, links and calls to action
-- **Verb + object**: "Download report", "Invite teammate", "Start free trial". Avoid "Get started", "Learn more", "Click here", "Submit" (`ds.py taste` flags them).
+- **Verb + object**: "Download report", "Invite teammate", "Start free trial". Avoid "Get started", "Learn more", "Click here", "Submit" (`ds taste` flags them).
 - Link text makes sense **out of context** (screen-reader link lists): "Read the pricing FAQ", not "here".
 - Keep primary/secondary labels parallel ("Save draft" / "Publish").
 
@@ -70,6 +70,6 @@ Pattern: **what happened → why (if useful) → how to fix it**, in that order,
 - Currency: code or symbol per locale; never assume `$`.
 
 ## Checking content
-- `ds.py taste` flags buzzwords, placeholder copy, vague CTAs and emoji UI.
+- `ds taste` flags buzzwords, placeholder copy, vague CTAs and emoji UI.
 - Review checklist per component page: label/button/error/empty/success copy written; length budget respected; reads well when translated literally; no meaning carried only by color, emoji or position.
 - Sources worth adopting wholesale: [GOV.UK style guide](https://www.gov.uk/guidance/style-guide), [Polaris content](https://polaris.shopify.com/content), [Polaris error messages](https://polaris.shopify.com/content/error-messages), [Atlassian content](https://atlassian.design/foundations/content), [Microsoft Writing Style Guide](https://learn.microsoft.com/style-guide), [Unicode CLDR plural rules](https://cldr.unicode.org/index/cldr-spec/plural-rules).

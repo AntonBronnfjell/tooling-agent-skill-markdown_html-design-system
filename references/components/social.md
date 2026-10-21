@@ -1,6 +1,6 @@
 # Social components & pages — specs
 
-Scope `social` (enable with `ds.py init --scopes product,social`; it has no required scopes, add `marketing` for `social-landing`). Components live in `components/<file>.html` (category **Social**); full pages in `patterns/<file>.html` (category **Social Pages**). Social components compose product components — `post-card`, `feed`, `comment-thread`, `avatar`, `composer`, `modal`, `menu-button`, `carousel`, `button-primary`, `button-secondary`, `button-destructive`, `badge`, `tabs`, `tooltip`, `textarea`, `radio-group`, `switch`, `alert-dialog`, `toast`, `empty-state`, `skeleton` — wrap them, never re-style them.
+Scope `social` (enable with `ds init --scopes product,social`; it has no required scopes, add `marketing` for `social-landing`). Components live in `components/<file>.html` (category **Social**); full pages in `patterns/<file>.html` (category **Social Pages**). Social components compose product components — `post-card`, `feed`, `comment-thread`, `avatar`, `composer`, `modal`, `menu-button`, `carousel`, `button-primary`, `button-secondary`, `button-destructive`, `badge`, `tabs`, `tooltip`, `textarea`, `radio-group`, `switch`, `alert-dialog`, `toast`, `empty-state`, `skeleton` — wrap them, never re-style them.
 
 ## Contents
 1. Rules for every social surface

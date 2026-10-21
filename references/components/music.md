@@ -1,6 +1,6 @@
 # Music components & pages — specs
 
-Scope `music` (enable with `ds.py init --scopes product,music`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Music**); full pages in `patterns/<file>.html` (category **Music Pages**). Music components compose the `playback` controls by id (`play-toggle`, `seek-bar`, `volume-control`, `time-display`, `media-queue`, `mini-player`, `sleep-timer`, `cast-button`, `transcript-panel`, `captions-menu`) and product components (`button-primary`, `toggle-button`, `table`, `tabs`, `modal`, `popover`, `sortable-list`, `badge`, `avatar`, `skeleton`, `empty-state`, `search-input`) — wrap them, never re-style or respecify them.
+Scope `music` (enable with `ds init --scopes product,music`; it adds `playback` automatically). Components live in `components/<file>.html` (category **Music**); full pages in `patterns/<file>.html` (category **Music Pages**). Music components compose the `playback` controls by id (`play-toggle`, `seek-bar`, `volume-control`, `time-display`, `media-queue`, `mini-player`, `sleep-timer`, `cast-button`, `transcript-panel`, `captions-menu`) and product components (`button-primary`, `toggle-button`, `table`, `tabs`, `modal`, `popover`, `sortable-list`, `badge`, `avatar`, `skeleton`, `empty-state`, `search-input`) — wrap them, never re-style or respecify them.
 
 ## Contents
 1. Rules for every music surface

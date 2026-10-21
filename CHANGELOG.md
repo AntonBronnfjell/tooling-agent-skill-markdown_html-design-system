@@ -2,6 +2,11 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [Unreleased]
+
+### Changed
+- **`ds` is the command everywhere:** help (`usage: ds …`), messages, generated file headers, SKILL.md, README, references and plugin commands say `ds <command>`. `python3 <skill-dir>/scripts/ds.py` is the fallback when `ds` isn't installed, can't run, or is an older install. SKILL.md tells agents when to switch. Hooks, CI templates and generated package scripts still call the script by path, because they run where `ds` may not be on PATH.
+
 ## [1.3.0] - 2026-10-21
 
 ### Added

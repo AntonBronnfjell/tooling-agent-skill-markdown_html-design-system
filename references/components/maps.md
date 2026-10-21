@@ -1,6 +1,6 @@
 # Maps components & pages — specs
 
-Scope `maps` (enable with `ds.py init --scopes product,maps`; it needs no other scope). Components live in `components/<file>.html` (category **Maps**); full pages in `patterns/<file>.html` (category **Maps Pages**). Maps components compose product components (`button-primary`, `button-secondary`, `icon-button`, `combobox`, `address-entry`, `text-field`, `slider`, `tabs`, `popover`, `modal`, `badge`, `empty-state`, `skeleton`, `alert`, `toast`, `data-table`) by id; wrap them, never re-style them. The docs are provider-agnostic: MapLibre GL JS with OpenStreetMap data, Leaflet, Google Maps JavaScript API and Mapbox GL JS are all wrapped the same way (section 1, "Wrapping a provider").
+Scope `maps` (enable with `ds init --scopes product,maps`; it needs no other scope). Components live in `components/<file>.html` (category **Maps**); full pages in `patterns/<file>.html` (category **Maps Pages**). Maps components compose product components (`button-primary`, `button-secondary`, `icon-button`, `combobox`, `address-entry`, `text-field`, `slider`, `tabs`, `popover`, `modal`, `badge`, `empty-state`, `skeleton`, `alert`, `toast`, `data-table`) by id; wrap them, never re-style them. The docs are provider-agnostic: MapLibre GL JS with OpenStreetMap data, Leaflet, Google Maps JavaScript API and Mapbox GL JS are all wrapped the same way (section 1, "Wrapping a provider").
 
 ## Contents
 1. Rules for every maps surface

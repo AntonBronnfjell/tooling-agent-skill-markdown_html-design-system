@@ -1,6 +1,6 @@
 # Component contract (Definition of Done)
 
-Every component in `assets/manifest.json` is "done" only when all of this holds. `ds.py coverage` machine-checks items marked ⚙; the rest you verify by reading your own output (and with `/accesslint` or a browser when available).
+Every component in `assets/manifest.json` is "done" only when all of this holds. `ds coverage` machine-checks items marked ⚙; the rest you verify by reading your own output (and with `/accesslint` or a browser when available).
 
 ## Contents
 1. Files & markup convention
@@ -19,7 +19,7 @@ css/components/<file>.css  styles (patterns: css/patterns/<file>.css)           
 js/<file>.js               only if native HTML can't do it (see §4)
 ```
 
-- `<file>` comes from the manifest `file` field. Several components share a file (all buttons live in `button`), so build per **file**, not per component — `ds.py plan` groups them.
+- `<file>` comes from the manifest `file` field. Several components share a file (all buttons live in `button`), so build per **file**, not per component — `ds plan` groups them.
 - Each manifest component gets `<section id="<component-id>">` on its page ⚙.
 - Each manifest demo marker is shown by an element with `data-demo="<marker>"` ⚙. One element may carry several markers separated by spaces: `data-demo="variant:primary state:default size:md"`.
 - Class naming: block = file name or a short alias declared at the top of the CSS (`.btn`), modifiers `--variant`/`--size`, internal parts `__part`. State classes `is-hover`, `is-focus-visible`, `is-active` exist **only** so docs can freeze a state; they share the selector with the real pseudo-class:
@@ -88,7 +88,7 @@ When JS is needed: one small vanilla ES module per file in `js/`, progressive en
 - Status messages via live regions (`role=status` polite, `role=alert` assertive, only for urgent).
 - Color is never the only signal (status dot + text, invalid field + icon + message).
 - Contrast: text 4.5:1 (3:1 for ≥24px/19px bold), UI boundaries and focus 3:1 — add new pairs to `contrast_pairs`.
-- Contrast traps found by running axe on a real system (`ds.py playwright`):
+- Contrast traps found by running axe on a real system (`ds playwright`):
   - **Disabled:** WCAG exempts the disabled *control* and its label, not its hint or description. Keep hints at `--color-text-muted`.
   - **Selected/current/active fills recolor every descendant text** (primary, secondary, meta, hints) with `--color-selected-fg`. High-contrast themes often make the fill black, so text that stays default becomes invisible.
   - **Link colors on tinted fills:** a link's color is tuned for the canvas, so on `selected.bg` switch it to `selected.fg`.
@@ -122,8 +122,8 @@ The HTML/CSS system stays the source of truth; adapters render **the same markup
 
 ## 8. Review checklist before marking done
 
-1. `ds.py coverage <dir>` shows the file's components as `[x]`.
-2. `ds.py check <dir>` has no token errors and no lint issues for this file.
+1. `ds coverage <dir>` shows the file's components as `[x]`.
+2. `ds check <dir>` has no token errors and no lint issues for this file.
 3. Toggle theme (light/dark/high-contrast), density, RTL on the page — nothing breaks, nothing illegible.
 4. Tab through the page: every interactive demo reachable, focus always visible.
 5. If a browser tool is available (`/webapp-testing`, Chrome MCP) screenshot it; if `/accesslint` is available, run `audit_html` on the page.

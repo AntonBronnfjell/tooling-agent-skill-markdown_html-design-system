@@ -54,7 +54,7 @@ for scope, items in by_scope.items():
     <section aria-labelledby="title">
       <h1 id="title">Scopes</h1>
       <p>Fleetline is a core-tier <code>product</code> system. The skill can build {total} components across
-        {len(by_scope)} scopes. Enable them with <code>ds.py init --scopes product,&lt;scope&gt;,…</code>; required scopes
+        {len(by_scope)} scopes. Enable them with <code>ds init --scopes product,&lt;scope&gt;,…</code>; required scopes
         are added automatically, and landing pages also need <code>marketing</code>. Generated from
         <a href="{REPO}/assets/manifest.json">assets/manifest.json</a>.</p>
       <table class="ds-table">

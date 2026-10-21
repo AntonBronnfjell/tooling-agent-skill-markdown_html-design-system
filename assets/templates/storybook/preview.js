@@ -1,4 +1,4 @@
-// Created by `ds.py storybook`; safe to edit (only --force overwrites it).
+// Created by `ds storybook`; safe to edit (only --force overwrites it).
 import '../dist/ds.css';
 import '../docs/docs.css'; // demo layout helpers (.ds-demo__row, .ds-demos)
 import { themes } from '../stories/_meta.js';

@@ -24,8 +24,8 @@ Hybrids are fine and common: *adopt* Carbon's structure + *new* brand palette. R
 
 Run these before deciding (Phase 0):
 
-- `python3 <skill-dir>/scripts/ds.py audit --url <site>` — the same inventory for a live website (page + stylesheets) with suggested DTCG primitive colors; use it when the brand lives on a marketing site rather than in the repo.
-- `python3 <skill-dir>/scripts/ds.py audit <repo>` — counts distinct colors, spacings, radii, fonts, custom properties, Tailwind classes, and component-named files.
+- `ds audit --url <site>` — the same inventory for a live website (page + stylesheets) with suggested DTCG primitive colors; use it when the brand lives on a marketing site rather than in the repo.
+- `ds audit <repo>` — counts distinct colors, spacings, radii, fonts, custom properties, Tailwind classes, and component-named files.
   - **< ~20 distinct colors and existing `--custom-properties`** → a system exists: *extend*.
   - **Hundreds of one-off hex values / px values** → no system: consolidate (extend with heavy cleanup) or *new*.
   - **Tailwind config / shadcn `components.json`** → extend; also emit a Tailwind adapter via `/ui-styling`.
@@ -55,8 +55,8 @@ Borrow **structure and behavior** (inventory, states, ARIA, token tiers, naming)
    `python3 <ui-ux-pro-max>/scripts/search.py "<product type> <industry> <keywords>" --design-system -p "<Name>" -f markdown`
    Tune with `--variance/--motion/--density 1-10` (dense enterprise ≈ density 8, motion 3).
 2. Deep-dive any uncertain dimension with `--domain color|typography|style|ux`.
-3. Translate the output into tokens (see `tokens.md` §4): generate the brand ramp with `ds.py palette <hex> --primary` and fluid scales with `ds.py scale`; palette → primitives, roles → semantic, fonts → `font.family`, style keywords → radius/shadow/motion choices.
-4. Sanity-check distinctiveness with `/frontend-design` guidance and `ds.py taste` if the result reads as a generic template (`references/taste.md`).
+3. Translate the output into tokens (see `tokens.md` §4): generate the brand ramp with `ds palette <hex> --primary` and fluid scales with `ds scale`; palette → primitives, roles → semantic, fonts → `font.family`, style keywords → radius/shadow/motion choices.
+4. Sanity-check distinctiveness with `/frontend-design` guidance and `ds taste` if the result reads as a generic template (`references/taste.md`).
 5. **Allocate the style** when the direction mixes looks (e.g. editorial serif + brutalist accents + calm UI): record in `direction.allocation` which surfaces each look *owns* and what it is *never used for*, plus a budget ("one expressive moment per screen"). Without this, the loudest style leaks into every form and table.
    ```json
    "allocation": [
@@ -76,7 +76,7 @@ Batch these into one AskUserQuestion round, max 4:
   - Public website → `marketing` (+46: hero, pricing, testimonials, FAQ, footer, landing/pricing/blog/legal pages)
   - Assistant, chat or agent features → `ai` (+29: conversation, streaming, tool calls, approvals, citations, AI label)
   - Store, marketplace or checkout → `commerce` (+31: product card, variant picker, cart, checkout, orders, reviews)
-  - Sends transactional or marketing email → `email` (+20: table-based templates rendered by `ds.py email`)
+  - Sends transactional or marketing email → `email` (+20: table-based templates rendered by `ds email`)
   - Other opt-in scopes (descriptions in SKILL.md Phase 1; `playback` is added automatically by media, reading and messaging; `live` adds `video`): `playback` (+11), `video` (+16), `live` (+12), `music` (+17), `podcast` (+12), `reading` (+21), `messaging` (+28), `billing` (+19), `analytics` (+17), `erp` (+16), `calendar` (+15), `maps` (+13), `social` (+17)
 - Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React/Vue/Svelte/Angular wrappers, web components, backend templates (Blade, Twig, Django/Jinja, ERB/ViewComponent, Thymeleaf, Razor), Figma variables — this also picks the workbench strategy in `storybook.md` §4
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support

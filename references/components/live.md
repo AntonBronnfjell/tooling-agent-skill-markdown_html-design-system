@@ -1,6 +1,6 @@
 # Live components & pages — specs
 
-Scope `live` (enable with `ds.py init --scopes product,live`; it adds `video` and `playback` automatically). Components live in `components/<file>.html` (category **Live**); full pages in `patterns/<file>.html` (category **Live Pages**). Live components compose `video-player`, the `playback` controls (play-toggle, volume-control, time-display, captions-menu, cast-button), `color.media.live`, and product components (button, badge, tabs, progress, popover menu, fieldset) — wrap them, never re-style or respecify them.
+Scope `live` (enable with `ds init --scopes product,live`; it adds `video` and `playback` automatically). Components live in `components/<file>.html` (category **Live**); full pages in `patterns/<file>.html` (category **Live Pages**). Live components compose `video-player`, the `playback` controls (play-toggle, volume-control, time-display, captions-menu, cast-button), `color.media.live`, and product components (button, badge, tabs, progress, popover menu, fieldset) — wrap them, never re-style or respecify them.
 
 ## Contents
 1. Rules for every live surface
