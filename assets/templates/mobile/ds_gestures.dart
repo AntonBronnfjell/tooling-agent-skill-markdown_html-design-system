@@ -3,6 +3,7 @@
 // Every gesture also has a non-drag path: long press + semantics actions for rows, buttons for sheets, pages and zoom.
 // No wrapper needed: collapsing-app-bar = CustomScrollView + SliverAppBar(pinned: true, expandedHeight: ...).
 import 'package:flutter/material.dart' show RefreshIndicator, showModalBottomSheet;
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter/widgets.dart';
 
 import 'ds_components.dart';
