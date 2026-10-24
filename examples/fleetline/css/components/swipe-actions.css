@@ -1,0 +1,126 @@
+/* swipe-actions.css — List row that reveals actions on a horizontal swipe. Block alias: .swipe-row
+   Markup:   <ul class="list-group swipe-list" role="list"> <li class="swipe-row" style="--_lead: 1; --_trail: 2">
+               <div class="swipe-row__track">
+                 <div class="swipe-row__actions swipe-row__actions--leading" inert> buttons </div>
+                 <div class="swipe-row__content"> .swipe-row__main (link + secondary) + "More actions" menu button </div>
+                 <div class="swipe-row__actions swipe-row__actions--trailing" inert> buttons, edge action last </div>
+               </div></li>
+   Behavior: CSS scroll snap does the swipe (momentum, RTL, rubber-banding). Snap points: content start (rest),
+             end of the trailing buttons (revealed), end of the trailing zone (full swipe). js/swipe-actions.js puts
+             each row at rest, toggles inert on hidden actions, keeps one row open and runs the edge action on a
+             full swipe. The same actions are always in the row's menu button (WCAG 2.5.7).
+   Parts:    .swipe-row__action (+ --primary | --danger), .swipe-row__link (stretched over the content), .swipe-row__menu
+   States:   real ones from scroll position (+ .is-full while a full swipe is armed). Docs-only freeze classes:
+             .is-revealed-trailing, .is-revealed-leading, .is-full-swipe, .is-focus-visible.
+   Tokens:   --size-swipe-action (each action's width), --size-touch-target (row height).
+   Pointer:  fine pointers (mouse, trackpad) don't scroll the row; they use the menu button. */
+@layer components {
+  .swipe-list { overflow: hidden; align-self: start; align-content: start; }
+
+  .swipe-row {
+    --_w: var(--size-swipe-action);
+    --_lead: 0;
+    --_trail: 0;
+    --_zone: 40cqi;
+    --_dir: -1;
+
+    position: relative;
+    container-type: inline-size;
+    list-style: none;
+  }
+  .swipe-row:dir(rtl) { --_dir: 1; }
+  .swipe-row + .swipe-row { border-block-start: var(--border-width-thin) solid var(--color-border-subtle); }
+
+  .swipe-row__track {
+    position: relative;
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .swipe-row__track::-webkit-scrollbar { display: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .swipe-row__track { overflow-x: hidden; }
+  }
+
+  .swipe-row__content {
+    position: relative;
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--size-touch-target);
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4) var(--space-2);
+    background: var(--color-elevation-surface-raised);
+    scroll-snap-align: start;
+    scroll-initial-target: nearest;
+  }
+  .swipe-row__main { display: grid; flex: 1; min-inline-size: 0; }
+  .swipe-row__link {
+    color: var(--color-text-default);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+  }
+  .swipe-row__link::after { content: ""; position: absolute; inset: 0; }
+  .swipe-row__link:focus-visible { outline: var(--focus-ring-width) solid transparent; }   /* the content box shows the ring */
+  .swipe-row__content:has(.swipe-row__link:focus-visible),
+  .swipe-row.is-focus-visible .swipe-row__content {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(-1 * var(--focus-ring-width));
+  }
+  .swipe-row__secondary { color: var(--color-text-muted); font-size: var(--typography-small-font-size); }
+  .swipe-row__menu { position: relative; z-index: var(--z-raised); flex-shrink: 0; }
+
+  .swipe-row__actions { display: flex; flex: none; }
+  .swipe-row__actions--leading { scroll-snap-align: start; }
+  .swipe-row__actions--trailing {
+    padding-inline-end: var(--_zone);
+    background: var(--color-action-primary-bg);
+    scroll-snap-align: end;
+  }
+  .swipe-row__actions--trailing:has(> .swipe-row__action--danger:last-child) { background: var(--color-action-danger-bg); }
+  .swipe-row__actions--trailing > :last-child { scroll-snap-align: end; }
+
+  .swipe-row__action {
+    display: grid;
+    place-items: center;
+    inline-size: var(--_w);
+    min-block-size: var(--size-touch-target);
+    padding-inline: var(--space-2);
+    border: 0;
+    background: var(--color-action-secondary-bg);
+    color: var(--color-action-secondary-fg);
+    font: inherit;
+    font-size: var(--typography-small-font-size);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+  }
+  .swipe-row__action--primary { background: var(--color-action-primary-bg); color: var(--color-action-primary-fg); }
+  .swipe-row__action--danger { background: var(--color-action-danger-bg); color: var(--color-action-danger-fg); }
+  .swipe-row__action:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+
+  /* Full swipe armed: the edge action's color covers the other actions; its label stays readable. */
+  .swipe-row.is-full .swipe-row__actions--trailing > :not(:last-child),
+  .swipe-row.is-full-swipe .swipe-row__actions--trailing > :not(:last-child) { visibility: hidden; }
+
+  /* Docs-only freezes: show a scroll position without scrolling (children shift, the track clips). */
+  .swipe-row:is(.is-revealed-trailing, .is-revealed-leading, .is-full-swipe, .is-focus-visible) .swipe-row__track {
+    overflow: hidden;
+    scroll-snap-type: none;   /* a snap container re-snaps even when it can't be scrolled by the user */
+  }
+  .swipe-row:is(.is-revealed-trailing, .is-revealed-leading, .is-full-swipe, .is-focus-visible) .swipe-row__content { scroll-initial-target: none; }
+  .swipe-row:is(.is-revealed-trailing, .is-revealed-leading, .is-full-swipe, .is-focus-visible) .swipe-row__track > * {
+    translate: calc(var(--_dir) * var(--_shift));
+  }
+  .swipe-row { --_shift: calc(var(--_lead) * var(--_w)); }
+  .swipe-row.is-revealed-trailing { --_shift: calc((var(--_lead) + var(--_trail)) * var(--_w)); }
+  .swipe-row.is-revealed-leading { --_shift: 0px; }
+  .swipe-row.is-full-swipe { --_shift: calc((var(--_lead) + var(--_trail)) * var(--_w) + var(--_zone)); }
+
+  @media (forced-colors: active) {
+    .swipe-row__action { border: var(--border-width-thin) solid ButtonText; }
+    .swipe-row__content:has(.swipe-row__link:focus-visible) { outline-color: Highlight; }
+  }
+}

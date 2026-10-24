@@ -2,7 +2,8 @@
   "name": "Fleetline",
   "tier": "core",
   "scopes": [
-    "product"
+    "product",
+    "mobile"
   ],
   "phase": "done",
   "gate": "block",

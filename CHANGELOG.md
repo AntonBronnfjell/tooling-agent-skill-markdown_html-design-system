@@ -6,10 +6,12 @@ All notable changes to this skill. Format: [Keep a Changelog](https://keepachang
 
 ### Added
 - **Snapshot tests for the gesture components** (mobile scope). They use the same `<file>--<demo>--<theme>` names as the web references, and cover the resting states the design system draws itself: `swipe-pager` and `zoomable-image` on all four targets; the `action-sheet` list on Compose, Flutter and React Native; the `swipe-actions` full-swipe background and the non-modal `detent-sheet` peek on Compose and Flutter. System-drawn sheets, dialogs and iOS swipe buttons are left to the platform. `FIDELITY.md` lists what each target covers.
+- **Fleetline example** turns on the `mobile` scope and builds its two core components, `swipe-actions` (scroll-snap rows, `js/swipe-actions.js`: rest position, `inert` sync, one open row, full swipe; LTR and RTL) and `action-sheet` (native dialog + invokers, no JS). `ds mobile spec` now renders their web references, so `ds mobile verify` compares the native `action-sheet` and `swipe-actions` snapshots against the web.
 - New reusable pieces the snapshots render: `DsSwipeBackground` and `DsActionList` (Compose, Flutter), `DsActionList` (React Native).
 
 ### Changed
 - SwiftUI `DSZoomableImage` takes any view: `DSZoomableImage(label:) { Image("photo").resizable().scaledToFit() }` (was `DSZoomableImage(_ image: Image, label:)`).
+- `references/components/mobile.md`: scroll-snap containers keep the default `touch-action` (the browser tells a horizontal swipe from a vertical scroll); per-axis `touch-action` is only for script-driven drags. The old advice (`pan-y` on the swipe row and pager) would have blocked the swipe.
 - Flutter non-modal `DsDetentSheet` sizes its peek from its own height, not the screen's, so it works inside any layout.
 
 ## [1.4.0] - 2026-10-23

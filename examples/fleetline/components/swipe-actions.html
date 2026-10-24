@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swipe actions — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline swipe actions: work order rows that reveal Mark done, Reassign and Delete on a swipe, built on CSS scroll snap, with the same actions in a menu button.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/icon.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/icon-button.css">
+  <link rel="stylesheet" href="../css/components/menu.css">
+  <link rel="stylesheet" href="../css/components/list-group.css">
+  <link rel="stylesheet" href="../css/components/swipe-actions.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+  <script type="module">import { init as menu } from "../js/menu.js"; import { init as swipe } from "../js/swipe-actions.js"; menu(); swipe();</script>
+</head>
+<body class="ds-docs">
+  <!-- Icon sprite: Lucide-style outline symbols (ISC). Referenced with <use href="#icon-…">. -->
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="icon-more-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  </svg>
+
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Swipe actions</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use swipe actions on the mechanics' tablet and phone lists, where a row's two or three most frequent actions save a trip into the work order: mark it done, reassign it, delete a duplicate.</p>
+      <ul>
+        <li><strong>Trailing swipe</strong> (toward the inline start) reveals up to three actions; the edge action is the one a full swipe runs.</li>
+        <li><strong>Leading swipe</strong> reveals one positive action (Mark done).</li>
+        <li><strong>Always</strong> put the same actions in the row's More actions menu. A swipe is a shortcut, never the only way (WCAG 2.5.7), and desktop dispatchers never swipe.</li>
+        <li><strong>Don't</strong> hide an action people need to discover (put it in the menu or on the detail page), or use a full swipe for something that can't be undone without an Undo toast.</li>
+      </ul>
+      <p>Content: one or two words per action, a verb ("Reassign", "Delete"). The destructive action says what it does in the menu ("Delete work order").</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Row — <code>&lt;li class="swipe-row"&gt;</code> with <code>--_lead</code> and <code>--_trail</code> action counts</li>
+        <li>Track — <code>.swipe-row__track</code>, the horizontal scroll-snap container</li>
+        <li>Leading actions — <code>.swipe-row__actions--leading</code>, <code>inert</code> until revealed</li>
+        <li>Content — <code>.swipe-row__content</code>: link (stretched over the row), secondary text and the More actions menu button</li>
+        <li>Trailing actions — <code>.swipe-row__actions--trailing</code>, edge action last; its color fills the full-swipe zone</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Revealed and full-swipe states are frozen with docs-only classes; the first demo is live on touch screens.</p>
+
+      <section id="swipe-actions" aria-labelledby="swipe-actions-h">
+        <h3 id="swipe-actions-h">Swipe actions</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:default">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-1-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-1-menu" commandfor="sw-1-menu" command="toggle-popover" style="anchor-name:--sw-1" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-1-menu" popover role="menu" aria-labelledby="sw-1-btn" style="position-anchor:--sw-1"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+              <li class="swipe-row" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4190 Tire rotation</a><span class="swipe-row__secondary">Truck TR-07 · Harbor Road</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-2-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-2-menu" commandfor="sw-2-menu" command="toggle-popover" style="anchor-name:--sw-2" aria-label="More actions for WO-4190 Tire rotation"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-2-menu" popover role="menu" aria-labelledby="sw-2-btn" style="position-anchor:--sw-2"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+              <li class="swipe-row" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4197 Coolant leak</a><span class="swipe-row__secondary">Van KX-224 · Eastgate</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-3-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-3-menu" commandfor="sw-3-menu" command="toggle-popover" style="anchor-name:--sw-3" aria-label="More actions for WO-4197 Coolant leak"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-3-menu" popover role="menu" aria-labelledby="sw-3-btn" style="position-anchor:--sw-3"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p>At rest only the content shows. On a touch screen swipe a row left for Reassign and Delete, right for Mark done; with a mouse or keyboard use the More actions button.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:revealed-trailing">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row is-revealed-trailing" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-t-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-t-menu" commandfor="sw-t-menu" command="toggle-popover" style="anchor-name:--sw-t" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-t-menu" popover role="menu" aria-labelledby="sw-t-btn" style="position-anchor:--sw-t"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p>Swiped toward the inline start: trailing actions are revealed and focusable. Tapping the content closes the row.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:revealed-leading">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row is-revealed-leading" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-l-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-l-menu" commandfor="sw-l-menu" command="toggle-popover" style="anchor-name:--sw-l" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-l-menu" popover role="menu" aria-labelledby="sw-l-btn" style="position-anchor:--sw-l"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p>Swiped toward the inline end: the leading action (Mark done) is revealed.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:full-swipe">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row is-full-swipe" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-f-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-f-menu" commandfor="sw-f-menu" command="toggle-popover" style="anchor-name:--sw-f" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-f-menu" popover role="menu" aria-labelledby="sw-f-btn" style="position-anchor:--sw-f"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p>Swiped past half the trailing zone: the edge action (Delete) covers the row and runs on release. The row is removed with an Undo toast.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="state:focus-visible">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row is-focus-visible" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-k-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-k-menu" commandfor="sw-k-menu" command="toggle-popover" style="anchor-name:--sw-k" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-k-menu" popover role="menu" aria-labelledby="sw-k-btn" style="position-anchor:--sw-k"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <p>Keyboard focus on the row's link: the ring sits inside the row so the next row doesn't cover it.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:menu-fallback">
+            <ul class="list-group swipe-list" role="list" aria-label="Work orders" style="max-inline-size: 24rem;">
+              <li class="swipe-row" style="--_lead: 1; --_trail: 2">
+                <div class="swipe-row__track">
+                  <div class="swipe-row__actions swipe-row__actions--leading" inert>
+                    <button type="button" class="swipe-row__action swipe-row__action--primary">Mark done</button>
+                  </div>
+                  <div class="swipe-row__content">
+                    <div class="swipe-row__main"><a class="swipe-row__link" href="#swipe-actions">WO-4182 Brake inspection</a><span class="swipe-row__secondary">Van KX-219 · Northside Depot</span></div>
+                    <button type="button" class="icon-btn swipe-row__menu" id="sw-m-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="sw-m-menu" commandfor="sw-m-menu" command="toggle-popover" style="anchor-name:--sw-m" aria-label="More actions for WO-4182 Brake inspection"><svg class="icon-btn__icon" aria-hidden="true" focusable="false"><use href="#icon-more-vertical"></use></svg></button>
+                    <div class="menu" id="sw-m-menu" popover role="menu" aria-labelledby="sw-m-btn" style="position-anchor:--sw-m"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div>
+                  </div>
+                  <div class="swipe-row__actions swipe-row__actions--trailing" inert>
+                    <button type="button" class="swipe-row__action">Reassign</button>
+                    <button type="button" class="swipe-row__action swipe-row__action--danger">Delete</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div inert><div class="menu menu--static" role="menu" aria-label="Actions for WO-4182 Brake inspection"><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-check"></use></svg><span class="menu__label">Mark done</span></button><button type="button" class="menu__item" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-users"></use></svg><span class="menu__label">Reassign</span></button><hr class="menu__separator" role="separator"><button type="button" class="menu__item menu__item--danger" role="menuitem"><svg class="menu__icon" aria-hidden="true" focusable="false"><use href="#icon-trash"></use></svg><span class="menu__label">Delete work order</span></button></div></div>
+            <p>The same actions in the row's menu button: the required non-swipe path, and the only one with a mouse.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;ul class="list-group swipe-list" role="list" aria-label="Work orders"&gt;
+  &lt;li class="swipe-row" style="--_lead: 1; --_trail: 2"&gt;
+    &lt;div class="swipe-row__track"&gt;
+      &lt;div class="swipe-row__actions swipe-row__actions--leading" inert&gt;
+        &lt;button type="button" class="swipe-row__action swipe-row__action--primary"&gt;Mark done&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="swipe-row__content"&gt;
+        &lt;div class="swipe-row__main"&gt;&lt;a class="swipe-row__link" href="/work-orders/4182"&gt;WO-4182 Brake inspection&lt;/a&gt;
+          &lt;span class="swipe-row__secondary"&gt;Van KX-219 · Northside Depot&lt;/span&gt;&lt;/div&gt;
+        &lt;button type="button" class="icon-btn swipe-row__menu" aria-haspopup="menu" aria-controls="wo-4182-menu"
+                commandfor="wo-4182-menu" command="toggle-popover" aria-label="More actions for WO-4182 Brake inspection"&gt;…&lt;/button&gt;
+        &lt;div class="menu" id="wo-4182-menu" popover role="menu"&gt;Mark done · Reassign · Delete work order&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="swipe-row__actions swipe-row__actions--trailing" inert&gt;
+        &lt;button type="button" class="swipe-row__action"&gt;Reassign&lt;/button&gt;
+        &lt;button type="button" class="swipe-row__action swipe-row__action--danger"&gt;Delete&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;script type="module"&gt;import { init } from "./js/swipe-actions.js"; init();&lt;/script&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.swipe-row</code></td><td>block</td><td>One row; <code>--_lead</code> / <code>--_trail</code> = number of leading / trailing actions</td></tr>
+          <tr><td><code>.swipe-row__action--primary | --danger</code></td><td>modifier</td><td>Action color; the trailing edge action (last) sets the full-swipe color</td></tr>
+          <tr><td><code>.swipe-list</code></td><td>modifier on <code>.list-group</code></td><td>Clips revealed actions to the list's rounded frame</td></tr>
+          <tr><td><code>js/swipe-actions.js</code> <code>init(root)</code></td><td>module</td><td>Rest position, <code>inert</code> sync, one open row, tap-to-close, full swipe (<code>.is-full</code>)</td></tr>
+          <tr><td><code>.is-revealed-trailing | -leading | .is-full-swipe | .is-focus-visible</code></td><td>docs-only class</td><td>Freeze a state for documentation and snapshots</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>Swipe for Reassign and Delete, and the same three actions in the row's menu.</p>
+          <figcaption><strong>Do</strong> mirror every swipe action in the menu, so mouse, keyboard and switch users get them too.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>Delete only by swiping, with no Undo.</p>
+          <figcaption><strong>Don't</strong> make a gesture the only path, or let a full swipe destroy data without Undo.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd></td><td>Row link, then the More actions button. Hidden swipe actions are <code>inert</code> and skipped</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on More actions</td><td>Opens the menu with the same actions (APG menu button)</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Pointer gestures and dragging (WCAG 2.5.1, 2.5.7): every swipe action is also a menu item reachable with one tap or click.</li>
+        <li>Pointer cancellation (2.5.2): nothing runs while swiping; a full swipe runs only when the row settles past the threshold, and moving back cancels it.</li>
+        <li>Names: action buttons have visible text; the menu button's name includes the row ("More actions for WO-4182 Brake inspection").</li>
+        <li>Deleting a row moves focus to the next row's link and announces "Work order deleted" with an Undo button in a toast.</li>
+        <li>Reduced motion: rows close without smooth scrolling. RTL: leading and trailing flip with the writing direction.</li>
+        <li>Forced colors: action buttons keep a <code>ButtonText</code> border; the focus ring uses <code>Highlight</code>.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--size-swipe-action</code></td><td>Width of each action (mobile scope token, same on native)</td></tr>
+          <tr><td><code>--size-touch-target</code></td><td>Minimum row and action height</td></tr>
+          <tr><td><code>--color-action-{primary|secondary|danger}-{bg|fg}</code></td><td>Action colors</td></tr>
+          <tr><td><code>--color-elevation-surface-raised</code></td><td>Row content surface</td></tr>
+          <tr><td><code>--color-border-subtle</code></td><td>Separator between rows</td></tr>
+          <tr><td><code>--focus-ring-width</code>, <code>--focus-ring-color</code></td><td>Inset focus ring</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

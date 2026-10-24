@@ -1,0 +1,109 @@
+/* action-sheet.css — Bottom-anchored list of actions for one item. Block alias: .action-sheet
+   Markup:   <dialog class="action-sheet" aria-labelledby="t" closedby="any"> opened by an invoker
+             <button commandfor="id" command="show-modal">; every item closes it with command="close". No JS.
+               .action-sheet__header (optional): .action-sheet__title + .action-sheet__message
+               .action-sheet__item (+ --danger) buttons, then <hr class="action-sheet__separator"> and .action-sheet__cancel
+   Layout:   anchored to the bottom edge below 40rem (full width, above the home indicator), centered card above.
+             One surface with start-aligned rows, the same shape as the native DsActionList, so snapshots compare.
+   States:   real ones via [open] / :modal. Docs-only freeze: .is-preview (renders an open sheet in the page flow).
+   Motion:   slides up on enter (base, enter easing), down on exit (fast, exit easing); base.css neutralizes it
+             under reduced motion. */
+@layer components {
+  .action-sheet {
+    inline-size: min(calc(var(--size-container-sm) * 0.75), 100% - 2 * var(--space-2));
+    max-inline-size: none;
+    margin: auto auto var(--space-2);
+    padding: 0;
+    padding-block: var(--space-2);
+    border: var(--border-width-thin) solid var(--color-border-default);
+    border-radius: var(--overlay-radius);
+    background: var(--color-elevation-surface-overlay);
+    color: var(--color-text-default);
+    box-shadow: var(--overlay-shadow);
+    flex-direction: column;
+    translate: 0 100%;
+    transition:
+      translate var(--motion-duration-fast) var(--motion-easing-exit),
+      overlay var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete,
+      display var(--motion-duration-fast) var(--motion-easing-exit) allow-discrete;
+  }
+  .action-sheet[open] {
+    display: flex;
+    translate: 0 0;
+    transition-duration: var(--motion-duration-base);
+    transition-timing-function: var(--motion-easing-enter);
+  }
+  @starting-style {
+    .action-sheet[open] { translate: 0 100%; }
+  }
+  .action-sheet::backdrop { background: var(--color-bg-overlay); }
+  @media (width < 40rem) {
+    .action-sheet {
+      inline-size: 100%;
+      margin: auto 0 0;
+      padding-block-end: max(var(--space-2), env(safe-area-inset-bottom));
+      border-end-start-radius: 0;
+      border-end-end-radius: 0;
+    }
+  }
+  @media (width >= 40rem) {
+    .action-sheet { margin: auto; translate: 0 var(--space-2); }
+    @starting-style {
+      .action-sheet[open] { translate: 0 var(--space-2); }
+    }
+  }
+
+  .action-sheet__header {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4);
+  }
+  .action-sheet__title,
+  .action-sheet__message {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--typography-small-font-size);
+  }
+  .action-sheet__title { font-weight: var(--font-weight-semibold); }
+
+  .action-sheet__item {
+    display: flex;
+    align-items: center;
+    min-block-size: var(--size-touch-target);
+    padding-inline: var(--space-4);
+    border: 0;
+    background: transparent;
+    color: var(--color-text-default);
+    font: inherit;
+    font-size: var(--typography-body-font-size);
+    text-align: start;
+    cursor: pointer;
+  }
+  .action-sheet__item:hover { background: var(--color-action-ghost-bg-hover); }
+  .action-sheet__item:focus-visible { outline-offset: calc(-1 * var(--focus-ring-width)); }
+  .action-sheet__item--danger { color: var(--color-feedback-danger-fg); }
+  .action-sheet__separator {
+    margin-block: var(--space-1);
+    border: 0;
+    border-block-start: var(--border-width-thin) solid var(--color-border-subtle);
+  }
+
+  /* Docs-only: show an open sheet inside a demo card instead of the top layer. */
+  .action-sheet.is-preview {
+    position: static;
+    inset: auto;
+    margin: 0;
+    inline-size: 100%;
+    max-inline-size: calc(var(--size-container-sm) * 0.75);
+    display: flex;
+    translate: none;
+    transition: none;
+  }
+
+  @media (forced-colors: active) {
+    .action-sheet { border: var(--border-width-thin) solid CanvasText; }
+    .action-sheet::backdrop { background: Canvas; opacity: 0.8; }
+    .action-sheet__item:focus-visible { outline-color: Highlight; }
+  }
+}

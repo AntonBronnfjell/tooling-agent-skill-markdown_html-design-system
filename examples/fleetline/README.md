@@ -4,7 +4,7 @@ Built with the [html-design-system](../../README.md) skill to show what it produ
 
 - **Live:** [docs site](https://antonbronnfjell.github.io/tooling-agent-skill-markdown_html-design-system/) · [Storybook](https://antonbronnfjell.github.io/tooling-agent-skill-markdown_html-design-system/storybook/)
 - **Direction:** a new, calm and functional look. The teal brand comes from `ds palette '#0f766e' --primary`, mapped by measured contrast in light, dark and high-contrast. Decisions are in `ds.config.json`; the contract is in `DESIGN.md`.
-- **Scope:** the core tier of app UI, 68 components and patterns, each with every state, a docs page, accessibility notes and its tokens.
+- **Scope:** the core tier of app UI (68 components and patterns) plus the `mobile` scope's core tier (swipe actions and action sheet, the web references for the native gesture snapshots), each with every state, a docs page, accessibility notes and its tokens.
 
 ```bash
 python3 ../../scripts/ds.py serve .          # docs site at http://127.0.0.1:8000

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Action sheet — Fleetline</title>
+  <meta name="ds-status" content="stable">
+  <meta name="description" content="Fleetline action sheet: a bottom-anchored list of actions for one work order on native dialog with invoker commands, with a title, a destructive action and Cancel.">
+  <link rel="stylesheet" href="../dist/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components/button.css">
+  <link rel="stylesheet" href="../css/components/action-sheet.css">
+  <link rel="stylesheet" href="../docs/docs.css">
+  <script src="../docs/docs.js" defer></script>
+</head>
+<body class="ds-docs">
+  <a class="sr-only sr-only--focusable" href="#main">Skip to content</a>
+  <header class="ds-docs__header">
+    <a href="../index.html">Fleetline</a>
+    <nav class="ds-docs__nav" aria-label="Utilities">
+      <button type="button" data-density-toggle aria-pressed="false">Compact</button>
+      <button type="button" data-dir-toggle aria-pressed="false">RTL</button>
+      <button type="button" data-motion-toggle aria-pressed="false">Reduce motion</button>
+      <button type="button" data-theme-toggle>Theme</button>
+    </nav>
+  </header>
+
+  <main id="main" class="ds-docs__main">
+    <h1>Action sheet</h1>
+
+    <section data-doc="usage" aria-labelledby="usage-h">
+      <h2 id="usage-h">Usage</h2>
+      <p>Use an action sheet on a phone or tablet when a mechanic picks one action for one item: a work order's Mark done, Reassign, Print. It opens from the item's More actions button or from a long press.</p>
+      <ul>
+        <li><strong>Action sheet</strong> — one-shot actions on one item, 2 to 6 of them, plus Cancel.</li>
+        <li><strong>Don't</strong> use it for navigation, toggles or settings (use a <a href="menu.html">menu</a>), for a form (use a <a href="modal.html">modal</a>), or to confirm a destructive action (use an alert dialog).</li>
+      </ul>
+      <p>Content: verb + object ("Reassign mechanic", "Delete work order"). The title is the item's name when the trigger doesn't say it. Cancel is always the last row.</p>
+    </section>
+
+    <section data-doc="anatomy" aria-labelledby="anatomy-h">
+      <h2 id="anatomy-h">Anatomy</h2>
+      <ol>
+        <li>Backdrop — <code>::backdrop</code> with <code>--color-bg-overlay</code></li>
+        <li>Container — <code>&lt;dialog class="action-sheet"&gt;</code> on the overlay surface, bottom edge on phones</li>
+        <li>Header (optional) — <code>.action-sheet__title</code> and <code>.action-sheet__message</code></li>
+        <li>Actions — <code>.action-sheet__item</code> buttons, <code>--danger</code> for destructive ones (last)</li>
+        <li>Cancel — after <code>.action-sheet__separator</code>, closes without acting</li>
+      </ol>
+    </section>
+
+    <section data-doc="examples" aria-labelledby="examples-h">
+      <h2 id="examples-h">Examples</h2>
+      <p>Open sheets are previewed in the page with the docs-only <code>.is-preview</code> class; every demo also has a real trigger that opens it in the top layer with <code>commandfor</code>/<code>command="show-modal"</code>, without JavaScript.</p>
+
+      <section id="action-sheet" aria-labelledby="action-sheet-h">
+        <h3 id="action-sheet-h">Action sheet</h3>
+        <div class="ds-demos">
+          <div class="ds-demo" data-demo="state:open">
+            <dialog open class="action-sheet is-preview" aria-label="Actions for WO-4182">
+              <button type="button" class="action-sheet__item">Mark done</button>
+              <button type="button" class="action-sheet__item">Reassign mechanic</button>
+              <button type="button" class="action-sheet__item">Print job sheet</button>
+              <hr class="action-sheet__separator">
+              <button type="button" class="action-sheet__item action-sheet__cancel">Cancel</button>
+            </dialog>
+            <p><button type="button" class="btn btn--secondary" commandfor="as-open" command="show-modal">Work order actions</button></p>
+            <p>Open: anchored to the bottom on phones (resize below 40rem), a centered card on wider screens.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:with-title">
+            <dialog open class="action-sheet is-preview" aria-labelledby="pv-title-title" aria-describedby="pv-title-msg">
+              <div class="action-sheet__header">
+                <h2 class="action-sheet__title" id="pv-title-title">WO-4182</h2>
+                <p class="action-sheet__message" id="pv-title-msg">Brake inspection · Van KX-219 · Northside Depot</p>
+              </div>
+              <button type="button" class="action-sheet__item">Mark done</button>
+              <button type="button" class="action-sheet__item">Reassign mechanic</button>
+              <button type="button" class="action-sheet__item">Print job sheet</button>
+              <hr class="action-sheet__separator">
+              <button type="button" class="action-sheet__item action-sheet__cancel">Cancel</button>
+            </dialog>
+            <p><button type="button" class="btn btn--secondary" commandfor="as-title" command="show-modal">With title</button></p>
+            <p>A title and message name the item the actions apply to when the trigger doesn't.</p>
+          </div>
+
+          <div class="ds-demo" data-demo="variant:destructive">
+            <dialog open class="action-sheet is-preview" aria-labelledby="pv-danger-title">
+              <div class="action-sheet__header">
+                <h2 class="action-sheet__title" id="pv-danger-title">WO-4182</h2>
+              </div>
+              <button type="button" class="action-sheet__item">Duplicate</button>
+              <button type="button" class="action-sheet__item">Print job sheet</button>
+              <button type="button" class="action-sheet__item action-sheet__item--danger">Delete work order</button>
+              <hr class="action-sheet__separator">
+              <button type="button" class="action-sheet__item action-sheet__cancel">Cancel</button>
+            </dialog>
+            <p><button type="button" class="btn btn--secondary" commandfor="as-danger" command="show-modal">With a destructive action</button></p>
+            <p>The destructive action is last, in danger text, and never focused first: focus starts on Cancel.</p>
+          </div>
+        </div>
+        <pre class="ds-code"><code>&lt;button type="button" class="icon-btn" commandfor="wo-actions" command="show-modal" aria-label="More actions for WO-4182"&gt;…&lt;/button&gt;
+
+&lt;dialog id="wo-actions" class="action-sheet" aria-labelledby="wo-actions-title" closedby="any"&gt;
+  &lt;div class="action-sheet__header"&gt;&lt;h2 class="action-sheet__title" id="wo-actions-title"&gt;WO-4182&lt;/h2&gt;&lt;/div&gt;
+  &lt;button type="button" class="action-sheet__item" commandfor="wo-actions" command="close"&gt;Duplicate&lt;/button&gt;
+  &lt;button type="button" class="action-sheet__item action-sheet__item--danger" commandfor="wo-actions" command="close"&gt;Delete work order&lt;/button&gt;
+  &lt;hr class="action-sheet__separator"&gt;
+  &lt;button type="button" class="action-sheet__item action-sheet__cancel" commandfor="wo-actions" command="close" autofocus&gt;Cancel&lt;/button&gt;
+&lt;/dialog&gt;</code></pre>
+      </section>
+    </section>
+
+    <section data-doc="api" aria-labelledby="api-h">
+      <h2 id="api-h">API</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Hook</th><th scope="col">Values</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>&lt;dialog class="action-sheet"&gt;</code></td><td>block</td><td>The sheet; open with <code>command="show-modal"</code></td></tr>
+          <tr><td><code>.action-sheet__item</code> (+ <code>--danger</code>)</td><td>part</td><td>One action; each closes the sheet with <code>command="close"</code></td></tr>
+          <tr><td><code>.action-sheet__header | __title | __message | __separator | __cancel</code></td><td>parts</td><td>See anatomy</td></tr>
+          <tr><td><code>closedby="any"</code></td><td>attribute</td><td>Backdrop tap closes it (no data is lost)</td></tr>
+          <tr><td><code>autofocus</code></td><td>attribute</td><td>On Cancel when a destructive action is present</td></tr>
+          <tr><td><code>.is-preview</code></td><td>docs-only class</td><td>Render an open sheet in the page flow</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section data-doc="dodont" aria-labelledby="dodont-h">
+      <h2 id="dodont-h">Do and don't</h2>
+      <div class="ds-dodont">
+        <figure class="ds-do">
+          <p>"Delete work order" last, in danger text, with focus starting on Cancel.</p>
+          <figcaption><strong>Do</strong> keep the destructive action last and out of the initial focus.</figcaption>
+        </figure>
+        <figure class="ds-dont">
+          <p>A sheet with "Settings", "Dark mode" and "Help".</p>
+          <figcaption><strong>Don't</strong> use an action sheet for navigation or toggles; that's a menu.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section data-doc="accessibility" aria-labelledby="a11y-h">
+      <h2 id="a11y-h">Accessibility</h2>
+      <table class="ds-table">
+        <caption class="sr-only">Keyboard interaction</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves between the actions and Cancel; the page behind is inert</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Runs the focused action and closes the sheet</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Closes without acting (same as Cancel)</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Role: native <code>&lt;dialog&gt;</code> opened with <code>showModal()</code> (via the invoker): top layer, inert background, Esc. Named by the title or by <code>aria-label</code>.</li>
+        <li>Focus: moves to the first action, or to Cancel (<code>autofocus</code>) when a destructive action is present. On close the browser returns focus to the trigger.</li>
+        <li>Targets: every row is at least <code>--size-touch-target</code> tall and full width.</li>
+        <li>Destructive actions are named in text ("Delete work order"), not by color alone (WCAG 1.4.1).</li>
+        <li>Reduced motion: the slide is removed by <code>base.css</code>. Forced colors: the sheet keeps a <code>CanvasText</code> border.</li>
+      </ul>
+    </section>
+
+    <section data-doc="tokens" aria-labelledby="tokens-h">
+      <h2 id="tokens-h">Tokens</h2>
+      <table class="ds-table">
+        <thead><tr><th scope="col">Custom property</th><th scope="col">Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>--color-elevation-surface-overlay</code></td><td>Sheet surface</td></tr>
+          <tr><td><code>--overlay-radius</code>, <code>--overlay-shadow</code></td><td>Corners and elevation</td></tr>
+          <tr><td><code>--color-bg-overlay</code></td><td>Backdrop scrim</td></tr>
+          <tr><td><code>--color-feedback-danger-fg</code></td><td>Destructive action text</td></tr>
+          <tr><td><code>--color-border-subtle</code></td><td>Separator above Cancel</td></tr>
+          <tr><td><code>--size-touch-target</code></td><td>Row height</td></tr>
+          <tr><td><code>--motion-duration-base | -fast</code>, <code>--motion-easing-enter | -exit</code></td><td>Slide in and out</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Real sheets, opened by the triggers above. -->
+  <dialog id="as-open" class="action-sheet" aria-label="Actions for WO-4182" closedby="any">
+    <button type="button" class="action-sheet__item" commandfor="as-open" command="close">Mark done</button>
+    <button type="button" class="action-sheet__item" commandfor="as-open" command="close">Reassign mechanic</button>
+    <button type="button" class="action-sheet__item" commandfor="as-open" command="close">Print job sheet</button>
+    <hr class="action-sheet__separator">
+    <button type="button" class="action-sheet__item action-sheet__cancel" commandfor="as-open" command="close">Cancel</button>
+  </dialog>
+
+  <dialog id="as-title" class="action-sheet" aria-labelledby="as-title-title" aria-describedby="as-title-msg" closedby="any">
+    <div class="action-sheet__header">
+      <h2 class="action-sheet__title" id="as-title-title">WO-4182</h2>
+      <p class="action-sheet__message" id="as-title-msg">Brake inspection · Van KX-219 · Northside Depot</p>
+    </div>
+    <button type="button" class="action-sheet__item" commandfor="as-title" command="close">Mark done</button>
+    <button type="button" class="action-sheet__item" commandfor="as-title" command="close">Reassign mechanic</button>
+    <button type="button" class="action-sheet__item" commandfor="as-title" command="close">Print job sheet</button>
+    <hr class="action-sheet__separator">
+    <button type="button" class="action-sheet__item action-sheet__cancel" commandfor="as-title" command="close">Cancel</button>
+  </dialog>
+
+  <dialog id="as-danger" class="action-sheet" aria-labelledby="as-danger-title" closedby="any">
+    <div class="action-sheet__header">
+      <h2 class="action-sheet__title" id="as-danger-title">WO-4182</h2>
+    </div>
+    <button type="button" class="action-sheet__item" commandfor="as-danger" command="close">Duplicate</button>
+    <button type="button" class="action-sheet__item" commandfor="as-danger" command="close">Print job sheet</button>
+    <button type="button" class="action-sheet__item action-sheet__item--danger" commandfor="as-danger" command="close">Delete work order</button>
+    <hr class="action-sheet__separator">
+    <button type="button" class="action-sheet__item action-sheet__cancel" commandfor="as-danger" command="close" autofocus>Cancel</button>
+  </dialog>
+</body>
+</html>
