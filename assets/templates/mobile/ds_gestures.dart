@@ -28,17 +28,6 @@ class DsSwipeActions extends StatelessWidget {
   final DsAction? leading;
   final Widget child;
 
-  Widget _background(BuildContext context, DsAction? a, AlignmentGeometry alignment) {
-    final c = DsTheme.of(context);
-    if (a == null) return const SizedBox.shrink();
-    return Container(
-      color: a.destructive ? @C(action.danger.bg) : @C(action.primary.bg),
-      alignment: alignment,
-      padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
-      child: Text(a.label, style: @T(body).copyWith(color: a.destructive ? @C(action.danger.fg) : @C(action.primary.fg))),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final all = [if (leading != null) leading!, ...trailing];
@@ -51,14 +40,35 @@ class DsSwipeActions extends StatelessWidget {
             : trailing.isEmpty
                 ? DismissDirection.startToEnd
                 : DismissDirection.horizontal,
-        background: _background(context, leading, AlignmentDirectional.centerStart),
-        secondaryBackground: _background(context, trailing.isEmpty ? null : trailing.first, AlignmentDirectional.centerEnd),
+        background: DsSwipeBackground(leading, alignment: AlignmentDirectional.centerStart),
+        secondaryBackground: DsSwipeBackground(trailing.isEmpty ? null : trailing.first, alignment: AlignmentDirectional.centerEnd),
         confirmDismiss: (direction) async {
           (direction == DismissDirection.startToEnd ? leading : trailing.first)?.onPressed();
           return false;
         },
         child: GestureDetector(onLongPress: () => showDsActionSheet(context, actions: all), child: child),
       ),
+    );
+  }
+}
+
+/// What a swipe reveals: the action's color and label filling the row (web: swipe-actions state:full-swipe).
+class DsSwipeBackground extends StatelessWidget {
+  const DsSwipeBackground(this.action, {super.key, this.alignment = AlignmentDirectional.centerEnd});
+
+  final DsAction? action;
+  final AlignmentGeometry alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = DsTheme.of(context);
+    final a = action;
+    if (a == null) return const SizedBox.shrink();
+    return Container(
+      color: a.destructive ? @C(action.danger.bg) : @C(action.primary.bg),
+      alignment: alignment,
+      padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
+      child: Text(a.label, style: @T(body).copyWith(color: a.destructive ? @C(action.danger.fg) : @C(action.primary.fg))),
     );
   }
 }
@@ -87,41 +97,55 @@ Future<void> showDsActionSheet(BuildContext context, {String? title, required Li
     backgroundColor: @C(surface.raised|card),
     showDragHandle: true,
     shape: _sheetShape(),
-    builder: (sheet) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (title != null)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
-              child: Text(title, style: @T(small).copyWith(color: @C(text.muted))),
-            ),
-          for (final a in [...actions, DsAction('Cancel', () {})])
-            Semantics(
-              button: true,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  Navigator.of(sheet).pop();
-                  a.onPressed();
-                },
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: DsDimension.androidTouchTarget),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(a.label, style: @T(body).copyWith(color: a.destructive ? @C(feedback.danger.fg) : @C(text.default))),
-                    ),
+    builder: (sheet) => SafeArea(child: DsActionList(title: title, actions: actions, onClose: () => Navigator.of(sheet).pop())),
+  );
+}
+
+/// The action sheet's content: optional title, the actions, then Cancel. Each row closes the sheet, then acts.
+class DsActionList extends StatelessWidget {
+  const DsActionList({super.key, this.title, required this.actions, required this.onClose});
+
+  final String? title;
+  final List<DsAction> actions;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = DsTheme.of(context);
+    final t = title;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (t != null)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
+            child: Text(t, style: @T(small).copyWith(color: @C(text.muted))),
+          ),
+        for (final a in [...actions, DsAction('Cancel', () {})])
+          Semantics(
+            button: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                onClose();
+                a.onPressed();
+              },
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: DsDimension.androidTouchTarget),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: DsDimension.space1 * 4),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(a.label, style: @T(body).copyWith(color: a.destructive ? @C(feedback.danger.fg) : @C(text.default))),
                   ),
                 ),
               ),
             ),
-        ],
-      ),
-    ),
-  );
+          ),
+      ],
+    );
+  }
 }
 
 /// detent-sheet (modal) — web: components/detent-sheet.html. Snaps to peek (size.sheet.peek), half and full; dragging
@@ -170,9 +194,10 @@ class _DsDetentSheetState extends State<DsDetentSheet> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) => _sheet(context, (DsDimension.sizeSheetPeek / box.maxHeight).clamp(0.05, 0.45)));
+
+  Widget _sheet(BuildContext context, double peek) {
     final c = DsTheme.of(context);
-    final peek = DsDimension.sizeSheetPeek / MediaQuery.sizeOf(context).height;
     return DraggableScrollableSheet(
       controller: _controller,
       snap: true,

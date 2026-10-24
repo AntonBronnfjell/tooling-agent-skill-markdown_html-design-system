@@ -94,16 +94,7 @@ fun DsSwipeActionsRow(
         enableDismissFromEndToStart = trailing.isNotEmpty(),
         backgroundContent = {
             val toStart = state.dismissDirection == SwipeToDismissBoxValue.EndToStart
-            val a = if (toStart) trailing.firstOrNull() else leading
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(if (a?.destructive == true) @C(action.danger.bg) else @C(action.primary.bg))
-                    .padding(horizontal = (DsDimension.space1 * 4).dp),
-                contentAlignment = if (toStart) Alignment.CenterEnd else Alignment.CenterStart,
-            ) {
-                if (a != null) BasicText(a.label, style = @T(body).copy(color = if (a.destructive) @C(action.danger.fg) else @C(action.primary.fg)))
-            }
+            DsSwipeBackground(if (toStart) trailing.firstOrNull() else leading, toStart)
         },
     ) {
         Box(Modifier.fillMaxWidth().background(@C(surface.raised|card)).combinedClickable(onClick = onClick, onLongClick = { menuOpen = true })) {
@@ -111,6 +102,20 @@ fun DsSwipeActionsRow(
         }
     }
     if (menuOpen) DsActionSheet(title = null, actions = all, onDismiss = { menuOpen = false })
+}
+
+/** What a swipe reveals: the action's color and label filling the row (web: swipe-actions state:full-swipe). */
+@Composable
+fun DsSwipeBackground(action: DsAction?, toStart: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .background(if (action?.destructive == true) @C(action.danger.bg) else @C(action.primary.bg))
+            .padding(horizontal = (DsDimension.space1 * 4).dp),
+        contentAlignment = if (toStart) Alignment.CenterEnd else Alignment.CenterStart,
+    ) {
+        if (action != null) BasicText(action.label, style = @T(body).copy(color = if (action.destructive) @C(action.danger.fg) else @C(action.primary.fg)))
+    }
 }
 
 /** pull-to-refresh — web: components/pull-to-refresh.html. Also offer a Refresh button in the top bar. */
@@ -144,22 +149,26 @@ fun DsActionSheet(title: String?, actions: List<DsAction>, onDismiss: () -> Unit
         containerColor = @C(surface.raised|card),
         shape = RoundedCornerShape(topStart = @D(card.radius).dp, topEnd = @D(card.radius).dp),
         dragHandle = { BottomSheetDefaults.DragHandle(color = @C(border.default)) },
-    ) {
-        Column(Modifier.fillMaxWidth().padding(bottom = (DsDimension.space1 * 4).dp)) {
-            if (title != null) {
-                BasicText(title, Modifier.padding(horizontal = (DsDimension.space1 * 4).dp), style = @T(small).copy(color = @C(text.muted)))
-            }
-            (actions + DsAction("Cancel") {}).forEach { a ->
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .defaultMinSize(minHeight = DsDimension.androidTouchTarget.dp)
-                        .clickable { onDismiss(); a.onClick() }
-                        .padding(horizontal = (DsDimension.space1 * 4).dp),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    BasicText(a.label, style = @T(body).copy(color = if (a.destructive) @C(feedback.danger.fg) else @C(text.default)))
-                }
+    ) { DsActionList(title, actions, onDismiss) }
+}
+
+/** The action sheet's content: optional title, the actions, then Cancel. Each row closes the sheet, then acts. */
+@Composable
+fun DsActionList(title: String?, actions: List<DsAction>, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().padding(bottom = (DsDimension.space1 * 4).dp)) {
+        if (title != null) {
+            BasicText(title, Modifier.padding(horizontal = (DsDimension.space1 * 4).dp), style = @T(small).copy(color = @C(text.muted)))
+        }
+        (actions + DsAction("Cancel") {}).forEach { a ->
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = DsDimension.androidTouchTarget.dp)
+                    .clickable { onDismiss(); a.onClick() }
+                    .padding(horizontal = (DsDimension.space1 * 4).dp),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                BasicText(a.label, style = @T(body).copy(color = if (a.destructive) @C(feedback.danger.fg) else @C(text.default)))
             }
         }
     }

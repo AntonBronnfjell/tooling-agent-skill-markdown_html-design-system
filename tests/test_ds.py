@@ -444,6 +444,7 @@ class TestMobile(Temp):
         self.assertIn("0 issue(s)", run("mobile", "lint", m).stdout)
         self.assertIn("Color(0xFF", (m / "compose" / "DsTheme.kt").read_text(encoding="utf-8"))
         self.assertFalse((m / "swiftui" / "DSGestures.swift").exists())   # gestures only with the mobile scope
+        self.assertNotIn("swipe-pager", (m / "swiftui" / "Tests" / "DSSnapshotTests.swift").read_text(encoding="utf-8"))
 
     def test_mobile_scope_gestures(self):
         root = self.tmp / "mob"
@@ -459,6 +460,17 @@ class TestMobile(Temp):
             self.assertIn(api, text, rel)
             self.assertNotRegex(text, r"@[CDWTE]\(|MISSING_|@PKG|@HEAD", rel)
         self.assertIn("Gestures (mobile scope)", (m / "swiftui" / "FIDELITY.md").read_text(encoding="utf-8"))
+        # Snapshot tests cover the gesture states each target draws itself, named like the web references.
+        for rel, names in (("swiftui/Tests/DSSnapshotTests.swift", ("swipe-pager--state_default--light", "zoomable-image--variant_with-controls--dark")),
+                           ("compose/test/DsSnapshotTest.kt", ("swipe-actions--state_full-swipe--light", "action-sheet--state_open--light",
+                                                               "detent-sheet--state_peek--dark", "swipe-pager--state_default--light")),
+                           ("flutter/test/ds_golden_test.dart", ("swipe-actions--state_full-swipe--light", "detent-sheet--state_peek--light",
+                                                                 "zoomable-image--variant_with-controls--light")),
+                           ("react-native/DsSnapshots.tsx", ("action-sheet--state_open--light", "swipe-pager--state_default--dark"))):
+            text = (m / rel).read_text(encoding="utf-8")
+            for n in names:
+                self.assertIn(n, text, rel)
+        self.assertNotIn("detent-sheet", (m / "swiftui" / "Tests" / "DSSnapshotTests.swift").read_text(encoding="utf-8"))
         self.assertIn("0 issue(s)", run("mobile", "lint", m, "--strict").stdout)
         self.assertIn("leadingDistribution: TextLeadingDistribution.even", (m / "flutter" / "ds_theme.dart").read_text(encoding="utf-8"))
 

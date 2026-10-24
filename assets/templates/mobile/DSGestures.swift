@@ -111,8 +111,8 @@ public struct DSPager<Page: View>: View {
 
 /// zoomable-image — web: components/zoomable-image.html. Pinch or double tap to zoom (1x–4x), drag to pan when zoomed,
 /// and Zoom out / Reset / Zoom in buttons as the non-gesture path.
-public struct DSZoomableImage: View {
-    private let image: Image
+public struct DSZoomableImage<Content: View>: View {
+    private let content: Content
     private let label: String
     @State private var scale: CGFloat = 1
     @State private var settledScale: CGFloat = 1
@@ -120,8 +120,9 @@ public struct DSZoomableImage: View {
     @State private var settledOffset: CGSize = .zero
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(_ image: Image, label: String) {
-        self.image = image
+    /// content: the picture, e.g. `Image("photo").resizable().scaledToFit()` or an AsyncImage.
+    public init(label: String, @ViewBuilder content: () -> Content) {
+        self.content = content()
         self.label = label
     }
 
@@ -135,9 +136,7 @@ public struct DSZoomableImage: View {
 
     public var body: some View {
         VStack(spacing: DSDimension.space1) {
-            image
-                .resizable()
-                .scaledToFit()
+            content
                 .accessibilityLabel(label)
                 .accessibilityValue("\(Int(scale * 100))%")
                 .scaleEffect(scale)

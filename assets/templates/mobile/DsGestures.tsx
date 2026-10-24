@@ -112,23 +112,30 @@ export function DsActionSheet({ visible, title, actions, onClose }: {
   actions: DsAction[];
   onClose: () => void;
 }) {
-  const colors = useDsColors();
   return (
     <SheetFrame visible={visible} onClose={onClose}>
-      <View style={{ paddingVertical: dimension.space1 * 2 }}>
-        {title ? <Text style={[typography.small, { color: @C(text.muted), paddingHorizontal: dimension.space1 * 4 }]}>{title}</Text> : null}
-        {[...actions, { label: 'Cancel', onPress: () => {} }].map((a: DsAction) => (
-          <Pressable
-            key={a.label}
-            accessibilityRole="button"
-            onPress={() => { onClose(); a.onPress(); }}
-            style={{ minHeight: dimension.androidTouchTarget, justifyContent: 'center', paddingHorizontal: dimension.space1 * 4 }}
-          >
-            <Text style={[typography.body, { color: a.destructive ? @C(feedback.danger.fg) : @C(text.default) }]}>{a.label}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <DsActionList title={title} actions={actions} onClose={onClose} />
     </SheetFrame>
+  );
+}
+
+/** The action sheet's content: optional title, the actions, then Cancel. Each row closes the sheet, then acts. */
+export function DsActionList({ title, actions, onClose }: { title?: string; actions: DsAction[]; onClose: () => void }) {
+  const colors = useDsColors();
+  return (
+    <View style={{ paddingVertical: dimension.space1 * 2 }}>
+      {title ? <Text style={[typography.small, { color: @C(text.muted), paddingHorizontal: dimension.space1 * 4 }]}>{title}</Text> : null}
+      {[...actions, { label: 'Cancel', onPress: () => {} }].map((a: DsAction) => (
+        <Pressable
+          key={a.label}
+          accessibilityRole="button"
+          onPress={() => { onClose(); a.onPress(); }}
+          style={{ minHeight: dimension.androidTouchTarget, justifyContent: 'center', paddingHorizontal: dimension.space1 * 4 }}
+        >
+          <Text style={[typography.body, { color: a.destructive ? @C(feedback.danger.fg) : @C(text.default) }]}>{a.label}</Text>
+        </Pressable>
+      ))}
+    </View>
   );
 }
 

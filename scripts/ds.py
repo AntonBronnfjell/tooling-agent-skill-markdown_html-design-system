@@ -3029,6 +3029,14 @@ SIZED_SNAPS = {"text-field", "card", "alert", "divider", "checkbox", "switch"}  
 SNAP_DEMOS = {"button": "variant:primary+state:default", "text-field": "state:default", "checkbox": "state:unchecked",
               "switch": "state:off", "card": "variant:basic", "badge": "variant:neutral", "alert": "variant:info",
               "avatar": "variant:initials", "tag": "variant:static", "divider": "variant:horizontal"}
+# mobile scope: resting states the design system draws itself (system-drawn sheets, dialogs and swipe chrome can't be
+# snapshotted inline). Each target snapshots the ones its gesture file renders; names match the web references.
+GESTURE_SNAP_DEMOS = {"swipe-actions": "state:full-swipe", "action-sheet": "state:open", "detent-sheet": "state:peek",
+                      "swipe-pager": "state:default", "zoomable-image": "variant:with-controls"}
+# Which targets draw each snapshotted gesture state themselves (matches the per-target snapshot view tables).
+GESTURE_SNAP_TARGETS = {"swipe-actions": ("compose", "flutter"), "action-sheet": ("compose", "flutter", "react-native"),
+                         "detent-sheet": ("compose", "flutter"), "swipe-pager": ("swiftui", "compose", "flutter", "react-native"),
+                         "zoomable-image": ("swiftui", "compose", "flutter", "react-native")}
 NUMBER_PROPS = {"fontWeight"}
 
 
@@ -3188,10 +3196,10 @@ class Emitter:
         return re.sub(r"@E\(([\w.|-]+)\)", lambda m: self.shadow(m.group(1)), text)
 
 
-def _snap_cases(components_spec):
+def _snap_cases(components_spec, gestures=False):
     """[(file, demo, theme, texts, width)] for the snapshot tests: same names and copy as the web references."""
     out = []
-    for file, demo in SNAP_DEMOS.items():
+    for file, demo in {**SNAP_DEMOS, **(GESTURE_SNAP_DEMOS if gestures else {})}.items():
         m = components_spec.get(file, {}).get(demo, {})
         for theme in (m or {"light": {}, "dark": {}}):
             box = m.get(theme) or {}
@@ -3216,7 +3224,7 @@ def _swift_str(s):
     return json.dumps(s, ensure_ascii=False)
 
 
-def gen_swiftui(tokens, recipes, components_spec, name):
+def gen_swiftui(tokens, recipes, components_spec, name, gestures=False):
     light_n, dark_n, hc_n = _themes_by_role(tokens)
     L, D, H = tokens[light_n], tokens[dark_n], tokens[hc_n]
     tri = lambda key, group="color": ", ".join("0x" + _rgba_hex(T[group].get(key, L[group][key])) for T in (L, D, H))
@@ -3274,7 +3282,7 @@ def gen_swiftui(tokens, recipes, components_spec, name):
     out += ["}", ""]
     em = Emitter(tokens, recipes, "swift")
     files = {"DSTheme.swift": "\n".join(out), "DSComponents.swift": em.fill(_tpl("DSComponents.swift").replace("@HEAD", HEAD.format(name=name)))}
-    files["Tests/DSSnapshotTests.swift"] = swift_snapshots(_snap_cases(components_spec), em)
+    files["Tests/DSSnapshotTests.swift"] = swift_snapshots(_snap_cases(components_spec, gestures), em)
     return files, em.missing
 
 
@@ -3290,15 +3298,24 @@ def swift_snapshots(cases, em):
                 "alert": f"DSAlert({t(0, 'Title')}" + (f", message: {t(1, '')}" if len(texts) > 1 else "") + ", tone: .info)",
                 "avatar": f"DSAvatar({t(0, 'A B')})",
                 "tag": f"DSTag({t(0, 'Tag')})",
-                "divider": "DSDivider()"}[file]
+                "divider": "DSDivider()",
+                # gestures (mobile scope); swipe-actions, action-sheet and detent-sheet are drawn by the system on iOS
+                "swipe-pager": 'DSPager(selection: .constant(0), count: 3) { i in Text("Page \\(i + 1)").dsText(DSType.body) }'
+                               '.frame(width: 390, height: 160)',
+                "zoomable-image": f'DSZoomableImage(label: "Photo") {{ Rectangle().fill({em.color("bg.muted")}).frame(height: 160) }}'
+                                  '.frame(width: 390)'}.get(file)
     light_n, dark_n, hc_n = _themes_by_role(em.t)
-    rows = []
+    rows, gesture_rows = [], []
     for file, demo, theme, texts, width in cases:
         if theme not in (light_n, dark_n, hc_n):
             continue
+        if view(file, texts) is None:
+            continue
         frame = f".frame(width: {_lit(width)})" if width and file in SIZED_SNAPS else ""
         mode = "dark" if theme == dark_n and theme != light_n else "contrast" if theme == hc_n and theme != light_n else "light"
-        rows.append(f'        snap({view(file, texts)}{frame}, "{ref_name(file, demo, theme)[:-4]}", .{mode})')
+        (gesture_rows if file in GESTURE_SNAP_DEMOS else rows).append(
+            f'        snap({view(file, texts)}{frame}, "{ref_name(file, demo, theme)[:-4]}", .{mode})')
+    gesture_test = (f"\n    func testGestureComponents() {{\n{chr(10).join(gesture_rows)}\n    }}\n" if gesture_rows else "")
     return f"""// {HEAD.format(name='this')}
 // Snapshot names match dist/mobile/reference/<file>--<demo>--<theme>.png, rendered at @3x like the references.
 // Setup: add https://github.com/pointfreeco/swift-snapshot-testing to the test target and `@testable import` your app.
@@ -3324,7 +3341,7 @@ final class DSSnapshotTests: XCTestCase {{
     func testCoreComponents() {{
 {chr(10).join(rows)}
     }}
-}}
+{gesture_test}}}
 """
 
 
@@ -3339,7 +3356,7 @@ def _theme_ident(name):
 
 
 
-def gen_compose(tokens, recipes, components_spec, name, pkg):
+def gen_compose(tokens, recipes, components_spec, name, pkg, gestures=False):
     L = tokens["light"]
     keys = list(L["color"])
     head = f"// {HEAD.format(name=name)}\n// 1 CSS px = 1 dp. Text sizes are sp, so they follow the user's font scale.\npackage {pkg}\n\n"
@@ -3383,7 +3400,7 @@ def gen_compose(tokens, recipes, components_spec, name, pkg):
     em = Emitter(tokens, recipes, "kotlin")
     files = {"DsTheme.kt": "\n".join(out),
              "DsComponents.kt": em.fill(_tpl("DsComponents.kt").replace("@HEAD", HEAD.format(name=name)).replace("@PKG", pkg))}
-    files["test/DsSnapshotTest.kt"] = compose_snapshots(_snap_cases(components_spec), pkg, tokens)
+    files["test/DsSnapshotTest.kt"] = compose_snapshots(_snap_cases(components_spec, gestures), pkg, tokens)
     return files, em.missing
 
 
@@ -3399,8 +3416,20 @@ def compose_snapshots(cases, pkg, tokens):
                 "alert": f"DsAlert({t(0, 'Title')}" + (f", message = {t(1, '')})" if len(texts) > 1 else ")"),
                 "avatar": f"DsAvatar({t(0, 'A B')})",
                 "tag": f"DsTag({t(0, 'Tag')})",
-                "divider": "DsDivider()"}[file]
+                "divider": "DsDivider()",
+                # gestures (mobile scope)
+                "swipe-actions": 'Box(Modifier.size(390.dp, 56.dp)) { DsSwipeBackground(DsAction("Delete", destructive = true) {}, toStart = true) }',
+                "action-sheet": 'Box(Modifier.width(390.dp)) { DsActionList("Conversation", listOf(DsAction("Archive") {}, '
+                                'DsAction("Delete", destructive = true) {}), onDismiss = {}) }',
+                "detent-sheet": 'Box(Modifier.size(390.dp, 320.dp)) { DsDetentSheet(modal = false, onDismiss = {}, '
+                                'sheet = { BasicText("Sheet content", style = DsType.body) }) }',
+                "swipe-pager": 'Box(Modifier.size(390.dp, 160.dp)) { DsPager(3) { BasicText("Page ${it + 1}", style = DsType.body) } }',
+                "zoomable-image": f'DsZoomableImage("Photo", Modifier.width(390.dp)) {{ Box(Modifier.fillMaxWidth().height(160.dp)'
+                                  f'.background({Emitter(tokens, {}, "kotlin").color("bg.muted")})) }}'}[file]
     tests = []
+    gestures = any(c[0] in GESTURE_SNAP_DEMOS for c in cases)
+    extra = ("import androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.fillMaxWidth\n"
+             "import androidx.compose.foundation.layout.height\nimport androidx.compose.foundation.layout.size\n") if gestures else ""
     for file, demo, theme, texts, width in cases:
         if theme not in tokens:
             continue
@@ -3415,7 +3444,7 @@ def compose_snapshots(cases, pkg, tokens):
 // androidx.compose.ui:ui-test-junit4 and androidx.test.ext:junit; set unitTests.isIncludeAndroidResources = true.
 package {pkg}
 
-import androidx.compose.foundation.layout.Box
+{extra}import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -3463,7 +3492,7 @@ def _flutter_blur(css_blur):
     return max(0.0, (css_blur / 2 - 0.5) / 0.57735) if css_blur > 1 else css_blur
 
 
-def gen_flutter(tokens, recipes, components_spec, name):
+def gen_flutter(tokens, recipes, components_spec, name, gestures=False):
     L = tokens["light"]
     keys = list(L["color"])
     first, dark_n, _ = _themes_by_role(tokens)
@@ -3502,7 +3531,7 @@ def gen_flutter(tokens, recipes, components_spec, name):
     out += ["}", ""]
     em = Emitter(tokens, recipes, "dart")
     files = {"ds_theme.dart": "\n".join(out), "ds_components.dart": em.fill(_tpl("ds_components.dart").replace("@HEAD", HEAD.format(name=name)))}
-    files["test/ds_golden_test.dart"] = flutter_goldens(_snap_cases(components_spec), tokens)
+    files["test/ds_golden_test.dart"] = flutter_goldens(_snap_cases(components_spec, gestures), tokens)
     return files, em.missing
 
 
@@ -3518,8 +3547,20 @@ def flutter_goldens(cases, tokens):
                 "alert": f"DsAlert({t(0, 'Title')}" + (f", message: {t(1, '')})" if len(texts) > 1 else ")"),
                 "avatar": f"DsAvatar({t(0, 'A B')})",
                 "tag": f"DsTag({t(0, 'Tag')})",
-                "divider": "const DsDivider()"}[file]
+                "divider": "const DsDivider()",
+                # gestures (mobile scope)
+                "swipe-actions": "SizedBox(width: 390, height: 56, child: DsSwipeBackground(DsAction('Delete', () {}, destructive: true)))",
+                "action-sheet": "SizedBox(width: 390, child: DsActionList(title: 'Conversation', actions: [DsAction('Archive', () {}), "
+                                "DsAction('Delete', () {}, destructive: true)], onClose: () {}))",
+                "detent-sheet": "SizedBox(width: 390, height: 320, child: Stack(children: [DsDetentSheet(builder: (context, scroll) => "
+                                "ListView(controller: scroll, children: [Text('Sheet content', style: DsType.body)]))]))",
+                "swipe-pager": "SizedBox(width: 390, height: 160, child: DsPager(count: 3, itemBuilder: (context, i) => "
+                               "Center(child: Text('Page ${i + 1}', style: DsType.body))))",
+                "zoomable-image": "SizedBox(width: 390, child: DsZoomableImage(label: 'Photo', image: Builder(builder: (context) => "
+                                  f"ColoredBox(color: DsTheme.of(context).{Emitter(tokens, {}, 'dart').color('bg.muted')[2:]}, "
+                                  "child: const SizedBox(height: 160)))))"}[file]
     rows = []
+    gestures = "import '../lib/ds/ds_gestures.dart';\n" if any(c[0] in GESTURE_SNAP_DEMOS for c in cases) else ""
     for file, demo, theme, texts, width in cases:
         if theme not in tokens:
             continue
@@ -3534,7 +3575,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../lib/ds/ds_components.dart'; // adjust to where the scaffold lives
-import '../lib/ds/ds_theme.dart';
+{gestures}import '../lib/ds/ds_theme.dart';
 
 Future<void> snap(WidgetTester tester, String name, String theme, Widget child, {{double? width}}) async {{
   DsConfig.expandTapTargets = false;
@@ -3567,7 +3608,7 @@ def _rn_hex(c):
     return "#" + _rgba_hex(c) if c[3] < 1 else "#" + _rgba_hex(c)[:6]
 
 
-def gen_react_native(tokens, recipes, components_spec, name):
+def gen_react_native(tokens, recipes, components_spec, name, gestures=False):
     L = tokens["light"]
     keys = list(L["color"])
     first, dark_n, _ = _themes_by_role(tokens)
@@ -3597,7 +3638,7 @@ def gen_react_native(tokens, recipes, components_spec, name):
     em = Emitter(tokens, recipes, "ts")
     comp = _tpl("DsComponents.tsx").replace("@HEAD", HEAD.format(name=name)).replace("@DARK", dark_n).replace("@LIGHT", first)
     files = {"theme.ts": "\n".join(out), "DsComponents.tsx": em.fill(comp)}
-    files["DsSnapshots.tsx"] = rn_snapshots(_snap_cases(components_spec), tokens)
+    files["DsSnapshots.tsx"] = rn_snapshots(_snap_cases(components_spec, gestures), tokens)
     return files, em.missing
 
 
@@ -3613,10 +3654,20 @@ def rn_snapshots(cases, tokens):
                 "alert": f"<DsAlert title={{{t(0, 'Title')}}}" + (f" message={{{t(1, '')}}}" if len(texts) > 1 else "") + " />",
                 "avatar": f"<DsAvatar name={{{t(0, 'A B')}}} />",
                 "tag": f"<DsTag text={{{t(0, 'Tag')}}} />",
-                "divider": "<DsDivider />"}[file]
+                "divider": "<DsDivider />",
+                # gestures (mobile scope); swipe rows and sheets are native windows or gestures with no resting look of their own
+                "action-sheet": "<View style={{ width: 390 }}><DsActionList title=\"Conversation\" actions={[{ label: 'Archive', onPress: () => {} }, "
+                                "{ label: 'Delete', onPress: () => {}, destructive: true }]} onClose={() => {}} /></View>",
+                "swipe-pager": "<View style={{ width: 390, height: 160 }}><DsPager count={3} renderPage={(i) => "
+                               "<Text style={typography.body}>{`Page ${i + 1}`}</Text>} /></View>",
+                "zoomable-image": "<View style={{ width: 390 }}><DsZoomableImage label=\"Photo\"><Swatch /></DsZoomableImage></View>"}.get(file)
     rows = []
+    gestures = any(c[0] in GESTURE_SNAP_DEMOS for c in cases)
+    swatch = Emitter(tokens, {}, "ts").color("bg.muted").split(".", 1)[1]
+    extra = ("import { DsActionList, DsPager, DsZoomableImage } from './DsGestures';\n\n"
+             f"function Swatch() {{\n  return <View style={{{{ height: 160, backgroundColor: useDsColors().{swatch} }}}} />;\n}}\n") if gestures else ""
     for file, demo, theme, texts, width in cases:
-        if theme not in tokens:
+        if theme not in tokens or view(file, texts) is None:
             continue
         w = _lit(width) if width and file in SIZED_SNAPS else "undefined"
         rows.append(f"  {{ name: '{ref_name(file, demo, theme)}', theme: '{theme}', width: {w}, node: {view(file, texts)} }},")
@@ -3626,9 +3677,9 @@ def rn_snapshots(cases, tokens):
 import React, {{ useRef }} from 'react';
 import {{ Button, ScrollView, Text, View }} from 'react-native';
 import {{ captureRef }} from 'react-native-view-shot';
-import {{ DsAlert, DsAvatar, DsBadge, DsButton, DsCard, DsCheckbox, DsDivider, DsSwitch, DsTag, DsTextField, DsThemeProvider }} from './DsComponents';
+import {{ DsAlert, DsAvatar, DsBadge, DsButton, DsCard, DsCheckbox, DsDivider, DsSwitch, DsTag, DsTextField, DsThemeProvider{', useDsColors' if gestures else ''} }} from './DsComponents';
 import {{ typography }} from './theme';
-
+{extra}
 const cases = [
 {chr(10).join(rows)}
 ];
@@ -3774,6 +3825,7 @@ def cmd_mobile_scaffold(a):
     recipes = calibrate(tokens, comps)
     targets = list(SCAFFOLD_GENERATORS) if a.target == "all" else a.target.split(",")
     icons = sprite_symbols(root)
+    mobile = "mobile" in expand_scopes(cfg.get("scopes") or ["product"])
     report = []
     for t in targets:
         if t not in SCAFFOLD_GENERATORS:
@@ -3781,18 +3833,18 @@ def cmd_mobile_scaffold(a):
         out = Path(a.out) / t if a.out and len(targets) > 1 else Path(a.out) if a.out else root / "dist" / "mobile" / t
         missing = []
         if t == "swiftui":
-            files, missing = gen_swiftui(tokens, recipes, comps, cfg["name"])
+            files, missing = gen_swiftui(tokens, recipes, comps, cfg["name"], gestures=mobile)
         elif t == "compose":
-            files, missing = gen_compose(tokens, recipes, comps, cfg["name"], a.package)
+            files, missing = gen_compose(tokens, recipes, comps, cfg["name"], a.package, gestures=mobile)
         elif t == "flutter":
-            files, missing = gen_flutter(tokens, recipes, comps, cfg["name"])
+            files, missing = gen_flutter(tokens, recipes, comps, cfg["name"], gestures=mobile)
         elif t == "react-native":
-            files, missing = gen_react_native(tokens, recipes, comps, cfg["name"])
+            files, missing = gen_react_native(tokens, recipes, comps, cfg["name"], gestures=mobile)
         elif t == "maui":
             files = gen_maui(tokens, cfg["name"])
         else:
             files = {"web-mobile.css": _tpl("web-mobile.css")}
-        if t in GESTURE_TEMPLATES and "mobile" in expand_scopes(cfg.get("scopes") or ["product"]):
+        if t in GESTURE_TEMPLATES and mobile:
             tpl, lang, builtins = GESTURE_TEMPLATES[t]
             em = Emitter(tokens, recipes, lang)
             files[tpl] = em.fill(_tpl(tpl).replace("@HEAD", HEAD.format(name=cfg["name"])).replace("@PKG", a.package))
@@ -3804,7 +3856,9 @@ def cmd_mobile_scaffold(a):
             if t in GESTURE_TEMPLATES and GESTURE_TEMPLATES[t][0] in files:
                 files["FIDELITY.md"] += (f"\n## Gestures (mobile scope)\n\n`{GESTURE_TEMPLATES[t][0]}` wraps the platform's own gesture "
                                          f"components with tokens: {GESTURE_TEMPLATES[t][2]}. Behavior (thresholds, momentum, haptics) is "
-                                         "the platform's; size.sheet.peek and size.swipe-action match the web. Spec: "
+                                         "the platform's; size.sheet.peek and size.swipe-action match the web. The snapshot tests cover the gesture "
+                                         "states this target draws itself (" + ", ".join(f for f, ts in GESTURE_SNAP_TARGETS.items() if t in ts) + "); "
+                                         "system-drawn sheets, dialogs and swipe chrome are the platform's look. Spec: "
                                          "references/components/mobile.md.\n")
         for rel, text in files.items():
             safe_write(out / rel, text)
