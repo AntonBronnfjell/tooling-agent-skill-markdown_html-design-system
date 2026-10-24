@@ -77,7 +77,7 @@ Batch these into one AskUserQuestion round, max 4:
   - Assistant, chat or agent features → `ai` (+29: conversation, streaming, tool calls, approvals, citations, AI label)
   - Store, marketplace or checkout → `commerce` (+31: product card, variant picker, cart, checkout, orders, reviews)
   - Sends transactional or marketing email → `email` (+20: table-based templates rendered by `ds email`)
-  - Other opt-in scopes (descriptions in SKILL.md Phase 1; `playback` is added automatically by media, reading and messaging; `live` adds `video`): `playback` (+11), `video` (+16), `live` (+12), `music` (+17), `podcast` (+12), `reading` (+21), `messaging` (+28), `billing` (+19), `analytics` (+17), `erp` (+16), `calendar` (+15), `maps` (+13), `social` (+17)
+  - Other opt-in scopes (descriptions in SKILL.md Phase 1; `playback` is added automatically by media, reading and messaging; `live` adds `video`): `playback` (+11), `video` (+16), `live` (+12), `music` (+17), `podcast` (+12), `reading` (+21), `messaging` (+28), `billing` (+19), `analytics` (+17), `erp` (+16), `calendar` (+15), `maps` (+13), `social` (+17), `mobile` (+7)
 - Delivery targets beyond HTML/CSS: Tailwind theme, shadcn theme, React/Vue/Svelte/Angular wrappers, web components, backend templates (Blade, Twig, Django/Jinja, ERB/ViewComponent, Thymeleaf, Razor), Figma variables — this also picks the workbench strategy in `storybook.md` §4
 - Constraints: a11y target (default WCAG 2.2 AA), RTL languages, dark mode required, density needs, browser support
 

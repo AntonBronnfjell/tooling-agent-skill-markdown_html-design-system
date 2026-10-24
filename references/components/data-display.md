@@ -103,6 +103,7 @@ Files added: `card-collection`, `sortable-list`, `board`, `formatters`, `comment
 - Handle: `<button aria-label="Reorder Item 3" aria-describedby="<instructions id>">`; instructions visually hidden. All announcements via the shared polite live region ("Item 3 moved to position 2 of 8").
 - `aria-grabbed`/`aria-dropeffect` are deprecated — don't use. Pointer: Pointer Events (not HTML5 DnD — no touch, poor a11y), auto-scroll near edges, placeholder with the item's height, drop indicator line ≥ 3:1.
 - Focus stays on the moved item's handle after a move. Respect reduced motion (no settle animation).
+- Touch: long press on the handle picks up (after a short delay, so scrolling still works); the handle has `touch-action: none`, the rest of the row keeps `pan-y`. Gesture rules: `references/components/mobile.md` §1.
 
 ## board (kanban, enterprise)
 - Columns are `<section aria-labelledby>` with an `<h2>` ("In progress, 4 items") and a `<ul>` of cards. Cards are cards (one primary link), plus a "Move to…" menu (column + position) — the required non-drag path. Optional keyboard grab mode as in sortable-list, with ←/→ changing column.

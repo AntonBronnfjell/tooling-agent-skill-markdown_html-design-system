@@ -51,6 +51,13 @@ The cure is **spec first, verify after**: the web system is measured into number
 | `prefers-reduced-motion` | `accessibilityReduceMotion` | animator duration scale | `disableAnimations` / `isReduceMotionEnabled` |
 | `prefers-color-scheme`, high contrast | trait collection (dark, Increase Contrast) | `isSystemInDarkTheme()` | `platformBrightness` / `useColorScheme` |
 | safe area | automatic | `WindowInsets` | `SafeArea` / `react-native-safe-area-context` |
+| `swipe-actions` (mobile scope) | `.swipeActions` + `.contextMenu` | `SwipeToDismissBox` + long press | `Dismissible` / `PanResponder` + `Animated` |
+| `pull-to-refresh` | `.refreshable` | `PullToRefreshBox` | `RefreshIndicator` / `RefreshControl` |
+| `detent-sheet` | `.sheet` + `.presentationDetents` | `ModalBottomSheet` / `BottomSheetScaffold` | `DraggableScrollableSheet` / `Modal` + `PanResponder` |
+| `action-sheet` | `.confirmationDialog` | `ModalBottomSheet` + list | `showModalBottomSheet` / `Modal` |
+| `swipe-pager` | `TabView(.page)` | `HorizontalPager` | `PageView` / `FlatList pagingEnabled` |
+| `zoomable-image` | `MagnificationGesture` + `DragGesture` | `Modifier.transformable` | `InteractiveViewer` / `ScrollView` zoom (iOS) |
+| `collapsing-app-bar` | large title in `NavigationStack` | `LargeTopAppBar` + `exitUntilCollapsedScrollBehavior` | `SliverAppBar` / `Animated` header |
 
 Record any other deliberate adaptation as an ADR in `ds.config.json → decisions`.
 
@@ -155,6 +162,8 @@ Fonts must be the real ones on both sides (bundle the DS fonts in the app and lo
 | `react-native` | `theme.ts`, `DsComponents.tsx`, `DsSnapshots.tsx` (dev capture screen), `icons/DsIcon.tsx` | react-native-svg; react-native-view-shot for capture; Expo works |
 | `maui` | `DsTokens.xaml` (colors light/dark, doubles, label styles) | resources only — build controls from the spec |
 | `web-mobile` | `web-mobile.css` (safe areas, 44 px targets on coarse pointers, 16 px inputs, no tap highlight) | load after `dist/ds.css` in Ionic/Capacitor/PWA |
+
+With the `mobile` scope on, the four code targets also get a gestures file (`DSGestures.swift`, `DsGestures.kt`, `ds_gestures.dart`, `DsGestures.tsx`): the platform's own gesture components from the table in §2, colored with tokens, using `size.sheet.peek` and `size.swipe-action`, and each with its non-drag path (long press and accessibility actions on rows, buttons for sheets, pages and zoom). Behavior (thresholds, momentum, haptics) stays the platform's; React Native uses core APIs only, so Android has no pinch until the app adds `react-native-gesture-handler`.
 
 UIKit and Android Views: use `ds export --target ios|android` (`references/adapters.md`) for colors and dimensions, and the spec for everything else.
 

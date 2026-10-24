@@ -15,7 +15,7 @@ All overlays use the browser **top layer** (`dialog.showModal()` / `popover`) so
 - `role="alertdialog"` on `<dialog>`; no light-dismiss; initial focus on the **least destructive** action (Cancel); title states the consequence ("Delete 3 projects?"), body explains irreversibility, destructive button names the action ("Delete projects"), not "OK".
 
 ## drawer & bottom-sheet
-- `<dialog>` positioned at inline-start/inline-end (bottom for sheet) with slide transition; modal variant (`showModal`) vs non-modal (`show()`, no backdrop, page stays interactive — e.g. filters panel). Width tokens; full-width on mobile. Bottom sheet: drag handle is decorative; always provide a close button; snap heights optional.
+- `<dialog>` positioned at inline-start/inline-end (bottom for sheet) with slide transition; modal variant (`showModal`) vs non-modal (`show()`, no backdrop, page stays interactive — e.g. filters panel). Width tokens; full-width on mobile. Bottom sheet: drag handle is decorative; always provide a close button. For a sheet that stays on screen at several snap heights with a working handle, use `detent-sheet` (mobile scope, `references/components/mobile.md`).
 
 ## popover
 - `[popover]` + `popovertarget` trigger with `aria-expanded` (set by JS or implied); positioned via CSS anchor positioning with flip fallbacks; optional arrow. Non-modal: Tab can leave it; light-dismiss is native for `popover=auto`. Interactive content allowed (unlike tooltips).

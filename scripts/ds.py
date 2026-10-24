@@ -3740,13 +3740,26 @@ def ensure_mobile_defaults(tokens):
     """Names the generated components rely on, filled from tokens or sane defaults (FIDELITY.md flags the gaps)."""
     for T in tokens.values():
         d, n = T["dimension"], T["number"]
-        for k, v in (("size.touch-target", 44), ("icon.size.sm", 16), ("icon.size.md", 20), ("space.1", 4)):
+        for k, v in (("size.touch-target", 44), ("icon.size.sm", 16), ("icon.size.md", 20), ("space.1", 4),
+                     ("size.sheet.peek", 96), ("size.swipe-action", 80)):
             d.setdefault(k, v)
         d.setdefault("icon.stroke", n.get("icon.stroke", 2))
         n.setdefault("opacity.disabled", 0.5)
         T["duration"].setdefault("motion.duration.fast", 120)
         T["easing"].setdefault("motion.easing.standard", [0.2, 0, 0, 1])
     return tokens
+
+
+# mobile scope: target -> (template, emitter language, platform built-ins it wraps)
+GESTURE_TEMPLATES = {
+    "swiftui": ("DSGestures.swift", "swift", ".swipeActions + .contextMenu, .confirmationDialog, .sheet + .presentationDetents, "
+                "TabView(.page), MagnificationGesture; .refreshable and large titles need no wrapper"),
+    "compose": ("DsGestures.kt", "kotlin", "SwipeToDismissBox, PullToRefreshBox, ModalBottomSheet / BottomSheetScaffold, "
+                "HorizontalPager, Modifier.transformable; LargeTopAppBar needs no wrapper"),
+    "flutter": ("ds_gestures.dart", "dart", "Dismissible, RefreshIndicator, showModalBottomSheet + DraggableScrollableSheet, "
+                "PageView, InteractiveViewer; SliverAppBar needs no wrapper"),
+    "react-native": ("DsGestures.tsx", "ts", "PanResponder + Animated, RefreshControl, Modal, FlatList pagingEnabled, ScrollView zoom (iOS); core only"),
+}
 
 
 def cmd_mobile_scaffold(a):
@@ -3779,10 +3792,20 @@ def cmd_mobile_scaffold(a):
             files = gen_maui(tokens, cfg["name"])
         else:
             files = {"web-mobile.css": _tpl("web-mobile.css")}
+        if t in GESTURE_TEMPLATES and "mobile" in expand_scopes(cfg.get("scopes") or ["product"]):
+            tpl, lang, builtins = GESTURE_TEMPLATES[t]
+            em = Emitter(tokens, recipes, lang)
+            files[tpl] = em.fill(_tpl(tpl).replace("@HEAD", HEAD.format(name=cfg["name"])).replace("@PKG", a.package))
+            missing += em.missing
         if icons and t in ICON_PLATFORMS:
             files.update({f"icons/{k}": v for k, v in platform_icons(icons, t, a.package).items()})
         if t not in ("maui", "web-mobile"):
             files["FIDELITY.md"] = fidelity_md(t, recipes, tokens, comps, missing, cfg["name"])
+            if t in GESTURE_TEMPLATES and GESTURE_TEMPLATES[t][0] in files:
+                files["FIDELITY.md"] += (f"\n## Gestures (mobile scope)\n\n`{GESTURE_TEMPLATES[t][0]}` wraps the platform's own gesture "
+                                         f"components with tokens: {GESTURE_TEMPLATES[t][2]}. Behavior (thresholds, momentum, haptics) is "
+                                         "the platform's; size.sheet.peek and size.swipe-action match the web. Spec: "
+                                         "references/components/mobile.md.\n")
         for rel, text in files.items():
             safe_write(out / rel, text)
         if a.out:

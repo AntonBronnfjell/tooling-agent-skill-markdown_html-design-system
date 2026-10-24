@@ -30,7 +30,8 @@
   "erp": "ERP / back-office UI: record header, line-item editor, status workflow, master-data lookup, approvals, audit log, inventory, print layouts, batch edit, import wizard; record list/form, PO, inventory, approvals, import pages",
   "calendar": "Calendar & scheduling UI: month/week/day/agenda views, event chip and editor, slot picker, recurrence, availability, time zones, resource scheduler; calendar/booking/availability/event pages",
   "maps": "Maps & location UI: accessible map container, markers, clusters, popups, controls, location search/picker, map-list sync, directions, area selection; store locator, map search, directions pages",
-  "social": "Social UI: profile header, follow, user rows, reactions, post composer, share sheet, stories, suggestions, report/block; profile/feed/post/followers/explore pages"
+  "social": "Social UI: profile header, follow, user rows, reactions, post composer, share sheet, stories, suggestions, report/block; profile/feed/post/followers/explore pages",
+  "mobile": "Touch-first app UI: swipe actions, action sheets, pull to refresh, draggable sheets with snap heights, swipe pages, collapsing app bar, pinch zoom (add for phone-first products or a mobile web app)"
  },
  "scope_requires": {
   "video": [
@@ -8322,6 +8323,122 @@
      "requires_scopes": [
       "marketing"
      ]
+    }
+   ]
+  },
+  {
+   "id": "mobile",
+   "name": "Mobile & Gestures",
+   "scope": "mobile",
+   "components": [
+    {
+     "id": "swipe-actions",
+     "name": "Swipe Actions (list row)",
+     "tier": "core",
+     "file": "swipe-actions",
+     "demos": [
+      "state:default",
+      "state:revealed-trailing",
+      "state:revealed-leading",
+      "state:full-swipe",
+      "state:focus-visible",
+      "variant:menu-fallback"
+     ],
+     "aria": "list + menu button",
+     "native": "li + scroll-snap row + button",
+     "desc": "Row that reveals actions on a horizontal swipe; the same actions are always in a More actions menu."
+    },
+    {
+     "id": "action-sheet",
+     "name": "Action Sheet",
+     "tier": "core",
+     "file": "action-sheet",
+     "demos": [
+      "state:open",
+      "variant:with-title",
+      "variant:destructive"
+     ],
+     "aria": "dialog",
+     "native": "dialog + button",
+     "desc": "Bottom-anchored list of actions for one item, with a separate Cancel."
+    },
+    {
+     "id": "pull-to-refresh",
+     "name": "Pull to Refresh",
+     "tier": "standard",
+     "file": "pull-to-refresh",
+     "demos": [
+      "state:idle",
+      "state:pulling",
+      "state:refreshing",
+      "state:done",
+      "variant:refresh-button"
+     ],
+     "aria": "status (live region)",
+     "native": "scroll container + button",
+     "desc": "Pull-down refresh for an inner scroll container, with a Refresh button and a polite status."
+    },
+    {
+     "id": "detent-sheet",
+     "name": "Draggable Sheet (snap heights)",
+     "tier": "standard",
+     "file": "detent-sheet",
+     "demos": [
+      "state:peek",
+      "state:half",
+      "state:full",
+      "state:dragging",
+      "state:focus-visible",
+      "variant:modal",
+      "variant:non-modal"
+     ],
+     "aria": "dialog",
+     "native": "dialog + scroll-snap",
+     "desc": "Sheet that snaps to peek, half and full heights; the handle is a button that cycles them."
+    },
+    {
+     "id": "swipe-pager",
+     "name": "Swipe Pager",
+     "tier": "standard",
+     "file": "swipe-pager",
+     "demos": [
+      "state:default",
+      "state:focus-visible",
+      "variant:with-tabs",
+      "variant:with-dots"
+     ],
+     "aria": "tabs",
+     "native": "div[role=tablist] + scroll-snap panels",
+     "desc": "Full-width panels swiped horizontally, kept in sync with tabs or dots."
+    },
+    {
+     "id": "collapsing-app-bar",
+     "name": "Collapsing App Bar",
+     "tier": "standard",
+     "file": "collapsing-app-bar",
+     "demos": [
+      "state:expanded",
+      "state:collapsed",
+      "variant:with-search"
+     ],
+     "aria": "banner",
+     "native": "header + scroll-driven animation",
+     "desc": "Large title that shrinks into a compact bar as the content scrolls."
+    },
+    {
+     "id": "zoomable-image",
+     "name": "Zoomable Image (pinch, pan)",
+     "tier": "enterprise",
+     "file": "zoomable-image",
+     "demos": [
+      "state:default",
+      "state:zoomed",
+      "state:focus-visible",
+      "variant:with-controls"
+     ],
+     "aria": "group",
+     "native": "figure + img + button",
+     "desc": "Image that zooms by pinch or double tap and pans when zoomed, with Zoom in, Zoom out and Reset buttons."
     }
    ]
   }

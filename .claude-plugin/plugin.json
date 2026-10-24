@@ -3,7 +3,7 @@
   "name": "html-design-system",
   "displayName": "HTML Design System",
   "version": "1.3.1",
-  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 532 components, Storybook, DESIGN.md, MCP server, npm package and CI. Ports it to SwiftUI, Compose, Flutter and React Native from a measured spec, and builds icon sets.",
+  "description": "Decides which design system to build, then builds and verifies a complete, accessible HTML/CSS design system: DTCG tokens, up to 539 components, Storybook, DESIGN.md, MCP server, npm package and CI. Ports it to SwiftUI, Compose, Flutter and React Native from a measured spec, and builds icon sets.",
   "author": {
     "name": "Antonio Escalante",
     "url": "https://github.com/AntonBronnfjell"

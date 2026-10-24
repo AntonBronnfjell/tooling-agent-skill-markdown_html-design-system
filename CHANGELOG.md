@@ -2,6 +2,17 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [Unreleased]
+
+### Added
+- **`mobile` scope** (opt-in, `ds init --scopes product,mobile`): 7 touch and drag components in a new **Mobile & Gestures** category. `swipe-actions` and `action-sheet` (core); `pull-to-refresh`, `detent-sheet` (snap heights with a working handle), `swipe-pager` and `collapsing-app-bar` (standard); `zoomable-image` (enterprise). Manifest now has 539 components, 42 categories and 19 scopes. Specs in `references/components/mobile.md`, including a **gesture contract** for every scope: a visible non-drag path for each gesture (WCAG 2.5.1, 2.5.7), act on release, scroll snap before script, `touch-action` per axis, keyboard parity, reduced motion, RTL.
+- **Scope tokens** `size.sheet.peek` (96 px) and `size.swipe-action` (80 px), shared by web CSS and the native scaffold.
+- **Native gesture wrappers:** with the `mobile` scope on, `ds mobile scaffold` also writes `DSGestures.swift`, `DsGestures.kt`, `ds_gestures.dart` and `DsGestures.tsx`. They wrap each platform's own components (`.swipeActions`, `.presentationDetents`, `SwipeToDismissBox`, `PullToRefreshBox`, `Dismissible`, `DraggableScrollableSheet`, `RefreshControl`, …) with tokens and a non-drag path. React Native uses core APIs only. `FIDELITY.md` lists what each file wraps; CI compiles them on all four targets.
+- `references/mobile.md`: the web-to-native table maps every gesture component to its platform built-in.
+
+### Changed
+- `bottom-sheet`, `sortable-list` and messaging swipe rows point to the new components and gesture rules (text only; no new demos for existing systems).
+
 ## [1.3.1] - 2026-10-21
 
 ### Changed

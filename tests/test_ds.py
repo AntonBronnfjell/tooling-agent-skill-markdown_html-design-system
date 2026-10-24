@@ -64,7 +64,7 @@ class TestManifest(unittest.TestCase):
             self.assertIn(k, m["scopes"])
             for r in reqs:
                 self.assertIn(r, m["scopes"], f"scope_requires[{k}] -> unknown {r}")
-        self.assertGreaterEqual(len(ids), 532)
+        self.assertGreaterEqual(len(ids), 539)
 
     def test_skill_frontmatter(self):
         s = (REPO / "SKILL.md").read_text(encoding="utf-8")
@@ -443,6 +443,23 @@ class TestMobile(Temp):
         # The generated components pass the bad-migration linter they ship with.
         self.assertIn("0 issue(s)", run("mobile", "lint", m).stdout)
         self.assertIn("Color(0xFF", (m / "compose" / "DsTheme.kt").read_text(encoding="utf-8"))
+        self.assertFalse((m / "swiftui" / "DSGestures.swift").exists())   # gestures only with the mobile scope
+
+    def test_mobile_scope_gestures(self):
+        root = self.tmp / "mob"
+        run("init", root, "--tier", "core", "--scopes", "product,mobile")
+        self.assertIn("--size-sheet-peek: 96px;", (root / "dist" / "tokens.css").read_text(encoding="utf-8"))
+        self.assertIn("mobile/swipe-actions", run("plan", root).stdout)
+        out = run("mobile", "scaffold", root, "--target", "all").stdout
+        self.assertNotIn("missing tokens", out)
+        m = root / "dist" / "mobile"
+        for rel, api in (("swiftui/DSGestures.swift", ".swipeActions"), ("compose/DsGestures.kt", "SwipeToDismissBox"),
+                         ("flutter/ds_gestures.dart", "Dismissible"), ("react-native/DsGestures.tsx", "RefreshControl")):
+            text = (m / rel).read_text(encoding="utf-8")
+            self.assertIn(api, text, rel)
+            self.assertNotRegex(text, r"@[CDWTE]\(|MISSING_|@PKG|@HEAD", rel)
+        self.assertIn("Gestures (mobile scope)", (m / "swiftui" / "FIDELITY.md").read_text(encoding="utf-8"))
+        self.assertIn("0 issue(s)", run("mobile", "lint", m, "--strict").stdout)
         self.assertIn("leadingDistribution: TextLeadingDistribution.even", (m / "flutter" / "ds_theme.dart").read_text(encoding="utf-8"))
 
     def test_calibrate_snaps_measurements_to_tokens(self):

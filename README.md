@@ -4,10 +4,10 @@
 
 **An agent skill that turns your AI coding assistant into a design-system team.**
 
-Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 532 components (app UI plus 17 opt-in scopes: **marketing**, **AI chat**, **commerce**, **email**, media (**video, live, music, podcast**), **reading**, **messaging**, **billing**, **analytics**, **ERP**, **calendar**, **maps** and **social**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project. Then it ports the system to **SwiftUI, Jetpack Compose, Flutter and React Native** from a measured spec, with snapshot checks against the web, and builds a consistent **icon set**.
+Decides *which* design system your product needs, then builds a *complete* one: DTCG tokens, up to 539 components (app UI plus 18 opt-in scopes: **marketing**, **AI chat**, **commerce**, **email**, media (**video, live, music, podcast**), **reading**, **messaging**, **billing**, **analytics**, **ERP**, **calendar**, **maps**, **social** and **mobile gestures**), every state, docs, Storybook, `DESIGN.md`, `llms.txt`, an MCP server, npm package and CI — safely inside your existing project. Then it ports the system to **SwiftUI, Jetpack Compose, Flutter and React Native** from a measured spec, with snapshot checks against the web, and builds a consistent **icon set**.
 
 [![Agent Skill](https://img.shields.io/badge/agent_skill-SKILL.md-7c3aed)](SKILL.md)
-[![Components](https://img.shields.io/badge/components-532-2563eb)](#component-coverage-532)
+[![Components](https://img.shields.io/badge/components-539-2563eb)](#component-coverage-539)
 [![WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG_2.2_AA-15803d)](references/component-contract.md)
 [![Design tokens](https://img.shields.io/badge/tokens-DTCG_2025.10-0891b2)](references/tokens.md)
 [![MCP](https://img.shields.io/badge/MCP-server-111827)](#agents-can-query-your-system)
@@ -58,7 +58,7 @@ Ask an AI to "build a design system" and you usually get a dozen pretty componen
 | Failure | How the skill prevents it |
 |---|---|
 | **Wrong direction**: the system doesn't fit the product, or ignores the design that already exists | An explicit decision phase. It inventories the existing code (`ds audit`, `/graphify`, Figma), then chooses to **extend** what exists, **adopt** a reference system (Carbon, Material 3, Fluent 2, Polaris, Atlassian, Spectrum, Primer, GOV.UK/USWDS, Radix/shadcn) or create a **new** direction (`/ui-ux-pro-max`). The choice is recorded as decision records and approved in plan mode before anything is built. |
-| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **532 components** (192 for app UI, plus 340 across 17 opt-in scopes: marketing, AI, commerce, email, playback, video, live, music, podcast, reading, messaging, billing, analytics, ERP, calendar, maps and social), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
+| **Holes**: missing components, states, themes or accessibility | A machine-readable manifest of **539 components** (192 for app UI, plus 347 across 18 opt-in scopes: marketing, AI, commerce, email, playback, video, live, music, podcast, reading, messaging, billing, analytics, ERP, calendar, maps, social and mobile), each listing the variants and states it must show. A CLI checks coverage, token validity, contrast in every theme and lint rules. Hooks re-check after every file the agent writes, and won't let it stop while the build is incomplete. |
 
 ## Quick start
 
@@ -84,7 +84,7 @@ flowchart LR
     A["🔍 Discover<br/>audit · graphify · Figma"] --> B["🧭 Decide<br/>extend · adopt · new"]
     B --> C["🎨 Tokens<br/>DTCG · themes · contrast"]
     C --> D["🗺️ Plan<br/>build queue · approval"]
-    D --> E["🧱 Build<br/>up to 532 components · subagents"]
+    D --> E["🧱 Build<br/>up to 539 components · subagents"]
     E --> F["✅ Verify<br/>check --strict · axe · keyboard"]
     F --> G["🚀 Ship<br/>DESIGN.md · Storybook · npm · CI"]
     G --> H["📱 Mobile<br/>spec · scaffold · verify"]
@@ -127,7 +127,7 @@ design-system/
 └── .ds-owned.json        ownership ledger: what ds created (it never overwrites anything else)
 ```
 
-### Component coverage (532)
+### Component coverage (539)
 
 **App UI (`product` scope, always on) — 192**
 
@@ -142,7 +142,7 @@ design-system/
 | Feedback | 12 | alerts, callout, toast, progress, meter, spinner, skeleton, result panel, notification center, notification permission prompt |
 | Patterns | 39 | app shell, form layout, dashboard, empty/error pages, auth, settings, list/detail, wizard, onboarding, feed, start page, question page, check answers, confirmation, task list, step-by-step, service unavailable, session timeout, exit quickly, address/name/phone/card entry, unsaved changes, create resource, delete with confirmation, saved filters, settings suite (profile, account, security, notifications, privacy, appearance, sessions, connected apps, data), notification inbox |
 
-**Opt-in scopes — 340**
+**Opt-in scopes — 347**
 
 | Scope | Count | Examples |
 |---|---|---|
@@ -163,6 +163,7 @@ design-system/
 | `calendar` | 15 | month, week, day and agenda views · calendar, booking, availability, event detail pages |
 | `maps` | 13 | map container, marker, popup, controls · store locator, map search, directions pages |
 | `social` | 17 | profile header, follow button, user row, reaction bar · profile, home feed, post detail, followers pages |
+| `mobile` | 7 | swipe actions, action sheet, pull to refresh, draggable sheet (snap heights), swipe pager, collapsing app bar, zoomable image · native gesture wrappers for SwiftUI, Compose, Flutter, React Native |
 
 > [!TIP]
 > **Tiers:** across app UI, **core** has 68 components (what every product needs), **standard** adds 78 and **enterprise** adds 46. Ask for "complete" and you get enterprise.
@@ -471,7 +472,7 @@ ds status                                # one-line state of the nearest design 
 ├── .claude-plugin/              plugin.json (7 commands, evals dir) + marketplace.json — Claude Code plugin
 ├── .cursor-plugin/ .codex-plugin/ .agents/plugins/   Cursor and Codex plugin manifests
 ├── assets/
-│   ├── manifest.json            532 components · 41 categories · 3 tiers · 18 scopes
+│   ├── manifest.json            539 components · 42 categories · 3 tiers · 19 scopes
 │   └── templates/               DTCG tokens + themes, config, base.css, theme.js, docs chrome, page template,
 │                                storybook/ (client: main, preview, render · server: main, preview, preview-head),
 │                                ci/ (GitHub Actions, GitLab CI), scopes/ (ai, playback, reading, messaging, maps, analytics token templates; email starter), mcp_server.py,
