@@ -38,8 +38,8 @@ A complete **core-tier** design system built with this skill, using its own work
 
 - **70/70 core components and patterns:** the 68 of app UI plus swipe actions and action sheet from the `mobile` scope, with every manifest variant and state, a docs page for each, and 16 progressive-enhancement JS modules.
 - **Passing checks:** `ds check --strict`, `ds taste --strict` (100/100), and Google's DESIGN.md linter (0 errors, 0 warnings).
-- **Accessibility:** axe and keyboard-focus checks pass on 211 of 212 page × theme combinations. The remaining one is an intermittent axe measurement on a static popover demo whose computed colors were verified correct.
-- **Storybook:** 311 stories.
+- **Accessibility:** axe-core 4.14.0 passes on all 165 page × theme combinations at desktop and phone size, and keyboard focus stays visible on all 55 pages (`ds playwright`).
+- **Storybook:** 320 stories.
 
 **[Open the live docs site →](https://antonbronnfjell.github.io/tooling-agent-skill-markdown_html-design-system/) · [Storybook →](https://antonbronnfjell.github.io/tooling-agent-skill-markdown_html-design-system/storybook/) · [Source](examples/fleetline)**
 

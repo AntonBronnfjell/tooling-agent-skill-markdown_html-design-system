@@ -23,8 +23,11 @@ for (const file of files) {
     for (const demo of await page.$$('.ds-demo[data-demo]')) {
       const marker = (await demo.getAttribute('data-demo')).trim().split(/\s+/).join('+');
       const target = await demo.evaluateHandle((d, block) => {
-        const row = d.querySelector('.ds-demo__row') || d;
-        const first = [...row.children].find((c) => !c.matches('.ds-demo__label, .sr-only, [role=status]')) || row;
+        const trig = d.querySelector('.ds-demo__row');
+        // A component shown beside a row of triggers (an open dialog preview, a static menu) is the one to measure.
+        const shown = trig && block && [...d.querySelectorAll(block)].find((e) => !trig.contains(e));
+        const row = trig || d;
+        const first = shown || [...row.children].find((c) => !c.matches('.ds-demo__label, .sr-only, [role=status]')) || row;
         // A wrapper (list, group) is not the component: descend to the block, unless it is a field wrapping a control.
         const el = block && !first.matches(block) && !first.querySelector('input,textarea,select') ? first.querySelector(block) || first : first;
         // Docs grids/flex columns stretch children. Inline-level components (badge, tag, button) are measured at their

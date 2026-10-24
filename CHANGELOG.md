@@ -2,6 +2,12 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
+## [Unreleased]
+
+### Fixed
+- `ds mobile spec` measured the trigger instead of the component in demos that show a component beside a row of triggers: open modals (sizes, scrolling, fullscreen, alert), open menus, the popover with an arrow and toasts (13 Fleetline demos). It now measures the component shown outside the trigger row; demos with only a trigger (e.g. `modal state:closed`) are unchanged.
+- Fleetline: the account menu button's name starts with its visible initials ("RM, Rosa Méndez, account menu"), as WCAG 2.5.3 label in name asks; axe-core 4.14.0 flagged it on `top-nav` and `app-shell`. README accessibility and Storybook numbers re-measured.
+
 ## [1.4.1] - 2026-10-23
 
 ### Added
