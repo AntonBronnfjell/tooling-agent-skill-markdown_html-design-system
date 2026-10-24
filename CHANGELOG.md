@@ -2,7 +2,7 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
-## [Unreleased]
+## [1.4.2] - 2026-10-24
 
 ### Fixed
 - `ds mobile spec` measured the trigger instead of the component in demos that show a component beside a row of triggers: open modals (sizes, scrolling, fullscreen, alert), open menus, the popover with an arrow and toasts (13 Fleetline demos). It now measures the component shown outside the trigger row; demos with only a trigger (e.g. `modal state:closed`) are unchanged.
