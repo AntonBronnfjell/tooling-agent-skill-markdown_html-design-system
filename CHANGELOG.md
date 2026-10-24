@@ -2,7 +2,7 @@
 
 All notable changes to this skill. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/). The version lives in `.claude-plugin/plugin.json` (and the Cursor/Codex manifests); plugin users only receive updates when it changes.
 
-## [Unreleased]
+## [1.4.1] - 2026-10-23
 
 ### Added
 - **Snapshot tests for the gesture components** (mobile scope). They use the same `<file>--<demo>--<theme>` names as the web references, and cover the resting states the design system draws itself: `swipe-pager` and `zoomable-image` on all four targets; the `action-sheet` list on Compose, Flutter and React Native; the `swipe-actions` full-swipe background and the non-modal `detent-sheet` peek on Compose and Flutter. System-drawn sheets, dialogs and iOS swipe buttons are left to the platform. `FIDELITY.md` lists what each target covers.
